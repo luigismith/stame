@@ -2,3 +2,4 @@
 *.inc text eol=crlf
 *.png binary
 *.wav binary
+*.pdf binary

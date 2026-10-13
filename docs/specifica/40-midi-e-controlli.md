@@ -416,6 +416,13 @@ Rispetto alla proposta della guida (§17.6) cambia una cosa: **B3** diventa il p
 
   Dal primo 0 in poi vale la mappa completa [D].
 
+- **MIDI-089** — **Banco dei pad.** La MPK ha **8 pad fisici**: BANK A/B cambia solo le note mandate, e l'host non vede il tasto BANK [O]. Quindi [D, 13/10/2026]:
+  - il profilo DEVE stimare il banco attivo dall'ultima nota di pad ricevuta (36–43 = A, 44–51 = B) e passarlo a `ui_model_t` come **stima**: «banco A», «banco B» o «sconosciuto» all'avvio. La plancia mostra la legenda dei pad di quel banco;
+  - quando arriva una nota del banco B mentre tasti accordo del banco A risultano premuti, il profilo DEVE emettere i loro `PNL_CHORD_UP` sintetici prima dell'evento del banco B. Così un cambio di banco con un pad tenuto non lascia un accordo appeso. Vale anche al contrario per i pulsanti del banco B (`PNL_ENC_UP`, PUSH rilasciato);
+  - un Note Off di pad senza il Note On corrispondente DEVE essere ignorato senza errori;
+  - cosa manda la MPK se si preme BANK con un pad tenuto (il Note Off ha la nota del banco vecchio o del nuovo?) va verificato [V VM-30]: se manda la nota del banco vecchio, la seconda regola diventa una semplice rete di sicurezza;
+  - ogni funzione del banco B DEVE avere anche una strada che non richiede di cambiare banco: trasporto, PUSH (B8 o X della Flip) + manopola, oppure fuoco e tasti della Flip. Le funzioni da usare mentre si suona (looper, beat, pressione delle manopole) DEVONO stare su comandi sempre disponibili: REC, STOP, PLAY e X.
+
 ### 8.6 Gesti degli encoder sulla MPK: il pad PUSH
 
 Le manopole della MPK non si premono. Il pad **B8** o il **tasto X della Flip** (decisione di Luigi: «per simulare la pressione delle manopole, dedica un tasto sulla flip») fa da "pressione" per l'encoder della manopola toccata subito dopo. B8 e X sono intercambiabili, e la stessa macchina a stati li tratta come un solo comando PUSH: è premuto se lo è almeno uno dei due.
@@ -585,6 +592,8 @@ typedef enum {
     PNL_SRC_CONNECTED, PNL_SRC_LOST /* a = src_t */
 } pnl_type_t;
 
+#define PNL_F_VERTICAL 0x80         /* in a, solo per PNL_ENC_TURN(ENC_FOCUS): scatto da un comando verticale (MIDI-105) */
+
 typedef enum { SRC_MPK, SRC_FLIP, SRC_COUNT } src_t;
 
 typedef struct {
@@ -664,6 +673,11 @@ PNL_ENC_UP(e):
   2. altrimenti il **fuoco del pannello**: un solo valore, condiviso da tutte le sorgenti, che parte da Sound. Lo cambiano `PNL_FOCUS_STEP` e la pressione di un encoder da qualunque sorgente (`PNL_ENC_DOWN(e)` con `e` ≠ `ENC_FOCUS` porta il fuoco su `e`). Così « », il joystick della MPK e la croce della Flip ruotano Bass, Loop e Options subito dopo averne premuto il pulsante.
 
   Lo schermo DEVE mostrare quale encoder ha il fuoco (resa in `30`).
+
+- **MIDI-105** — **Verso dei comandi verticali** [D, 13/10/2026]. Croce ▲▼ della Flip e joystick ▲▼ della MPK emettono `PNL_ENC_TURN(ENC_FOCUS | PNL_F_VERTICAL, ±1)` con su = +1. Il nucleo DEVE:
+  - con una lista o un menu aperto, invertire il segno: su = voce precedente, cioè più in alto sullo schermo (`30` UI-157);
+  - senza lista, usare il segno così com'è: su = valore più alto.
+  Le rotazioni vere (manopole, « », croce ◀▶) non portano il flag e seguono sempre la regola orario = successiva (`30` UI-074).
 
 ### 10.5 Esempio: dal byte al gesto
 
@@ -801,13 +815,14 @@ Per il principio di fedeltà queste opzioni esistono ma partono spente [D].
 | VM-27 | Latenza e jitter dal tasto alla `read()`; traffico con 4 manopole girate insieme (fino a ~240 msg/s ciascuna) | MIDI-004, budget in `50` |
 | VM-28 | Pad: velocity reale, Full Level, Note Off durante l'aftertouch | MIDI-080 |
 | VM-29 | Joystick: risoluzione, zona morta, valori a riposo | MIDI-082 |
+| VM-30 | Pad tenuto mentre si preme BANK: il Note Off ha la nota del banco vecchio o del nuovo? I colori dei pad si possono dare per banco? | MIDI-089 |
 
 ### Decisioni di progetto da confermare con Luigi (D)
 
 | ID | Decisione | Proposta |
 |---|---|---|
 | D-1 | Mappa dei pad del banco B e del PUSH (B8) | **Decisa il 13/10/2026**: pad = pulsanti funzione come in §8.5; il banco A fa gli 8 tasti accordo; PUSH anche sul tasto X della Flip |
-| D-2 | Il tasto Stop della MPK come scorciatoia del looper (pressione = stop/pausa, tenuto 1 s = Clear) | Sì |
+| D-2 | Il tasto Stop della MPK come scorciatoia del looper (pressione = stop/pausa, tenuto 1 s = Clear) | **Deciso il 13/10/2026** (mappa scelta da Luigi) |
 | D-3 | Tasti della Flip e modo tascabile | **Deciso il 13/10/2026**: schema a fuoco sempre attivo; modo tascabile opzionale, acceso dal menu (§9.1, §9.2). Resta da provare la disposizione del tascabile |
 | D-4 | Ingresso dal DIN IN attivo per default, con il rischio di anello se un apparecchio esterno rimanda indietro i messaggi | Attivo; valutare un'opzione o un rilevamento dell'eco |
 | D-5 | Clock verso la porta 1 della MPK attivo per default | Sì |

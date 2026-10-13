@@ -108,7 +108,8 @@ size_t stame_save(const stame_t *s, stame_blob_kind_t k, int slot, uint8_t *buf,
 int    stame_load(stame_t *s, stame_blob_kind_t k, int slot, const uint8_t *buf, size_t n);
 
 /* ui_flip: dal thread UI, legge solo lo snapshot e disegna la plancia 640×480. */
-void ui_flip_render(const ui_model_t *v, uint16_t fb[640 * 480]);   /* RGB565 */
+/* restituisce quanti rettangoli sono cambiati (al massimo max), descritti in dirty[] */
+int  ui_flip_render(ui_flip_state_t *st, const ui_model_t *v, uint16_t fb[640 * 480], ui_rect_t *dirty, int max);
 ```
 
 - **PLT-005** `[D]` La piattaforma **DEVE** parlare con il nucleo solo attraverso questa API e attraverso eventi semantici: `key(nota, velocity)`, `button(id, giù/su)`, `encoder(id, delta)`, `push(id)`, messaggi MIDI già interpretati (3 byte + porta + istante), `battery(percento)`, `device(connesso/perso)`.
@@ -132,7 +133,7 @@ void ui_flip_render(const ui_model_t *v, uint16_t fb[640 * 480]);   /* RGB565 */
 - **PLT-011** `[D]` All'avvio l'app **DOVREBBE** chiamare `mlockall(MCL_CURRENT | MCL_FUTURE)` e toccare in anticipo lo stack del thread audio (64 KB), per evitare page fault durante il suono.
 - **PLT-012** `[D]` L'app **PUÒ** fissare il thread audio sul core 3 (`pthread_setaffinity_np`) e gli altri sui core 0–2. Default: disattivato `[V]` T-PLT-03 (si attiva solo se riduce gli underrun).
 - **PLT-013** `[D]` Ogni thread **DEVE** attivare il flush-to-zero dei denormali (bit FZ di FPCR su aarch64, FTZ/DAZ di MXCSR sul PC). Il `dsp` **NON DEVE** dipendere da questa impostazione per la correttezza, solo per le prestazioni.
-- **PLT-014** `[D]` Il thread UI **DEVE** ridisegnare solo quando cambia il framebuffer o lo stato attorno (dirty flag o confronto dei 2048 byte). Da fermo l'app **DOVREBBE** restare sotto il 5% di un core `[O]`: ridisegnare solo quando serve ha portato un'app nativa della Flip dal 17% al 2,5%.
+- **PLT-014** `[D]` Il thread UI **DEVE** ridisegnare solo quando cambia qualcosa: `ui_flip_render` confronta per ogni zona una firma dei campi che usa e restituisce i rettangoli da aggiornare (`30-interfaccia.md` UI-160); la piattaforma carica solo quelli nella texture. Da fermo l'app **DOVREBBE** restare sotto il 5% di un core `[O]`: ridisegnare solo quando serve ha portato un'app nativa della Flip dal 17% al 2,5%.
 
 ---
 
@@ -392,6 +393,7 @@ stame/
   CLAUDE.md
   .gitattributes .gitignore
   docs/specifica/            specifica funzionale (questa)
+  docs/disegni/              PDF della plancia e dei controlli, con i sorgenti che lo generano
   src/
     core/                    stame.h, stame_base.h, spsc.h, accordi, performance, looper, tempo,
                              interfaccia (viste), midi_parse, midi_map, blob (serializzazione)
@@ -399,18 +401,19 @@ stame/
     ui/                      ui_model_t e suo riempimento dallo stato del nucleo
     gfx/                     primitive su framebuffer RGB565 e 1 bit, font bitmap
     ui_flip/                 plancia 640×480 della Flip
+    ui_oled/                 viste OLED 128×128 (fase 2, hardware)
     platform/
       flip/                  main.c, audio_alsa.c, audio_sdl.c, midi_rawmidi.c, input_evdev.c,
                              video_sdl.c, sdl_loader.c, storage_posix.c, rt.c, log.c
       pc/                    main.c, audio_sdl.c, midi_winmm.c, input_kbd.c, video_sdl.c
-      offline/               render.c (eventi → WAV, framebuffer → PBM/BMP)
+      offline/               render.c (eventi → WAV, fotogrammi della plancia → PPM)
   tests/
     unit/                    test del nucleo (accordi, voicing, parser MIDI, code, blob)
     golden/                  script di eventi + hash e WAV di riferimento
     shim/                    header minimi per la compilazione di prova Cortex-M7
   tools/                     build.sh, deploy.sh, flip-ssh.sh, cattura-midi.sh, icona
   app/Stame/                 modello del pacchetto: config.json, launch.sh, icon.png
-  third_party/               eventuale tinyalsa (BSD), con licenza
+  third_party/               spleen/ (font bitmap, BSD-2, convertiti in C da tools/bdf2c); eventuale tinyalsa (BSD); ognuno con la sua licenza
   build/                     (ignorata da git)
 ```
 

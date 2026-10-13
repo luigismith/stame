@@ -4,7 +4,7 @@ Stame è un clone fedele dell'Orchid (ORC—1) di Telepathic Instruments. Questa
 
 ## Principi
 1. **Prima la fedeltà all'originale.** Le migliorie (latch, clock in, più scale…) vanno solo in appendice, come opzioni spente per default.
-2. **Nucleo portabile.** `core` (accordi, performance, looper, MIDI logico), `dsp` (sintesi, effetti) e `gfx` (framebuffer 1 bit 128×128) sono in C11 puro: niente SDL, niente ALSA, niente malloc nel percorso audio. Lo strato `platform/flip` fa da ponte verso SDL2, ALSA ed evdev.
+2. **Nucleo portabile.** `core` (accordi, performance, looper, MIDI logico), `dsp` (sintesi, effetti), `ui`, `gfx` e i renderer (`ui_flip` per la plancia 640×480, `ui_oled` per l'hardware) sono in C11 puro: niente SDL, niente ALSA, niente malloc nel percorso audio. Lo strato `platform/flip` fa da ponte verso SDL2, ALSA ed evdev.
 3. **Separazione da OpenOrc.** Mai citare, confrontare o riusare OpenOrc / Cirmolo.
 
 ## Forma
@@ -27,7 +27,7 @@ I preset di fabbrica 3.92 sono dati privati: servono solo per studio e non vanno
 | `00-panoramica.md` | scopo, architettura, glossario, indice |
 | `10-accordi-e-performance.md` | motore degli accordi, voicing, key mode, basso, play style, pattern, beat, looper |
 | `20-suono.md` | motori VA/FM/Reed Piano, basso, effetti, preset, voci |
-| `30-interfaccia.md` | schermo 128×128, viste, overlay, gesti; resa sulla Flip |
+| `30-interfaccia.md` | `ui_model_t`, plancia 640×480 della Flip, overlay, liste, gesti; viste OLED 128×128 per l'hardware (fase 2) |
 | `40-midi-e-controlli.md` | MIDI in/out, clock, SysEx; MPK mini Plus e programma "STAME"; tasti della Flip |
 | `50-piattaforma-flip.md` | app nativa, SDL2/ALSA/evdev, toolchain, budget di latenza e CPU, struttura del codice |
 | `90-questioni-aperte.md` | verifiche da fare sull'Orchid e sulla MPK, dati mancanti |

@@ -4,3 +4,4 @@ zig-out/
 *.o
 *.wav
 /private/
+__pycache__/

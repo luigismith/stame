@@ -64,6 +64,7 @@ Il dettaglio sta nella sez. 40 §8–§10 e nella sez. 30. Decisioni di Luigi de
 | [`30-interfaccia.md`](30-interfaccia.md) | `ui_model_t`, plancia 640×480 della Flip, overlay e menu, gesti, menu della piattaforma; renderer OLED per la fase 2 | `UI-` |
 | [`40-midi-e-controlli.md`](40-midi-e-controlli.md) | MIDI dell'Orchid replicato, clock e trasporto, identità e SysEx, MPK mini Plus e programma "STAME", tasti della Flip, strato di input logico, hot-plug e panic | `MIDI-` |
 | [`50-piattaforma-flip.md`](50-piattaforma-flip.md) | hardware e sistema della Flip, moduli e API del nucleo, thread, audio, MIDI, input, video, persistenza, build, test, deploy, gotcha, portabilità verso Teensy, piano per fasi F0–F6 | `PLT-` |
+| [`../disegni/stame-plancia-e-controlli.pdf`](../disegni/stame-plancia-e-controlli.pdf) | **disegni**: la plancia della Flip in cinque stati, MPK e Flip con la funzione di ogni comando, gesti, ricette d'uso, preparazione | — |
 | [`90-questioni-aperte.md`](90-questioni-aperte.md) | tutte le verifiche (Orchid, MPK, Flip), i dati mancanti e le decisioni ancora da prendere | — |
 
 ## 6. Piano di sviluppo (sintesi della sez. 50 §16)
