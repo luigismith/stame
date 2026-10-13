@@ -1,0 +1,15 @@
+# Stame
+
+Clone fedele dell'Orchid (ORC—1) di Telepathic Instruments. Fase 1: app nativa per la **Miyoo Flip**, suonata con la **Akai MPK mini Plus**. Fase 2: hardware dedicato (probabilmente Teensy 4.1 + Audio Shield).
+
+- Nota di progetto nel second brain: `10-Progetti/Stame - clone fedele dell'Orchid.md`.
+- Specifica funzionale: `docs/specifica/`. Si parte da `00-panoramica.md`. Le convenzioni (ID dei requisiti, etichette [M]/[O]/[D]/[V]) sono in `CONVENZIONI.md`.
+
+## Regole
+- **Separato da OpenOrc / Cirmolo:** niente codice, cartelle o confronti in comune.
+- **Prima la fedeltà all'originale.** Le migliorie vanno dopo, come opzioni spente per default.
+- **Nucleo portabile:** `core`, `dsp` e `gfx` in C11 puro, senza SDL, ALSA, malloc o lock nel percorso audio. Tutto ciò che è specifico della piattaforma sta in `platform/`.
+- Il clone **non** deve usare l'ID SysEx `00 22 0C` né un nome di porta MIDI che inizi con "orchid".
+- I preset di fabbrica 3.92 sono dati privati: non vanno messi nel repo.
+- **Miyoo Flip:** mai forzare la porta USB-C OTG in modalità host senza prima spiegare il rischio e chiedere l'ok.
+- **MPK mini Plus:** niente SysEx sui programmi senza backup e senza l'ok di Luigi.
