@@ -330,11 +330,16 @@ typedef struct {                         /* scelte del menu della piattaforma (U
     uint8_t debug;                       /* 1 = riga di debug nella barra contestuale (default 0) */
     uint8_t pocket;                      /* modo tascabile acceso (40, MIDI-094); non salvato    */
     uint32_t quit_seq;                   /* cambia quando si conferma «Quit Stame»               */
+    uint32_t learn_pad_seq;              /* cambia quando si sceglie «Learn Pad» (40, MIDI-123)  */
 } ui_prefs_t;
 
 typedef enum { MPK_ABSENT, MPK_BUSY, MPK_OPEN, MPK_ERROR } ui_mpk_link_t;
+typedef enum { PADL_ABSENT, PADL_OPEN, PADL_UNMAPPED, PADL_ERROR } ui_pad_link_t;   /* macro pad (40, §8.10) */
 typedef struct {
     uint8_t  mpk_link;                   /* dalla piattaforma (40, MIDI-071, §11)               */
+    uint8_t  pad_link;                   /* macro pad BRIMFORD: ui_pad_link_t (40, MIDI-124, MIDI-127) */
+    uint8_t  pad_learn_step;             /* 0 = Learn Pad spento; 1..21 = passo in corso (MIDI-123) */
+    uint32_t pad_learned;                /* un bit per passo già imparato                        */
     uint8_t  mpk_profile;                /* da core/input: STAME o FACTORY (40, MIDI-088)        */
     char     mpk_fw[8];                  /* "1.13" dall'Identity Reply (MIDI-073)                */
     char     mpk_last[24];               /* ultimo messaggio ricevuto, in esadecimale            */
@@ -346,7 +351,7 @@ typedef struct {
 } ui_platform_t;
 ```
 
-- Le preferenze vivono in `core` (si scelgono dal menu della piattaforma, che è una lista di `core/ui`) e si salvano con le impostazioni (UI-111), tranne `pocket`. Il thread UI le legge dallo snapshot: così non serve una coda di ritorno dal thread audio. `quit_seq` è la richiesta di uscita: quando cambia, il thread UI avvia la chiusura (PLT-057, PLT-086).
+- Le preferenze vivono in `core` (si scelgono dal menu della piattaforma, che è una lista di `core/ui`) e si salvano con le impostazioni (UI-111), tranne `pocket`. Il thread UI le legge dallo snapshot: così non serve una coda di ritorno dal thread audio. `quit_seq` è la richiesta di uscita: quando cambia, il thread UI avvia la chiusura (PLT-057, PLT-086). Allo stesso modo `learn_pad_seq` chiede alla piattaforma di avviare Learn Pad (UI-175).
 
 ### 2.8 Avvisi
 
@@ -701,22 +706,22 @@ Le classi S e XS si leggono solo da vicino: NON DEVONO portare informazioni che 
 
 | Zona | Rettangolo (x, y, w, h) | Contenuto | Requisiti |
 |---|---|---|---|
-| Z1 barra di stato | 0, 0, 640, 24 | MPK, attività MIDI, voci, carico, livello e clip, modo tascabile, batteria | UI-126 |
+| Z1 barra di stato | 0, 0, 640, 24 | MPK, attività MIDI, voci, carico, livello e clip, macro pad, modo tascabile, batteria | UI-126 |
 | Z2 zona accordo | 0, 24, 400, 160 | tonalità e transpose, **nome dell'accordo**, note che suonano, Play Style; contenuto secondo la vista | UI-145..UI-147 |
 | Z3 tempo e loop | 400, 24, 240, 160 | BPM e metrica, Beat, movimenti e battuta, stato, posizione e menu del looper | UI-148, UI-149 |
-| Z4 tastiera | 0, 184, 640, 104 | 8 ottave con treble, basso e loop, finestre del voicing, marcatori della tonalità | UI-150 |
-| Z5 zona comandi | 0, 288, 640, 144 | gli **11 controlli** con valore, fuoco e legenda MPK; oppure la lista o il menu aperto | UI-151..UI-153, UI-157 |
+| Z4 tastiera | 0, 184, 640, 104 | 4 ottave che seguono le finestre, con treble, basso e loop, finestre del voicing, marcatori della tonalità | UI-150 |
+| Z5 zona comandi | 0, 288, 640, 144 | gli **11 controlli** con valore, fuoco e legenda della MPK e del macro pad; oppure la lista o il menu aperto | UI-151..UI-153, UI-157 |
 | Z6 barra contestuale | 0, 432, 640, 48 | evidenza degli overlay, avvisi, richiesta della tonalità, legenda viva dei tasti | UI-154..UI-156 |
 
 - Separatori di 1 px nel colore `line` a y = 24, 184, 288, 432 e a x = 400 tra Z2 e Z3.
 - **Perché quest'ordine**: in alto, dove l'occhio arriva per primo, ci sono il nome dell'accordo (cosa suona) e il tempo (dove sono nella battuta e nel loop). Subito sotto la tastiera, che mostra le stesse note in forma spaziale: voicing, rivolti, basso e loop. Più in basso la superficie di comando, che si guarda quando si cambia qualcosa, poi la riga di aiuto. La barra di stato in cima è sottile perché si legge di rado, ma deve restare sempre visibile: se la MPK cade o l'audio va in clip lo si vede subito.
 - La zona comandi riprende l'ordine del fuoco (MIDI-092): da sinistra a destra e dall'alto in basso, così L1/R1 spostano il fuoco in un percorso di lettura naturale.
 
-**UI-143** [D] Mockup della plancia principale (1 carattere ≈ 8×16 px; nella tastiera 1 carattere = 1 tasto bianco; `#` = pieno, `T` treble, `B` basso, `L` loop). Stato: Do♯ minore settima con il basso, looper in riproduzione, fuoco su FX.
+**UI-143** [D] Mockup della plancia principale (1 carattere ≈ 8×16 px; nella tastiera 2 caratteri = 1 tasto bianco, 4 ottave da C2 a B5; `#` = pieno, `T` treble, `B` basso, `L` loop). Stato: Do♯ minore settima con il basso, looper in riproduzione, fuoco su FX, MPK e macro pad collegati (legende di UI-152 e UI-155 nella versione con il macro pad; nella cella Options il disegno tronca «m2 T9 SEL»).
 
 ```
 +------------------------------------------------------------------------------+
-|MPK STAME  IN * OUT o   VOX 07/16   CPU 23%   [#######---]  clip      87% [==]|
+|MPK STAME A  IN * OUT o  VOX 07/16  CPU 23%  [######---]  clip  PAD   87% [==]|
 +------------------------------------------------+-----------------------------+
 |F# Minor                               Trans +3 |120 BPM                  4/4 |
 |                                                |BEAT 03 Funk           BAR 12|
@@ -728,24 +733,24 @@ Le classi S e XS si leggono solo da vicino: NON DEVONO portare informazioni che 
 |   ####        ##  ##  ##                       |                             |
 |C#2 : C#3 E3 G#3 B3                      SIMPLE |                             |
 +------------------------------------------------+-----------------------------+
-|                      [==W===]                                                |
-|               [=WB===]                                                       |
-| ##_###_##_###_B#_###_T#_#T#_##_###_##_###_##_###_##_###_                     |
-| CDEFGABCDEFGABCDEFGLBCDTFGATCDEFGABCDEFGABCDEFGABCDEFGAB                     |
-| C0     C1     C2     C3     C4     C5     C6     C7                          |
+|                [======W======]                                               |
+|  [=====WB======]                                                             |
+|  B #   # # #   T #   # T #   # #   # # #   # #   # # #                       |
+| C D E F G L B C D T F G L T C D L F G A B C D E F G A B                      |
+| C2            C3            C4            C5                                 |
 +-------------------------+-------------------+#################+--------------+
 |SOUND                    |PERFORM       LOCK #>FX              #KEY          *|
 |03 Analog Flower         |Arpeggiate         #Reverb 04        #F# Minor      |
 |VA  pluck                |16  UP/DOWN        #REV4 CHO3 DLY5   #Trans +3      |
-|K3                       |K4 B3              #K5               #K6 B1         |
+|K1 T1                    |K2 T2              #K3 T3            #K4 T4         |
 +-----------------+---------+----------+---------+-------+----------+----------+
 |BASS     UNISON *|LOOP     |BPM      *|VOLUME   |OPTIONS|CH.VOICING|BS.VOICING|
 |On  03           |Play     |120       |72       |Chord  |025       |24        |
 |Fifth Organ Bass |bar 2/4  |Beat 03   |Bass 70  |Simple |C#3 Oct   |C#2       |
-|B2               |B5 Rec   |K7 B6 Play|K8       |B7 SEL |K1 B4     |K2 Y      |
+|K5 T5            |K6 T6 Rec|K7 T7 Play|K8 T8    |m2 T9  |M         |m1 Y      |
 +-----------------+---------+----------+---------+-------+----------+----------+
 |L1 R1 focus  + turn  A press  B back  X push  Y bs.voicing  SEL opt  START bpm|
-|MPK  Rec loop  Play bpm  Stop pause/hold clear  << >> joy turn  B8 push       |
+|Rec loop  Stop pause  T press  T+K press&turn  M voicing  m1 bs.voic  m2 list |
 +------------------------------------------------------------------------------+
 ```
 
@@ -774,15 +779,16 @@ I font dell'OLED sono diversi e propri (§7.2).
 | attività MIDI | 108..187 | «IN» e «OUT» con un pallino acceso per **50 ms** a ogni messaggio: IN = dalla MPK o dal DIN IN, OUT = verso il DIN OUT |
 | voci | 208..279 | «VOX 07/16»; sopra 14 il numero va in `active`, a 16 in `warn` |
 | carico | 292..347 | «CPU 23%»: carico del thread audio (`dsp_load_pct`); sopra il 70% in `active`, sopra il 90% in `warn`; per 2 s dopo un underrun la scritta diventa «XRUN» in `warn` |
-| livello | 360..463 | due barre (L e R) di 104×4 px alle righe 7..10 e 13..16, scala −48..0 dBFS, picco con caduta di 20 dB/s e tenuta di 1 s; in `text` fino a −6 dBFS, in `active` sopra |
-| clip | 468..503 | «clip» in `dim`; in negativo su `warn` per **1500 ms** dopo ogni aumento di `clip_count` |
-| modo tascabile | 512..567 | contrassegno «POCKET» in `active`, solo se acceso |
+| livello | 360..447 | due barre (L e R) di 88×4 px alle righe 7..10 e 13..16, scala −48..0 dBFS, picco con caduta di 20 dB/s e tenuta di 1 s; in `text` fino a −6 dBFS, in `active` sopra |
+| clip | 452..487 | «clip» in `dim`; in negativo su `warn` per **1500 ms** dopo ogni aumento di `clip_count` |
+| macro pad | 492..515 | contrassegno «PAD» (40, §8.10): in `focus` se collegato e aperto in esclusiva (`PADL_OPEN`); in `warn` se non si apre in esclusiva (`PADL_ERROR`) o manda codici che nessuna mappa conosce (`PADL_UNMAPPED`); nascosto se assente |
+| modo tascabile | 520..567 | contrassegno «POCKET» in `active`, solo se acceso |
 | batteria | 576..635 | «87%» e un'icona da 28×12 px con il riempimento proporzionale e il lampo durante la carica; sotto il 15% in `warn` (PLT-090), sotto il 10% lampeggia a 1 Hz |
 
 - Con `prefs.meters` spento si nascondono voci, carico, livello e clip.
 - Le informazioni di piattaforma stanno solo qui, nel menu della piattaforma e negli avvisi (UI-156).
 
-**UI-127** [D] Collegamento e scollegamento della MPK a caldo: cambia il contrassegno MPK e compare un avviso breve (UI-156). Il riconoscimento della tastiera è della sezione 40 (§11).
+**UI-127** [D] Collegamento e scollegamento della MPK o del macro pad a caldo: cambia il contrassegno MPK o «PAD» e compare un avviso breve (UI-156); con il macro pad cambiano anche le legende (UI-152, UI-155). Il riconoscimento è della sezione 40 (§11, MIDI-127).
 
 ### 4.5 Zona accordo
 
@@ -824,7 +830,7 @@ I font dell'OLED sono diversi e propri (§7.2).
 | **Geek Out** | nome con s = 2 alle righe 60..123; tre righe in classe S: note con l'ottava; intervalli dalla fondamentale («1 ♭3 5 ♭7»); finestre «W 49 C♯3 · WB 37 C♯2 · Octave» |
 | **React** | oscilloscopio dell'uscita (SND-033): traccia di 1 px in `treble` su 392 punti, centrata sulla riga 121, ±56 px a fondo scala; nome con s = 1 in alto a destra della traccia |
 
-La tastiera a 8 ottave di Z4 c'è sempre, in tutte le viste.
+La tastiera a 4 ottave di Z4 c'è sempre, in tutte le viste.
 
 ### 4.6 Zona tempo e loop
 
@@ -853,21 +859,26 @@ La tastiera a 8 ottave di Z4 c'è sempre, in tutte le viste.
 
 ### 4.7 Tastiera
 
-**UI-150** [D] Z4 (0, 184, 640, 104). Tastiera fissa di **8 ottave, da C0 (MIDI 12) a B7 (MIDI 107)**, 56 tasti bianchi; copre il basso (WB da 13), le treble (fino a 95) e quasi tutte le ottave in più di Strum 2 Oct, Arp 2 Oct e Harp.
+**UI-150** [D] Z4 (0, 184, 640, 104). Tastiera di **4 ottave che segue le finestre del voicing**, 28 tasti bianchi larghi 21 px. Decisione di Luigi del 13/10/2026 («riducila»): tasti più grandi e leggibili a distanza di braccio, al posto delle 8 ottave fisse della prima bozza.
+
+Gamma visibile: da `kb_lo` a `kb_lo + 47`, dove `kb_lo` è sempre un Do (multiplo di 12).
+- All'avvio `kb_lo` = il Do dell'ottava che contiene WB: con WB = 37 la gamma va da C2 a B5.
+- A ogni fotogramma la gamma DEVE contenere le due finestre, da min(W, WB) a max(W, WB) + 11. Se ci stanno già, `kb_lo` **non cambia**, così girare il voicing dentro la gamma non fa muovere nulla. Se una finestra esce, `kb_lo` si sposta del minimo numero di ottave intere, di colpo e senza animazione.
+- Se le due finestre insieme superano 4 ottave, ha la precedenza la finestra treble; il resto si segnala con i triangoli.
 
 | Elemento | Geometria e colore |
 |---|---|
-| tasto bianco `i` (0..55) | x = 12 + 11·i, largo 10 px, righe 200..271, colore `kb_white`; la colonna x + 10 è lo spazio in `bg` |
-| tasto nero dopo il bianco `i` | x = 12 + 11·i + 7 .. + 13 (7 px, centrato sullo spazio), righe 200..243, colore `kb_black` |
+| tasto bianco `i` (0..27) | x = 12 + 22·i, largo 21 px, righe 200..271, colore `kb_white`; la colonna x + 21 è lo spazio in `bg` |
+| tasto nero dopo il bianco `i` | x = 12 + 22·i + 15 .. + 27 (13 px, centrato sullo spazio), righe 200..243, colore `kb_black` |
 | note dal vivo | tasto pieno nel colore del ruolo: `treble` o `bass`; se la stessa altezza è sia treble sia basso, metà sinistra `treble` e metà destra `bass` |
 | note del looper | striscia in `loop` in fondo al tasto: righe 262..271 sui bianchi, 236..243 sui neri; si vede anche sopra un tasto pieno |
-| marcatori della tonalità | con la Key mode accesa, quadratino in `in_key` sulle classi di `pc_in_key`: 4×4 px alle righe 254..257 sui bianchi, 3×3 alle righe 230..232 sui neri; su un tasto pieno si disegna in `bg` |
+| marcatori della tonalità | con la Key mode accesa, quadratino in `in_key` sulle classi di `pc_in_key`: 6×6 px alle righe 252..257 sui bianchi, 5×5 alle righe 228..232 sui neri, centrati; su un tasto pieno si disegna in `bg` |
 | finestra treble | barra di 2 px in `treble` alle righe 189..190, dal bordo sinistro del tasto W al bordo destro del tasto W + 11, con stanghette alle estremità (righe 187..191) |
 | finestra del basso | uguale in `bass`, righe 195..196 (stanghette 193..197), da WB a WB + 11 |
 | ottava delle note singole | in Full Octave, linea tratteggiata in `treble` alla riga 198 sull'ottava che contiene W (ACC-080) |
-| note fuori gamma | triangolo di 8×16 px nel colore del ruolo: ◀ a x 2..9 per le note sotto 12, ▶ a x 630..637 per quelle sopra 107, righe 228..243 |
-| modo tascabile | i tasti della classe `pocket_pc` dentro la finestra treble hanno un contorno di 1 px in `focus` |
-| etichette | righe 274..285, classe XS: «C0» … «C7» sotto ogni Do (il Do centrale, C4, in `text`, gli altri in `dim`). Con `note_labels` = All anche la lettera di ogni tasto bianco; con Off nessuna |
+| note fuori gamma | triangolo di 8×16 px nel colore del ruolo: ◀ a x 2..9 per le note sotto `kb_lo`, ▶ a x 630..637 per quelle sopra `kb_lo + 47`, righe 228..243. Capita con Strum 2 Oct, Arp 2 Oct, Harp e con il loop |
+| modo tascabile | i tasti della classe `pocket_pc` dentro la finestra treble hanno un contorno di 2 px in `focus` |
+| etichette | righe 272..287, classe S: «C2» … «C5» sotto ogni Do, cioè il nome reale dell'ottava visibile (il Do centrale, C4, in `text`, gli altri in `dim`). Con `note_labels` = All anche la lettera di ogni tasto bianco in classe XS; con Off nessuna |
 
 Le finestre mostrano la **posizione del voicing**: girando Chord Voicing la barra treble scorre di un semitono per scatto e si vede come cambia il rivolto.
 
@@ -895,19 +906,22 @@ Un testo che non sta nella cella si tronca con «…».
 
 | Controllo | Titolo | Valore (M) | Dettaglio (S) | Legenda (XS) |
 |---|---|---|---|---|
-| Sound | SOUND | «03 Analog Flower», «U05 Nome» | motore e categoria («VA  pluck»), «legacy» se `CF_LEGACY` | K3 |
-| Perform | PERFORM | modo breve (UI-066) o «Off» | parametro: «Amount 07», «16  UP/DOWN», «Pattern 05» | K4 B3 |
-| FX | FX | effetto principale e valore: «Reverb 04», «Chorus OFF» | slot con intensità diversa da zero: «REV4 CHO3 DLY5» | K5 |
-| Key | KEY | «F♯ Minor» o «Off» | «Trans +3» (in `active`) o «Trans 0» (in `dim`) | K6 B1 |
-| Bass | BASS | «On  03» o «Off  03» | nome del basso | B2 «» |
-| Loop | LOOP | «Rec», «Dub», «Play», «Pause», «Wait», «Count», «—» | «bar 2/4», «Free», «Loop 03» | B5 Rec Stop |
-| BPM | BPM | «120» | «Beat 03», «Metro», «Off» | K7 B6 Play START |
-| Volume | VOLUME | «72» | «Bass 70» | K8 |
-| Options | OPTIONS | vista breve: «React», «Chord», «Keybd», «Ch+Kb», «Notes», «Geek» | Play Style | B7 SEL |
-| Chord Voicing | CH.VOICING | «032» (3 cifre, come l'overlay) | nota d'inizio e modo: «C♯3 Oct», «C♯3 Split» | K1 B4 |
-| Bass Voicing | BS.VOICING | «23» | nota d'inizio: «C♯2» | K2 Y |
+| Controllo | Titolo | Valore (M) | Dettaglio (S) | Legenda senza macro pad (XS) | Legenda con il macro pad (XS) |
+|---|---|---|---|---|---|
+| Sound | SOUND | «03 Analog Flower», «U05 Nome» | motore e categoria («VA  pluck»), «legacy» se `CF_LEGACY` | K1 | K1 T1 |
+| Perform | PERFORM | modo breve (UI-066) o «Off» | parametro: «Amount 07», «16  UP/DOWN», «Pattern 05» | K2 B3 | K2 T2 |
+| FX | FX | effetto principale e valore: «Reverb 04», «Chorus OFF» | slot con intensità diversa da zero: «REV4 CHO3 DLY5» | K3 | K3 T3 |
+| Key | KEY | «F♯ Minor» o «Off» | «Trans +3» (in `active`) o «Trans 0» (in `dim`) | K4 B1 | K4 T4 |
+| Bass | BASS | «On  03» o «Off  03» | nome del basso | K5 B2 | K5 T5 |
+| Loop | LOOP | «Rec», «Dub», «Play», «Pause», «Wait», «Count», «—» | «bar 2/4», «Free», «Loop 03» | K6 B5 Rec | K6 T6 Rec |
+| BPM | BPM | «120» | «Beat 03», «Metro», «Off» | K7 B6 Play | K7 T7 Play |
+| Volume | VOLUME | «72» | «Bass 70» | K8 | K8 T8 |
+| Options | OPTIONS | vista breve: «React», «Chord», «Keybd», «Ch+Kb», «Notes», «Geek» | Play Style | B7 SEL | m2 T9 SEL |
+| Chord Voicing | CH.VOICING | «032» (3 cifre, come l'overlay) | nota d'inizio e modo: «C♯3 Oct», «C♯3 Split» | B4 | M |
+| Bass Voicing | BS.VOICING | «23» | nota d'inizio: «C♯2» | Y | m1 Y |
 
-- Le legende riprendono la mappa di 40 (§8.5, §9.1): sono la **legenda viva** della MPK. Bass, Loop e Options non hanno una manopola: si ruotano con « », joystick o croce dopo averli premuti, perché la pressione porta lì il fuoco (MIDI-104).
+- Le legende riprendono la mappa di 40 (§8.5, §8.10, §9.1): sono la **legenda viva** della MPK e del macro pad. Con il macro pad collegato (`pad_link` = `PADL_OPEN`) si usa l'ultima colonna: manopola della MPK, tasto o manopola del macro pad e, dove c'è, la scorciatoia sempre a portata (trasporto o tasto della Flip). I pad del banco B, che con il macro pad sono una riserva, non compaiono. Ogni legenda sta nella sua cella con le misure di UI-151 (XS = 6 px per carattere).
+- Options non ha una manopola sulla MPK: si ruota con m2, « », joystick o croce dopo averlo premuto, perché la pressione porta lì il fuoco (MIDI-104). Senza macro pad lo stesso vale per Chord Voicing e Bass Voicing, che dal 13/10/2026 non hanno più una manopola sulla MPK: si raggiungono con L1/R1 o premendo B4 o Y.
 
 **UI-153** [D] Stati di una cella, cumulabili:
 
@@ -918,7 +932,7 @@ Un testo che non sta nella cella si tronca con «…».
 | **attivo** (`CF_ACTIVE`) | riga del valore in negativo su `active` per la durata dell'overlay |
 | **LED** (`CF_LED`) | pallino ● in `text` a destra del titolo |
 | **Lock** (`CF_LOCK`) | contrassegno «LOCK» in negativo su `active` a destra del titolo |
-| **PUSH bersaglio** (`push` = TARGET(k)) | la cella dell'encoder di Kn mostra lo stato «premuto», anche se la pressione arriva da B8 o da X |
+| **PUSH bersaglio** (`push` = TARGET(k)) | la cella dell'encoder di Kn mostra lo stato «premuto», anche se la pressione arriva da B8 o da X. Con il macro pad la pressione di Tn è una pressione normale (`CF_PRESSED`) |
 
 ### 4.9 Barra contestuale
 
@@ -948,18 +962,19 @@ Resa dell'evidenza: etichetta dell'overlay (UI-065) in classe M in `dim` a x = 8
 
 L'evidenza dura quanto l'overlay (UI-069) e la chiude `PNL_BACK` (UI-070).
 
-**UI-155** [D] Legenda viva: due righe in classe S (righe 436..451 e 456..471), al massimo 78 caratteri ciascuna; i nomi dei tasti in negativo (`bg` su `dim`), le funzioni in `text`. Cambia con il contesto:
+**UI-155** [D] Legenda viva: due righe in classe S (righe 436..451 e 456..471), al massimo 78 caratteri ciascuna; i nomi dei tasti in negativo (`bg` su `dim`), le funzioni in `text`. La riga 1 parla della Flip, la riga 2 della MPK e, quando è collegato (`pad_link` = `PADL_OPEN`), anche del macro pad (40, §8.10). Cambia con il contesto:
 
-| Contesto | Riga 1 (Flip) | Riga 2 (MPK) |
-|---|---|---|
-| gioco | «L1 R1 focus  ✚ turn  A press  B back  X push  Y bs.voicing  SEL opt  START bpm» | «Rec loop  Play bpm  Stop pause/hold clear  « » joy turn  B8 push» |
-| lista o menu aperto | «✚ ▲▼ scroll  A select  B back  MENU menu» | «« » joy ▲▼ scroll  joy▶ select  joy◀ back» |
-| PUSH armato (B8 o X tenuto) | «PUSH: touch or turn a knob to press it» | «K1 ChVoice K2 BsVoice K3 Sound K4 Perform K5 FX K6 Key K7 BPM K8 Vol  +Stop panic» |
-| Bass Voicing tenuto (Y, o B8 + K2) | «BASS VOICING held: Loop = hard exit  BPM = drums  Bass = bass on/off» | — |
-| modo tascabile | «L-stick note  A play  L2 L1 R1 R2 Dim Min Maj Sus  ✚ 6 m7 M7 9» | «R-stick X voicing, Y turn  R3 press  X Y focus  L3 bs.voicing  B back» |
-| banco B stimato (MIDI-089) | riga 1 come nel contesto attuale | «PADS B: B1 key B2 bass B3 perf B4 voicing B5 loop B6 bpm B7 opt B8 push  BANK = chords» |
-| nessuna MPK | riga 1 come nel contesto attuale | «No MPK: Flip keys only.  MENU > Pocket Mode to play without MPK» |
-| debug | — | «frame 2.1 ms  dsp 23/31%  period 256x2  xrun 0  ALSA  snap 6 ms» |
+| Contesto | Riga 1 (Flip) | Riga 2 senza macro pad (MPK) | Riga 2 con il macro pad (MPK e macro pad) |
+|---|---|---|---|
+| gioco | «L1 R1 focus  ✚ turn  A press  B back  X push  Y bs.voicing  SEL opt  START bpm» | «Rec loop  Play bpm  Stop pause/hold clear  « » joy turn  B8 push» | «Rec loop  Stop pause  T press  T+K press&turn  M voicing  m1 bs.voic  m2 list» |
+| lista o menu aperto | «✚ ▲▼ scroll  A select  B back  MENU menu» | «« » joy ▲▼ scroll  joy▶ select  joy◀ back» | «m2 scroll  m2 press select  T10 back  T11 menu  « » joy ▲▼ scroll» |
+| PUSH armato (B8 o X tenuto) | «PUSH: touch or turn a knob to press it» | «K1 Sound K2 Perform K3 FX K4 Key K5 Bass K6 Loop K7 BPM K8 Vol  +Stop panic» | come senza macro pad |
+| Bass Voicing tenuto (m1 o Y) | «BASS VOICING held: Loop = hard exit  BPM = drums  Bass = bass on/off» | — | «T6 = hard exit  T7 = drums  T5 = bass on/off  (release m1 or Y to end)» |
+| modo tascabile | «L-stick note  A play  L2 L1 R1 R2 Dim Min Maj Sus  ✚ 6 m7 M7 9» | «R-stick X voicing, Y turn  R3 press  X Y focus  L3 bs.voicing  B back» | come senza macro pad |
+| banco B stimato (MIDI-089) | riga 1 come nel contesto attuale | «PADS B: B1 key B2 bass B3 perf B4 voic B5 loop B6 bpm B7 opt B8 push» | come senza macro pad |
+| nessuna MPK | riga 1 come nel contesto attuale | «No MPK: Flip keys only.  MENU > Pocket Mode to play without MPK» | «No MPK: macro pad and Flip keys.  MENU > Pocket Mode to play notes» |
+| Learn Pad in corso (UI-175) | «LEARN PAD 05/21: press T5 (Bass)» | — | «B = previous step  MENU = cancel  a code already used must be repeated» |
+| debug | — | «frame 2.1 ms  dsp 23/31%  period 256x2  xrun 0  ALSA  snap 6 ms» | come senza macro pad |
 
 Con `prefs.legend` spento le righe di legenda restano vuote; avvisi, evidenze e richieste si vedono comunque.
 
@@ -968,12 +983,16 @@ Con `prefs.legend` spento le righe di legenda restano vuote; avvisi, evidenze e 
 | Avviso | Quando | Testo | Livello | Durata |
 |---|---|---|---|---|
 | MPK occupata | `EBUSY` all'apertura (MIDI-071) | «MPK busy: used by another app» | warn | finché dura; si riprova ogni secondo |
-| programma non STAME | passaggio a `mpk_fabbrica` (MIDI-089) | «STAME program not active: reduced functions» | warn | 5 s, una volta per collegamento |
+| programma non STAME | passaggio a `mpk_fabbrica` (MIDI-119) | «STAME program not active: reduced functions» | warn | 5 s, una volta per collegamento |
 | audio di riserva | ALSA non si apre (PLT-023) | «ALSA unavailable: SDL audio, higher latency» | warn | 3 s |
 | memoria del loop piena | `loop_full` (ACC-231) | «Loop memory full» | warn | 3 s |
 | banco di fabbrica assente | SND-133 | «Factory bank missing: INIT sounds» | warn | 5 s all'avvio |
 | patch del formato vecchio | SND-104 | «Legacy patch (format 0)» | info | 3 s al caricamento |
-| MPK collegata / persa | `PNL_SRC_CONNECTED` / `PNL_SRC_LOST` | «MPK connected» / «MPK disconnected» | info / warn | 2 s |
+| MPK collegata / persa | `PNL_SRC_CONNECTED` / `PNL_SRC_LOST` di `SRC_MPK` | «MPK connected» / «MPK disconnected» | info / warn | 2 s |
+| macro pad collegato / perso | `PNL_SRC_CONNECTED` / `PNL_SRC_LOST` di `SRC_MACROPAD` (MIDI-127) | «Pad connected» / «Pad disconnected» | info / warn | 2 s |
+| macro pad occupato | `EVIOCGRAB` fallito (MIDI-124) | «Pad busy: grabbed by another app» | warn | finché dura; si riprova ogni secondo |
+| macro pad senza mappa | 5 codici sconosciuti di fila (MIDI-123) | «Pad not mapped: MENU > Learn Pad» | warn | 5 s, una volta per collegamento |
+| Learn Pad | codice già usato in un passo precedente; mappa salvata (MIDI-123) | «Code already used by T3: try again» / «Pad map saved» | warn / info | 2 s |
 | modo tascabile | MENU > Pocket Mode (MIDI-094) | «Pocket Mode on» / «off» | info | 2 s |
 | panic | `MACRO_PANIC` | «Panic: all notes off» | info | 2 s |
 
@@ -1098,6 +1117,7 @@ Back
 Panic          → All Notes Off e reset dei controller (MACRO_PANIC, 40 §7)
 Pocket Mode    Off / On                          (✓)  non ricordato tra un avvio e l'altro (MIDI-094)
 MPK Status     → scheda (UI-159)
+Learn Pad      → procedura guidata per il macro pad (UI-175); grigia se il macro pad non è collegato
 Theme          Dark / Light                      (✓)
 Legend         On / Off                          (✓)
 Note Labels    Octaves / All / Off               (✓)
@@ -1109,7 +1129,16 @@ Quit Stame     → Back / Quit now
 ```
 
 - **Quit Stame** è l'**unica** uscita dall'app, oltre a `SIGTERM` (MIDI-095, PLT-057): nessuna combinazione di tasti è riservata. Apre una conferma a due voci per evitare uscite involontarie mentre si suona; «Quit now» salva lo stato ed esce verso spruceOS (PLT-086), attraverso `prefs.quit_seq` (UI-027).
-- Panic è in seconda posizione perché deve essere raggiungibile in fretta: MENU, giù, A. Dalla MPK c'è anche B8 + Stop (MIDI-078).
+- Panic è in seconda posizione perché deve essere raggiungibile in fretta: MENU, giù, A. Dalla MPK c'è anche B8 + Stop (MIDI-078); dal macro pad T12 tenuto 1 s (MIDI-126). T11 del macro pad apre questo menu come il tasto MENU.
+- **Learn Pad** serve solo se il macro pad non è stato programmato con i codici di 40 MIDI-122.
+
+**UI-175** [D, 13/10/2026] Schermata di **Learn Pad** (40, MIDI-123). Scegliendo la voce, `core` cambia `prefs.learn_pad_seq` e la piattaforma avvia la procedura; ne riporta l'avanzamento in `ui_platform_t` (`pad_learn_step`, `pad_learned`). Resa in Z5, al posto del menu:
+- titolo «LEARN PAD  05/21» in classe S;
+- a sinistra uno schema del macro pad: la griglia 4×3 di T1…T12 (celle da 40×28 px con il nome del tasto e, sotto, la funzione: «Sound», «Back», «Panic»…) e le tre manopole M, m1, m2 con ◀ ● ▶ per antioraria, pressione e oraria. La posizione delle manopole nello schema segue l'unità vera [V VP-5 di 40];
+- passi già imparati in `text`, passo in corso in negativo su `focus`, passi mancanti in `dim`;
+- a destra la richiesta in classe M: «Press T5 (Bass)», «Turn M one click counterclockwise», «Press m1».
+
+  Durante la procedura la piattaforma intercetta B (passo precedente) e MENU (annulla senza salvare) della Flip; la riga 1 e la riga 2 della legenda viva seguono UI-155. Alla fine compare «Pad map saved» (UI-156) e si torna al menu della piattaforma.
 - Le migliorie musicali (latch, clock in…) non stanno qui: sono nell'appendice delle opzioni, spente di default.
 
 ---
@@ -1129,27 +1158,37 @@ Questa è la mappa **logica**. Il riferimento normativo è la sezione 40: numeri
 | `PNL_MACRO(MACRO_SYSTEM_MENU)` | apre o chiude il menu della piattaforma (UI-129) |
 | `PNL_MACRO(MACRO_PANIC)` | va a `core`; la UI mostra l'avviso «Panic» |
 | `PNL_MACRO(MACRO_LOOP_STOP)`, `(MACRO_LOOP_CLEAR)` | vanno al looper; la UI mostra lo stato che ne risulta |
-| `PNL_SRC_CONNECTED`, `PNL_SRC_LOST` | stato della MPK (UI-126) e avviso (UI-156) |
+| `PNL_SRC_CONNECTED`, `PNL_SRC_LOST` | stato della MPK o del macro pad (UI-126), legende (UI-152, UI-155) e avviso (UI-156) |
 
 Gli eventi musicali (`PNL_KEY_*`, `PNL_CHORD_*`, `PNL_BEND`, `PNL_MOD`, `PNL_SUSTAIN`) non passano dalla UI (UI-110).
 
-**UI-131** [D] Sintesi della mappa della MPK mini Plus (decisa da Luigi il 13/10/2026; normativa in 40 §8.5 e §8.6):
+**UI-131** [D] Sintesi della mappa della MPK mini Plus e del macro pad (decisa da Luigi il 13/10/2026; manopole rimappate il 13/10/2026 per il macro pad; normativa in 40 §8.5, §8.6 e §8.10):
 
 | Controllo della MPK | Funzione |
 |---|---|
 | pad del **banco A** | gli 8 tasti accordo dell'Orchid, nella stessa disposizione: fila alta **Dim, Min, Maj, Sus**; fila bassa **6, m7, M7, 9** |
-| pad del **banco B** | pulsanti funzione: **B1 Key, B2 Bass, B3 Perform, B4 Chord Voicing, B5 Loop, B6 BPM, B7 Options, B8 PUSH** |
-| **K1 … K8** | rotazione di Chord Voicing, Bass Voicing, Sound, Perform, FX, Key, BPM, Volume |
-| **B8 tenuto, oppure X della Flip tenuto**, + tocco o rotazione di Kn | pressione dell'encoder di Kn: premere, tenere, premere e ruotare (MIDI-084) |
-| **Rec** | Loop (doppione di B5) |
-| **Play** | BPM: Beat o metronomo (doppione di B6) |
+| **K1 … K8** | rotazione di **Sound, Perform, FX, Key** (fila alta) e **Bass, Loop, BPM, Volume** (fila bassa), nella stessa posizione dei tasti T1–T8 del macro pad |
+| pad del **banco B** (riserva senza macro pad) | pulsanti funzione: **B1 Key, B2 Bass, B3 Perform, B4 Chord Voicing, B5 Loop, B6 BPM, B7 Options, B8 PUSH** |
+| **B8 tenuto, oppure X della Flip tenuto**, + tocco o rotazione di Kn (riserva) | pressione dell'encoder di Kn: premere, tenere, premere e ruotare (MIDI-084) |
+| **Rec** | Loop (doppione di T6 e di B5) |
+| **Play** | BPM: Beat o metronomo (doppione di T7 e di B6) |
 | **Stop** | stop o pausa del loop; tenuto 1 s = Clear |
-| **B8 + Stop** | Panic |
-| **« »**, **joystick su / giù** | ruotano l'encoder con il fuoco (liste, Bass, Loop, Options) |
+| **B8 + Stop** | Panic (dal macro pad: T12 tenuto 1 s) |
+| **« »**, **joystick su / giù** | ruotano l'encoder con il fuoco (liste, Options e, senza macro pad, Chord Voicing e Bass Voicing) |
 | **joystick →** / **←** | conferma (pressione dell'encoder con il fuoco) / indietro (`PNL_BACK`) |
 | tasti, ruote, pedale | eventi musicali (sezioni 10 e 40) |
 
-- Combinazioni con il Bass Voicing tenuto (B8 + tocco di K2, oppure Y della Flip): + B5 o Rec = uscita forzata dal looper; + B6 o Play = batteria da suonare; + B2 = basso on/off (UI-104).
+| Comando del macro pad (40 §8.10) | Funzione |
+|---|---|
+| **T1 … T8** | pulsanti degli encoder di K1 … K8, nella stessa posizione: Sound, Perform, FX, Key / Bass, Loop, BPM, Volume |
+| **Tn tenuto + Kn** | premere e ruotare: T4 + K4 = transpose, T8 + K8 = volume del basso, T7 + K7 = volume del beat |
+| **T9 / T10 / T11** | Options / indietro / menu della piattaforma (UI-129) |
+| **T12** tenuto 1 s | Panic |
+| manopola grande **M** | Chord Voicing: rotazione; pressione = Split ↔ Octave |
+| manopola piccola **m1** | Bass Voicing: rotazione; pressione o tenuta = il modificatore |
+| manopola piccola **m2** | liste e fuoco: rotazione (orario = voce successiva, UI-074); pressione = conferma |
+
+- Combinazioni con il Bass Voicing tenuto (m1 del macro pad premuta, oppure Y della Flip): + T6, Rec o B5 = uscita forzata dal looper; + T7, Play o B6 = batteria da suonare; + T5 o B2 = basso on/off (UI-104).
 - LED del trasporto: MIDI-085 (UI-108).
 - Le legende delle celle (UI-152) e della barra contestuale (UI-155) DEVONO essere generate da questa mappa: se la 40 cambia, cambiano anche loro.
 
@@ -1161,14 +1200,15 @@ Gli eventi musicali (`PNL_KEY_*`, `PNL_CHORD_*`, `PNL_BEND`, `PNL_MOD`, `PNL_SUS
 | croce | ruota l'encoder con il fuoco, oppure scorre la lista aperta (con ripetizione, MIDI-082) |
 | A | pressione dell'encoder con il fuoco: conferma; tenuto = tenere; A tenuto + croce = premere e ruotare |
 | B | indietro (`PNL_BACK`) |
-| X | PUSH, come B8 (UI-131) |
-| Y | Bass Voicing premuto: il modificatore (Y + A con il fuoco su Loop = uscita forzata) |
+| X | PUSH, come B8 (UI-131): riserva per quando il macro pad non c'è |
+| Y | Bass Voicing premuto, come m1 del macro pad: il modificatore (Y + A con il fuoco su Loop = uscita forzata) |
 | SELECT | Options |
 | START | BPM (Beat o metronomo) |
 | MENU | menu della piattaforma (UI-129) |
 | L2, R2, L3, R3, levette | liberi |
 
 - Il fuoco è **uno solo**, condiviso da tutte le sorgenti, e si sposta anche premendo un encoder da qualunque sorgente (MIDI-104). All'avvio è su Sound.
+- Con il macro pad collegato i tasti della Flip restano tutti attivi: T10 e T11 fanno quello che fanno B e MENU, m2 quello che fanno croce e A (UI-131).
 - **Modo tascabile** (40 §9.2): opzionale, spento per default, si accende da MENU > «Pocket Mode» e non viene ricordato. Sulla plancia: contrassegno «POCKET» (UI-126), legenda dedicata (UI-155), classe della levetta in Z2 e Z4.
 - Volume e accensione della Flip restano a spruceOS (PLT-058).
 
@@ -1353,7 +1393,7 @@ per (x,y) nella maschera dell'anello:
 | T-UI-09 | Gesti con tempi simulati, con il riconoscitore di 40: tap, tenuto alla soglia, premere e ruotare, Loop a 1 s e a 2 s, Bass Voicing + Loop |
 | T-UI-10 | Overlay: scadenza a 3400 ms, ripartenza a ogni rotazione, sostituzione, chiusura con `PNL_BACK` |
 | T-UI-11 | Persistenza del nome: 1000 ms, sostituzione con un nuovo accordo, passaggio a `CH_GHOST` o `CH_NONE` secondo `ghost_chord` |
-| T-UI-13 | Navigazione completa di Options e del menu della piattaforma con i soli tasti della Flip e con i soli controlli della MPK; su e giù portano alla voce sopra e sotto (UI-157) |
+| T-UI-13 | Navigazione completa di Options e del menu della piattaforma con i soli tasti della Flip, con i soli controlli della MPK e con il solo macro pad (T9, T11, m2, T10); su e giù portano alla voce sopra e sotto (UI-157), m2 in senso orario alla successiva |
 | T-UI-14 | A riposo (trasporto fermo, nessun timer): nessun disegno, nessuna presentazione; `ui_next_deadline_ms()` e `ui_flip_next_visual_ms()` restituiscono «nessuna scadenza» |
 
 ### 8.2 Plancia della Flip
@@ -1371,8 +1411,8 @@ per (x,y) nella maschera dell'anello:
 | T-UI-23 | Priorità della barra contestuale: avviso warn > evidenza > richiesta > avviso info > legenda |
 | T-UI-24 | Aggiornamento: con il trasporto in moto si ridisegnano solo Z3, le celle interessate e i meter; sulla Flip fotogramma tipico ≤ 4 ms e completo ≤ 8 ms (T-PLT-11); CPU a riposo ≤ 5% (PLT-014) |
 | T-UI-25 | Latenza dall'azione al pixel ≤ 50 ms (marca temporale nella riga di debug, oppure ripresa ad alta velocità) |
-| T-UI-26 | Barra di stato: stati della MPK, pallini MIDI di 50 ms, clip per 1500 ms, «XRUN» per 2 s, soglie della batteria al 15% e al 10% |
-| T-UI-27 | Menu della piattaforma: tutte le voci; Quit con conferma; Pocket Mode non salvato; tema e opzioni salvati |
+| T-UI-26 | Barra di stato: stati della MPK, stati del macro pad («PAD»), pallini MIDI di 50 ms, clip per 1500 ms, «XRUN» per 2 s, soglie della batteria al 15% e al 10% |
+| T-UI-27 | Menu della piattaforma: tutte le voci; Quit con conferma; Pocket Mode non salvato; tema e opzioni salvati; Learn Pad grigia senza macro pad, schermata di UI-175 a ogni passo |
 
 ### 8.3 Renderer OLED (fase 2)
 
@@ -1443,8 +1483,8 @@ La colonna «Vale per» dice se il dato serve anche alla Flip (comportamento o t
 - **Lingua**: testi in inglese come l'Orchid. Spleen copre l'ISO 8859-1, quindi un menu della piattaforma in italiano sarebbe possibile. Le categorie dei Sound della sezione 20 sono in italiano («piano elettrico»): o si traducono in 20, o la cella Sound mescola le lingue.
 - **Tema di default**: Dark.
 - **Barra contestuale**: durante un'evidenza la legenda non si vede. Va provato se dà fastidio a chi sta imparando.
-- **Tastiera fissa a 8 ottave** invece di una finestra che segue le note: scelta per avere i registri sempre nello stesso posto. Le note sopra B7 (Harp e Arp 2 Oct molto in alto) diventano triangoli.
-- **Panic** nel menu della piattaforma oltre che su PUSH (B8 o X) + Stop: va bene in seconda posizione?
+- ~~Tastiera fissa a 8 ottave~~: **decisa il 13/10/2026**, 4 ottave che seguono le finestre del voicing, con tasti larghi 21 px (UI-150).
+- **Panic** nel menu della piattaforma oltre che su PUSH (B8 o X) + Stop e su T12 del macro pad tenuto 1 s: va bene in seconda posizione?
 
 ### 9.4 Allineamenti con altre sezioni
 - **Persistenza del nome**: qui 1000 ms (V-UI-02), in 10 ACC-056 500 ms (T-24). Va scelto un solo default.
@@ -1457,7 +1497,8 @@ La colonna «Vale per» dice se il dato serve anche alla Flip (comportamento o t
 - **Font dell'OLED** (fase 2): va disegnato da zero ricalcando i fotogrammi (QS 730, 770, 863, 662.5; LP 161-178, 1220; GR 186-192), in una sessione dedicata con i fotogrammi a piena risoluzione.
 - **Logo di Stame**: da disegnare, in versione a colori per la plancia e bitmap 128×128 a 1 bit, senza richiami al logo TI.
 - **LED del trasporto della MPK**: se l'host li possa accendere su Linux non è verificato (VM-13). Senza, lo stato si legge solo sulla plancia.
-- **Pressione e rotazione con la croce della Flip**: A tenuto + croce = premere e ruotare (UI-132). Va provato se è comodo con una mano sola; X + manopola della MPK è l'alternativa.
+- **Pressione e rotazione con la croce della Flip**: A tenuto + croce = premere e ruotare (UI-132). Va provato se è comodo con una mano sola; Tn del macro pad + Kn, oppure X + manopola della MPK, sono le alternative.
+- **Macro pad**: la posizione delle tre manopole (VP-5 di 40) decide lo schema di Learn Pad (UI-175); la comodità di Tn + Kn a due mani va provata sul tavolo.
 
 ---
 
@@ -1468,7 +1509,7 @@ La colonna «Vale per» dice se il dato serve anche alla Flip (comportamento o t
 | `00-panoramica.md` | moduli `core/ui`, `ui`, `gfx`, `ui_flip`, `ui_oled` nell'architettura; glossario (plancia, zona, evidenza, fuoco, overlay, vista) |
 | `10-accordi-e-performance.md` | `chord_label_t` (nomenclatura, «JAZZ», «WTF», Secret Chords, slash, enarmonie); note dal vivo e del looper con il ruolo e il nome; Key mode, tonalità e loro nomi; transpose; W e WB; Split/Octave; Play Style; modi e parametri di Perform; BPM, metrica, battuta e movimento; Beat, metronomo e batteria da suonare; stato del looper (ACC-232); default della persistenza (ACC-056) |
 | `20-suono.md` | nomi, motori e categorie dei 70 Sound, dei 12 bassi e degli User Sound; slot degli effetti ed «effetto principale», gamme 0–10; volumi; voci occupate su 16; picco e intervento del soft clip (SND-046); oscilloscopio (SND-033); segnalazioni di patch legacy e banco mancante (SND-104, SND-133) |
-| `40-midi-e-controlli.md` | eventi del pannello (MIDI-100), riconoscitore e soglie (MIDI-103), fuoco ed `ENC_FOCUS` (MIDI-104), mappa della MPK e PUSH (§8.5, §8.6) per le legende, tasti della Flip (§9.1), modo tascabile (§9.2, `pocket_pc`), LED del trasporto (MIDI-085), stati della MPK (MIDI-071, MIDI-088, MIDI-089), dati per MPK Status; verso dei comandi verticali nelle liste (§9.4) |
+| `40-midi-e-controlli.md` | eventi del pannello (MIDI-100), riconoscitore e soglie (MIDI-103), fuoco ed `ENC_FOCUS` (MIDI-104), mappa della MPK e PUSH (§8.5, §8.6) e del macro pad (§8.10, MIDI-120…129) per le legende, il contrassegno «PAD» e Learn Pad, tasti della Flip (§9.1), modo tascabile (§9.2, `pocket_pc`), LED del trasporto (MIDI-085), stati della MPK (MIDI-071, MIDI-088, MIDI-089), dati per MPK Status; verso dei comandi verticali nelle liste (§9.4) |
 | `50-piattaforma-flip.md` | triple buffer dello snapshot (PLT-017), tempo di render e underrun (PLT-021), framebuffer RGB565 e texture streaming (PLT-062, PLT-063), vsync e 60 Hz, batteria (PLT-090), salvataggio delle preferenze, uscita (PLT-057, PLT-086), audio di riserva (PLT-023), Audio Output senza effetto (PLT-026), font in `third_party`, simulatore su PC (PLT-078) e render offline |
 | `90-questioni-aperte.md` | raccoglie V-UI-01 … V-UI-29, VF-UI-01 … VF-UI-04 e le questioni di §9.3–§9.5 |
 

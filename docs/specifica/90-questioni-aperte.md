@@ -15,18 +15,22 @@
 | STOP della MPK come scorciatoia del looper (pressione = stop o pausa, tenuto 1 s = Clear) | MIDI-078, D-2 |
 | Uscita solo da MENU → Quit Stame | MIDI-095, PLT-057 |
 | Preset di fabbrica privati caricati da `Saves/stame/privato/`, mai nel repo | PLT-069 |
+| **Macro pad BRIMFORD** (12 tasti, 3 manopole, solo via cavo) e **nuova mappa dei controlli**, chiesta da Luigi («rimappa i controlli alla luce di questo nuovo device»): K1–K8 e T1–T8 griglie gemelle (K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 Volume); M = Chord Voicing, m1 = Bass Voicing, m2 = liste; T9 Options, T10 Back, T11 Menu, T12 Panic tenuto 1 s | MIDI-078, MIDI-120…129, D-8; `30` UI-131, UI-152, UI-155 |
+| Con il macro pad, il banco B della MPK e il PUSH (B8 o X) restano come **riserva** | MIDI-078, MIDI-084 |
+| Bozza del **case** che tiene insieme MPK, macro pad e Flip | `60-case.md` |
 
 ### 1.2 Da prendere
 | # | Questione | Proposta | Dove |
 |---|---|---|---|
 | 1 | Ultimo accordo in grigio dopo la persistenza («Ghost Chord») | Acceso per default, come opzione | `30` §9.3 |
 | 2 | Lingua dei testi a schermo: inglese come l'Orchid, ma le categorie dei Sound in `20` sono in italiano | Tutto in inglese; tradurre le categorie in `20` | `30` §9.3, `20` |
-| 3 | Tastiera della plancia fissa a 8 ottave | Sì: i registri restano sempre allo stesso posto | `30` §9.3 |
+| 3 | ~~Tastiera della plancia fissa a 8 ottave~~ | **Decisa il 13/10/2026**: 4 ottave che seguono le finestre, tasti più grandi (UI-150) | `30` §9.3 |
 | 4 | Ingresso dal DIN IN attivo per default (rischio di anello MIDI) | Attivo, con rilevamento dell'eco | D-4 |
 | 5 | Clock verso la porta 1 della MPK attivo per default | Sì | D-5 |
 | 6 | ID SysEx `7D` con famiglia "ST" finché è un prototipo | Sì | D-6 |
 | 7 | Nomi delle note: Do centrale = C4 in tutte le sezioni | Sì | D-7 |
-| 8 | Disposizione del tavolo: Flip a sinistra della MPK, X sotto la mano sinistra | Da provare con le mani | PDF dei controlli |
+| 8 | Disposizione del tavolo: la bozza del case mette la MPK davanti, il macro pad a destra e la Flip dietro; X resta la riserva del PUSH | Da provare con le mani, insieme al case | `60-case.md`, PDF dei controlli |
+| 9 | Comodità della nuova mappa con il macro pad: Tn + Kn a due mani, m1 tenuta come modificatore, T12 tenuto per il Panic | Da provare con le mani dopo VP-3 e VP-5 | D-8, MIDI-121 |
 
 ## 2. Allineamenti tra sezioni ancora aperti
 | Questione | Sezioni | Nota |
@@ -56,12 +60,20 @@ Prima di scrivere il profilo `mpk_stame` servono almeno:
 - VM-13: LED del trasporto; VM-22: Trpt e PadAT globali o del programma;
 - **VM-30**: pad tenuto mentre si preme BANK (quale Note Off arriva) e colori dei pad per banco.
 
-### 3.3 Sulla Miyoo Flip
+### 3.3 Sul macro pad BRIMFORD
+7 verifiche (VP-1…VP-7) in `40`, Questioni aperte. Prima di scrivere il profilo `pad_brimford` servono almeno:
+- **VP-1**: VID:PID, nome evdev, nodi creati, `EVIOCGRAB` su tutti;
+- **VP-2**: il software sikaicase o `ch57x-keyboard-tool` ammettono F13–F24 e KP1–KP9 (se no, Learn Pad, MIDI-123);
+- **VP-3**: tasti e pressioni delle manopole mandano «giù» e «su» separati (serve per tenere, per Tn + Kn e per m1 come modificatore).
+
+Poi: VP-4 scatti persi o accorpati nelle rotazioni veloci; VP-5 posizione delle manopole e quale è M, m1, m2; VP-6 consumo sulla porta OTG insieme alla MPK, sull'hub senza PD; VP-7 RGB spento.
+
+### 3.4 Sulla Miyoo Flip
 | Gruppo | Dove | Le più importanti |
 |---|---|---|
 | Piattaforma (T-PLT-01…16) | `50` §15, §18 | parametri reali del PCM e underrun a 256 frame; latenza tasto → suono; `SCHED_FIFO`; PCM libero dopo PyUI; sospensione e coperchio; come spruce chiude le app |
 | Plancia (VF-UI-01…04) | `30` §9.2 | leggibilità a un braccio di distanza; colori sul pannello; glifi di Spleen; tempo di disegno ≤ 4 ms |
-| Tasti | `30`, `40` | posizione di MENU, SELECT e START; comodità di X + manopola e di A tenuto + croce; levetta a 12 settori del modo tascabile |
+| Tasti | `30`, `40` | posizione di MENU, SELECT e START; comodità di X + manopola e di A tenuto + croce; levetta a 12 settori del modo tascabile; numerazione evdev del gamepad con il macro pad collegato all'avvio (PLT-053, MIDI-090) |
 
 ## 4. Dati che mancano del tutto
 Senza un Orchid vero o una sua registrazione non si possono ricavare:

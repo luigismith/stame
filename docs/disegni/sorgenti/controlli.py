@@ -48,9 +48,9 @@ PAD_B = {
     1: ('Key', 'fun', 'B1'), 2: ('Bass', 'fun', 'B2'), 3: ('Perform', 'fun', 'B3'), 4: ('Chord\nVoicing', 'fun', 'B4'),
     5: ('Loop', 'loop', 'B5'), 6: ('BPM', 'fun', 'B6'), 7: ('Options', 'nav', 'B7'), 8: ('PUSH', 'push', 'B8'),
 }
-KNOBS = [  # (x, y, nome, Kn)
-    (340, 19, 'Chord\nVoicing', 'K1'), (371, 19, 'Bass\nVoicing', 'K2'), (400, 19, 'Sound', 'K3'), (430, 19, 'Perform', 'K4'),
-    (340, 47, 'FX', 'K5'), (371, 47, 'Key', 'K6'), (400, 47, 'BPM', 'K7'), (430, 47, 'Volume', 'K8'),
+KNOBS = [  # (x, y, nome, Kn) — griglia gemella dei tasti T1–T8 del pad
+    (340, 19, 'Sound', 'K1'), (371, 19, 'Perform', 'K2'), (400, 19, 'FX', 'K3'), (430, 19, 'Key', 'K4'),
+    (340, 47, 'Bass', 'K5'), (371, 47, 'Loop', 'K6'), (400, 47, 'BPM', 'K7'), (430, 47, 'Volume', 'K8'),
 ]
 TRANSPORT = [  # (x, nome MPK, funzione, tipo)
     (341, '<<', 'fuoco −', 'nav'), (359, '>>', 'fuoco +', 'nav'), (376, 'STOP', 'stop loop\n1 s = Clear', 'loop'),
@@ -83,7 +83,7 @@ def mpk_svg(bank='A', width='100%'):
     # BANK A/B
     o.append(rect(271 - 6.85, 49 - 4.35, 13.7, 8.7, 'fun' if bank == 'B' else 'tipo', rx=1, sw=0.8))
     o.append(text(271, 49, 'BANK', 2.4, weight='700'))
-    o.append(text(271, 57, 'A = accordi\nB = funzioni', 2.0, color='#fff'))
+    o.append(text(271, 57, 'A = accordi\nB = riserva' if bank == 'A' else 'A = accordi\nB = funzioni', 2.0, color='#fff'))
     # display ed encoder della MPK
     o.append('<rect x="258.5" y="11" width="37" height="16" rx="1" fill="#0b0b0b" stroke="#555" stroke-width="0.4"/>')
     o.append(text(277, 19, 'STAME', 3.4, weight='700', color='#9fd8ff'))
@@ -173,7 +173,7 @@ def flip_svg(mode='fuoco', width='100%'):
     # ABXY (stile Nintendo: X sopra, A a destra, B sotto, Y a sinistra)
     ax, ay = 130, 26
     if mode == 'fuoco':
-        abxy = [(0, -11, 'X', 'push', 'PUSH'), (11, 0, 'A', 'nav', 'premi'),
+        abxy = [(0, -11, 'X', 'push', 'PUSH (senza pad)'), (11, 0, 'A', 'nav', 'premi'),
                 (0, 11, 'B', 'nav', 'indietro'), (-11, 0, 'Y', 'fun', 'B.Voicing')]
     else:
         abxy = [(0, -11, 'X', 'nav', 'fuoco −'), (11, 0, 'A', 'perf', 'suona'),
@@ -240,8 +240,6 @@ def push_timeline_svg(width='100%'):
         for a, b in xs:
             o.append(f'<rect x="{x0 + a}" y="10" width="{b - a}" height="8" rx="1.5" fill="{C["push"][1]}" stroke="{C["push"][0]}" stroke-width="0.5"/>')
             o.append(text(x0 + (a + b) / 2, 14, 'tenuto', 3.4, color=C['push'][0], weight='600'))
-        for i, (t, lab) in enumerate(ticks):
-            pass
         for i, (t, lab) in enumerate(ticks):
             col = '#999' if i == 0 else C['rot'][0]
             o.append(f'<circle cx="{x0 + t}" cy="28" r="2.2" fill="{col}"/>')

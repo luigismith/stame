@@ -4,6 +4,7 @@ Questa sezione descrive come Stame **parla MIDI** e come **riceve i comandi** di
 - il MIDI in uscita e in ingresso dell'Orchid, replicato in modo fedele (canali, note, CC di stato, clock, trasporto, ingresso);
 - i vincoli su identità, SysEx e nomi delle porte;
 - la **Akai MPK mini Plus** come superficie di controllo, con il programma "STAME";
+- il **macro pad BRIMFORD** (12 tasti e 3 manopole), che dà agli encoder dell'Orchid i pulsanti che la MPK non ha (profilo `pad_brimford`, §8.10);
 - i tasti fisici della **Miyoo Flip**, sia insieme alla MPK sia senza;
 - lo **strato di input logico**, che separa i controller dal nucleo;
 - hot-plug, disconnessione, note appese e panic.
@@ -14,7 +15,7 @@ Il comportamento musicale (accordi, Play Style, looper, beat) sta in `10-accordi
 - `[M]` manuale o documentazione ufficiale: per l'Orchid il manuale v4.1, il supporto Telepathic e le note di firmware; per la MPK la User Guide v1.2 e la knowledge base Akai.
 - `[O]` osservato: per l'Orchid le catture MIDI e l'analisi statica del firmware 3.92 pubblicate da un utente (RSMR); per la MPK le catture di terzi (algo-synth #420), il codice dell'estensione Bitwig e le prove fatte sulla Flip.
 - `[D]` dedotto o ricostruito: scelta di progetto o inferenza.
-- `[V]` da verificare: è il valore di default scelto per ora. Il test è indicato come **VO-n** (da fare su un Orchid vero) o **VM-n** (da fare sulla MPK di Luigi collegata alla Flip; VM-n è il test n del §18 della guida alla Plus). Elenco completo in [Questioni aperte](#questioni-aperte).
+- `[V]` da verificare: è il valore di default scelto per ora. Il test è indicato come **VO-n** (da fare su un Orchid vero) o **VM-n** (da fare sulla MPK di Luigi collegata alla Flip; VM-n è il test n del §18 della guida alla Plus) o **VP-n** (da fare sul macro pad BRIMFORD collegato alla Flip). Elenco completo in [Questioni aperte](#questioni-aperte).
 
 ---
 
@@ -257,7 +258,7 @@ F0 7E 7F 06 02  7D  53 54  01 00  <maj> <min> <patch> 00  F7
 
 - **MIDI-060** — Se si cambia il canale di un flusso, o lo si mette su Off, mentre ci sono note accese, Stame DEVE mandare subito i Note Off di quelle note **sul canale vecchio** e azzerare le voci relative nel registro [D].
 - **MIDI-061** — Nessun cambio di selettore (Sound, Perform, Key, Play Style, modalità del basso, basso on/off, voicing) può lasciare una nota senza Note Off. Il registro (MIDI-016) è la fonte di verità: ogni nota che il nucleo smette di suonare DEVE passare da un rilascio esplicito. Sull'Orchid 3.84 cambiare i selettori mentre si suona lascia note appese [O]: è un difetto e Stame NON DEVE copiarlo.
-- **MIDI-062** — **Panic.** Comandi: PUSH + Stop sulla MPK (§8.5), voce "Panic" del menu di sistema (tasto MENU della Flip, §9), ricollegamento della MPK (§11). Effetto [D]:
+- **MIDI-062** — **Panic.** Comandi: PUSH + Stop sulla MPK (§8.5), T12 del macro pad tenuto 1 s (§8.10), voce "Panic" del menu di sistema (tasto MENU della Flip, §9), ricollegamento della MPK (§11). Effetto [D]:
   1. per ogni destinazione e ogni (canale, nota) con contatore > 0: Note Off `8n kk 00`; poi registro azzerato;
   2. CC 123 (All Notes Off) e CC 120 (All Sound Off) sui canali dei tre flussi e su quello della CV, se attivi;
   3. motori interni: tutte le voci in rilascio rapido (tempo in `20`), sustain spento, bend al centro.
@@ -308,9 +309,9 @@ F0 7E 7F 06 02  7D  53 54  01 00  <maj> <min> <patch> 00  F7
 | Canale tastiera e controlli | **1** | Manopole e joystick stanno per forza sul canale dei tasti [M]: Stame li distingue dal numero di CC |
 | Canale pad | **10** | Come di fabbrica; separa i pad dalla tastiera |
 | Pad | Modo **Note**, Toggle **Off**; banco A note 36–43, banco B note 44–51 | Velocity disponibile; con il Toggle lo stato del pad si disallineerebbe da quello di Stame |
-| Colori dei pad | Banco A: fila alta (tipi) e fila bassa (estensioni) di due colori diversi; banco B: un terzo colore, B8 (PUSH) di un quarto | Distinguere a colpo d'occhio tipi, estensioni e funzioni. Indici della palette 0–31 da scegliere sull'unità [V VM-12] |
+| Colori dei pad | Banco A: fila alta (tipi) e fila bassa (estensioni) di due colori diversi; banco B (riserva senza macro pad, §8.5): un terzo colore, B8 (PUSH) di un quarto | Distinguere a colpo d'occhio tipi, estensioni e funzioni. Indici della palette 0–31 da scegliere sull'unità [V VM-12] |
 | Aftertouch dei pad (PadAT) | **Off** | L'Orchid non ha pressione; meno traffico. Forse è un'impostazione globale [V VM-22] |
-| Manopole K1–K8 | **Relative**, CC **70–77**, Lo 0, Hi 127; nomi "ChVoic", "BsVoic", "Sound", "Perform", "FX", "Key", "BPM", "Volume" | Encoder veri: lo stato resta in Stame e non ci sono salti. Se l'OLED mostri i nomi [V VM-16] |
+| Manopole K1–K8 | **Relative**, CC **70–77**, Lo 0, Hi 127; nomi "Sound", "Perform", "FX", "Key", "Bass", "Loop", "BPM", "Volume" (mappa del 13/10/2026, §8.5) | Encoder veri: lo stato resta in Stame e non ci sono salti. Se l'OLED mostri i nomi [V VM-16] |
 | Joystick | **2CC**: X → XCC1 13, XCC2 12; Y → YCC1 3, YCC2 2 | Quattro direzioni distinte. Quale CC sia il verso positivo [V VM-9] |
 | Trasporto (Trpt) | **On/Off** | Serve il rilascio (127 alla pressione, 0 al rilascio) per i gesti "tenuto". Forse globale [V VM-22] |
 | Arp, Chords, Scales, Note Repeat, Full Level | **Off** | Altrimenti la MPK trasforma le note prima che arrivino a Stame |
@@ -346,10 +347,11 @@ Con il programma STAME, sulla porta 1 [O per il programma di fabbrica; D per STA
 
 ### 8.5 Mappa controllo MPK → funzione dell'Orchid
 
-- **MIDI-078** — Il profilo `mpk_stame` DEVE applicare questa mappa [D, sulla base della proposta della guida alla Plus §17.6; **decisa da Luigi il 13/10/2026**]:
+- **MIDI-078** — Il profilo `mpk_stame` DEVE applicare questa mappa [D, sulla base della proposta della guida alla Plus §17.6; **decisa da Luigi il 13/10/2026**; manopole **rimappate il 13/10/2026** per il macro pad, §8.10]:
   - i pad del **banco A** fanno gli **8 tasti accordo a sinistra dell'Orchid**, nella stessa disposizione: fila alta Dim, Min, Maj, Sus; fila bassa 6, m7, M7, 9. È la regola di Luigi: «se orchid ha 8 pulsanti a sinistra i pad di mpk devono funzionare come quegli otto pulsanti»;
-  - i pad del **banco B** sono i **pulsanti funzione** (Key, Bass, Perform, Chord Voicing, Loop, BPM, Options e PUSH);
-  - la **pressione delle manopole** si fa tenendo B8 (PUSH) **oppure il tasto X della Flip** (§8.6, decisione di Luigi del 13/10/2026).
+  - le manopole **K1–K8** ruotano gli otto encoder che il macro pad affianca con i tasti T1–T8, nella stessa posizione: fila alta **K1 Sound, K2 Perform, K3 FX, K4 Key**; fila bassa **K5 Bass, K6 Loop, K7 BPM, K8 Volume**. Chord Voicing e Bass Voicing non hanno più una manopola sulla MPK: stanno sulle manopole M e m1 del macro pad (§8.10) e, senza macro pad, si raggiungono con il fuoco (§9.1);
+  - i pad del **banco B** restano i **pulsanti funzione** (Key, Bass, Perform, Chord Voicing, Loop, BPM, Options e PUSH), ma dal 13/10/2026 sono una **riserva** per quando il macro pad non c'è: con il macro pad collegato i pulsanti degli encoder sono T1–T9, M e m1;
+  - la **pressione delle manopole** si fa con i tasti T1–T8 del macro pad (§8.10); senza macro pad, tenendo B8 (PUSH) **oppure il tasto X della Flip** (§8.6, decisione di Luigi del 13/10/2026), che restano attivi anche con il macro pad collegato.
 
 | Controllo MPK | Messaggio | Evento del pannello (§10.1) | Funzione dell'Orchid |
 |---|---|---|---|
@@ -362,27 +364,28 @@ Con il programma STAME, sulla porta 1 [O per il programma di fabbrica; D per STA
 | **Pad A2** | 37 | `CHB_MIN7` | Estensione **m7** |
 | **Pad A3** | 38 | `CHB_MAJ7` | Estensione **M7** |
 | **Pad A4** | 39 | `CHB_9` | Estensione **9** |
-| **K1** | CC 70 relativo | `PNL_ENC_TURN(ENC_CHORD_VOICING, n)` | Chord Voicing Dial |
-| **K2** | CC 71 | `ENC_BASS_VOICING` | Bass Voicing Dial |
-| **K3** | CC 72 | `ENC_SOUND` | Encoder Sound (uno scatto = un suono) |
-| **K4** | CC 73 | `ENC_PERFORM` | Encoder Perform |
-| **K5** | CC 74 | `ENC_FX` | Encoder FX |
-| **K6** | CC 75 | `ENC_KEY` | Encoder Key |
+| **K1** | CC 70 relativo | `PNL_ENC_TURN(ENC_SOUND, n)` | Encoder Sound (uno scatto = un suono) |
+| **K2** | CC 71 | `ENC_PERFORM` | Encoder Perform |
+| **K3** | CC 72 | `ENC_FX` | Encoder FX |
+| **K4** | CC 73 | `ENC_KEY` | Encoder Key |
+| **K5** | CC 74 | `ENC_BASS` | Encoder Bass (scelta del basso) |
+| **K6** | CC 75 | `ENC_LOOP` | Encoder Loop (menu del looper) |
 | **K7** | CC 76 | `ENC_BPM` | Encoder BPM |
 | **K8** | CC 77 | `ENC_VOLUME` | Encoder Volume |
-| **Pad B8 o X della Flip tenuto + Kn** | ch10 nota 51 (o `PAD_X`) + CC 70–77 | `PNL_ENC_DOWN/UP` dell'encoder di Kn (§8.6) | Premere, tenere, premere e ruotare l'encoder di Kn |
-| **Pad B1** | 44 | `PNL_ENC_DOWN/UP(ENC_KEY)` | Pulsante di Key: premere = Key mode on/off; tenere = quick select |
-| **Pad B2** | 45 | `ENC_BASS` | Pulsante di Bass: premere = basso on/off; tenere 1 s = modalità |
-| **Pad B3** | 46 | `ENC_PERFORM` | Pulsante di Perform: premere = lista dei modi; tenere = Lock |
-| **Pad B4** | 47 | `ENC_CHORD_VOICING` | Pulsante del Chord Voicing: Split ↔ Octave |
-| **Pad B5** | 48 | `ENC_LOOP` | Pulsante di Loop |
-| **Pad B6** | 49 | `ENC_BPM` | Pulsante di BPM: beat o metronomo; tenere = tempo in chiave → Beats |
-| **Pad B7** | 50 | `ENC_OPTIONS` | Pulsante di Options |
+| **Tn del macro pad tenuto + Kn** | F13–F20 (§8.10) + CC 70–77 | `PNL_ENC_DOWN/UP` dell'encoder di Kn dal macro pad, `PNL_ENC_TURN` dalla MPK | Premere e ruotare l'encoder di Kn (MIDI-121) |
+| **Pad B8 o X della Flip tenuto + Kn** (riserva) | ch10 nota 51 (o `PAD_X`) + CC 70–77 | `PNL_ENC_DOWN/UP` dell'encoder di Kn (§8.6) | Premere, tenere, premere e ruotare l'encoder di Kn |
+| **Pad B1** (riserva) | 44 | `PNL_ENC_DOWN/UP(ENC_KEY)` | Pulsante di Key: premere = Key mode on/off; tenere = quick select |
+| **Pad B2** (riserva) | 45 | `ENC_BASS` | Pulsante di Bass: premere = basso on/off; tenere 1 s = modalità |
+| **Pad B3** (riserva) | 46 | `ENC_PERFORM` | Pulsante di Perform: premere = lista dei modi; tenere = Lock |
+| **Pad B4** (riserva) | 47 | `ENC_CHORD_VOICING` | Pulsante del Chord Voicing: Split ↔ Octave |
+| **Pad B5** (riserva) | 48 | `ENC_LOOP` | Pulsante di Loop |
+| **Pad B6** (riserva) | 49 | `ENC_BPM` | Pulsante di BPM: beat o metronomo; tenere = tempo in chiave → Beats |
+| **Pad B7** (riserva) | 50 | `ENC_OPTIONS` | Pulsante di Options |
 | **Rec** | CC 119 | `PNL_ENC_DOWN/UP(ENC_LOOP)` | Loop (doppione di B5, sempre a portata) |
 | **Play** | CC 118 | `PNL_ENC_DOWN/UP(ENC_BPM)` | BPM: beat o metronomo (doppione di B6) |
 | **Stop** | CC 117 | pressione: `MACRO_LOOP_STOP`; tenuto ≥ 1 s: `MACRO_LOOP_CLEAR` | Scorciatoie per le voci del menu Loop: Stop della registrazione o dell'overdub, Pause in riproduzione; Clear |
 | **PUSH (B8) + Stop** | 51 + CC 117 | `MACRO_PANIC` | Panic (§7) |
-| **«** / **»** | CC 115 / 116 | `PNL_ENC_TURN(ENC_FOCUS, −1/+1)` | Ruota l'encoder che ha il fuoco (§10.4): liste, Bass, Loop, Options |
+| **«** / **»** | CC 115 / 116 | `PNL_ENC_TURN(ENC_FOCUS, −1/+1)` | Ruota l'encoder che ha il fuoco (§10.4): liste, Options e, senza macro pad, Chord Voicing e Bass Voicing |
 | **Joystick su / giù** | CC 3 / CC 2 sopra soglia | `PNL_ENC_TURN(ENC_FOCUS, +1/−1)`, con ripetizione | Come « » |
 | **Joystick destra** | CC 13 sopra soglia | `PNL_ENC_DOWN` + `PNL_ENC_UP(ENC_FOCUS)` | Conferma (pressione dell'encoder con il fuoco) |
 | **Joystick sinistra** | CC 12 sopra soglia | `PNL_BACK` | Chiude l'overlay o risale di un livello nel menu |
@@ -391,14 +394,14 @@ Con il programma STAME, sulla porta 1 [O per il programma di fabbrica; D per STA
 | **Pedale** | CC 64 | `PNL_SUSTAIN` | Sustain del Sound, come CC 64 in ingresso sul ch1 (il latch è un'opzione dell'Appendice A) |
 | SHIFT, Arp, Chords, Scales, Bank, OCT, Home, Prog Select, Seq Play, Tap, encoder di menu | nulla | — | Non usabili: lavorano solo dentro la MPK |
 
-Combinazioni dell'Orchid con il **Bass Voicing tenuto** [M]: si tiene B8, si tocca K2 (Bass Voicing premuto, §8.6) e si preme:
-- B5 o Rec → **uscita hard dal loop**;
-- B6 o Play → **batteria da suonare** ("On drums") [O];
-- B2 → basso on/off.
+Combinazioni dell'Orchid con il **Bass Voicing tenuto** [M]. Il modificatore è la pressione della manopola **m1** del macro pad (§8.10) oppure il tasto **Y** della Flip (§9.1). La MPK da sola non ha più una manopola di Bass Voicing, quindi non lo si tiene con PUSH + manopola. Tenendo il modificatore si preme:
+- T6, Rec o B5 → **uscita hard dal loop**;
+- T7, Play o B6 → **batteria da suonare** ("On drums") [O];
+- T5 o B2 → basso on/off.
 
-Sulla Flip lo stesso modificatore è anche sul tasto Y (§9.1), più comodo.
-
-Rispetto alla proposta della guida (§17.6) cambia una cosa: **B3** diventa il pulsante completo di Perform (premere = lista, tenere = Lock) invece del solo Lock.
+Rispetto alla proposta della guida (§17.6) cambiano due cose:
+- **B3** diventa il pulsante completo di Perform (premere = lista, tenere = Lock) invece del solo Lock;
+- dal 13/10/2026 le manopole seguono la griglia gemella del macro pad (K1 Sound … K8 Volume), e Chord Voicing e Bass Voicing passano alle manopole M e m1 del macro pad.
 
 - **MIDI-079** — Tastiera [D]:
   - la fondamentale è `kk % 12` (0 = Do); l'ottava fisica e l'ottava della MPK NON DEVONO influire, perché l'Orchid ha un'ottava sola e il registro lo decidono voicing e Split/Octave [M];
@@ -407,7 +410,7 @@ Rispetto alla proposta della guida (§17.6) cambia una cosa: **B3** diventa il p
 - **MIDI-080** — Pad del banco A: la velocity dei pad NON DEVE avere effetto, perché i tasti accordo dell'Orchid sono pulsanti in gomma senza velocity [M]; la dinamica dell'accordo viene dal tasto. L'aftertouch dei pad (`A9`, `D9`) DEVE essere ignorato [D].
 - **MIDI-081** — Manopole [O/D]:
   - delta = `v < 64 ? v : v − 128` (complemento a due a 7 bit);
-  - uno scatto ogni `step` unità accumulate: `step` = 2 per K1–K6, 1 per K7 (BPM) e K8 (Volume) [V VM-8];
+  - uno scatto ogni `step` unità accumulate: `step` = 2 per K1–K6 (Sound, Perform, FX, Key, Bass, Loop), 1 per K7 (BPM) e K8 (Volume) [V VM-8];
   - se la MPK manda passi più grandi di 1 (accelerazione), il delta si somma così com'è.
 - **MIDI-082** — Joystick: soglia di attivazione 100 e di riarmo 60 per ciascuno dei 4 CC [O, valore usato da uno script di terzi; V VM-29]. Su e giù ripetono: primo passo all'attivazione, poi uno ogni 200 ms dopo 400 ms [D].
 - **MIDI-083** — Trasporto: finché dal collegamento non è arrivato almeno un valore 0 su CC 115–119, il profilo DEVE considerare la MPK in Trpt = On (nessun rilascio) e:
@@ -421,11 +424,11 @@ Rispetto alla proposta della guida (§17.6) cambia una cosa: **B3** diventa il p
   - quando arriva una nota del banco B mentre tasti accordo del banco A risultano premuti, il profilo DEVE emettere i loro `PNL_CHORD_UP` sintetici prima dell'evento del banco B. Così un cambio di banco con un pad tenuto non lascia un accordo appeso. Vale anche al contrario per i pulsanti del banco B (`PNL_ENC_UP`, PUSH rilasciato);
   - un Note Off di pad senza il Note On corrispondente DEVE essere ignorato senza errori;
   - cosa manda la MPK se si preme BANK con un pad tenuto (il Note Off ha la nota del banco vecchio o del nuovo?) va verificato [V VM-30]: se manda la nota del banco vecchio, la seconda regola diventa una semplice rete di sicurezza;
-  - ogni funzione del banco B DEVE avere anche una strada che non richiede di cambiare banco: trasporto, PUSH (B8 o X della Flip) + manopola, oppure fuoco e tasti della Flip. Le funzioni da usare mentre si suona (looper, beat, pressione delle manopole) DEVONO stare su comandi sempre disponibili: REC, STOP, PLAY e X.
+  - ogni funzione del banco B DEVE avere anche una strada che non richiede di cambiare banco: macro pad (§8.10), trasporto, PUSH (B8 o X della Flip) + manopola, oppure fuoco e tasti della Flip. Le funzioni da usare mentre si suona (looper, beat, pressione delle manopole) DEVONO stare su comandi sempre disponibili: i tasti del macro pad e, senza macro pad, REC, STOP, PLAY e X.
 
 ### 8.6 Gesti degli encoder sulla MPK: il pad PUSH
 
-Le manopole della MPK non si premono. Il pad **B8** o il **tasto X della Flip** (decisione di Luigi: «per simulare la pressione delle manopole, dedica un tasto sulla flip») fa da "pressione" per l'encoder della manopola toccata subito dopo. B8 e X sono intercambiabili, e la stessa macchina a stati li tratta come un solo comando PUSH: è premuto se lo è almeno uno dei due.
+Le manopole della MPK non si premono. Con il macro pad collegato la pressione arriva dai suoi tasti T1–T8, nella stessa posizione delle manopole (§8.10). Il PUSH resta come **riserva**, attivo anche con il macro pad: il pad **B8** o il **tasto X della Flip** (decisione di Luigi: «per simulare la pressione delle manopole, dedica un tasto sulla flip») fa da "pressione" per l'encoder della manopola toccata subito dopo. B8 e X sono intercambiabili, e la stessa macchina a stati li tratta come un solo comando PUSH: è premuto se lo è almeno uno dei due.
 
 - **MIDI-084** — Macchina a stati del PUSH [D, ricostruita dalla guida §17.6]. Qui "PUSH giù / su" vuol dire B8 Note On / Note Off oppure X premuto / rilasciato:
 
@@ -445,10 +448,12 @@ Stop (CC 117 = 127) in ARMED o TARGET -> emetti MACRO_PANIC (e niente MACRO_LOOP
 ```
 
   Il riconoscitore (§10.3) trasforma `DOWN`/`UP`/`TURN` in premere, tenere, premere e ruotare. Esempi:
-  - B8 + piccolo tocco a K6, rilascio di B8 → **premere Key** (Key mode on/off);
-  - B8 + tocco a K6 + rotazione di K6 → **premere e ruotare Key** (transpose);
-  - B8 + tocco a K3, B8 tenuto 1 s → **tenere Sound** (Save / Save As / Delete);
+  - B8 + piccolo tocco a K4, rilascio di B8 → **premere Key** (Key mode on/off);
+  - B8 + tocco a K4 + rotazione di K4 → **premere e ruotare Key** (transpose);
+  - B8 + tocco a K1, B8 tenuto 1 s → **tenere Sound** (Save / Save As / Delete);
   - B8 + tocco a K8 → **premere Volume** (livello della batteria, qui quella della Flip).
+
+  Con il macro pad gli stessi gesti si fanno con T4, T4 + K4, T1 tenuto 1 s e T8 (MIDI-121).
 
 ### 8.7 Uscite verso la MPK
 
@@ -476,7 +481,7 @@ Se sulla MPK è attivo un altro programma (per esempio il PGM1 "MPC" di fabbrica
   - nel programma di fabbrica il joystick manda CC 12 e CC 2 con 127 in **entrambi** i versi [O]: la direzione non si distingue, quindi il joystick NON DEVE produrre eventi finché non si è visto CC 13 o CC 3;
   - i pad di fabbrica hanno le stesse note (36–51, ch10) [O]: la mappa dei pad resta valida; l'aftertouch polifonico di fabbrica viene ignorato (MIDI-080);
   - il trasporto di fabbrica non manda il rilascio [O]: vale MIDI-083.
-- **MIDI-089** — Quando il profilo passa a "fabbrica", Stame DOVREBBE mostrare una volta l'avviso "Programma STAME non attivo: funzioni ridotte" (testo e resa in `30`) [D].
+- **MIDI-119** — Quando il profilo passa a "fabbrica", Stame DOVREBBE mostrare una volta l'avviso "Programma STAME non attivo: funzioni ridotte" (testo e resa in `30`) [D].
 
 ### 8.9 Sequenza di avvio con la MPK
 
@@ -490,11 +495,139 @@ Se sulla MPK è attivo un altro programma (per esempio il PGM1 "MPC" di fabbrica
 7. emetti PNL_SRC_CONNECTED(SRC_MPK); profilo mpk_stame         (MIDI-088)
 ```
 
+### 8.10 Macro pad BRIMFORD (profilo `pad_brimford`)
+
+Gli encoder dell'Orchid si premono, le manopole della MPK no. Luigi ha aggiunto un **macro pad** che dà agli encoder i loro pulsanti. Su sua richiesta («rimappa i controlli alla luce di questo nuovo device») la mappa è stata **decisa il 13/10/2026** con un principio solo: le manopole K1–K8 della MPK e i tasti T1–T8 del macro pad sono **due griglie gemelle 4×2**. Il tasto Tn è il pulsante dell'encoder la cui manopola è Kn, nella stessa posizione.
+
+| Voce | Valore | Etichetta |
+|---|---|---|
+| Modello | **BRIMFORD CusKeyboard0227** (Amazon B0BWY7N8FF), pad generico cinese della famiglia «sikaicase», chip CH57x | [O per il modello; D per famiglia e chip] |
+| Comandi | **12 tasti meccanici** in griglia 4×3 e **3 manopole**: una grande (**M**) e due piccole (**m1**, **m2**). Ogni manopola ha tre azioni (antioraria, oraria, pressione), programmabili come tasti. Una recensione parla di manopole a scatti | [O; posizione delle manopole V VP-5; scatti V VP-4] |
+| Collegamento | USB-C; anche 2.4G e Bluetooth, che Stame **non** usa: solo cavo | [O; D] |
+| Programmazione | software sikaicase (solo Windows) oppure lo strumento open source `ch57x-keyboard-tool` con una configurazione YAML. La configurazione resta a bordo | [O] |
+| Classe USB | **tastiera USB HID standard**, senza MIDI; sulla Flip si legge da evdev, forse su più nodi `/dev/input/event*` (tastiera, tasti multimediali, mouse) | [D; V VP-1] |
+| VID:PID | da leggere sull'unità; i pad di questa famiglia di solito si presentano come `1189:8890` | [D; V VP-1] |
+
+```
+  MPK mini Plus: manopole               Macro pad BRIMFORD: tasti
+  K1 Sound  K2 Perform  K3 FX  K4 Key    T1 Sound    T2 Perform  T3 FX     T4 Key
+  K5 Bass   K6 Loop     K7 BPM K8 Vol    T5 Bass     T6 Loop     T7 BPM    T8 Volume
+                                         T9 Options  T10 Back    T11 Menu  T12 Panic
+  manopole del macro pad:  M = Chord Voicing   m1 = Bass Voicing   m2 = liste e fuoco
+```
+
+- **MIDI-120** — Il profilo `pad_brimford` DEVE applicare questa mappa [D, **13/10/2026**]. I codici sono quelli programmati sul macro pad (MIDI-122) o imparati con Learn Pad (MIDI-123); al profilo arrivano già tradotti nei codici portabili `MPAD_*` (MIDI-124):
+
+| Comando | Codice programmato | Evento del pannello (§10.1) | Funzione dell'Orchid |
+|---|---|---|---|
+| **T1** | F13 | `PNL_ENC_DOWN/UP(ENC_SOUND)` | Pulsante di Sound: tenere = Save / Save As / Delete |
+| **T2** | F14 | `ENC_PERFORM` | Pulsante di Perform: premere = lista dei modi; tenere = Lock |
+| **T3** | F15 | `ENC_FX` | Pulsante di FX |
+| **T4** | F16 | `ENC_KEY` | Pulsante di Key: premere = Key mode on/off; tenere = quick select |
+| **T5** | F17 | `ENC_BASS` | Pulsante di Bass: premere = basso on/off; tenere 1 s = modalità |
+| **T6** | F18 | `ENC_LOOP` | Pulsante di Loop |
+| **T7** | F19 | `ENC_BPM` | Pulsante di BPM: beat o metronomo; tenere = tempo in chiave → Beats |
+| **T8** | F20 | `ENC_VOLUME` | Pulsante di Volume: premere = livello della batteria (qui quella della Flip) |
+| **T9** | F21 | `PNL_ENC_DOWN/UP(ENC_OPTIONS)` | Pulsante di Options |
+| **T10** | F22 | `PNL_BACK` alla pressione | Indietro: chiude l'overlay o risale di un livello |
+| **T11** | F23 | `PNL_MACRO(MACRO_SYSTEM_MENU)` alla pressione | Menu della piattaforma (`30` UI-129) |
+| **T12** | F24 | `PNL_MACRO(MACRO_PANIC)` **solo dopo 1 s tenuto** (MIDI-126) | Panic (§7) |
+| **M** antioraria / oraria | KP7 / KP9 | `PNL_ENC_TURN(ENC_CHORD_VOICING, −1/+1)`, uno scatto per evento | Chord Voicing Dial |
+| **M** pressione | KP8 | `PNL_ENC_DOWN/UP(ENC_CHORD_VOICING)` | Pulsante del Chord Voicing: Split ↔ Octave |
+| **m1** antioraria / oraria | KP4 / KP6 | `PNL_ENC_TURN(ENC_BASS_VOICING, −1/+1)` | Bass Voicing Dial: registro (ottava) del basso |
+| **m1** pressione | KP5 | `PNL_ENC_DOWN/UP(ENC_BASS_VOICING)` | Bass Voicing premuto: il **modificatore** delle combinazioni |
+| **m2** antioraria / oraria | KP1 / KP3 | `PNL_ENC_TURN(ENC_FOCUS, −1/+1)`, **senza** `PNL_F_VERTICAL` | Manopola delle liste: scorre la lista aperta o ruota l'encoder con il fuoco; orario = voce successiva (MIDI-105) |
+| **m2** pressione | KP2 | `PNL_ENC_DOWN/UP(ENC_FOCUS)` | Conferma: pressione dell'encoder con il fuoco |
+
+  Combinazioni con il Bass Voicing tenuto [M], come in §8.5: **m1 tenuta + T6** = uscita hard dal loop; **m1 tenuta + T7** = batteria da suonare ("On drums") [O]; **m1 tenuta + T5** = basso on/off.
+
+- **MIDI-121** — **Gesti con il macro pad** [D, 13/10/2026]. Il riconoscitore (MIDI-103) lavora sullo stato unito delle sorgenti (MIDI-102), quindi i gesti si compongono fra macro pad e MPK:
+  - **premere** = tocco di Tn;
+  - **tenere** = Tn tenuto 1 s (`T_HOLD`); per Loop anche 2 s (`T_HOLD2`, uscita morbida);
+  - **premere e ruotare** = Tn tenuto + rotazione di **Kn**, la manopola nella stessa posizione. Esempi: T4 + K4 = transpose; T8 + K8 = volume del basso; T7 + K7 = volume del beat;
+  - M e m1 premute e ruotate danno il premere e ruotare del proprio encoder; m2 premuta e ruotata quello dell'encoder con il fuoco, come A tenuto + croce sulla Flip;
+  - Tn tenuto + rotazione di un'altra manopola Kj è una rotazione normale di Kj; al rilascio di Tn vale il gesto di Tn (premere o tenere);
+  - premere Tn porta il fuoco sul suo encoder (MIDI-104): subito dopo m2, « », il joystick o la croce lo ruotano. Per T9 è il modo normale di scorrere Options.
+
+- **MIDI-122** — **Codici da programmare** [D; V VP-2]. Il macro pad DEVE essere programmato una volta, dal PC, con codici che nessun altro programma della Flip usa:
+  - **T1–T12 = F13–F24** (evdev `KEY_F13` = 183 … `KEY_F24` = 194). Le tastiere normali non hanno questi tasti;
+  - manopole sul **tastierino numerico**, disposte come il tastierino stesso (riga alta = M, centrale = m1, bassa = m2; sinistra = antioraria, centro = pressione, destra = oraria):
+
+| Manopola | Antioraria | Pressione | Oraria |
+|---|---|---|---|
+| M | KP7 (`KEY_KP7` = 71) | KP8 (72) | KP9 (73) |
+| m1 | KP4 (75) | KP5 (76) | KP6 (77) |
+| m2 | KP1 (79) | KP2 (80) | KP3 (81) |
+
+  - evdev riporta i codici `KEY_KP*` così come sono, a prescindere da Bloc Num: Stame NON DEVE dipendere dallo stato dei LED della tastiera;
+  - l'illuminazione RGB, se c'è, va spenta nella stessa configurazione [V VP-7];
+  - schema indicativo per `ch57x-keyboard-tool` (i nomi esatti delle chiavi e dei tasti vanno controllati con lo strumento, VP-2):
+
+```yaml
+# stame-pad.yaml: profilo pad_brimford, 13/10/2026
+orientation: normal
+rows: 3
+columns: 4
+knobs: 3
+layers:
+  - buttons:
+      - ["f13", "f14", "f15", "f16"]   # T1 Sound   T2 Perform  T3 FX    T4 Key
+      - ["f17", "f18", "f19", "f20"]   # T5 Bass    T6 Loop     T7 BPM   T8 Volume
+      - ["f21", "f22", "f23", "f24"]   # T9 Options T10 Back    T11 Menu T12 Panic
+    knobs:
+      - { ccw: "kp7", press: "kp8", cw: "kp9" }   # M  Chord Voicing
+      - { ccw: "kp4", press: "kp5", cw: "kp6" }   # m1 Bass Voicing
+      - { ccw: "kp1", press: "kp2", cw: "kp3" }   # m2 liste e fuoco
+```
+
+  L'ordine delle manopole nella configurazione dipende da come sono montate sul macro pad [V VP-5].
+
+- **MIDI-123** — **Learn Pad** [D, 13/10/2026]. Se il software non ammette i codici di MIDI-122, o il macro pad arriva con un'altra configurazione, Stame DEVE offrire MENU → «Learn Pad» (`30` UI-129, UI-175):
+  - chiede di premere **in ordine** ogni tasto e ogni azione: T1…T12, poi per M, m1 e m2 antioraria, pressione e oraria (21 passi);
+  - per ogni passo registra il primo `EV_KEY` con valore 1 che non sia un modificatore, insieme ai modificatori tenuti in quel momento (Ctrl, Shift, Alt, Meta): così funziona anche un macro pad programmato con combinazioni;
+  - un codice già assegnato a un passo precedente DEVE essere rifiutato con la richiesta di ripetere; B della Flip torna al passo precedente; MENU annulla senza salvare;
+  - alla fine salva la mappa in **`Saves/stame/pad.map`** (testo, una riga per azione: `T1 183`, `M_CCW 71`, `M_PUSH 29+72` con i modificatori prima del `+`) e la applica subito;
+  - con `pad.map` presente vale la mappa salvata, altrimenti i codici di MIDI-122. Un codice che non è in nessuna mappa DEVE essere ignorato; dopo 5 codici sconosciuti di fila Stame mostra l'avviso «Pad not mapped: MENU > Learn Pad» (`30` UI-156);
+  - durante Learn Pad gli eventi del macro pad NON DEVONO arrivare al profilo.
+
+- **MIDI-124** — **Riconoscimento ed esclusività** [D; V VP-1]:
+  - Stame DEVE riconoscere il macro pad dal **VID:PID** (`EVIOCGID`) o dal **nome** evdev (`EVIOCGNAME`), confrontati con una tabella nel codice da riempire dopo VP-1;
+  - NON DEVE confonderlo con il gamepad della Flip («MIYOO Player1», `50` PLT-053) né con l'interfaccia HID della MPK (`09e8:0054`, ignorata, §8.1);
+  - se il macro pad espone più nodi evdev (tastiera, tasti multimediali, mouse), Stame DEVE aprirli tutti, cioè tutti i nodi con lo stesso dispositivo USB padre in sysfs;
+  - ogni nodo va aperto in esclusiva con **`EVIOCGRAB`**: così spruce, PyUI e la console non vedono i tasti. Se `EVIOCGRAB` fallisce, il nodo va chiuso, lo stato diventa «PAD» in `warn` (`30` UI-126) e si riprova ogni secondo. La chiusura del file all'uscita rilascia il grab;
+  - lo strato di piattaforma imposta `EVIOCSCLOCKID` su `CLOCK_MONOTONIC`, così il tempo degli eventi è lo stesso di `t_us`;
+  - traduce i codici con la mappa (MIDI-122 o `pad.map`) negli identificatori portabili `MPAD_T1`…`MPAD_T12`, `MPAD_M_CCW`, `MPAD_M_PUSH`, `MPAD_M_CW`, `MPAD_M1_*`, `MPAD_M2_*` e li passa a `on_pad` del profilo `pad_brimford` (MIDI-101). I nomi `KEY_*` sono vietati, come i `BTN_*` (MIDI-090).
+
+- **MIDI-125** — **Lettura degli eventi** [D; V VP-3, VP-4]:
+  - `EV_KEY` con valore 1 = giù, 0 = su; il valore 2 (ripetizione automatica del kernel) DEVE essere ignorato;
+  - **rotazioni**: ogni scatto arriva come una pressione con rilascio. Conta solo il `KEY_DOWN`: un `KEY_DOWN` = uno scatto, `PNL_ENC_TURN` con `b` = ±1; il rilascio si ignora. Scatti veloci non devono andare persi [V VP-4]: se il macro pad li accorpa o li scarta, non c'è modo di recuperarli e va annotato in VP-4;
+  - **pressioni** (tasti e manopole): servono «giù» alla pressione e «su» al rilascio, altrimenti tenere, premere e ruotare, il modificatore m1 e T12 non funzionano [V VP-3]. Se VP-3 mostra che una pressione arriva come un tocco istantaneo (giù e su insieme qualunque sia la durata), il profilo DEVE passare a un ripiego per quel comando: m1 diventa un interruttore (primo tocco = Bass Voicing premuto, secondo = rilasciato, rilascio automatico dopo 10 s), T12 vale un doppio tocco entro 400 ms; per T1–T9, M e m2 resta solo il premere.
+
+- **MIDI-126** — **T12 Panic** [D, 13/10/2026]: il profilo DEVE emettere `PNL_MACRO(MACRO_PANIC)` **una volta**, quando T12 resta premuto per 1 s (controllo in `on_tick`); un rilascio prima di 1 s non produce nulla. È tenuto apposta, per non premerlo per sbaglio.
+
+- **MIDI-127** — **Hot-plug** [D]: come per la MPK (§11):
+  - senza macro pad, lo strato di piattaforma DEVE cercarlo ogni secondo senza bloccare audio e interfaccia;
+  - la disconnessione si rileva da `POLLERR`, `POLLHUP` o da `read()` che fallisce con `ENODEV`;
+  - allora il profilo emette con `on_lost` i rilasci sintetici di tutto ciò che risultava premuto (T1–T9, pressioni di M, m1 e m2), annulla l'attesa di T12 ed emette `PNL_SRC_LOST(SRC_MACROPAD)`. Al collegamento: `PNL_SRC_CONNECTED(SRC_MACROPAD)`;
+  - una disconnessione NON DEVE fermare il suono interno né il trasporto (come MIDI-113);
+  - un dispositivo HID collegato all'avvio sposta il numero del gamepad della Flip: per questo il gamepad si cerca per nome (MIDI-090, `50` PLT-053).
+
+- **MIDI-128** — **Collegamento e alimentazione** [O per hub e dock; D per il resto]:
+  - il macro pad va su un **hub USB 2.0 semplice, senza Power Delivery**, sulla porta USB-C **di sopra** della Flip (OTG), insieme alla MPK (`50` PLT-091);
+  - le docking station con Power Delivery non funzionano con la Flip, e `otg_mode` NON DEVE mai essere forzato (§8.2);
+  - il macro pad va usato **solo via cavo**: se ha un selettore di modo, sta su USB. Con la batteria interna in carica dall'hub il consumo cresce [V VP-6]; l'RGB va spento [V VP-7].
+
+- **MIDI-129** — **Convivenza con MPK e Flip** [D, 13/10/2026]:
+  - il profilo `pad_brimford` è attivo insieme a `mpk_stame` (o `mpk_fabbrica`) e a `flip_tasti`, anche nel modo tascabile; non cambia la mappa degli altri profili;
+  - il banco B della MPK e il PUSH (B8 o X) restano attivi come riserva;
+  - funziona anche senza MPK: in quel caso le note arrivano solo dal modo tascabile (§9.2);
+  - quando il macro pad è collegato, le legende delle celle e la legenda viva mostrano i suoi nomi (`30` UI-152, UI-155) e la barra di stato mostra «PAD» (`30` UI-126).
+
 ---
 
 ## 9. Tasti fisici della Flip
 
-- **MIDI-090** — Stame DEVE leggere i tasti direttamente da evdev (`/dev/input/event5`) e NON DEVE usare insieme il gamepad di SDL, che legge lo stesso dispositivo con un'altra mappatura e lascia tasti "già premuti" [O]. Lo strato di piattaforma traduce i codici in un enum portabile con prefisso `PAD_*`. I nomi `BTN_*` sono vietati, perché collidono con le macro di `linux/input.h` [O].
+- **MIDI-090** — Stame DEVE leggere i tasti direttamente da evdev, dal dispositivo «MIYOO Player1» cercato per nome (di solito `/dev/input/event5`, ma un dispositivo HID collegato all'avvio, come il macro pad, lo sposta: `50` PLT-053), e NON DEVE usare insieme il gamepad di SDL, che legge lo stesso dispositivo con un'altra mappatura e lascia tasti "già premuti" [O]. Lo strato di piattaforma traduce i codici in un enum portabile con prefisso `PAD_*`. I nomi `BTN_*` sono vietati, perché collidono con le macro di `linux/input.h` [O].
 
 | Tasto | Codice evdev [O] |
 |---|---|
@@ -519,8 +652,8 @@ Se sulla MPK è attivo un altro programma (per esempio il PGM1 "MPC" di fabbrica
 | Croce destra / sinistra | `PNL_ENC_TURN(ENC_FOCUS, +1/−1)`, con ripetizione | Come su / giù |
 | A | `PNL_ENC_DOWN/UP(ENC_FOCUS)` | Pressione dell'encoder con il fuoco: conferma; tenere = tenere; A tenuto + croce = premere e ruotare |
 | B | `PNL_BACK` | Indietro |
-| **X** | **PUSH** (§8.6) | Tenuto: la manopola della MPK toccata o girata viene "premuta" (premere, tenere, premere e ruotare). Senza MPK non fa nulla |
-| Y | `PNL_ENC_DOWN/UP(ENC_BASS_VOICING)` | Bass Voicing premuto: il modificatore delle combinazioni (Y + A con il fuoco su Loop = uscita hard dal loop) |
+| **X** | **PUSH** (§8.6) | Riserva per quando il macro pad non c'è (resta attivo anche con il macro pad). Tenuto: la manopola della MPK toccata o girata viene "premuta" (premere, tenere, premere e ruotare). Senza MPK non fa nulla |
+| Y | `PNL_ENC_DOWN/UP(ENC_BASS_VOICING)` | Bass Voicing premuto, come m1 del macro pad: il modificatore delle combinazioni (Y + A con il fuoco su Loop = uscita hard dal loop) |
 | SELECT | `PNL_ENC_DOWN/UP(ENC_OPTIONS)` | Pulsante di Options |
 | START | `PNL_ENC_DOWN/UP(ENC_BPM)` | Pulsante di BPM (beat o metronomo) |
 | MENU | `PNL_MACRO(MACRO_SYSTEM_MENU)` | Menu della piattaforma (`30` UI-129): Panic, Pocket Mode, Quit Stame… |
@@ -594,7 +727,7 @@ typedef enum {
 
 #define PNL_F_VERTICAL 0x80         /* in a, solo per PNL_ENC_TURN(ENC_FOCUS): scatto da un comando verticale (MIDI-105) */
 
-typedef enum { SRC_MPK, SRC_FLIP, SRC_COUNT } src_t;
+typedef enum { SRC_MPK, SRC_FLIP, SRC_MACROPAD, SRC_COUNT } src_t;   /* SRC_MACROPAD: §8.10 */
 
 typedef struct {
     uint8_t  type;                  /* pnl_type_t */
@@ -615,7 +748,7 @@ typedef struct {
     /* messaggio MIDI completo -> 0..max eventi; ritorna quanti */
     int  (*on_midi)(void *st, uint8_t port, const uint8_t *m, uint16_t n,
                     uint32_t t_us, pnl_event_t *out, int max);
-    /* tasto della console (PAD_*) o asse -> eventi */
+    /* tasto della console (PAD_*), del macro pad (MPAD_*, §8.10) o asse -> eventi */
     int  (*on_pad)(void *st, uint16_t pad_code, int32_t value,
                    uint32_t t_us, pnl_event_t *out, int max);
     /* chiamata ogni 10 ms: ripetizioni, soglie a tempo */
@@ -625,7 +758,7 @@ typedef struct {
 } ctl_profile_t;
 ```
 
-- **MIDI-102** — Più sorgenti possono essere attive insieme (MPK e tasti della Flip). Il nucleo DEVE tenere lo stato di pressione **per sorgente**: un controllo risulta premuto se lo è in almeno una sorgente; `PNL_ENC_UP` o `PNL_CHORD_UP` di una sorgente non rilascia il controllo tenuto da un'altra [D].
+- **MIDI-102** — Più sorgenti possono essere attive insieme (MPK, macro pad e tasti della Flip). Il nucleo DEVE tenere lo stato di pressione **per sorgente**: un controllo risulta premuto se lo è in almeno una sorgente; `PNL_ENC_UP` o `PNL_CHORD_UP` di una sorgente non rilascia il controllo tenuto da un'altra [D]. Aggiungere una sorgente vuol dire aggiungere un valore a `src_t` e un profilo: la logica del nucleo non cambia.
 
 ### 10.2 Profili previsti
 
@@ -634,6 +767,7 @@ typedef struct {
 | `mpk_stame` | MPK porta 1 | Programma STAME (§8.5); passa da solo a `mpk_fabbrica` (§8.8) |
 | `mpk_fabbrica` | MPK porta 1 | Programma di fabbrica o sconosciuto, funzioni ridotte |
 | `flip_tasti` | evdev | Schema a fuoco (§9.1) o modo tascabile, se acceso dal menu (§9.2) |
+| `pad_brimford` | evdev, macro pad BRIMFORD in esclusiva | Pulsanti degli encoder T1–T9, Back, Menu, Panic; manopole Chord Voicing, Bass Voicing e liste (§8.10) |
 
 Un profilo generico per qualunque tastiera MIDI, con apprendimento dei controlli, è nell'Appendice A.
 
@@ -666,27 +800,29 @@ PNL_ENC_UP(e):
 
   Il nucleo legge anche se un encoder è tenuto (`DOWN` o `HELD`) per le combinazioni: per esempio `G_PRESS(ENC_LOOP)` con `ENC_BASS_VOICING` tenuto = uscita hard dal loop [M]. Il significato di ogni gesto sta in `10` e `30`.
 
+  Il riconoscitore riceve lo **stato unito** di MIDI-102: `PNL_ENC_DOWN(e)` quando `e` passa da libero a premuto in almeno una sorgente, `PNL_ENC_UP(e)` quando lo rilasciano tutte; `PNL_ENC_TURN(e)` arriva da qualunque sorgente. Così T4 tenuto sul macro pad + K4 girata sulla MPK dà `G_PRESS_TURN(ENC_KEY)` (MIDI-121) [D, 13/10/2026].
+
 ### 10.4 Il fuoco
 
 - **MIDI-104** — `ENC_FOCUS` DEVE essere risolto dal nucleo, in questo ordine [D]:
   1. l'encoder che ha aperto la lista, il menu o l'overlay visibile (Options, menu Loop, lista dei suoni, dei modi, degli effetti, dei beat);
-  2. altrimenti il **fuoco del pannello**: un solo valore, condiviso da tutte le sorgenti, che parte da Sound. Lo cambiano `PNL_FOCUS_STEP` e la pressione di un encoder da qualunque sorgente (`PNL_ENC_DOWN(e)` con `e` ≠ `ENC_FOCUS` porta il fuoco su `e`). Così « », il joystick della MPK e la croce della Flip ruotano Bass, Loop e Options subito dopo averne premuto il pulsante.
+  2. altrimenti il **fuoco del pannello**: un solo valore, condiviso da tutte le sorgenti, che parte da Sound. Lo cambiano `PNL_FOCUS_STEP` e la pressione di un encoder da qualunque sorgente (`PNL_ENC_DOWN(e)` con `e` ≠ `ENC_FOCUS` porta il fuoco su `e`). Così m2 del macro pad, « », il joystick della MPK e la croce della Flip ruotano Options, o qualunque encoder, subito dopo averne premuto il pulsante.
 
   Lo schermo DEVE mostrare quale encoder ha il fuoco (resa in `30`).
 
 - **MIDI-105** — **Verso dei comandi verticali** [D, 13/10/2026]. Croce ▲▼ della Flip e joystick ▲▼ della MPK emettono `PNL_ENC_TURN(ENC_FOCUS | PNL_F_VERTICAL, ±1)` con su = +1. Il nucleo DEVE:
   - con una lista o un menu aperto, invertire il segno: su = voce precedente, cioè più in alto sullo schermo (`30` UI-157);
   - senza lista, usare il segno così com'è: su = valore più alto.
-  Le rotazioni vere (manopole, « », croce ◀▶) non portano il flag e seguono sempre la regola orario = successiva (`30` UI-074).
+  Le rotazioni vere (manopole della MPK e del macro pad, m2 compresa, « », croce ◀▶) non portano il flag e seguono sempre la regola orario = successiva (`30` UI-074).
 
 ### 10.5 Esempio: dal byte al gesto
 
 ```
-MPK porta 1:  B0 48 01            (K3 relativo, +1)
-midi_parse -> {port 0, B0 48 01}
-mpk_stame  -> acc[K3] = 1 < step 2: nessun evento
-MPK porta 1:  B0 48 01
-mpk_stame  -> acc[K3] = 2 -> PNL_ENC_TURN(ENC_SOUND, +1)
+MPK porta 1:  B0 46 01            (K1 relativo, +1)
+midi_parse -> {port 0, B0 46 01}
+mpk_stame  -> acc[K1] = 1 < step 2: nessun evento
+MPK porta 1:  B0 46 01
+mpk_stame  -> acc[K1] = 2 -> PNL_ENC_TURN(ENC_SOUND, +1)
 gesti      -> G_TURN(ENC_SOUND, +1)
 nucleo     -> suono successivo (10/20); overlay (30)
 ```
@@ -703,6 +839,8 @@ nucleo     -> suono successivo (10/20); overlay (30)
 - **MIDI-115** — Al ricollegamento Stame DEVE rifare la sequenza di avvio (§8.9); se il trasporto è in moto, mandare `FA` sulle destinazioni del clock e riprendere i `F8` dal tick successivo [D].
 - **MIDI-116** — Se dopo il ricollegamento la MPK ha un numero di scheda diverso, Stame DEVE ritrovarla comunque (MIDI-070) [V VM-26].
 
+Il macro pad segue regole analoghe, in MIDI-127.
+
 ---
 
 ## 12. Verifiche da fare sulla MPK (sintesi)
@@ -714,8 +852,10 @@ L'elenco completo dei 29 test è nelle [Questioni aperte](#questioni-aperte); co
 | 1 — senza questi non si parte | VM-25 driver e riconoscimento; VM-1 consumo; VM-2 DIN come interfaccia; VM-26 hot-plug | MIDI-025, MIDI-070, MIDI-110…116 |
 | 2 — taratura della mappa | VM-8 Relative e accelerazione; VM-9 e VM-29 joystick; VM-13 LED del trasporto; VM-15 pedale; VM-22 Trpt e PadAT globali; VM-27 latenza e traffico | MIDI-081…085 |
 | 3 — clock e CV | VM-5 clock in ingresso alla MPK; VM-6 Clock Out; VM-4 sorgente della CV; VM-7 tracking della CV | MIDI-038, MIDI-086 |
-| 4 — comodità | VM-12 LED dei pad; VM-16 nomi delle manopole; VM-11 Program Change; VM-23 cambio di programma; VM-20 nota più bassa; VM-28 velocity dei pad | MIDI-087, MIDI-089 |
+| 4 — comodità | VM-12 LED dei pad; VM-16 nomi delle manopole; VM-11 Program Change; VM-23 cambio di programma; VM-20 nota più bassa; VM-28 velocity dei pad | MIDI-087, MIDI-119 |
 | 5 — solo con l'ok di Luigi | VM-10 lettura SysEx; VM-21 backup dei programmi; VM-24 traffico dell'editor | MIDI-077 |
+
+Per il macro pad le verifiche sono VP-1…VP-7 (in [Questioni aperte](#questioni-aperte)). Prima di scrivere `pad_brimford` servono VP-1 (identità e nodi evdev), VP-2 (codici ammessi) e VP-3 («giù» e «su» delle pressioni).
 
 ---
 
@@ -733,11 +873,17 @@ L'elenco completo dei 29 test è nelle [Questioni aperte](#questioni-aperte); co
 | T-MIDI-08 | Cambio del canale Bass da 2 a 5 con nota di basso accesa | `81 kk 00` prima di qualunque messaggio sul ch5 |
 | T-MIDI-09 | Ingresso DIN: `9A 3C 64` (ch11) | Nessun suono |
 | T-MIDI-10 | Ingresso DIN: `F0 7E 7F 06 01 F7` | Risposta `F0 7E 7F 06 02 7D 53 54 01 00 …`; mai `00 22 0C` |
-| T-MIDI-11 | MPK: B8 giù, K6 +1, B8 su entro 1 s | `G_PRESS(ENC_KEY)`; nessun cambio di tonalità |
+| T-MIDI-11 | MPK: B8 giù, K4 +1, B8 su entro 1 s | `G_PRESS(ENC_KEY)`; nessun cambio di tonalità |
 | T-MIDI-12 | MPK: due Do (48 e 60) premuti, rilascio di 48 | Un solo `PNL_KEY_DOWN(0)`; `PNL_KEY_UP(0)` solo al rilascio di 60 |
 | T-MIDI-13 | MPK scollegata con accordo tenuto, poi ricollegata | Rilasci sintetici, suono interno chiuso; al ricollegamento Note Off sul DIN e CC 123 + 120 |
-| T-MIDI-14 | K3 in Absolute (programma di fabbrica), valore da 40 a 44 | Profilo in fabbrica; 2 scatti di Sound con `step` = 2 |
+| T-MIDI-14 | K1 in Absolute (programma di fabbrica), valore da 40 a 44 | Profilo in fabbrica; 2 scatti di Sound con `step` = 2 |
 | T-MIDI-15 | Nomi esposti | Nessuno comincia con "orchid" (anche "Orchid", " ORCHID") |
+| T-MIDI-16 | Macro pad: F16 giù, poi MPK K4 +2 (uno scatto), poi F16 su | `G_PRESS_TURN(ENC_KEY, +1)` (transpose); nessun `G_PRESS(ENC_KEY)` |
+| T-MIDI-17 | Macro pad: F24 tenuto 0,5 s, poi tenuto 1,2 s | Primo: nessun evento; secondo: un solo `MACRO_PANIC`, a 1 s |
+| T-MIDI-18 | Macro pad: KP5 giù, F18 giù e su, KP5 su | `G_PRESS(ENC_LOOP)` con `ENC_BASS_VOICING` tenuto: uscita hard dal loop |
+| T-MIDI-19 | Lista dei suoni aperta; KP3 giù e su, poi KP1 giù e su | Voce successiva, poi precedente; nessun `PNL_F_VERTICAL` |
+| T-MIDI-20 | Macro pad scollegato con F13 tenuto | `PNL_ENC_UP(ENC_SOUND)` sintetico, poi `PNL_SRC_LOST(SRC_MACROPAD)`; nessun `G_HOLD` dopo |
+| T-MIDI-21 | Macro pad: F17 tenuto con ripetizione automatica (valori 1, 2, 2, 2, 0) | Un solo `PNL_ENC_DOWN(ENC_BASS)` e un solo `PNL_ENC_UP` |
 
 ---
 
@@ -817,17 +963,30 @@ Per il principio di fedeltà queste opzioni esistono ma partono spente [D].
 | VM-29 | Joystick: risoluzione, zona morta, valori a riposo | MIDI-082 |
 | VM-30 | Pad tenuto mentre si preme BANK: il Note Off ha la nota del banco vecchio o del nuovo? I colori dei pad si possono dare per banco? | MIDI-089 |
 
+### Da verificare sul macro pad BRIMFORD (VP)
+
+| ID | Test | Default scelto | Requisiti |
+|---|---|---|---|
+| VP-1 | Identità: VID:PID, nome evdev, quanti nodi `/dev/input/event*` crea e quali codici dichiara ciascuno (`evtest`); se `EVIOCGRAB` riesce su tutti | Riconoscimento per VID:PID, tutti i nodi in esclusiva | MIDI-124 |
+| VP-2 | Il software sikaicase o `ch57x-keyboard-tool` ammettono F13–F24 e KP1–KP9? Nomi esatti nel file YAML; la configurazione resta dopo lo scollegamento? | Sì; altrimenti Learn Pad | MIDI-122, MIDI-123 |
+| VP-3 | Pressione dei tasti e delle manopole: arrivano «giù» alla pressione e «su» al rilascio, o un tocco istantaneo? Ripetizione automatica? | Giù e su separati | MIDI-121, MIDI-125, MIDI-126 |
+| VP-4 | Rotazioni: un evento per scatto? Scatti veloci persi o accorpati (girare 20 scatti in fretta e contarli)? Le manopole hanno davvero gli scatti? | Un `KEY_DOWN` per scatto, nessuno perso | MIDI-125 |
+| VP-5 | Posizione delle tre manopole rispetto ai tasti; quale è M, m1, m2; ordine delle manopole nella configurazione | Da fissare con l'unità in mano | MIDI-120, MIDI-122 |
+| VP-6 | Assorbimento dalla porta OTG, con la batteria interna in carica e con l'RGB acceso e spento; MPK e macro pad insieme sull'hub senza PD | Regge con l'hub; altrimenti hub alimentato | MIDI-128 |
+| VP-7 | L'RGB si può spegnere dalla configurazione e resta spento? | Spento | MIDI-122, MIDI-128 |
+
 ### Decisioni di progetto da confermare con Luigi (D)
 
 | ID | Decisione | Proposta |
 |---|---|---|
-| D-1 | Mappa dei pad del banco B e del PUSH (B8) | **Decisa il 13/10/2026**: pad = pulsanti funzione come in §8.5; il banco A fa gli 8 tasti accordo; PUSH anche sul tasto X della Flip |
+| D-1 | Mappa dei pad del banco B e del PUSH (B8) | **Decisa il 13/10/2026**: pad = pulsanti funzione come in §8.5; il banco A fa gli 8 tasti accordo; PUSH anche sul tasto X della Flip. Con il macro pad (D-8) banco B e PUSH diventano una riserva |
 | D-2 | Il tasto Stop della MPK come scorciatoia del looper (pressione = stop/pausa, tenuto 1 s = Clear) | **Deciso il 13/10/2026** (mappa scelta da Luigi) |
 | D-3 | Tasti della Flip e modo tascabile | **Deciso il 13/10/2026**: schema a fuoco sempre attivo; modo tascabile opzionale, acceso dal menu (§9.1, §9.2). Resta da provare la disposizione del tascabile |
 | D-4 | Ingresso dal DIN IN attivo per default, con il rischio di anello se un apparecchio esterno rimanda indietro i messaggi | Attivo; valutare un'opzione o un rilevamento dell'eco |
 | D-5 | Clock verso la porta 1 della MPK attivo per default | Sì |
 | D-6 | ID SysEx 7D con famiglia "ST" finché il progetto resta un prototipo | Sì |
 | D-7 | Convenzione dei nomi delle note (Do centrale = C4) | Da allineare con `10` e `30` |
+| D-8 | Macro pad BRIMFORD e nuova mappa dei controlli | **Decisa il 13/10/2026**: griglie gemelle K1–K8 / T1–T8 (K1 Sound … K8 Volume), M = Chord Voicing, m1 = Bass Voicing, m2 = liste; T9 Options, T10 Back, T11 Menu, T12 Panic tenuto (§8.10). Resta da provare con le mani, dopo VP-3 e VP-5 |
 
 ### Dati mancanti senza un test previsto
 - Come la Plus capisce di essere collegata a un "computer" (enumerazione USB?) e quindi se la Flip conta come tale: lo dirà VM-2.
@@ -842,6 +1001,6 @@ Per il principio di fedeltà queste opzioni esistono ma partono spente [D].
 | `00-panoramica.md` | Architettura a strati (`core`, `dsp`, `gfx`, `platform/flip`), glossario | Lo strato di input logico e i moduli `midi_parse`, `midi_in`, `midi_out` |
 | `10-accordi-e-performance.md` | Uso di `pnl_event_t` e dei gesti; logica mono della tastiera; Play Style; elenco ordinato delle 42 tonalità (CC 107); sottotipi della Perform (CC 103); macchina a stati del looper e del beat (trasporto, LED); significato di ogni gesto | Eventi del pannello, gesti, tempi di "tenere premuto", stato del trasporto MIDI |
 | `20-suono.md` | Mappa dei 135 indici NRPN per Sound e Bass e dei 53 drum; BENDRANGE; risposta a CC 1, 64, 120, 121, 123; pool di 16 voci e furto di voce; rilascio rapido per il panic | Messaggi d'ingresso già decodificati |
-| `30-interfaccia.md` | Resa di fuoco, overlay, avvisi (MPK occupata, programma non STAME, modo tascabile), menu Options > Audio and MIDI, menu di sistema (MENU) | Eventi `PNL_BACK`, `ENC_FOCUS`, `MACRO_SYSTEM_MENU` |
-| `50-piattaforma-flip.md` | Thread di input e di scrittura MIDI, apertura rawmidi, evdev, conversione da campioni a tempo reale per clock e note, budget di latenza e jitter, porta OTG e hub | Requisiti di temporizzazione (MIDI-032), code (MIDI-004), sequenza di avvio (§8.9), hot-plug (§11) |
-| `90-questioni-aperte.md` | — | Le verifiche VO-1…15, VM-1…29 e le decisioni D-1…7 |
+| `30-interfaccia.md` | Resa di fuoco, overlay, avvisi (MPK occupata, programma non STAME, modo tascabile, macro pad senza mappa), menu Options > Audio and MIDI, menu di sistema (MENU) con Learn Pad, contrassegno «PAD», legende con i nomi del macro pad | Eventi `PNL_BACK`, `ENC_FOCUS`, `MACRO_SYSTEM_MENU`; stato del macro pad (MIDI-124, MIDI-127) |
+| `50-piattaforma-flip.md` | Thread di input e di scrittura MIDI, apertura rawmidi, evdev (gamepad cercato per nome, PLT-053; macro pad in esclusiva con `EVIOCGRAB` e traduzione in `MPAD_*`), file `Saves/stame/pad.map`, conversione da campioni a tempo reale per clock e note, budget di latenza e jitter, porta OTG e hub senza PD (PLT-091) | Requisiti di temporizzazione (MIDI-032), code (MIDI-004), sequenza di avvio (§8.9), hot-plug (§11, MIDI-127), riconoscimento del macro pad (MIDI-124) |
+| `90-questioni-aperte.md` | — | Le verifiche VO-1…15, VM-1…30, VP-1…7 e le decisioni D-1…8 |

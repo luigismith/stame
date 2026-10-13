@@ -46,11 +46,13 @@ def z1(st):
     o.append(f'<circle cx="180" cy="12" r="4" fill="{T["line"]}"/>')
     o.append(tx(208, 4, st.get('vox', 'VOX 07/16'), 'S', 'text'))
     o.append(tx(292, 4, 'CPU 23%', 'S', 'text'))
-    o.append(rc(360, 7, 104, 4, 'bar') + rc(360, 7, 78, 4, 'text') + rc(360, 13, 104, 4, 'bar') + rc(360, 13, 74, 4, 'text'))
-    o.append(rc(442, 7, 2, 4, 'active') + rc(438, 13, 2, 4, 'active'))
-    o.append(tx(468, 4, 'clip', 'S', 'dim'))
+    o.append(rc(360, 7, 88, 4, 'bar') + rc(360, 7, 66, 4, 'text') + rc(360, 13, 88, 4, 'bar') + rc(360, 13, 62, 4, 'text'))
+    o.append(rc(430, 7, 2, 4, 'active') + rc(426, 13, 2, 4, 'active'))
+    o.append(tx(452, 4, 'clip', 'S', 'dim'))
+    if st.get('pad', True):
+        o.append(tx(492, 4, 'PAD', 'S', 'focus', weight='700'))
     if st.get('pocket'):
-        o.append(tx(512, 4, 'POCKET', 'S', 'active', weight='700'))
+        o.append(tx(520, 4, 'POCKET', 'S', 'active', weight='700'))
     o.append(tx(576, 4, '87%', 'S', 'text'))
     o.append(rc(606, 6, 26, 12, 'bg', 'dim', 1) + rc(632, 9, 2, 6, 'dim') + rc(608, 8, 19, 8, 'text'))
     return ''.join(o)
@@ -135,20 +137,22 @@ def z3(st):
 WHITE_PC = [0, 2, 4, 5, 7, 9, 11]
 
 def z4(st):
+    """UI-150: 4 ottave da kb_lo, tasti bianchi di 21 px."""
     o = [rc(0, 184, 640, 104, 'bg')]
     treble = set(st.get('treble', [49, 52, 56, 59]))
     bass = set(st.get('bass', [37]))
     loopn = set(st.get('loopn', [45, 57, 64]))
     inkey = st.get('inkey', {6, 8, 9, 11, 1, 2, 4})
     W, WB = st.get('W', 49), st.get('WB', 37)
+    kb_lo = 12 * (min(W, WB) // 12)
     pocket_pc = st.get('pocket_pc')
     keys = {}
-    for i in range(56):
+    for i in range(28):
         octv, k = divmod(i, 7)
-        midi = 12 + 12 * octv + WHITE_PC[k]
-        keys[midi] = (12 + 11 * i, 10, 200, 271, True)
+        midi = kb_lo + 12 * octv + WHITE_PC[k]
+        keys[midi] = (12 + 22 * i, 21, 200, 271, True)
         if k not in (2, 6):
-            keys[midi + 1] = (12 + 11 * i + 7, 7, 200, 243, False)
+            keys[midi + 1] = (12 + 22 * i + 15, 13, 200, 243, False)
     def draw_key(m):
         x, w, t, b, white = keys[m]
         col = 'kb_white' if white else 'kb_black'
@@ -164,11 +168,11 @@ def z4(st):
         if (m % 12) in inkey:
             on = m in treble or m in bass
             if white:
-                out.append(rc(x + 3, 254, 4, 4, 'bg' if on else 'in_key'))
+                out.append(rc(x + 7.5, 252, 6, 6, 'bg' if on else 'in_key'))
             else:
-                out.append(rc(x + 2, 230, 3, 3, 'bg' if on else 'in_key'))
+                out.append(rc(x + 4, 228, 5, 5, 'bg' if on else 'in_key'))
         if pocket_pc is not None and (m % 12) == pocket_pc and W <= m <= W + 11:
-            out.append(f'<rect x="{x + 0.5}" y="{t + 0.5}" width="{w - 1}" height="{b - t}" fill="none" stroke="{T["focus"]}" stroke-width="1.5"/>')
+            out.append(f'<rect x="{x + 1}" y="{t + 1}" width="{w - 2}" height="{b - t - 1}" fill="none" stroke="{T["focus"]}" stroke-width="2"/>')
         return ''.join(out)
     for m in sorted(keys):
         if keys[m][4]:
@@ -183,9 +187,13 @@ def z4(st):
         return rc(x0, y, x1 - x0, 2, col) + rc(x0, y - 2, 1, 6, col) + rc(x1 - 1, y - 2, 1, 6, col)
     o.append(win(W, 189, 'treble'))
     o.append(win(WB, 195, 'bass'))
-    for octv in range(8):
-        x = 12 + 11 * 7 * octv
-        o.append(tx(x, 274, f'C{octv}', 'XS', 'text' if octv == 4 else 'dim'))
+    out_hi = [m for m in treble | bass | loopn if m > kb_lo + 47]
+    if out_hi:
+        o.append(f'<polygon points="630,228 637,236 630,243" fill="{T["loop"]}"/>')
+    for octv in range(4):
+        x = 12 + 22 * 7 * octv
+        n = kb_lo // 12 - 1 + octv
+        o.append(tx(x + 2, 272, f'C{n}', 'S', 'text' if n == 4 else 'dim'))
     return ''.join(o)
 
 CELLS_ROW1 = [('SOUND', 208), ('PERFORM', 160), ('FX', 144), ('KEY', 128)]
@@ -223,19 +231,19 @@ def z5_cells(st):
     pr = st.get('pressed', {})
     tov = st.get('title_override', {})
     data1 = {
-        'SOUND': ('03 Analog Flower', 'VA  pluck', 'K3', 'text'),
-        'PERFORM': ('Arpeggiate', '16  UP/DOWN', 'K4 B3', 'text'),
-        'FX': ('Reverb 04', 'REV4 CHO3 DLY5', 'K5', 'text'),
-        'KEY': ('F♯ Minor', 'Trans +3', 'K6 B1', 'active'),
+        'SOUND': ('03 Analog Flower', 'VA  pluck', 'K1 T1', 'text'),
+        'PERFORM': ('Arpeggiate', '16  UP/DOWN', 'K2 T2', 'text'),
+        'FX': ('Reverb 04', 'REV4 CHO3 DLY5', 'K3 T3', 'text'),
+        'KEY': ('F♯ Minor', 'Trans +3', 'K4 T4', 'active'),
     }
     data2 = {
-        'BASS': ('On  03', 'Fifth Organ Bass', 'B2'),
-        'LOOP': (st.get('loop_cell', 'Play'), st.get('loop_det', 'bar 2/4'), 'B5 Rec Stop'),
-        'BPM': ('120', 'Beat 03', 'K7 B6 Play'),
-        'VOLUME': ('72', 'Bass 70', 'K8'),
-        'OPTIONS': ('Chord', 'Simple', 'B7 SEL'),
-        'CH.VOICING': ('049', 'C♯3 Oct', 'K1 B4'),
-        'BS.VOICING': ('37', 'C♯2', 'K2 Y'),
+        'BASS': ('On  03', 'Fifth Organ Bass', 'K5 T5'),
+        'LOOP': (st.get('loop_cell', 'Play'), st.get('loop_det', 'bar 2/4'), 'K6 T6 Rec'),
+        'BPM': ('120', 'Beat 03', 'K7 T7 Play'),
+        'VOLUME': ('72', 'Bass 70', 'K8 T8'),
+        'OPTIONS': ('Chord', 'Simple', 'm2 T9 SEL'),
+        'CH.VOICING': ('049', 'C♯3 Oct', 'M'),
+        'BS.VOICING': ('37', 'C♯2', 'm1 Y'),
     }
     o = []
     x = 0
@@ -289,20 +297,20 @@ def z6(st):
     mode = st.get('z6', 'gioco')
     if mode == 'gioco':
         o.append(legend_row(6, 436, [('L1 R1', 'focus'), ('✚', 'turn'), ('A', 'press'), ('B', 'back'), ('X', 'push'), ('Y', 'bs.voicing'), ('SEL', 'opt'), ('START', 'bpm')]))
-        o.append(legend_row(6, 456, [('Rec', 'loop'), ('Play', 'bpm'), ('Stop', 'pause/hold clear'), ('« » joy', 'turn'), ('B8', 'push')]))
+        o.append(legend_row(6, 456, [('Rec', 'loop'), ('Stop', 'pause'), ('T', 'press'), ('T+K', 'press&turn'), ('M', 'voicing'), ('m1', 'bs.voic'), ('m2', 'list')]))
     elif mode == 'lista':
         o.append(legend_row(6, 436, [('✚ ▲▼', 'scroll'), ('A', 'select'), ('B', 'back'), ('MENU', 'menu')]))
-        o.append(legend_row(6, 456, [('« » joy ▲▼', 'scroll'), ('joy ▶', 'select'), ('joy ◀', 'back')]))
-    elif mode == 'push':
-        o.append(tx(6, 436, 'PUSH: touch or turn a knob to press it', 'S', 'active', weight='700'))
-        o.append(tx(6, 456, 'K1 ChVoice K2 BsVoice K3 Sound K4 Perform K5 FX K6 Key K7 BPM K8 Vol  +Stop panic', 'S', 'text', size=12.6))
+        o.append(legend_row(6, 456, [('m2', 'scroll'), ('m2 press', 'select'), ('T10', 'back'), ('T11', 'menu'), ('« » joy ▲▼', 'scroll')]))
+    elif mode == 'tk':
+        o.append(tx(6, 436, 'T4 KEY held: turn K4 = Transpose   release = Key on/off', 'S', 'active', weight='700'))
+        o.append(legend_row(6, 456, [('Rec', 'loop'), ('Stop', 'pause'), ('T', 'press'), ('T+K', 'press&turn'), ('M', 'voicing'), ('m1', 'bs.voic'), ('m2', 'list')]))
     elif mode == 'transpose':
         o.append(rc(0, 434, 640, 44, 'active'))
         o.append(tx(8, 442, 'Transpose', 'M', 'bg'))
         o.append(tx(150, 438, '+3', 'L', 'bg', weight='700'))
     elif mode == 'pocket':
         o.append(legend_row(6, 436, [('L-stick', 'note'), ('A', 'play'), ('L2 L1 R1 R2', 'Dim Min Maj Sus'), ('✚', '6 m7 M7 9')]))
-        o.append(tx(6, 456, 'No MPK: Flip keys only.  MENU > Pocket Mode to play without MPK', 'S', 'dim'))
+        o.append(tx(6, 456, 'No MPK: Flip keys only.  MENU > Pocket Mode to play without MPK', 'S', 'dim', size=13.4))
     return ''.join(o)
 
 def plancia(st, width='100%'):
@@ -323,10 +331,10 @@ STATI = {
                   list_rows=[('01', 'Orchid EP', 'RP  piano elettrico', ''), ('02', 'Ghost', 'VA  pad', ''),
                              ('03', 'Analog Flower', 'VA  pluck', '✓'), ('04', 'Cherry Blossom', 'VA  pad', ''),
                              ('05', 'Eraserhead', 'FM  organo', '')]),
-    'push_rec': dict(focus='KEY', z6='push', trans='Trans +3', loop='rec', loop_cell='Rec', loop_det='bar 3/4',
+    'push_rec': dict(focus='KEY', z6='tk', trans='Trans +3', loop='rec', loop_cell='Rec', loop_det='bar 3/4',
                      pressed={'KEY': 0.6}, beat=2, loop_focus=True),
     'transpose': dict(focus='KEY', z6='transpose', trans='Trans +3', title_override={'KEY': 'TRANSPOSE'}, pressed={'KEY': 1.0}),
-    'tascabile': dict(mpk=False, pocket=True, z6='pocket', focus='CH.VOICING', pocket_pc=1, ps='SIMPLE  STICK C♯',
+    'tascabile': dict(mpk=False, pad=False, pocket=True, z6='pocket', focus='CH.VOICING', pocket_pc=1, ps='SIMPLE  STICK C♯',
                       loopn=[], loop='play'),
 }
 
@@ -342,11 +350,11 @@ def _zone_note(n, title, body):
 
 def _p2():
     notes = ''.join([
-        _zone_note('Z1', 'Barra di stato · 640×24', 'MPK collegata e programma (STAME, banco stimato A o B), attività MIDI, voci su 16, carico CPU, livello e clip, modo tascabile, batteria.'),
+        _zone_note('Z1', 'Barra di stato · 640×24', 'MPK e PAD collegati, banco stimato dei pad (A o B), attività MIDI, voci su 16, carico CPU, livello e clip, modo tascabile, batteria.'),
         _zone_note('Z2', 'Accordo · 400×160', 'Tonalità e transpose; il <b>nome dell\'accordo</b> molto grande, leggibile a un braccio di distanza; le note che suonano, basso in arancio e treble in azzurro; Play Style.'),
         _zone_note('Z3', 'Tempo e loop · 240×160', 'BPM, metrica, beat e battuta; un riquadro per movimento; stato del looper, battuta, barra di avanzamento e menu a tre voci. Cornice rossa mentre registra.'),
-        _zone_note('Z4', 'Tastiera · 640×104', '8 ottave: treble, basso e loop (striscia viola) sui tasti. Le due barre sopra sono le <b>finestre del voicing</b>: girando K1 la barra azzurra scorre di un semitono per scatto. Quadratini = note della tonalità.'),
-        _zone_note('Z5', 'Comandi · 640×144', 'Gli 11 controlli dell\'Orchid nell\'ordine del fuoco, con valore, dettaglio, LED, LOCK e la <b>legenda viva</b> (K3, B1, Play…). Il fuoco ha la cornice verde. Qui si aprono anche liste e menu.'),
+        _zone_note('Z4', 'Tastiera · 640×104', '4 ottave che seguono le finestre: treble, basso e loop (striscia viola) sui tasti. Le due barre sopra sono le <b>finestre del voicing</b>: girando M la barra azzurra scorre di un semitono per scatto. Quadratini = note della tonalità.'),
+        _zone_note('Z5', 'Comandi · 640×144', 'Gli 11 controlli dell\'Orchid nell\'ordine del fuoco, con valore, dettaglio, LED, LOCK e la <b>legenda viva</b>: K = manopola della MPK, T = tasto del pad, M/m1/m2 = manopole del pad. Il fuoco ha la cornice verde. Qui si aprono anche liste e menu.'),
         _zone_note('Z6', 'Barra contestuale · 640×48', 'Una cosa alla volta: avviso, valore che si sta cambiando (overlay), richiesta della tonalità, oppure la legenda dei tasti di Flip e MPK, che cambia con il contesto.'),
     ])
     return f"""
@@ -367,11 +375,11 @@ def _p3():
 <h2>La plancia in altri stati</h2>
 <p class="sub">Liste e menu prendono solo la zona comandi; overlay e aiuti solo la barra in fondo. Il resto non si muove.</p>
 <div style="display:flex;gap:6mm;margin-bottom:3mm;padding:0 40mm">
- {fig('lista', '<b>Lista dei suoni aperta</b> (X + tocco K3, oppure fuoco su Sound + A). La voce scelta sta sempre nella riga centrale; la barra in fondo spiega come scorrere.')}
- {fig('push_rec', '<b>Registrazione del loop con PUSH armato.</b> Cornice rossa sulla zona del loop; con X tenuto la barra in fondo elenca le manopole, e la cella KEY si riempie mentre la si tiene premuta.')}
+ {fig('lista', '<b>Lista dei suoni aperta</b> (tocco di T1, oppure fuoco su Sound + A). Si scorre con m2 e si conferma premendo m2; la voce scelta sta sempre nella riga centrale.')}
+ {fig('push_rec', '<b>Registrazione del loop, con T4 (Key) tenuto.</b> Cornice rossa sulla zona del loop; la cella KEY si riempie mentre il tasto è tenuto e la barra in fondo dice cosa succede girando K4.')}
 </div>
 <div style="display:flex;gap:6mm;padding:0 40mm">
- {fig('transpose', '<b>Funzione secondaria</b> (X tenuto + gira K6): la barra in fondo diventa gialla con il valore, la cella si rinomina TRANSPOSE.')}
+ {fig('transpose', '<b>Funzione secondaria</b> (T4 tenuto + gira K4): la barra in fondo diventa gialla con il valore, la cella si rinomina TRANSPOSE.')}
  {fig('tascabile', '<b>Senza MPK, modo tascabile.</b> «NO MPK» e «POCKET» in alto; sulla tastiera il contorno verde segna la nota scelta con la levetta; la barra in fondo spiega i comandi.')}
 </div>
 """

@@ -9,7 +9,7 @@ Stame è un clone fedele dell'Orchid (ORC—1) di Telepathic Instruments. Questa
 
 ## Forma
 - Italiano con tutti gli accenti. Termini tecnici e identificatori restano nella forma originale.
-- Requisiti numerati con prefisso di sezione (`ACC-001`, `SND-001`, `UI-001`, `MIDI-001`, `PLT-001`) e verbi normativi: **DEVE**, **NON DEVE**, **DOVREBBE**, **PUÒ**.
+- Requisiti numerati con prefisso di sezione (`ACC-001`, `SND-001`, `UI-001`, `MIDI-001`, `PLT-001`, `CASE-001`) e verbi normativi: **DEVE**, **NON DEVE**, **DOVREBBE**, **PUÒ**.
 - Tabelle e pseudocodice dove servono: lo scopo è poter scrivere codice e test direttamente dalla specifica.
 - Ogni dato di comportamento porta un'etichetta di affidabilità:
   - `[M]` dal manuale o dalla documentazione ufficiale;
@@ -30,4 +30,5 @@ I preset di fabbrica 3.92 sono dati privati: servono solo per studio e non vanno
 | `30-interfaccia.md` | `ui_model_t`, plancia 640×480 della Flip, overlay, liste, gesti; viste OLED 128×128 per l'hardware (fase 2) |
 | `40-midi-e-controlli.md` | MIDI in/out, clock, SysEx; MPK mini Plus e programma "STAME"; tasti della Flip |
 | `50-piattaforma-flip.md` | app nativa, SDL2/ALSA/evdev, toolchain, budget di latenza e CPU, struttura del codice |
+| `60-case.md` | case della fase 1: disposizione di MPK, macro pad e Flip, collegamenti, parti da stampare |
 | `90-questioni-aperte.md` | verifiche da fare sull'Orchid e sulla MPK, dati mancanti |
