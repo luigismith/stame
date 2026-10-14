@@ -31,6 +31,7 @@
 | 7 | Nomi delle note: Do centrale = C4 in tutte le sezioni | Sì | D-7 |
 | 8 | Disposizione del tavolo: la bozza del case mette la MPK davanti, il macro pad a destra e la Flip dietro; X resta la riserva del PUSH | Da provare con le mani, insieme al case | `60-case.md`, PDF dei controlli |
 | 9 | Comodità della nuova mappa con il macro pad: Tn + Kn a due mani, m1 tenuta come modificatore, T12 tenuto per il Panic | Da provare con le mani dopo VP-3 e VP-5 | D-8, MIDI-121 |
+| 10 | Contenuto del blob `STM1` (PLT-065) rispetto a `impostazioni.txt` e `stato.txt` (PLT-066) | Lo stesso testo chiave=valore dei due file, così un solo lettore serve a tutti e due (scelto nel codice il 14/10/2026) | `50` §9 |
 
 ## 2. Allineamenti tra sezioni ancora aperti
 | Questione | Sezioni | Nota |
@@ -39,6 +40,8 @@
 | Rotazione con l'encoder tenuto (stato `HELD`): ignorata in MIDI-103, mandata alla lista aperta nella vecchia `30` | `30`, `40` | Da verificare sull'Orchid (per esempio Save Sound tenuto + rotazione) |
 | Chi specifica la sintesi del kit di batteria e i Drum FX | `10`, `20` | QA-SND-30 |
 | Batteria: avviso al 15% in `50`, avvisi dell'Orchid al 10% e al 5% in `30` | `30`, `50` | Coerenti, ma da tenere allineati |
+| L2 e R2: premuti sopra 128 e rilasciati sotto 64 in MIDI-091, sopra 160 e sotto 96 in PLT-055; zona morta delle levette 50% in MIDI-091, 20% in PLT-055 | `40`, `50` | Un solo valore; decide T-PLT-10. Servono solo al modo tascabile (fase F5) |
+| Coda dell'ingresso: in MIDI-004 porta eventi del pannello, fonde le rotazioni e fa aspettare il produttore se è piena; in PLT-015/016 porta MIDI grezzo (`q_midi_in`) e scarta, senza mai aspettare | `40`, `50` | Il codice segue `50`: profili e riconoscitore girano nel thread audio (`inp_t`, 14/10/2026). MIDI-004 va riscritto |
 
 ## 3. Verifiche
 

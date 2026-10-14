@@ -164,6 +164,9 @@ int acc_process(acc_state *s, const acc_in *in, int n_in, acc_note_ev *out, int 
 int acc_input(acc_state *s, uint8_t type, uint8_t a, int16_t b, uint32_t offset,
               acc_note_ev *out, int max);
 
+/* Valore attuale di un'opzione (acc_option), per i salvataggi; 0 per un'opzione sconosciuta. */
+int acc_option_get(const acc_state *s, int opt);
+
 /* ---- Funzioni pure, esposte per i test e per l'interfaccia ---- */
 int      acc_place(int pc, int w);                                   /* W + ((pc - W) mod 12) */
 uint16_t acc_chord_mask(int type, uint8_t exts, bool dim7_true);     /* maschera relativa alla fondamentale */

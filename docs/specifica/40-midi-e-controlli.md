@@ -423,7 +423,7 @@ Rispetto alla proposta della guida (§17.6) cambiano due cose:
   - il profilo DEVE stimare il banco attivo dall'ultima nota di pad ricevuta (36–43 = A, 44–51 = B) e passarlo a `ui_model_t` come **stima**: «banco A», «banco B» o «sconosciuto» all'avvio. La plancia mostra la legenda dei pad di quel banco;
   - quando arriva una nota del banco B mentre tasti accordo del banco A risultano premuti, il profilo DEVE emettere i loro `PNL_CHORD_UP` sintetici prima dell'evento del banco B. Così un cambio di banco con un pad tenuto non lascia un accordo appeso. Vale anche al contrario per i pulsanti del banco B (`PNL_ENC_UP`, PUSH rilasciato);
   - un Note Off di pad senza il Note On corrispondente DEVE essere ignorato senza errori;
-  - cosa manda la MPK se si preme BANK con un pad tenuto (il Note Off ha la nota del banco vecchio o del nuovo?) va verificato [V VM-30]: se manda la nota del banco vecchio, la seconda regola diventa una semplice rete di sicurezza;
+  - cosa manda la MPK se si preme BANK con un pad tenuto (il Note Off ha la nota del banco vecchio o del nuovo?) va verificato [V VM-30]: se manda la nota del banco vecchio, la seconda regola diventa una semplice rete di sicurezza. Finché VM-30 non risponde, stima e rilasci contano anche i Note Off, così è coperto il caso peggiore (Note Off con la nota del banco nuovo). Se la MPK manda la nota del banco vecchio, vanno ristretti ai Note On: altrimenti il rilascio di un pad tenuto da prima del cambio rilascia anche un pulsante tenuto nel banco nuovo [D, 14/10/2026];
   - ogni funzione del banco B DEVE avere anche una strada che non richiede di cambiare banco: macro pad (§8.10), trasporto, PUSH (B8 o X della Flip) + manopola, oppure fuoco e tasti della Flip. Le funzioni da usare mentre si suona (looper, beat, pressione delle manopole) DEVONO stare su comandi sempre disponibili: i tasti del macro pad e, senza macro pad, REC, STOP, PLAY e X.
 
 ### 8.6 Gesti degli encoder sulla MPK: il pad PUSH
@@ -742,6 +742,8 @@ typedef struct {
 
 ```c
 /* core/input/profile.h */
+#define PNL_B_SYNTH 1   /* b di un PNL_ENC_UP sintetico (MIDI-103); i rilasci veri hanno b = 0 */
+
 typedef struct {
     const char *name;
     void (*reset)(void *st);
@@ -788,9 +790,11 @@ ogni 10 ms:
     DOWN, !ruotato, adesso - t_down >= T_HOLD(e)       -> G_HOLD(e); stato = HELD
     HELD, e == ENC_LOOP, adesso - t_down >= T_HOLD2     -> G_HOLD_LONG(e) (una volta)
 PNL_ENC_UP(e):
-    DOWN, !ruotato -> G_PRESS(e)
-    sempre         -> G_RELEASE(e); stato = IDLE
+    DOWN, !ruotato, b != PNL_B_SYNTH -> G_PRESS(e)
+    sempre                           -> G_RELEASE(e); stato = IDLE
 ```
+
+  Un rilascio che l'utente non ha fatto (sorgente persa, cambio di banco dei pad: MIDI-089, MIDI-112, MIDI-127; X tenuto quando si stacca la Flip) arriva come `PNL_ENC_UP` con `b = PNL_B_SYNTH`. Chiude il gesto con `G_RELEASE` ma senza `G_PRESS`, così non esegue la funzione del tocco, per esempio Rec del looper o Key mode on/off [D, 14/10/2026].
 
 | Costante | Valore | Etichetta |
 |---|---|---|

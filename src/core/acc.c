@@ -565,6 +565,28 @@ static void set_option(acc_state *s, int opt, int val)
     }
 }
 
+int acc_option_get(const acc_state *s, int opt)
+{
+    switch (opt) {
+    case ACC_OPT_PLAY_STYLE:   return s->style;
+    case ACC_OPT_EXT_ADD:      return s->ext_add;
+    case ACC_OPT_SECRET:       return s->secret;
+    case ACC_OPT_SINGLE_NOTES: return s->single_notes;
+    case ACC_OPT_VEL_SENSE:    return s->vel_sense;
+    case ACC_OPT_BASS_MODE:    return s->bass_mode;
+    case ACC_OPT_BASS_ON:      return s->bass_on;
+    case ACC_OPT_KEY_ON:       return s->key_on;
+    case ACC_OPT_KEY_INDEX:    return s->key_index;
+    case ACC_OPT_TRANSPOSE:    return s->transpose;
+    case ACC_OPT_VOICING:      return s->v;
+    case ACC_OPT_BASS_VOICING: return s->vb;
+    case ACC_OPT_COMPAT_DIM7_TRUE:         return s->compat_dim7_true;
+    case ACC_OPT_COMPAT_PARTIAL_RETRIGGER: return s->compat_partial_retrigger;
+    case ACC_OPT_COMPAT_FREE_2025:         return s->compat_free_2025;
+    default: return 0;
+    }
+}
+
 static void handle(acc_state *s, const acc_in *in)
 {
     uint32_t off = in->offset;
