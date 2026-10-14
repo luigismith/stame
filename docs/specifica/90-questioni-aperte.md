@@ -1,6 +1,6 @@
 # 90 — Questioni aperte
 
-> Indice di tutto quello che resta da verificare o decidere, al 13/10/2026. I dettagli e i test stanno nelle sezioni: qui ci sono solo l'elenco, la priorità e il rimando. Quando una questione si chiude, si aggiorna la sezione e la si toglie da qui.
+> Indice di tutto quello che resta da verificare o decidere, al 14/10/2026. I dettagli e i test stanno nelle sezioni: qui ci sono solo l'elenco, la priorità e il rimando. Quando una questione si chiude, si aggiorna la sezione e la si toglie da qui.
 
 ## 1. Decisioni di Luigi
 
@@ -31,7 +31,7 @@
 | 7 | Nomi delle note: Do centrale = C4 in tutte le sezioni | Sì | D-7 |
 | 8 | Disposizione del tavolo: la bozza del case mette la MPK davanti, il macro pad a destra e la Flip dietro; X resta la riserva del PUSH | Da provare con le mani, insieme al case | `60-case.md`, PDF dei controlli |
 | 9 | Comodità della nuova mappa con il macro pad: Tn + Kn a due mani, m1 tenuta come modificatore, T12 tenuto per il Panic | Da provare con le mani dopo VP-3 e VP-5 | D-8, MIDI-121 |
-| 10 | Contenuto del blob `STM1` (PLT-065) rispetto a `impostazioni.txt` e `stato.txt` (PLT-066) | Lo stesso testo chiave=valore dei due file, così un solo lettore serve a tutti e due (scelto nel codice il 14/10/2026) | `50` §9 |
+| 10 | ~~Contenuto del blob `STM1` (PLT-065) rispetto a `impostazioni.txt` e `stato.txt` (PLT-066)~~ | **Decisa il 14/10/2026**: lo stesso testo chiave=valore dei due file, così un solo lettore serve a tutti e due (PLT-065) | `50` §9 |
 
 ## 2. Allineamenti tra sezioni ancora aperti
 | Questione | Sezioni | Nota |

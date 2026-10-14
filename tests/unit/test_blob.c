@@ -281,7 +281,7 @@ static void t_acc_kv(void)
     CHECK_EQ(n, sizeof STA - 1);
     CHECK(n == sizeof STA - 1 && memcmp(txt, STA, n) == 0);
 
-    /* [D] andata e ritorno: il contenuto di STM1 è il testo chiave=valore dei due file */
+    /* andata e ritorno: il contenuto di STM1 è il testo chiave=valore dei due file (PLT-065) */
     for (int o = 0; o < ACC_OPT_COUNT; o++) acc_input(&A, ACC_IN_OPTION_SET, (uint8_t)o, VAL[o], 0, NULL, 0);
     for (int o = 0; o < ACC_OPT_COUNT; o++) CHECKM(acc_option_get(&A, o) == VAL[o], "opzione %d", o);
     blob_w_begin(&bw, BUF, sizeof BUF, BLOB_SETTINGS, 1);
