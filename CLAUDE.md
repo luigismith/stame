@@ -13,3 +13,9 @@ Clone fedele dell'Orchid (ORC—1) di Telepathic Instruments. Fase 1: app nativa
 - I preset di fabbrica 3.92 sono dati privati: non vanno messi nel repo.
 - **Miyoo Flip:** mai forzare la porta USB-C OTG in modalità host senza prima spiegare il rischio e chiedere l'ok.
 - **MPK mini Plus:** niente SysEx sui programmi senza backup e senza l'ok di Luigi.
+
+## Build e test
+- Nella Git Bash: `sh tools/build.sh test` (compila ed esegue i test del nucleo), `sh tools/build.sh portabilita` (header ammessi, simboli avvelenati, compilazione di prova Cortex-M7), `sh tools/build.sh ciao` (ELF aarch64 di prova per la Flip). La variabile `ZIG` indica `zig.exe` se non sta in `D:\dev\toolchain\zig-x86_64-windows-0.17.0`.
+- `test` e `portabilita` devono passare prima di ogni commit. I test seguono i vettori della specifica (`TV-xx`) e citano i requisiti con il loro ID.
+- Il nucleo (`src/core`, `dsp`, `ui`, `gfx`, `ui_flip`) include solo gli header di PLT-001 e compila anche senza `STAME_HOST`; i test e la piattaforma compilano con `-DSTAME_HOST`.
+- Script e sorgenti con fine riga LF; gli script si scrivono con l'editor, non con heredoc (PLT-073).
