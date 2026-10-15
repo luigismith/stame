@@ -35,4 +35,4 @@ for f in "$P"/*; do
     b=$($SSH "md5sum < '$D/$n'" | cut -c1-32)
     if [ "$a" = "$b" ]; then echo "ok    $n"; else echo "DIVERSO $n ($a / $b)"; ok=0; fi
 done
-[ "$ok" = 1 ] && echo "deploy: ok — sulla Flip in App > Altro > Stame" || { echo "deploy: MD5 diversi"; exit 1; }
+[ "$ok" = 1 ] && echo "deploy: ok — sulla Flip in App > Musica > Stame" || { echo "deploy: MD5 diversi"; exit 1; }

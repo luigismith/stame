@@ -59,7 +59,7 @@ sh tools/build.sh pacchetto     # the app for the Flip in build/pacchetto/App/St
 sh tools/deploy.sh              # copies it over SSH (the Flip's address in tools/flip.ip, not in git)
 ```
 
-`test` and `portabilita` must pass before every commit. On the Flip, Stame appears under **App › Altro**. Without the sample bank the sampled sounds and kits stay silent; everything else plays.
+`test` and `portabilita` must pass before every commit. On the Flip, Stame appears under **App › Musica** (**App › Altro** on a menu without areas). Without the sample bank the sampled sounds and kits stay silent; everything else plays.
 
 ## Documents
 

@@ -59,7 +59,7 @@ sh tools/build.sh pacchetto     # l'app per la Flip in build/pacchetto/App/Stame
 sh tools/deploy.sh              # la copia via SSH (l'indirizzo della Flip in tools/flip.ip, fuori da git)
 ```
 
-`test` e `portabilita` devono passare prima di ogni commit. Sulla Flip Stame compare in **App › Altro**. Senza il banco dei campioni i suoni campionati e i kit tacciono; tutto il resto suona.
+`test` e `portabilita` devono passare prima di ogni commit. Sulla Flip Stame compare in **App › Musica** (**App › Altro** su un menu senza aree). Senza il banco dei campioni i suoni campionati e i kit tacciono; tutto il resto suona.
 
 ## Documenti
 

@@ -64,19 +64,20 @@ Coordinate in mm: x verso destra dal bordo esterno del fianco sinistro, y dal re
   - pad: la fila alta ha DIM, MIN, MAJ, SUS nello spazio fra le due file (3 mm: Spleen piccolo), la fila bassa 6, m7, M7, 9 a punti Matrice sotto, con accanto in piccolo la riserva del banco B (B:KEY, B:BASS, B:PERF, B:VOIC);
   - sotto i pulsanti del trasporto: UNDO, PAUSE, BEAT, LOOP, DUB (`40` MIDI-130); sotto SHIFT: PUSH; sotto − e +: BACK e MENU; sotto la manopola di navigazione: LIST; sotto le ruote BEND e MOD.
 - **CASE-032** [D] Il fianco sinistro di betulla copre la guancia della MK4; il divisorio copre quella verso la torre.
-- **CASE-033** [D] Proposta, da decidere con Luigi: colori dei pad in tono con la plancia (accordi acqua, estensioni bianco). Sulla MK4 i LED dei pad si pilotano dall'host con Note On sul canale 7 (guida MK4 §10.3), senza SysEx: resta comunque da provare con il suo ok.
+- **CASE-033** [D, **deciso da Luigi il 15/10/2026**] I LED dei pad della MK4 in tono con la plancia (accordi acqua, estensioni bianco). Si pilotano dall'host con Note On sul canale 7 (guida MK4 §10.3), senza SysEx; la prima prova si fa con Luigi davanti, reversibile, e poi diventa un'aggiunta di Stame accesa per default [V].
 
 ## 5. La Flip sopra il pad
 - **CASE-040** [D] La metà con i tasti sta in una **culla** stampata che scende nella tasca del piano della mensola; la Flip chiusa entra di 12 mm, aperta la metà con i tasti resta nella culla. Niente legende dei tasti della Flip sul legno: dal 15/10/2026 la plancia non le mostra più (`30` UI-155) e i tasti servono solo a liste e pagina dei comandi, che il macro pad apre con T15.
-- **CASE-041** [D] Una **visiera** stampata in PETG nero circonda lo schermo aperto su tre lati: lo ripara dalla luce e lo fa sembrare il display della console. Si avvita al piano della mensola dietro la culla, non tocca la Flip [V: angolo dello schermo e ingombro della cerniera]. È facoltativa: la composizione funziona anche senza.
+- **CASE-041** [D] Una **visiera** stampata in PETG nero circonda lo schermo aperto su tre lati: lo ripara dalla luce e lo fa sembrare il display della console. Si avvita al piano della mensola dietro la culla, non tocca la Flip [V: angolo dello schermo e ingombro della cerniera]. **Deciso da Luigi il 15/10/2026: la visiera c'è** (la composizione funzionerebbe anche senza, ma così lo schermo è il display della console).
 - **CASE-042** [D] **Cartellino del pad.** Una striscia di acrilico nero (174 × 36 mm) avvitata sulla parete davanti della mensola, proprio dietro il pad, porta la mappa dei 15 tasti nello stesso ordine in cui stanno sul pad (T1 SOUND … T4 KEY, T13 LOCK / T5 BASS … T8 VOLUME, T14 VIEW / T9 OPTIONS … T12 PANIC, T15 PAGE) e le tre manopole disposte come sul pad (m1 BASS VOIC, m2 LIST, M CHORD VOIC) con il mestiere che hanno con il Lock acceso (SOUND, PERFORM, KEY; `40` MIDI-131, MIDI-132). Le tre aggiunte di Stame (T13–T15) hanno un segno sotto il nome.
+- **CASE-043** [D, **deciso da Luigi il 15/10/2026**] **Tasti del macro pad.** I 15 tasti del BRIMFORD si coprono con copritasti stampati in PETG sabbia con il nome inciso (SOUND … PAGE, gli stessi del cartellino), nel carattere delle scritte della mascherina (CASE-005). Servono le misure dello stelo e del passo dei tasti [V]; finché non ci sono, le legende stanno sul cartellino (CASE-042).
 
 ## 6. Collegamenti
 - **CASE-020** [O] Si usa la porta USB-C **di sopra** della Flip (OTG): con un apparecchio collegato passa da sola in modalità host. Mai forzare `otg_mode` (nota del second brain «Miyoo Flip e spruceOS - app native, SSH e gotcha»).
 - **CASE-021** [O] Serve un **hub USB 2.0 semplice, senza PD né ricarica passante**. Le docking station per portatili non si accendono con la Flip.
 - **CASE-022** [D] Hub non alimentato per default, nel vano sotto la mensola, nel suo fermo: MK4 e pad prendono corrente dalla batteria della Flip, con l'RGB del pad spento. Se il consumo accorcia troppo l'autonomia, si passa a un hub alimentato da un powerbank [V]. Percorsi dei cavi: OTG dalla porta di sopra della Flip, giù dietro la mensola e dentro il vano dalla finestra della parete dietro; USB-C della MK4 lungo la zona dei cavi e dentro il vano dal passaggio nel divisorio; USB-C del pad dall'intaglio della parete davanti.
 - **CASE-023** [O] La Flip si ricarica dalla porta di sotto, sul bordo davanti, meglio se a console spenta; la culla ha l'intaglio. Il case NON DEVE collegare un caricatore alla Flip mentre è in modalità host senza una prova fatta con l'ok di Luigi.
-- **CASE-024** [D] Pedale nel jack SUSTAIN della MK4 (retro). Audio dal jack della Flip (bordo davanti, connettore a 90°) verso cuffie o amplificatore: il cavo corre sotto il cartellino, lungo la parete davanti, fino al fianco destro e all'uscita nel listello del retro. In alternativa un'interfaccia audio USB sull'hub, che lascia libero il bordo davanti della Flip [V].
+- **CASE-024** [D] Pedale nel jack SUSTAIN della MK4 (retro). Audio dal jack della Flip (bordo davanti, connettore a 90°) verso cuffie o amplificatore: il cavo corre sotto il cartellino, lungo la parete davanti, fino al fianco destro e all'uscita nel listello del retro. **Deciso da Luigi il 15/10/2026: l'audio esce dal jack della Flip**; un'interfaccia audio USB sull'hub resta una possibilità futura, che il case non prevede.
 
 ## 7. Pezzi
 L'elenco completo, con quantità e materiali, è in `hardware/case/README.md`. In sintesi:
@@ -106,7 +107,8 @@ Ingombro 569,5 × 244 mm; altezza 54 ai fianchi, 133 con lo schermo aperto. Peso
 - [V] Misure del macro pad e della sua presa USB-C.
 - [V] Porte, tasti del volume, cerniera e angolo massimo dello schermo della Flip; 65° è una proposta, da provare fra 60° e 70°.
 - [V] Consumo di MK4 + pad dalla Flip con un hub non alimentato.
-- Decisioni di Luigi: colori dei pad (CASE-033); visiera sì o no (CASE-041); audio dal jack della Flip o da un'interfaccia USB sull'hub (CASE-024); tasti del macro pad stampati in sabbia con le legende.
+- [V] Stelo e passo dei tasti del macro pad, per i copritasti (CASE-043).
+- Decise da Luigi il 15/10/2026 (sera): LED dei pad in tono con la plancia (CASE-033), visiera sì (CASE-041), audio dal jack della Flip (CASE-024), tasti del macro pad in sabbia con le legende incise (CASE-043).
 - Il modello 3D `hardware/case/out/stame_console.skp` e l'immagine `docs/identita/img/case_3d.png` sono ancora della bozza 2: da rifare quando le misure [V] saranno confermate.
 
 ## Dipendenze da altre sezioni
