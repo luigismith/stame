@@ -718,7 +718,7 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 | `RECORDING` | sync a battute, fine delle N battute | `PLAYING` | lunghezza = N × battuta; strato 0 chiuso |
 | `RECORDING` | `STOP`, sync `FREE` | `PLAYING` | lunghezza = tick trascorsi; strato 0 chiuso |
 | `PLAYING` | `PAUSE` | `PAUSED` | note-off di tutte le note del loop |
-| `PAUSED` | `PLAY` | `PLAYING` | riparte da t = 0 `[V]` |
+| `PAUSED` | `PLAY` | `PLAYING` | riparte da t = 0 `[V]`; il trasporto riparte con il loop, così Beat e loop restano allineati `[D]` |
 | `PLAYING` | `OVERDUB` | `OVERDUB` | apre un nuovo strato |
 | `OVERDUB` | `STOP` | `PLAYING` | chiude lo strato `[M]` |
 | `PLAYING`, `PAUSED` | `UNDO` | stesso | toglie l'ultimo strato; con il solo strato 0 il comando diventa `CLEAR` `[M]` |
@@ -729,6 +729,8 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 | `IDLE` con loop in RAM | `OPEN` | `PLAYING` | riprende il loop in memoria `[V]` |
 
 - **ACC-223** Count-in: 1 battuta della metrica corrente `[M]`; il click del count-in ha un suono distinto `[O]`. Il comportamento in 3/4 e 6/8 è da verificare `[V]` (T-28).
+  - Il metronomo clicca durante il count-in qualunque Beat sia scelto o acceso; con un Beat la metrica è 4/4 (ACC-209) `[D]`. Per ora il clic è quello del metronomo, non un suono distinto `[D]`.
+  - Le note suonate nell'ultimo sedicesimo del count-in (`LOOP_EARLY` = 24 tick) entrano nel loop a t = 0: chi attacca un filo prima della battuta non perde l'accordo `[D]`.
 - **ACC-224** In `RECORDING` e `OVERDUB` il loop già registrato continua a suonare e a ripetersi; in `OVERDUB` tutte le ripetizioni finiscono nello stesso strato. Gli strati sono illimitati sull'originale `[M]`; Stame ne gestisce `ACC_LOOP_LAYERS` = 32.
 - **ACC-225** Una nota ancora tenuta quando la registrazione o lo strato si chiude DEVE ricevere un note-off registrato alla fine del loop; una nota tenuta oltre il punto di giro durante l'overdub DEVE avere il note-off registrato a `t mod L` `[D]`.
 - **ACC-226** Durante la riproduzione, gli eventi dello stesso tick DEVONO uscire nell'ordine registrato; a ogni giro il motore DEVE chiudere le note del giro precedente rimaste aperte prima dei nuovi note-on della stessa altezza.
