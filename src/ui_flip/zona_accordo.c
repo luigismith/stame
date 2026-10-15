@@ -321,6 +321,7 @@ uint64_t uf_sig_z2(const ui_model_t *m)
     h = UF_HV(h, m->layer.prompt);
     h = UF_HV(h, m->prefs.pocket);
     h = UF_HV(h, m->prefs.linnaeus);
+    h = UF_HV(h, m->tempo.drums_on);
     if ((m->ctl.view == VIEW_REACT || m->ctl.view == VIEW_CHORD) && m->meters.scope) {
         uint32_t t = m->now_ms / 33u;                    /* 30 fotogrammi al secondo */
         h = UF_HV(h, t);
@@ -342,6 +343,8 @@ void uf_draw_z2(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
             ui_fmt_signed(t, sizeof t, mu->transpose);
             ui_fmt_cat(buf, sizeof buf, "Trans ", t);
             gfx_text_right(fb, &GFX_L, 404, 30, buf, p->c[T_ACTIVE], 0);
+        } else if (m->tempo.drums_on) {                      /* batteria a tastiera: lo stato, dove sta il transpose */
+            gfx_text_right(fb, &GFX_L, 404, 30, "DRUMS", p->c[T_ACTIVE], 0);
         }
     }
 

@@ -688,6 +688,7 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 
 ### 10.5 Batteria a tastiera
 - **ACC-211** `DRUMS_TOGGLE` (Bass Voicing tenuto + BPM) DEVE alternare la modalità batteria: i tasti suonano un kit fisso, registrabile nel loop e quantizzabile `[O]`. In questa modalità tipi ed estensioni sono ignorati, il basso tace, nessuna performance; `KEY_DOWN` emette un evento `DRUM` con la velocity del tasto `[D]`.
+  - Stame (15/10/2026, Luigi: «lo stesso principio semplice dell'Orchid per creare loop di batteria») `[D]`: il kit è quello del Beat scelto (`20` SND-537), il colpo suona subito e, se il looper registra o sovraincide, entra nel loop con ruolo `DRUM` al **sedicesimo più vicino** (24 tick), senza note-off e senza transpose. Un colpo quantizzato in avanti durante l'overdub non si risuona nello stesso giro (sarebbe un flam): si segna e si salta una volta. Alla commutazione gli accordi tenuti si rilasciano; Reset e demo spengono la modalità. Sulla plancia: «DRUMS» nella zona accordo e le sigle degli strumenti sui tasti C4…B4, che si accendono al colpo (`30` UI-150b).
 - **ACC-212** Mappa provvisoria tasti → strumenti, kit in stile CR-78 `[V]` (T-30):
 
 | k | C | C# | D | D# | E | F | F# | G | G# | A | A# | B |

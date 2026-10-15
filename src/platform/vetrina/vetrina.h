@@ -30,7 +30,8 @@
  * timed = 1: il comando vale dal tick `at` del motore (la demo); chi lo consuma lo tiene in coda finché
  * mot_due non dice che è il momento (vet_snd_due). timed = 0: subito. */
 enum { VS_NOTE_ON, VS_NOTE_OFF, VS_CHORD_START, VS_PATCH, VS_PARAM, VS_MASTER, VS_BASS_VOL, VS_ALL_OFF,
-       VS_BPM, VS_PERF, VS_BEAT, VS_METER, VS_BEAT_ON, VS_BEAT_VOL, VS_TRANSPOSE, VS_LOOP };
+       VS_BPM, VS_PERF, VS_BEAT, VS_METER, VS_BEAT_ON, VS_BEAT_VOL, VS_TRANSPOSE, VS_LOOP,
+       VS_DRUM };                       /* a = tasto 0…11, b = velocity: batteria a tastiera (ACC-211) */
 typedef struct { uint8_t type, engine, a, b, timed; uint32_t at; } vet_snd_t;   /* engine: 0 Sound, 1 Bass */
 
 /* patch di Stame per i suoni e i bassi della vetrina (patch_vetrina.c, da tools/patch.py) */

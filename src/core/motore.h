@@ -58,6 +58,9 @@ void mot_set_bank(motore_t *m, const smp_bank_t *bank);
 /* nota del motore degli accordi: engine 0 = treble (passa dalla performance), 1 = basso; vel 0 = off */
 void mot_note(motore_t *m, int engine, uint8_t note, uint8_t vel);
 void mot_chord_start(motore_t *m);              /* KEY_DOWN di un accordo nuovo */
+/* batteria a tastiera (ACC-211): il tasto k (0 = Do … 11 = Si) colpisce lo strumento k del kit del
+ * Beat (ACC-212) e, se il looper registra, entra nel loop quantizzato al sedicesimo più vicino */
+void mot_drum(motore_t *m, uint8_t k, uint8_t vel);
 void mot_bpm(motore_t *m, uint16_t bpm);        /* 60…200 (ACC-202) */
 void mot_perf(motore_t *m, uint8_t mode, uint8_t amount);
 /* selezione del menu dei Beat: BEAT_M_METRONOME con la metrica, o BEAT_M_PATTERN con l'indice di beat.h */

@@ -57,7 +57,7 @@ Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 
 | **Volume** | volume master 0…99 | batteria della Flip | — | **Bass Volume** 0…99 |
 | **Options** | cambia la vista (fuori dalla lista) | lista: Exit, View, Play Style, Single Notes, Secret Chords | — | — |
 | **Chord Voicing** (M) | finestra ±1 semitono per scatto | Split ↔ Octave | — | — |
-| **Bass Voicing** (m1) | ottava del basso | il modificatore **Mod** (previsto: Mod + Loop = uscita forzata, Mod + BPM = batteria a tastiera, Mod + Bass = basso on/off; oggi nessuna combinazione fa qualcosa) | — | — |
+| **Bass Voicing** (m1) | ottava del basso | il modificatore **Mod**: Mod + BPM = batteria a tastiera (i 12 tasti suonano il kit del Beat e i colpi entrano nel loop quantizzati al sedicesimo; sulla plancia «DRUMS» e le sigle sui tasti C4…B4), Mod + Loop = uscita forzata dal loop (Clear); Mod + Bass = basso on/off, come Bass da solo | — | — |
 
 Liste: la voce in cima è Exit; la croce o la manopola di navigazione scorrono, A o la pressione scelgono, B chiude. Una lista si chiude da sola dopo 10 secondi, e si chiude anche toccando un altro controllo. Ogni controllo toccato accende la **banda** in fondo allo schermo con il suo nome e valore in grande: è l'overlay dell'Orchid, che qui non copre l'accordo.
 

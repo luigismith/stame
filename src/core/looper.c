@@ -47,8 +47,10 @@ static void insert(looper_t *l, uint32_t t, uint8_t role, uint8_t note, uint8_t 
     while (i > 0 && l->ev[i - 1].t > t) { l->ev[i] = l->ev[i - 1]; i--; }
     l->ev[i].t = t; l->ev[i].role = role; l->ev[i].note = note; l->ev[i].vel = vel;
     l->ev[i].layer = (uint8_t)(l->layers ? l->layers - 1 : 0);
+    l->ev[i].skip = 0;
     l->n++;
     if (i < l->pi) l->pi++;                                       /* non si risuona nello stesso giro */
+    else if (role == LOOP_DRUM && l->state == LOOP_OVERDUB) l->ev[i].skip = 1;   /* quantizzato avanti: già sentito dal vivo */
 }
 
 /* chiude lo strato: le note ancora tenute ricevono il note-off alla fine del loop (ACC-225) */
@@ -137,7 +139,8 @@ int loop_cmd(looper_t *l, int cmd, uint32_t tick, loop_ev_t *out, int max)
 
 void loop_record(looper_t *l, uint32_t tick, uint8_t role, uint8_t note, uint8_t vel)
 {
-    if (role > LOOP_BASS || note > 127) return;
+    if (role > LOOP_DRUM || note > 127) return;
+    if (role == LOOP_DRUM && vel == 0) return;                    /* i colpi non hanno note-off */
     uint32_t t;
     if (l->state == LOOP_COUNT_IN) {                              /* anticipo sulla battuta: entra a t = 0 */
         int32_t d = (int32_t)(tick - l->t0);
@@ -148,6 +151,7 @@ void loop_record(looper_t *l, uint32_t tick, uint8_t role, uint8_t note, uint8_t
     } else {
         return;
     }
+    if (role == LOOP_DRUM) { insert(l, t, role, note, vel); return; }
     if (vel == 0 && !bit_get(l->rec_open[role], note)) return;   /* note-off di una nota non registrata */
     bit_set(l->rec_open[role], note, vel != 0);
     insert(l, t, role, note, vel);
@@ -175,6 +179,11 @@ int loop_run(looper_t *l, uint32_t tick, loop_ev_t *out, int max)
     while (l->pi < l->n && l->ev[l->pi].t <= pos) {
         loop_ev_t e = l->ev[l->pi++];
         if (e.t != pos) continue;                                 /* saltato: non si recupera */
+        if (e.role == LOOP_DRUM) {                                /* colpo: niente note aperte */
+            if (e.skip) { l->ev[l->pi - 1].skip = 0; continue; }
+            if (k < max) out[k++] = e;
+            continue;
+        }
         if (e.vel == 0 && !bit_get(l->open[e.role], e.note)) continue;
         if (e.vel && bit_get(l->open[e.role], e.note) && k < max) {   /* stessa nota: prima il note-off */
             out[k] = e; out[k].vel = 0; k++;

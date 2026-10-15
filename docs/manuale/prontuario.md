@@ -10,7 +10,7 @@ Una pagina, da stampare. Vetrina 0.1, 15/10/2026. «prev.» = previsto dalla spe
 | tieni | 1 secondo | Lock del Perform, Lock dell'FX, lista dei Beat, Panic (T12) |
 | premi e gira | Tn tenuto + Kn, o manopola del pad premuta e girata | Transpose (Key), Bass Volume (Volume), Beat Volume (BPM) |
 | Loop tenuto 2 s | prev. | Save Loop / uscita morbida |
-| Mod + … | m1 premuta o Y tenuto, prev. | + Loop uscita forzata · + BPM batteria a tastiera · + Bass basso on/off |
+| Mod + … | m1 premuta o Y tenuto | + BPM batteria a tastiera (12 tasti = kit, colpi nel loop al sedicesimo) · + Loop uscita forzata (Clear) · + Bass basso on/off |
 
 ## MPK mini IV (preset DAW)
 

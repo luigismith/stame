@@ -29,8 +29,12 @@ typedef struct {
     int sound, perf_mode, perf_amount, fx_type, fx_amount, bass, volume, bass_volume;
     int bpm, beat_mode, beat, meter, beat_on, beat_volume, view;
     uint8_t lock_perf, lock_fx, sec[ENC_COUNT];
+    uint8_t drums;                      /* batteria a tastiera (ACC-211): i tasti colpiscono il kit */
+    uint32_t drum_ms[12];               /* ultimo colpo di ogni tasto, per accendere il tasto sulla plancia */
 } sim_t;
 static sim_t S;                    /* una vetrina sola per processo */
+
+static void drums_toggle(vet_t *v);             /* definita con gli ingressi, più sotto */
 
 static int wrap(int v, int n) { v %= n; return v < 0 ? v + n : v; }
 static int clampi(int v, int a, int b) { return v < a ? a : v > b ? b : v; }
@@ -394,8 +398,14 @@ static void press(vet_t *v, int enc)
         ain(v, ACC_IN_BASS_TOGGLE, 0, 0);
         overlay(v, OV_BASS_TOGGLE, ENC_BASS, v->acc.bass_on);
         break;
-    case ENC_LOOP: looper_press(v); break;
-    case ENC_BPM: S.beat_on = !S.beat_on; break;          /* TRANSPORT_TOGGLE (ACC-205) */
+    case ENC_LOOP:
+        if (gest_held(&v->inp.gest, ENC_BASS_VOICING)) loop_send(v, LOOP_C_CLEAR);   /* Mod + Loop: uscita forzata (ACC-222) */
+        else looper_press(v);
+        break;
+    case ENC_BPM:
+        if (gest_held(&v->inp.gest, ENC_BASS_VOICING)) drums_toggle(v);   /* Mod + BPM: DRUMS_TOGGLE (ACC-211) */
+        else S.beat_on = !S.beat_on;                                     /* TRANSPORT_TOGGLE (ACC-205) */
+        break;
     case ENC_VOLUME: overlay(v, OV_BATTERY, ENC_VOLUME, 0); break;
     case ENC_OPTIONS: list_open(v, L_OPTIONS, ENC_OPTIONS); break;
     case ENC_CHORD_VOICING:
@@ -408,15 +418,32 @@ static void press(vet_t *v, int enc)
 
 static void demo_release(vet_t *v);                 /* definita con la demo, più sotto */
 
+/* batteria a tastiera (ACC-211): i 12 tasti colpiscono gli strumenti del kit del Beat (ACC-212) e
+ * i colpi entrano nel loop quantizzati; tipi, estensioni, basso e performance restano fermi */
+static void drums_toggle(vet_t *v)
+{
+    S.drums = (uint8_t)!S.drums;
+    for (int k = 0; k < 12; k++) ain(v, ACC_IN_KEY_UP, (uint8_t)k, 0);   /* niente accordi appesi */
+    overlay(v, OV_DRUMS, ENC_BPM, S.drums);
+}
+
 static void handle(vet_t *v, const pnl_event_t *e)
 {
     switch (e->type) {
-    case PNL_KEY_DOWN: ain(v, ACC_IN_KEY_DOWN, e->a, e->b); break;
-    case PNL_KEY_UP: ain(v, ACC_IN_KEY_UP, e->a, 0); break;
+    case PNL_KEY_DOWN:
+        if (S.drums) {
+            snd_push(v, VS_DRUM, 0, (uint8_t)(e->a % 12), (uint8_t)(e->b ? e->b : 100));
+            S.drum_ms[e->a % 12] = v->now_ms;
+            v->m.plat.midi_in_ms = v->now_ms;
+        } else ain(v, ACC_IN_KEY_DOWN, e->a, e->b);
+        break;
+    case PNL_KEY_UP: if (!S.drums) ain(v, ACC_IN_KEY_UP, e->a, 0); break;
     case PNL_CHORD_DOWN:
+        if (S.drums) break;
         if (e->a < 4) ain(v, ACC_IN_TYPE_DOWN, e->a, 0); else ain(v, ACC_IN_EXT_DOWN, (uint8_t)(e->a - 4), 0);
         break;
     case PNL_CHORD_UP:
+        if (S.drums) break;
         if (e->a < 4) ain(v, ACC_IN_TYPE_UP, e->a, 0); else ain(v, ACC_IN_EXT_UP, (uint8_t)(e->a - 4), 0);
         break;
     case PNL_BACK:
@@ -445,6 +472,7 @@ static void handle(vet_t *v, const pnl_event_t *e)
             S.beat_on = 0;
             ain(v, ACC_IN_OPTION_SET, ACC_OPT_TRANSPOSE, 0);
             S.perf_mode = PERF_OFF; S.perf_amount = 0; S.lock_perf = 0;
+            S.drums = 0;
             S.view = VIEW_CHORD;
             v->page_until = v->now_ms;
             v->page_pinned = 0;
@@ -571,6 +599,7 @@ static void demo_reset(vet_t *v)
     loop_send(v, LOOP_C_CLEAR);
     ain(v, ACC_IN_OPTION_SET, ACC_OPT_TRANSPOSE, 0);
     S.lock_perf = S.lock_fx = 0;
+    S.drums = 0;
     S.view = VIEW_CHORD;
     S.beat_mode = BEAT_PATTERN; S.beat = 0; S.beat_on = 0;
     v->snd_sound = -1;                          /* suono, Perform ed effetto da capo (ACC-162) */
@@ -970,6 +999,9 @@ static void fill_music(vet_t *v, ui_music_t *mu)
         v->last_n = (uint8_t)n;
         for (int i = 0; i < s->treble.n; i++) { set_bit(mu->live_treble, s->treble.note[i]); mu->pc_sounding |= (uint16_t)(1u << (s->treble.note[i] % 12)); }
         if (s->bass_note >= 0) set_bit(mu->live_bass, s->bass_note);
+        if (S.drums)                                       /* il tasto colpito si accende per un attimo */
+            for (int k = 0; k < 12; k++)
+                if (S.drum_ms[k] && v->now_ms - S.drum_ms[k] < 150u) set_bit(mu->live_treble, 60 + k);
     }
     if (v->have_last) {
         uint32_t since = v->now_ms - v->released_ms;
@@ -1042,7 +1074,7 @@ static void fill_tempo_looper(vet_t *v, ui_model_t *m)
     t->beat_index = (uint8_t)(S.beat + 1);
     ui_fmt_copy(t->beat_name, sizeof t->beat_name, BEATS_NAME(S.beat % N_BEATS));
     t->beat_volume = (uint8_t)S.beat_volume;
-    t->drums_on = (uint8_t)(S.beat_on && S.beat_mode == BEAT_PATTERN);
+    t->drums_on = S.drums;                                /* batteria a tastiera (UI-097) */
     const mot_snap_t *sn = v->snap;
     if (sn && sn->tr_on) {                                        /* posizione del trasporto vero */
         uint32_t pos = sn->tick - sn->tr_t0;

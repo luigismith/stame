@@ -59,9 +59,9 @@ uint64_t uf_sig_z4(const ui_model_t *m, int kb_lo)
     h = uf_h(h, mu->live_bass, sizeof mu->live_bass);
     h = uf_h(h, mu->loop_treble, sizeof mu->loop_treble);
     h = uf_h(h, mu->loop_bass, sizeof mu->loop_bass);
-    uint8_t v[11] = { mu->W, mu->WB, mu->single_notes, mu->pocket_pc, m->prefs.pocket, m->prefs.note_labels,
+    uint8_t v[12] = { mu->W, mu->WB, mu->single_notes, mu->pocket_pc, m->prefs.pocket, m->prefs.note_labels,
                       (uint8_t)kb_lo, m->prefs.theme, (uint8_t)(mu->pc_in_key & 0xFF), (uint8_t)(mu->pc_in_key >> 8),
-                      (uint8_t)windows_shown(m) };
+                      (uint8_t)windows_shown(m), m->tempo.drums_on };
     h = uf_h(h, v, sizeof v);
     return h;
 }
@@ -142,6 +142,19 @@ void uf_draw_z4(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, int kb_l
     for (int pass = 0; pass < 2; pass++)
         for (int n = kb_lo; n < kb_lo + 48; n++)
             if (IS_BLACK[n % 12] == (pass == 1)) draw_key(fb, p, m, kb_lo, n, pass == 1);
+
+    /* batteria a tastiera (ACC-211, UI-150b): la sigla dello strumento sui tasti di C4…B4 */
+    if (m->tempo.drums_on) {
+        static const char *const DR[12] = { "KK", "RM", "SN", "CP", "CH", "TL", "OH", "TH", "MR", "CG", "CB", "CY" };
+        for (int k = 0; k < 12; k++) {
+            int n = 60 + k, x, w;
+            bool bk;
+            if (n < kb_lo || n > kb_lo + 47) continue;
+            key_box(kb_lo, n, &x, &w, &bk);
+            bool lit = bit128(mu->live_treble, n);
+            gfx_text(fb, &GFX_XS, x + (w - 12) / 2, bk ? WY0 + 4 : WY1 - 36, DR[k], p->c[lit ? T_BG : T_DIM]);
+        }
+    }
 
     /* note fuori gamma */
     bool below = false, above = false;

@@ -14,12 +14,13 @@
 
 enum { LOOP_IDLE, LOOP_WAITING, LOOP_COUNT_IN, LOOP_REC, LOOP_PLAY, LOOP_OVERDUB, LOOP_PAUSE };
 enum { LOOP_C_PRESS, LOOP_C_STOP, LOOP_C_UNDO, LOOP_C_CLEAR, LOOP_C_OVERDUB };
-enum { LOOP_TREBLE, LOOP_BASS };
+enum { LOOP_TREBLE, LOOP_BASS, LOOP_DRUM };   /* LOOP_DRUM: colpi del kit, senza note-off (ACC-211) */
 
 #define LOOP_EVENTS 8192        /* ACC-231 */
 #define LOOP_LAYERS 32          /* ACC-224 */
 
-typedef struct { uint32_t t; uint8_t role, note, vel, layer; } loop_ev_t;   /* vel 0 = note-off */
+/* vel 0 = note-off; skip = colpo quantizzato in avanti mentre si registra: il giro corrente lo salta */
+typedef struct { uint32_t t; uint8_t role, note, vel, layer, skip; } loop_ev_t;
 
 #define LOOP_EARLY 24u          /* anticipo accettato alla fine del count-in, in tick */
 

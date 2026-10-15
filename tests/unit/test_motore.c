@@ -311,8 +311,52 @@ static void test_due(void)
     CHECK(M.perf.active && M.perf.step == 1 && M.perf.next == 124);
 }
 
+/* ACC-211, ACC-212: batteria a tastiera nel loop, quantizzata al sedicesimo; il colpo suona dal vivo e al giro dopo */
+static void test_drum_loop(void)
+{
+    static dsp_t D;
+    static motore_t M;
+    static float l[16], r[16];
+    dsp_init(&D, 48000.0f, 1);
+    mot_init(&M, &D, 48000, 1);                                   /* 120 BPM: 250 campioni per tick */
+    mot_loop(&M, LOOP_C_PRESS);                                   /* count-in di 384 tick, poi 4 battute */
+    while (M.tick < 384 + 100) mot_render(&M, l, r, 16);
+    CHECK_EQ(M.loop.state, LOOP_REC);
+    mot_drum(&M, DRUM_SNARE, 100);                                /* tick 484: quantizzato a 480, t = 96 nel loop */
+    CHECK_EQ(M.loop.n, 1);
+    CHECK(M.loop.ev[0].role == LOOP_DRUM && M.loop.ev[0].t == 96 && M.loop.ev[0].note == DRUM_SNARE && M.loop.ev[0].vel == 100);
+    bool on = false;
+    for (int i = 0; i < DRUM_VOICES; i++) if (M.drums.v[i].on && M.drums.v[i].inst == DRUM_SNARE) on = true;
+    CHECK(on);                                                    /* dal vivo suona subito */
+    drums_all_off(&M.drums);
+    mot_drum(&M, DRUM_KICK, 0);                                   /* velocity 0: niente */
+    CHECK_EQ(M.loop.n, 1);
+    while (M.tick <= 384 + 1536 + 96) mot_render(&M, l, r, 16);   /* il giro dopo: il rullante torna al tick 96 (tick_run gira prima di tick++) */
+    CHECK_EQ(M.loop.state, LOOP_PLAY);
+    on = false;
+    for (int i = 0; i < DRUM_VOICES; i++) if (M.drums.v[i].on && M.drums.v[i].inst == DRUM_SNARE) on = true;
+    CHECK(on);
+    /* overdub: un colpo quantizzato in avanti si registra ma non si risuona nello stesso giro */
+    mot_loop(&M, LOOP_C_OVERDUB);
+    CHECK_EQ(M.loop.state, LOOP_OVERDUB);
+    while (M.tick < 384 + 1536 + 206) mot_render(&M, l, r, 16);  /* tick 2126: pos 206 → quantizzato avanti a 216 */
+    drums_all_off(&M.drums);
+    mot_drum(&M, DRUM_COWBELL, 90);
+    CHECK_EQ(M.loop.n, 2);
+    CHECK(M.loop.ev[1].t == 216 && M.loop.ev[1].skip == 1);
+    while (M.tick <= 384 + 1536 + 216) mot_render(&M, l, r, 16);
+    on = false;
+    for (int i = 0; i < DRUM_VOICES; i++) if (M.drums.v[i].on && M.drums.v[i].inst == DRUM_COWBELL && M.drums.v[i].t > 0.03f) on = true;
+    CHECK(on);                                                    /* c'è solo il colpo dal vivo, invecchiato */
+    bool fresh = false;
+    for (int i = 0; i < DRUM_VOICES; i++) if (M.drums.v[i].on && M.drums.v[i].inst == DRUM_COWBELL && M.drums.v[i].t < 0.01f) fresh = true;
+    CHECK(!fresh);                                                /* nessun secondo colpo (flam) */
+    CHECK_EQ(M.loop.ev[1].skip, 0);                               /* al giro dopo suonerà */
+}
+
 void test_motore(void)
 {
+    test_drum_loop();
     test_strum_harp();
     test_arp();
     test_pattern_slop();

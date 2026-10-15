@@ -65,6 +65,10 @@ static void apply_perf(motore_t *m, const perf_ev_t *ev, int n)
 static void apply_loop(motore_t *m, const loop_ev_t *ev, int n)
 {
     for (int i = 0; i < n; i++) {
+        if (ev[i].role == LOOP_DRUM) {                            /* colpo registrato: il kit, senza transpose */
+            if (ev[i].vel) drums_hit(&m->drums, ev[i].note, ev[i].vel);
+            continue;
+        }
         uint8_t r = ev[i].role == LOOP_BASS ? 1 : 0, src = ev[i].note & 127u;
         dsp_engine e = r ? DSP_BASS : DSP_SOUND;
         if (ev[i].vel) {
@@ -100,6 +104,14 @@ static bool held_any(const motore_t *m)
 {
     for (int i = 0; i < 16; i++) if (m->held[i]) return true;
     return false;
+}
+
+void mot_drum(motore_t *m, uint8_t k, uint8_t vel)
+{
+    if (k >= DRUM_COUNT || vel == 0) return;
+    drums_hit(&m->drums, k, vel);
+    uint32_t q = ((m->tick + STEP_TICKS / 2u) / STEP_TICKS) * STEP_TICKS;   /* il sedicesimo più vicino */
+    loop_record(&m->loop, q, LOOP_DRUM, k, vel);
 }
 
 void mot_note(motore_t *m, int engine, uint8_t note, uint8_t vel)
