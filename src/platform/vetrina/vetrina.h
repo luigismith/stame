@@ -6,8 +6,9 @@
  * (core/motore: synth, Perform, Beat, metronomo e looper). Nomi dei suoni, effetti secondari e
  * meter di riserva sono dati della vetrina.
  *
- * Senza ingressi per 20 secondi parte una dimostrazione automatica che passa per tutti gli stati
- * della plancia; un tasto o un accordo la ferma.
+ * Senza ingressi per 20 secondi parte la demo: un brano suonato da Stame stesso (demo.h), che passa
+ * anche per gli stati della plancia; un tasto o un accordo la ferma. I suoi comandi partono un po' in
+ * anticipo con il tick del motore a cui valgono, e il thread audio li applica proprio a quel tick.
  */
 #ifndef STAME_VETRINA_H
 #define STAME_VETRINA_H
@@ -26,10 +27,12 @@
 /* Comandi per il motore audio (core/motore e synth): la vetrina li mette in coda, la piattaforma li
  * legge con vet_snd_pop e li passa al motore (thread audio sulla Flip, render in WAV sul PC).
  * VS_PERF: a = modo, b = amount; VS_BEAT: a = BEAT_M_*, b = indice; VS_LOOP: a = LOOP_C_*;
- * VS_TRANSPOSE: a = semitoni con segno. */
+ * VS_TRANSPOSE: a = semitoni con segno.
+ * timed = 1: il comando vale dal tick `at` del motore (la demo); chi lo consuma lo tiene in coda finché
+ * mot_due non dice che è il momento (vet_snd_due). timed = 0: subito. */
 enum { VS_NOTE_ON, VS_NOTE_OFF, VS_CHORD_START, VS_PATCH, VS_PARAM, VS_MASTER, VS_BASS_VOL, VS_ALL_OFF,
        VS_BPM, VS_PERF, VS_BEAT, VS_METER, VS_BEAT_ON, VS_BEAT_VOL, VS_TRANSPOSE, VS_LOOP };
-typedef struct { uint8_t type, engine, a, b; } vet_snd_t;   /* engine: 0 Sound, 1 Bass */
+typedef struct { uint8_t type, engine, a, b, timed; uint32_t at; } vet_snd_t;   /* engine: 0 Sound, 1 Bass */
 
 /* patch di Stame per i suoni e i bassi della vetrina (patch_vetrina.c, da tools/patch.py) */
 extern const uint8_t vet_sound_patch[VET_N_SOUNDS][DSP_NPAR];
@@ -69,11 +72,14 @@ typedef struct {
     uint8_t     list_owner;
     uint32_t    page_until;           /* pagina dei comandi aperta fino a qui (UI-142a) */
 
-    /* demo automatica */
+    /* demo automatica: il brano va a tick del motore (demo.h) */
     uint8_t     demo_on;              /* preferenza: demo automatica permessa */
     uint8_t     demo_running;
     uint32_t    demo_t0, last_input_ms;
+    uint32_t    demo_tick0;           /* tick del motore a cui comincia il brano */
     int         demo_step;
+    int16_t     demo_saved[6];        /* opzioni degli accordi da rimettere quando la demo si ferma */
+    uint32_t    vtick, vt_acc;        /* senza motore: tick contati dall'orologio, al BPM corrente */
 
     /* meter finti */
     float       level;
@@ -87,6 +93,8 @@ typedef struct {
     int16_t     snd_sound, snd_bass, snd_vol, snd_bvol, snd_fx;
     int16_t     snd_bpm, snd_perf, snd_beat, snd_meter, snd_beat_on, snd_beat_vol, snd_tr;
     uint8_t     snd_fx_idx;           /* parametro dell'effetto principale del suono (SND-601) */
+    uint8_t     snd_timed;            /* i comandi messi in coda adesso valgono dal tick snd_at */
+    uint32_t    snd_at;
     /* oscilloscopio e livelli veri, se la piattaforma li ha (vet_set_scope) */
     const int16_t *ext_scope;
     uint16_t    ext_scope_len;
@@ -96,8 +104,9 @@ typedef struct {
     uint8_t     quit;
 } vet_t;
 
-/* Prossimo comando per il synth; false = coda vuota. */
+/* Prossimo comando per il synth; false = coda vuota. vet_snd_peek lo legge senza toglierlo. */
 bool vet_snd_pop(vet_t *v, vet_snd_t *out);
+bool vet_snd_peek(const vet_t *v, vet_snd_t *out);
 /* L'oscilloscopio e i picchi dell'uscita vera prendono il posto di quelli simulati. */
 void vet_set_scope(vet_t *v, const int16_t *buf, uint16_t len, const volatile uint32_t *wr,
                    const volatile float *peak);
@@ -126,7 +135,7 @@ static inline bool vet_quit(const vet_t *v) { return v->quit != 0; }
 /* Per le prove: ferma l'avvio e porta la demo all'istante t_ms del suo copione, a passi di 10 ms.
  * step (se c'è) gira dopo ogni passo: la piattaforma vi passa i comandi al motore e rende l'audio. */
 void vet_demo_seek(vet_t *v, uint32_t t_ms, void (*step)(vet_t *v, void *ctx), void *ctx);
-/* Durata del copione della demo, in ms. */
+/* Durata del brano della demo, in ms, con i suoi cambi di tempo. */
 uint32_t vet_demo_len(void);
 
 #endif

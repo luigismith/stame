@@ -181,10 +181,8 @@ static int render_wav(const char *path, uint32_t ms, bool mpk)
     uint32_t frames = 0, clip = 0;
     for (uint32_t t = 0; t < ms; t++) {
         vet_tick(&vet, 100000 + t);
-        vet_snd_t e;
-        while (vet_snd_pop(&vet, &e)) vet_snd_apply(&mot, &e);
         for (int b = 0; b < 3; b++) {                     /* 1 ms = 48 frame = 3 blocchi */
-            mot_render(&mot, L, R, DSP_BLOCK);
+            vet_snd_render(&mot, &vet, L, R, DSP_BLOCK);
             for (int i = 0; i < DSP_BLOCK; i++) {
                 float l = L[i], r = R[i];
                 float a = fabsf(l) > fabsf(r) ? fabsf(l) : fabsf(r);
@@ -213,9 +211,7 @@ static void seek_step(vet_t *v, void *ctx)
 {
     (void)ctx;
     static float l[480], r[480];
-    vet_snd_t e;
-    while (vet_snd_pop(v, &e)) vet_snd_apply(&mot, &e);
-    mot_render(&mot, l, r, 480);
+    vet_snd_render(&mot, v, l, r, 480);
 }
 
 static void seek(uint32_t t)

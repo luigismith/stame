@@ -217,6 +217,12 @@ static void tick_run(motore_t *m)
     for (int i = 0; i < n; i++) drums_hit(&m->drums, h[i].inst, h[i].vel);
 }
 
+bool mot_due(const motore_t *m, uint32_t at)
+{
+    int32_t d = (int32_t)(at - m->tick);
+    return d < 0 || (d == 0 && (m->next_fp >> 32) < m->s + 16);
+}
+
 void mot_render(motore_t *m, float *L, float *R, uint32_t n)
 {
     if (m->dirty) commit(m);

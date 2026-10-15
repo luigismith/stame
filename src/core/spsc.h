@@ -62,6 +62,16 @@ static inline bool spsc_pop(spsc_t *q, void *elem)
     return true;
 }
 
+/* Solo consumatore: copia il primo elemento senza toglierlo. false = coda vuota. */
+static inline bool spsc_peek(spsc_t *q, void *elem)
+{
+    uint32_t t = atomic_load_explicit(&q->tail, memory_order_relaxed);
+    uint32_t h = atomic_load_explicit(&q->head, memory_order_acquire);
+    if (h == t) return false;
+    memcpy(elem, q->buf + (size_t)(t & q->mask) * q->elem_size, q->elem_size);
+    return true;
+}
+
 /* Numero di elementi presenti: esatto solo dal produttore o dal consumatore. */
 static inline uint32_t spsc_count(spsc_t *q)
 {

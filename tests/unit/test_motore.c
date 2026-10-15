@@ -287,6 +287,30 @@ static void test_transport_loop(void)
     CHECK(M.loop.state == LOOP_IDLE && M.tr_on == 0);
 }
 
+/* comandi a tempo (la demo della vetrina): mot_due dice quando applicarli perché valgano dal loro tick */
+static void test_due(void)
+{
+    static dsp_t D;
+    static motore_t M;
+    static float l[16], r[16];
+    dsp_init(&D, 48000.0f, 1);
+    mot_init(&M, &D, 48000, 1);                                   /* 120 BPM: un tick ogni 250 campioni */
+    CHECK(mot_due(&M, 0) && !mot_due(&M, 1));
+    for (int i = 0; i < 15; i++) mot_render(&M, l, r, 16);        /* 240 campioni: il tick 1 cade a 250 */
+    CHECK(M.tick == 1 && mot_due(&M, 1) && !mot_due(&M, 2));
+    mot_render(&M, l, r, 16);
+    CHECK(M.tick == 2 && mot_due(&M, 1) && !mot_due(&M, 2));     /* in ritardo: subito */
+
+    /* un accordo con il Pattern, applicato quando mot_due lo dice, parte proprio dal suo tick (ACC-173) */
+    mot_perf(&M, PM_PATTERN, 5);
+    while (!mot_due(&M, 100)) mot_render(&M, l, r, 16);
+    CHECK_EQ(M.tick, 100);
+    mot_chord_start(&M);
+    for (int i = 0; i < 3; i++) mot_note(&M, 0, C_MAJ[i], 100);
+    mot_render(&M, l, r, 16);
+    CHECK(M.perf.active && M.perf.step == 1 && M.perf.next == 124);
+}
+
 void test_motore(void)
 {
     test_strum_harp();
@@ -295,4 +319,5 @@ void test_motore(void)
     test_looper();
     test_clock_beat();
     test_transport_loop();
+    test_due();
 }

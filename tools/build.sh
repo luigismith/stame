@@ -74,7 +74,7 @@ do_ciao() {
 }
 
 SDL_INCLUDE="${SDL_INCLUDE:-/d/dev/toolchain/sdl2/SDL2-2.32.10/include}"
-VETRINA="src/platform/vetrina/vetrina.c src/platform/vetrina/patch_vetrina.c src/platform/vetrina/vetrina_dsp.c"
+VETRINA="src/platform/vetrina/vetrina.c src/platform/vetrina/patch_vetrina.c src/platform/vetrina/vetrina_dsp.c src/platform/vetrina/demo_song.c"
 
 # render: stame-render per il PC, scrive i fotogrammi della plancia in PNG (PLT-076, solo immagini)
 do_render() {

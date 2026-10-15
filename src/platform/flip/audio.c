@@ -2,8 +2,9 @@
  *
  * Backend di riserva di PLT-022: il callback dell'audio di SDL, che SDL chiama dal suo thread ad alta
  * priorità. Il thread principale manda i comandi della vetrina su una coda SPSC (PLT-015); il
- * callback li applica al motore (performance, Beat, looper e synth) e rende a blocchi di 16 (SND-002). Nel callback niente lock, niente
- * heap, niente I/O (PLT-019). Il logo sonoro dell'avvio si somma all'uscita.
+ * callback li applica al motore (performance, Beat, looper e synth) e rende a blocchi di 16 (SND-002):
+ * prima di ogni blocco, quelli senza tempo subito e quelli della demo al loro tick. Nel callback niente
+ * lock, niente heap, niente I/O (PLT-019). Il logo sonoro dell'avvio si somma all'uscita.
  * Il backend ALSA diretto (PLT-022, periodo 256 × 2) arriverà dopo: qui il periodo lo decide SDL.
  */
 #define _GNU_SOURCE
@@ -34,11 +35,15 @@ static void cb(void *ud, uint8_t *stream, int len)
     float *out = (float *)stream;
     int frames = len / (int)(2 * sizeof(float));
     vet_snd_t e;
-    while (spsc_pop(&q, &e)) vet_snd_apply(&mot, &e);
     uint32_t lp0 = atomic_load_explicit(&logo_pos, memory_order_acquire), lp = lp0;
     float p0 = 0.0f, p1 = 0.0f;
     for (int i = 0; i < frames; i++) {
-        if (bpos == DSP_BLOCK) { mot_render(&mot, bl, br, DSP_BLOCK); bpos = 0; }
+        if (bpos == DSP_BLOCK) {
+            /* i comandi prima del blocco: subito, o al loro tick quelli della demo (vet_snd_due) */
+            while (spsc_peek(&q, &e) && vet_snd_due(&mot, &e)) { spsc_pop(&q, &e); vet_snd_apply(&mot, &e); }
+            mot_render(&mot, bl, br, DSP_BLOCK);
+            bpos = 0;
+        }
         float l = bl[bpos], r = br[bpos];
         bpos++;
         if (lp < logo_frames) {

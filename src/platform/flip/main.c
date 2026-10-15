@@ -98,8 +98,8 @@ static int prova(void)
     return 0;
 }
 
-/* --prova-audio: 30 s della demo resi dal synth in memoria, senza dispositivo audio; misura la
- * frazione di un core usata (PLT-034, SND-700) e il blocco peggiore. Niente schermo né tasti. */
+/* --prova-audio: tutto il brano della demo reso dal synth in memoria, senza dispositivo audio; misura
+ * la frazione di un core usata (PLT-034, SND-700) e il blocco peggiore. Niente schermo né tasti. */
 #include "../vetrina/vetrina_dsp.h"
 static dsp_t dsp_prova;
 static motore_t mot_prova;
@@ -112,14 +112,13 @@ static int prova_audio(void)
     struct timespec a, b, c, d;
     double peggiore = 0.0;
     int voci = 0;
+    const uint32_t durata = 2600u + vet_demo_len();          /* avvio, poi il brano intero */
     clock_gettime(CLOCK_MONOTONIC, &a);
-    for (uint32_t t = 0; t < 30000; t++) {
+    for (uint32_t t = 0; t < durata; t++) {
         vet_tick(&vet, 1000 + t);
-        vet_snd_t e;
-        while (vet_snd_pop(&vet, &e)) vet_snd_apply(&mot_prova, &e);
         for (int k = 0; k < 3; k++) {
             clock_gettime(CLOCK_MONOTONIC, &c);
-            mot_render(&mot_prova, L, R, DSP_BLOCK);
+            vet_snd_render(&mot_prova, &vet, L, R, DSP_BLOCK);
             clock_gettime(CLOCK_MONOTONIC, &d);
             double us = (double)(d.tv_sec - c.tv_sec) * 1e6 + (double)(d.tv_nsec - c.tv_nsec) / 1e3;
             if (us > peggiore) peggiore = us;
@@ -129,8 +128,9 @@ static int prova_audio(void)
     }
     clock_gettime(CLOCK_MONOTONIC, &b);
     double s = (double)(b.tv_sec - a.tv_sec) + (double)(b.tv_nsec - a.tv_nsec) / 1e9;
-    printf("prova-audio: 30 s di demo in %.2f s, %.1f %% di un core, blocco peggiore %.0f us su 333, voci al massimo %d\n",
-           s, s / 30.0 * 100.0, peggiore, voci);
+    double sec = durata / 1000.0;
+    printf("prova-audio: %.0f s di demo in %.2f s, %.1f %% di un core, blocco peggiore %.0f us su 333, voci al massimo %d\n",
+           sec, s, s / sec * 100.0, peggiore, voci);
     return 0;
 }
 

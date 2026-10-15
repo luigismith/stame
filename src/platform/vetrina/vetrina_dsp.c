@@ -29,6 +29,18 @@ void vet_snd_apply(motore_t *m, const vet_snd_t *e)
     }
 }
 
+void vet_snd_render(motore_t *m, vet_t *v, float *L, float *R, uint32_t n)
+{
+    for (uint32_t i = 0; i + DSP_BLOCK <= n; i += DSP_BLOCK) {
+        vet_snd_t e;
+        while (vet_snd_peek(v, &e) && vet_snd_due(m, &e)) {
+            vet_snd_pop(v, &e);
+            vet_snd_apply(m, &e);
+        }
+        mot_render(m, L + i, R + i, DSP_BLOCK);
+    }
+}
+
 void vet_snd_init(motore_t *m, dsp_t *d, uint32_t fs, uint32_t seed)
 {
     dsp_init(d, (float)fs, seed);

@@ -68,6 +68,10 @@ void mot_loop(motore_t *m, int cmd);            /* LOOP_C_* */
 void mot_all_off(motore_t *m);
 /* n frame (multiplo di 16) */
 void mot_render(motore_t *m, float *L, float *R, uint32_t n);
+/* Comandi a tempo: true se il tick `at` è già passato o cade nel prossimo blocco di 16 campioni.
+ * Chi ha un comando per il tick `at` lo applica appena prima di quel blocco, così vale dal tick
+ * giusto come gli eventi del clock (performance, Beat, looper). */
+bool mot_due(const motore_t *m, uint32_t at);
 /* campione assoluto del tick t, per i test (TV-110, TV-111) */
 uint64_t mot_tick_sample(const motore_t *m, uint32_t t);
 /* tick della battuta e fra due battiti della metrica in uso: 4/4 con un Beat (ACC-209) */

@@ -51,6 +51,14 @@ void test_spsc(void)
     }
     CHECK(!spsc_pop(&q, &out));
 
+    /* peek: il primo elemento senza toglierlo (comandi a tempo della vetrina) */
+    CHECK(!spsc_peek(&q, &out));
+    it.seq = 7; it.chk = ~7u;
+    CHECK(spsc_push(&q, &it));
+    out.seq = 0;
+    CHECK(spsc_peek(&q, &out) && out.seq == 7 && spsc_count(&q) == 1);
+    CHECK(spsc_pop(&q, &out) && out.seq == 7 && !spsc_peek(&q, &out));
+
     /* avvolgimento degli indici a 32 bit */
     atomic_store(&q.head, 0xFFFFFF80u);
     atomic_store(&q.tail, 0xFFFFFF80u);
