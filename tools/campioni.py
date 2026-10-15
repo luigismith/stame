@@ -163,6 +163,22 @@ KIT = {
         (COWBELL, S, 'drum_cowbell.flac', 0),
         (CYMBAL, S, 'elec_cymbal.flac', 0),
     ],
+    # 15/10/2026 sera: il kit dei Beat Techno e Dub, scelto misurando i candidati (durata, coda a −40 dB,
+    # baricentro, energia sotto 150 Hz): cassa profonda, charleston chiuso di 60 ms e aperto di 0,36 s
+    'kit_techno': [
+        (KICK, S, 'bd_klub.flac', 0),
+        (RIM, S, 'elec_pop.flac', 0),
+        (SNARE, S, 'elec_hi_snare.flac', 0),
+        (CLAP, V, 'Idiophones/Struck Idiophones/Claps/Clap_rr1.wav', 0),
+        (CHAT, S, 'hat_bdu.flac', 0),
+        (OHAT, S, 'hat_gump.flac', 0),
+        (TOMLO, S, 'elec_fuzz_tom.flac', 0),
+        (TOMHI, S, 'drum_tom_mid_hard.flac', 0),
+        (MARACAS, S, 'hat_noiz.flac', 0),
+        (CONGA, S, 'elec_bong.flac', 0),
+        (COWBELL, S, 'elec_ping.flac', 0),
+        (CYMBAL, S, 'ride_tri.flac', 0),
+    ],
 }
 KIT_SECONDI = {CYMBAL: 3.0, OHAT: 2.0}
 DEFAULT_KIT_S = 1.5

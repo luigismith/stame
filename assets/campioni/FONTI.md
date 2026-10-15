@@ -542,3 +542,15 @@ Il banco `stame.smp` (costruito da `tools/campioni.py`, non nel repo) usa solo c
 | kit_808 | <https://raw.githubusercontent.com/sonic-pi-net/sonic-pi/dev/etc/samples/elec_bong.flac> | Sonic Pi (freesound), CC0 |
 | kit_808 | <https://raw.githubusercontent.com/sonic-pi-net/sonic-pi/dev/etc/samples/drum_cowbell.flac> | Sonic Pi (freesound), CC0 |
 | kit_808 | <https://raw.githubusercontent.com/sonic-pi-net/sonic-pi/dev/etc/samples/elec_cymbal.flac> | Sonic Pi (freesound), CC0 |
+| kit_techno | <https://raw.githubusercontent.com/sonic-pi-net/sonic-pi/dev/etc/samples/bd_klub.flac> | Sonic Pi (freesound), CC0 |
+| kit_techno | <https://raw.githubusercontent.com/sonic-pi-net/sonic-pi/dev/etc/samples/elec_pop.flac> | Sonic Pi (freesound), CC0 |
+| kit_techno | <https://raw.githubusercontent.com/sonic-pi-net/sonic-pi/dev/etc/samples/elec_hi_snare.flac> | Sonic Pi (freesound), CC0 |
+| kit_techno | <https://raw.githubusercontent.com/sgossner/VCSL/master/Idiophones/Struck%20Idiophones/Claps/Clap_rr1.wav> | VCSL, CC0 |
+| kit_techno | <https://raw.githubusercontent.com/sonic-pi-net/sonic-pi/dev/etc/samples/hat_bdu.flac> | Sonic Pi (freesound), CC0 |
+| kit_techno | <https://raw.githubusercontent.com/sonic-pi-net/sonic-pi/dev/etc/samples/hat_gump.flac> | Sonic Pi (freesound), CC0 |
+| kit_techno | <https://raw.githubusercontent.com/sonic-pi-net/sonic-pi/dev/etc/samples/elec_fuzz_tom.flac> | Sonic Pi (freesound), CC0 |
+| kit_techno | <https://raw.githubusercontent.com/sonic-pi-net/sonic-pi/dev/etc/samples/drum_tom_mid_hard.flac> | Sonic Pi (freesound), CC0 |
+| kit_techno | <https://raw.githubusercontent.com/sonic-pi-net/sonic-pi/dev/etc/samples/hat_noiz.flac> | Sonic Pi (freesound), CC0 |
+| kit_techno | <https://raw.githubusercontent.com/sonic-pi-net/sonic-pi/dev/etc/samples/elec_bong.flac> | Sonic Pi (freesound), CC0 |
+| kit_techno | <https://raw.githubusercontent.com/sonic-pi-net/sonic-pi/dev/etc/samples/elec_ping.flac> | Sonic Pi (freesound), CC0 |
+| kit_techno | <https://raw.githubusercontent.com/sonic-pi-net/sonic-pi/dev/etc/samples/ride_tri.flac> | Sonic Pi (freesound), CC0 |

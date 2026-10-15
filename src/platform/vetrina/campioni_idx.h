@@ -49,7 +49,8 @@ enum {
     SMP_SET_KIT_STUDIO = 42,        /* 13 zone */
     SMP_SET_KIT_JAZZ = 43,          /* 13 zone */
     SMP_SET_KIT_808 = 44,           /* 12 zone */
-    SMP_SET_COUNT = 45
+    SMP_SET_KIT_TECHNO = 45,        /* 12 zone */
+    SMP_SET_COUNT = 46
 };
 
 #endif

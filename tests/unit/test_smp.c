@@ -247,7 +247,8 @@ static void test_beat_kits(void)
         CHECK(beat_name(b)[0] != 0);
         if (!k) continue;
         con++;
-        CHECK(strcmp(k, "kit_studio") == 0 || strcmp(k, "kit_jazz") == 0 || strcmp(k, "kit_808") == 0);
+        CHECK(strcmp(k, "kit_studio") == 0 || strcmp(k, "kit_jazz") == 0 || strcmp(k, "kit_808") == 0 ||
+              strcmp(k, "kit_techno") == 0);
         beat_hit_t h[8];
         int n = 0;
         for (int s = 0; s < 16; s++) n += beat_hits(b, s, h, 8);

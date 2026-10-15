@@ -361,7 +361,7 @@ static int render_scene(const char *dir)
     render_to(dir, "avvio");
 
     sc_setup();
-    sc_theme_toggle();                                /* Giorno */
+    if (vet.m.prefs.theme != THEME_LIGHT) sc_theme_toggle();     /* Giorno (il default dal 15/10/2026: si chiede, non si commuta) */
     if (vet_model(&vet)->music.key_on) { sc_pad(MPAD_T4); sc_run(2000); }   /* Key mode spenta: il nome è quello dell'accordo */
     /* pagina di gioco con un accordo */
     sc_chord(true);
@@ -434,7 +434,7 @@ static int render_scene(const char *dir)
     sc_run(200);
     render_to(dir, "menu");
     sc_pad(PAD_B);
-    sc_theme_toggle();                                /* Notte */
+    if (vet.m.prefs.theme != THEME_DARK) sc_theme_toggle();      /* Notte */
     sc_chord(true);
     sc_run(400);
     render_to(dir, "notte");

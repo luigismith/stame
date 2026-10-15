@@ -9,6 +9,7 @@ typedef struct { const char *name; const char *kit; beat_line_t line[6]; } beat_
 #define KIT_STUDIO "kit_studio"
 #define KIT_JAZZ   "kit_jazz"
 #define KIT_808    "kit_808"
+#define KIT_TECHNO "kit_techno"
 
 static const beat_def_t BEATS[BEAT_COUNT] STAME_ROM = {
     /* ACC-210: il provvisorio della specifica, velocity 110 sui battiti e 80 sugli altri passi */
@@ -43,6 +44,12 @@ static const beat_def_t BEATS[BEAT_COUNT] STAME_ROM = {
     { "Chip", NULL, { { DRUM_KICK, "X...X..xX...X..." }, { DRUM_SNARE, "....X.......X..x" },
                       { DRUM_CLOSED_HAT, "x.x.x.x.x.x.x.x." }, { DRUM_COWBELL, "..x...x...x...x." },
                       { DRUM_TOM_HI, "..............x." } } },
+    /* 15/10/2026 sera, Luigi: «più cupi e più tecno». Il kit techno è di campioni Sonic Pi (CC0) */
+    { "Techno", KIT_TECHNO, { { DRUM_KICK, "X...X...X...X..." }, { DRUM_CLAP, "....X.......X..." },
+                              { DRUM_CLOSED_HAT, "xx.xxx.xxx.xxx.x" }, { DRUM_OPEN_HAT, "..X...X...X...X." },
+                              { DRUM_RIMSHOT, "...x..x....x..x." } } },
+    { "Dub", KIT_TECHNO, { { DRUM_KICK, "X...X...X...X..." }, { DRUM_RIMSHOT, "....x.......x..x" },
+                           { DRUM_OPEN_HAT, "..x...x...x...x." }, { DRUM_MARACAS, "x.xxx.xxx.xxx.xx" } } },
 };
 
 int beat_hits(int b, int s, beat_hit_t *out, int max)

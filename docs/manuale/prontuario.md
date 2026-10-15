@@ -66,11 +66,11 @@ Tn premuto porta il fuoco sul suo controllo. T14: Geek Out e ritorno. T15: pagin
 
 | | Gira | Premi | Tieni | Premi e gira |
 |---|---|---|---|---|
-| Sound | 79 suoni (37 di sintesi, 42 campionati) | lista | prev. Save | — |
+| Sound | 97 suoni (55 di sintesi, 42 campionati) | lista | prev. Save | — |
 | Perform | quantità (0 = off) | lista dei modi | Lock | — |
 | FX | 0…10 | mostra | Lock | — |
 | Key | tonalità | Key mode | prev. scelta rapida | Transpose ±12 |
-| Bass | 12 bassi | basso on/off | prev. modi | — |
+| Bass | 18 bassi | basso on/off | prev. modi | — |
 | Loop | voce del menu | REC / voce | prev. 2 s Save | — |
 | BPM | 60…200 | Beat on/off | lista metriche e Beat | Beat Volume |
 | Volume | 0…99 | batteria | — | Bass Volume |
