@@ -73,6 +73,7 @@ Il macro pad (BRIMFORD CusKeyboard0227) è una tastiera USB HID: Stame lo legge 
 | [`60-case.md`](60-case.md) | case della fase 1 (bozza 2): telaio di betulla, mascherina della MPK, culla e visiera della Flip, vano del macro pad; pezzi generati da `hardware/case/genera.py` | `CASE-` |
 | [`../identita/README.md`](../identita/README.md) | **identità**: la storia (lo stame, la serra degli anni Settanta, Linneo), il marchio dei tre stami, la plancia come vetrino a fluorescenza, caratteri, palette, case e logo sonoro | — |
 | [`../disegni/stame-plancia-e-controlli.pdf`](../disegni/stame-plancia-e-controlli.pdf) | **disegni**: la plancia della Flip in cinque stati, MPK e Flip con la funzione di ogni comando, gesti, ricette d'uso, preparazione | — |
+| [`../manuale/manuale.md`](../manuale/manuale.md), [`../manuale/prontuario.md`](../manuale/prontuario.md) | **manuale d'uso** della vetrina sulla Flip (MPK mini IV, macro pad con Lock/View/Page, looper, Beat, menu, demo) e il **prontuario** da stampare | — |
 | [`90-questioni-aperte.md`](90-questioni-aperte.md) | tutte le verifiche (Orchid, MPK, Flip), i dati mancanti e le decisioni ancora da prendere | — |
 
 ## 6. Piano di sviluppo (sintesi della sez. 50 §16)
