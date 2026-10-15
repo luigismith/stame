@@ -1122,7 +1122,7 @@ Evidenza di una funzione secondaria (Key premuto e girato), in Z6:
 
 ### 4.12 Temi e colori
 
-**UI-128** [D] Due temi; i colori sono token che `ui_flip` legge da una tabella costante (`src/ui_flip/tema.c`). Default: **Dark**, cioè **Notte**, un display a fluorescenza (VFD); **Light** è **Giorno**, un LCD riflettente (identità, 14/10/2026). Nel menu restano «Dark» e «Light».
+**UI-128** [D] Due temi; i colori sono token che `ui_flip` legge da una tabella costante (`src/ui_flip/tema.c`). Default: **Light**, cioè **Giorno**, un LCD riflettente (deciso da Luigi il 15/10/2026; fino ad allora era Notte); **Dark** è **Notte**, un display a fluorescenza (VFD) (identità, 14/10/2026). Nel menu restano «Dark» e «Light». La demo parte nel tema di chi suona, passa all'altro solo dove mostra i due temi e alla fine torna al tema scelto (`demo.h`, D_THEME).
 
 | Token | Ruolo | Notte (Dark) | Giorno (Light) |
 |---|---|---|---|
@@ -1553,7 +1553,7 @@ La colonna «Vale per» dice se il dato serve anche alla Flip (comportamento o t
 ### 9.3 Decisioni da confermare con Luigi
 - **Ultimo accordo in grigio** (`CH_GHOST`): sull'Orchid il nome sparisce; sulla plancia resta tenue, perché è un'informazione utile. È un'opzione (Ghost Chord), accesa per default.
 - **Lingua**: testi in inglese come l'Orchid. Spleen copre l'ISO 8859-1, quindi un menu della piattaforma in italiano sarebbe possibile. Le categorie dei Sound della sezione 20 sono in italiano («piano elettrico»): o si traducono in 20, o la cella Sound mescola le lingue.
-- **Tema di default**: Dark.
+- ~~Tema di default~~: **deciso il 15/10/2026**, Light (Giorno).
 - ~~Plancia con tutto in vista~~: **decisa il 15/10/2026**, plancia calma (UI-140): quattro cose mentre si suona, i comandi a richiesta, il dettaglio in Geek Out. Da provare sulla Flip: la durata della pagina dei comandi (5000 ms) e se il suono a riposo nella banda è utile o è già troppo.
 - ~~Tastiera fissa a 8 ottave~~: **decisa il 13/10/2026**, 4 ottave che seguono le finestre del voicing, con tasti larghi 21 px (UI-150).
 - **Panic** nel menu della piattaforma oltre che su PUSH (B8 o X) + Stop e su T12 del macro pad tenuto 1 s: va bene in seconda posizione?

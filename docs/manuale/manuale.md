@@ -163,7 +163,7 @@ Due pagine:
 
 Sei **viste** per la zona accordo (Options › View, o **T14**): **React**, **Chord** (quella di fabbrica), **Keyboard**, **Chord+Kb**, **Notes** (le note scritte), **Geek Out** (note, intervalli, finestre, cartellino di Linneo, attività MIDI, voci, carico, livelli: la barra completa in testata).
 
-Due **temi** (MENU › Theme): **Notte** (vetro scuro e fosfori, quello di fabbrica) e **Giorno** (LCD riflettente).
+Due **temi** (MENU › Theme): **Giorno** (LCD riflettente, quello con cui Stame parte) e **Notte** (vetro scuro e fosfori). La demo parte nel tema che hai scelto e passa all'altro solo per mostrarlo.
 
 ### 9.2 I tasti
 

@@ -51,7 +51,7 @@ static int clampi(int x, int lo, int hi) { return x < lo ? lo : (x > hi ? hi : x
 static void str_copy(char *dst, int cap, const char *src)
 {
     int i = 0;
-    while (src[i] && i < cap - 1) { dst[i] = src[i]; i++; }
+    while (i < cap - 1 && src[i]) { dst[i] = src[i]; i++; }      /* prima il limite, poi la lettura */
     dst[i] = 0;
 }
 

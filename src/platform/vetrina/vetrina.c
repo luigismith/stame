@@ -570,7 +570,9 @@ static void demo_do(vet_t *v, const dstep_t *s)
     case D_BACK: { pnl_event_t e = { PNL_BACK, SRC_FLIP, 0, 0, 0 }; handle(v, &e); break; }
     case D_FOCUS: v->inp.gest.focus = (uint8_t)s->a; break;
     case D_VIEW: S.view = s->a; break;
-    case D_THEME: v->m.prefs.theme = (uint8_t)s->a; break;
+    case D_THEME:                                       /* Notte = il tema di chi suona, Giorno = l'altro */
+        v->m.prefs.theme = s->a == THEME_DARK ? v->demo_theme : (uint8_t)!v->demo_theme;
+        break;
     case D_LOOP: loop_send(v, s->a); break;
     case D_BEATON: S.beat_on = s->a; break;
     case D_MENU: { pnl_event_t e = { PNL_MACRO, SRC_FLIP, MACRO_SYSTEM_MENU, 0, 0 }; handle(v, &e); break; }
@@ -796,7 +798,7 @@ void vet_init(vet_t *v, uint32_t now_ms)
 
     ui_model_t *m = &v->m;
     m->layer.base = BASE_BOOT;
-    m->prefs.theme = THEME_DARK;
+    m->prefs.theme = THEME_LIGHT;                    /* Giorno: deciso da Luigi il 15/10/2026 (UI-128) */
     m->prefs.legend = 1;
     m->prefs.meters = 1;
     m->prefs.ghost_chord = 1;
@@ -806,7 +808,10 @@ void vet_init(vet_t *v, uint32_t now_ms)
     m->plat.midi_in_ms = m->plat.midi_out_ms = now_ms - 1000;
     ui_fmt_copy(m->boot.line[0], sizeof m->boot.line[0], "Audio   16 voices  VA FM RP  48 kHz");
     ui_fmt_copy(m->boot.line[1], sizeof m->boot.line[1], "MIDI    looking for the MPK mini");
-    ui_fmt_copy(m->boot.line[2], sizeof m->boot.line[2], "Sounds  16 demo  0 user");
+#define VET_STR_(x) #x
+#define VET_STR(x) VET_STR_(x)
+    ui_fmt_copy(m->boot.line[2], sizeof m->boot.line[2],                    /* i conti veri, da patch_vetrina.h */
+                "Sounds  " VET_STR(VET_N_SOUNDS) " Stame  " VET_STR(VET_N_BASSES) " basses  0 user");
     ui_fmt_copy(m->boot.version, sizeof m->boot.version, "vetrina 0.1");
     v->inp.gest.focus = ENC_SOUND;
     v->snd_sound = v->snd_bass = v->snd_vol = v->snd_bvol = v->snd_fx = -1;

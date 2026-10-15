@@ -4,7 +4,8 @@
  * (tastiera, tasti multimediali, mouse) in esclusiva con EVIOCGRAB: spruce e PyUI non vedono i
  * tasti. I codici diventano i MPAD_* del profilo pad_brimford. La mappa vale per le configurazioni
  * di fabbrica:
- *   - strati 2 e 3: tasti A…O in ordine di lettura (manopole a destra), manopole sulle cifre:
+ *   - strati 2 e 3: tasti A…O in ordine di lettura (manopole a destra), che mpad_tasto traduce nei
+ *     tasti della mappa di §8.10 (la quinta colonna, E J O, è T13–T15); manopole sulle cifre:
  *     piccola vicina ai tasti 1 antiorario, 2 pressione, 3 orario; l'altra piccola 4, 5, 6;
  *     la grande 9 antiorario, 8 pressione, 7 orario;
  *   - strato 1 (quello dell'accensione): Win+L sul primo tasto, «K, Ctrl+C» e «L, Ctrl+V» sui
@@ -48,8 +49,8 @@ static uint16_t map(uint16_t code)
     static const uint16_t LETTERE[15] = { KEY_A, KEY_B, KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I,
                                           KEY_J, KEY_K, KEY_L, KEY_M, KEY_N, KEY_O };
     if (mods & (MOD_CTRL | MOD_SHIFT | MOD_ALT)) return 0;            /* Ctrl+C, Ctrl+V dello strato 1 */
-    if (mods & MOD_META) return code == KEY_L ? MPAD_T1 : 0;          /* Win+L dello strato 1 */
-    for (int i = 0; i < 15; i++) if (LETTERE[i] == code) return (uint16_t)(MPAD_T1 + i);
+    if (mods & MOD_META) return code == KEY_L ? mpad_tasto(0) : 0;   /* Win+L dello strato 1, sul primo tasto */
+    for (int i = 0; i < 15; i++) if (LETTERE[i] == code) return mpad_tasto(i);   /* posizione → tasto (MIDI-120) */
     switch (code) {
     case KEY_1: return MPAD_M1_CCW;
     case KEY_2: return MPAD_M1_PUSH;

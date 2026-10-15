@@ -20,7 +20,8 @@ enum {
     D_BACK,
     D_FOCUS,    /* a = encoder */
     D_VIEW,     /* a = VIEW_* */
-    D_THEME,    /* a = THEME_* */
+    D_THEME,    /* a = THEME_DARK: il tema di chi suona (salvato all'avvio della demo); THEME_LIGHT: l'altro.
+                   Così la demo parte nel tema scelto e cambia solo dove mostra i due temi */
     D_LOOP,     /* a = LOOP_C_* */
     D_BEATON,   /* a = 1 acceso, 0 spento (TRANSPORT_TOGGLE) */
     D_MENU,

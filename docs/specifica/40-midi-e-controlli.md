@@ -580,16 +580,16 @@ Le prime 4 colonne restano le gemelle delle manopole della MPK decise il 13/10. 
 | **T2** | B | `ENC_PERFORM` | Pulsante di Perform: premere = lista dei modi; tenere = Lock |
 | **T3** | C | `ENC_FX` | Pulsante di FX |
 | **T4** | D | `ENC_KEY` | Pulsante di Key: premere = Key mode on/off; tenere = quick select |
-| **T5** | E | `ENC_BASS` | Pulsante di Bass: premere = basso on/off; tenere 1 s = modalità |
-| **T6** | F | `ENC_LOOP` | Pulsante di Loop |
-| **T7** | G | `ENC_BPM` | Pulsante di BPM: beat o metronomo; tenere = tempo in chiave → Beats |
-| **T8** | H | `ENC_VOLUME` | Pulsante di Volume: premere = livello della batteria (qui quella della Flip) |
-| **T9** | I | `PNL_ENC_DOWN/UP(ENC_OPTIONS)` | Pulsante di Options |
-| **T10** | J | `PNL_BACK` alla pressione | Indietro: chiude l'overlay o risale di un livello |
-| **T11** | K | `PNL_MACRO(MACRO_SYSTEM_MENU)` alla pressione | Menu della piattaforma (`30` UI-129) |
-| **T12** | L | `PNL_MACRO(MACRO_PANIC)` **solo dopo 1 s tenuto** (MIDI-126) | Panic (§7) |
-| **T13** | M | `PNL_MACRO(MACRO_KNOB_LOCK, 1/0)` alla pressione, a scatto | **Lock** delle manopole, come il Caps Lock (MIDI-131): acceso, M, m1 e m2 sono Sound, Perform e Key [D, **deciso da Luigi il 15/10/2026**] |
-| **T14** | N | `PNL_MACRO(MACRO_VIEW_TOGGLE)` alla pressione | **View**: Geek Out e ritorno alla vista di prima (MIDI-132) [D, **deciso da Luigi il 15/10/2026**] |
+| **T5** | F | `ENC_BASS` | Pulsante di Bass: premere = basso on/off; tenere 1 s = modalità |
+| **T6** | G | `ENC_LOOP` | Pulsante di Loop |
+| **T7** | H | `ENC_BPM` | Pulsante di BPM: beat o metronomo; tenere = tempo in chiave → Beats |
+| **T8** | I | `ENC_VOLUME` | Pulsante di Volume: premere = livello della batteria (qui quella della Flip) |
+| **T9** | K | `PNL_ENC_DOWN/UP(ENC_OPTIONS)` | Pulsante di Options |
+| **T10** | L | `PNL_BACK` alla pressione | Indietro: chiude l'overlay o risale di un livello |
+| **T11** | M | `PNL_MACRO(MACRO_SYSTEM_MENU)` alla pressione | Menu della piattaforma (`30` UI-129) |
+| **T12** | N | `PNL_MACRO(MACRO_PANIC)` **solo dopo 1 s tenuto** (MIDI-126) | Panic (§7) |
+| **T13** | E | `PNL_MACRO(MACRO_KNOB_LOCK, 1/0)` alla pressione, a scatto | **Lock** delle manopole, come il Caps Lock (MIDI-131): acceso, M, m1 e m2 sono Sound, Perform e Key [D, **deciso da Luigi il 15/10/2026**] |
+| **T14** | J | `PNL_MACRO(MACRO_VIEW_TOGGLE)` alla pressione | **View**: Geek Out e ritorno alla vista di prima (MIDI-132) [D, **deciso da Luigi il 15/10/2026**] |
 | **T15** | O | `PNL_MACRO(MACRO_CONTROLS_PAGE)` alla pressione | **Page**: apre la pagina dei comandi della Flip e la tiene aperta; un altro tocco o B la chiude (MIDI-132) [D, **deciso da Luigi il 15/10/2026**] |
 | **M** antioraria / oraria | 9 / 7 (strato 1: volume giù / su) | `PNL_ENC_TURN(ENC_CHORD_VOICING, −1/+1)`, uno scatto per evento | Chord Voicing Dial |
 | **M** pressione | 8 (strato 1: muto) | `PNL_ENC_DOWN/UP(ENC_CHORD_VOICING)` | Pulsante del Chord Voicing: Split ↔ Octave |
@@ -609,8 +609,8 @@ Le prime 4 colonne restano le gemelle delle manopole della MPK decise il 13/10. 
   - premere Tn porta il fuoco sul suo encoder (MIDI-104): subito dopo m2, « », il joystick o la croce lo ruotano. Per T9 è il modo normale di scorrere Options.
 
 - **MIDI-122** — **Codici** [O, 15/10/2026]: il software del pad **non offre F13…F24** (VP-2 chiusa), ma non serve programmarlo. Stame legge i codici della configurazione di fabbrica, che sono già tutti diversi fra loro, e il pad è suo in esclusiva (MIDI-124):
-  - **strati 2 e 3**: T1…T15 = **A…O** in ordine di lettura; m1 = **1** antioraria, **2** pressione, **3** oraria; m2 = **4**, **5**, **6**; M = **9** antioraria, **8** pressione, **7** oraria. Nella colonna «Codice programmato» qui sopra c'è la lettera di ciascun tasto;
-  - **strato 1**, quello con cui il pad si accende: uguale, salvo il tasto 1 (**Win+L**, letto come T1), i tasti 11 e 12 (**«K, Ctrl+C»** e **«L, Ctrl+V»**: contano K e L, le combinazioni con Ctrl si ignorano, quindi T11 e T12 sono solo tocchi e il Panic tenuto non si fa) e la manopola grande (**volume giù, muto, volume su** dalla collezione multimediale). I tasti che arrivano con Ctrl, Alt o Shift tenuti si ignorano;
+  - **strati 2 e 3**: i tasti mandano **A…O** in ordine di lettura (fila in alto A–E, in mezzo F–J, in basso K–O). Le prime quattro colonne sono T1–T12 fila per fila, la quinta (**E, J, O**) è **T13–T15**: la lettera non è il numero del tasto (`mpad_tasto` in `pad_codes.h`). Fino al 15/10/2026 sera la piattaforma leggeva la lettera i-esima come T(i+1), e il tasto della mappa «Menu» accendeva il Lock. m1 = **1** antioraria, **2** pressione, **3** oraria; m2 = **4**, **5**, **6**; M = **9** antioraria, **8** pressione, **7** oraria. Nella colonna «Codice» della tabella di MIDI-120 c'è la lettera di ciascun tasto;
+  - **strato 1**, quello con cui il pad si accende: uguale, salvo il tasto 1 (**Win+L**, letto come T1), i tasti 11 e 12, i primi due della fila in basso (**«K, Ctrl+C»** e **«L, Ctrl+V»**: contano K e L, le combinazioni con Ctrl si ignorano, quindi T9 Options e T10 Back sono solo tocchi e Options non si tiene) e la manopola grande (**volume giù, muto, volume su** dalla collezione multimediale). I tasti che arrivano con Ctrl, Alt o Shift tenuti si ignorano;
   - conviene usare lo strato 3, o rendere lo strato 1 uguale al 3 con il software del pad.
 
   La proposta del 13/10, superata, prevedeva di programmare il pad con F13…F24 e il tastierino:

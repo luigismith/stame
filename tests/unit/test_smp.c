@@ -11,8 +11,9 @@
 
 /* un banco costruito a mano, nel formato di §7b.2: un seno a 440 Hz registrato a 32 kHz (zona
  * 0, set «seno», nota 69, loop sull'intero ciclo intero di 4000 campioni = 55 cicli), un one-shot
- * di 800 campioni a rampa (zona 1) e un kit con due strumenti (set «kit», zone 2 e 3) */
-static uint8_t blob[64 + 3 * 32 + 2 * (4000 + 800 + 64 + 64)];
+ * di 800 campioni a rampa (zona 1) e un kit con due strumenti (set «kit», zone 2 e 3). Testa, 2 set e
+ * 4 zone, allineati a 4, poi i dati (il 15/10/2026 il buffer era 52 byte troppo corto: ASan) */
+static uint8_t blob[((SMP_HEADER + 2 * SMP_SET_REC + 4 * SMP_ZONE_REC + 3) & ~3) + 2 * (4000 + 800 + 64 + 64)];
 static size_t blob_n;
 
 static void w16(uint8_t *p, unsigned v) { p[0] = (uint8_t)v; p[1] = (uint8_t)(v >> 8); }
@@ -102,7 +103,7 @@ static void test_parse(void)
     CHECK(smp_set_find(&B, "manca") == NULL && smp_set_at(&B, 2) == NULL);
     const smp_zone_t *z = smp_zone_for(&B, s, 69, 100);
     CHECK(z && z->root == 69 && z->rate == 32000 && z->loop_end == 4000 && z->data[0] == 0);
-    CHECK(z->data[1] == (int16_t)(20000.0 * sin(2.0 * PI_D * 440.0 / 32000.0)));
+    CHECK(z && z->data[1] == (int16_t)(20000.0 * sin(2.0 * PI_D * 440.0 / 32000.0)));
     /* layer di velocity: il kit sceglie la zona forte solo da 90 in su */
     const smp_set_t *k = smp_set_find(&B, "kit");
     CHECK(smp_zone_for(&B, k, DRUM_SNARE, 100) == &B.zones[3]);

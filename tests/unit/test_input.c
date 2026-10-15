@@ -783,6 +783,31 @@ static void t_macro_pad(void)
     CHECK_EQ(count(G_PRESS, ENC_BASS), 1);
     CHECK_EQ(count(G_RELEASE, ENC_BASS), 1);
 
+    /* MIDI-120, MIDI-122: le lettere di fabbrica A…O vanno in ordine di lettura su 3 file da 5; la
+     * quinta colonna è T13–T15. Il 15/10/2026 la lettera i-esima diventava T(i+1): il tasto che la
+     * mappa chiama Menu (fila in basso, terza colonna, lettera M) accendeva il Lock e la manopola
+     * dei rivolti cambiava strumento. */
+    static const uint16_t FILE_PAD[15] = {
+        MPAD_T1, MPAD_T2, MPAD_T3, MPAD_T4, MPAD_T13,
+        MPAD_T5, MPAD_T6, MPAD_T7, MPAD_T8, MPAD_T14,
+        MPAD_T9, MPAD_T10, MPAD_T11, MPAD_T12, MPAD_T15 };
+    for (int i = 0; i < 15; i++) CHECKM(mpad_tasto(i) == FILE_PAD[i], "posizione %d", i);
+    CHECK_EQ(mpad_tasto(-1), 0);
+    CHECK_EQ(mpad_tasto(15), 0);
+    reset();
+    tap(mpad_tasto(12));                                      /* lettera M: Menu, non Lock */
+    CHECK(only(PNL_MACRO, MACRO_SYSTEM_MENU, 0));
+    clear();
+    tap(MPAD_M_CW);
+    CHECK(only(G_TURN, ENC_CHORD_VOICING, 1));
+    clear();
+    tap(mpad_tasto(4));                                       /* lettera E, in alto accanto alle manopole: Lock */
+    CHECK(only(PNL_MACRO, MACRO_KNOB_LOCK, 1));
+    tap(mpad_tasto(4));
+    clear();
+    tap(mpad_tasto(5));                                       /* lettera F, in mezzo a sinistra: Bass */
+    CHECK_EQ(count(G_PRESS, ENC_BASS), 1);
+
     /* il resto della mappa */
     clear();
     tap(MPAD_T9);

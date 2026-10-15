@@ -200,7 +200,7 @@ int perf_run(perf_t *p, uint32_t tick, perf_ev_t *out, int max)
     if (!p->active || p->n == 0) return k;
     while ((int32_t)(tick - p->next) >= 0) {
         if (p->mode == PM_PATTERN) {                              /* ACC-175…177 */
-            uint8_t vs, mask = pattern_step((p->amount - 1) % 13, (int)(p->step % 16u), &vs);
+            uint8_t vs = 100, mask = pattern_step((p->amount - 1) % 13, (int)(p->step % 16u), &vs);
             uint8_t v = (uint8_t)((vs * p->vel + 63) / 127);
             if (v < 1) v = 1;
             for (int i = 0; i < 8; i++) {
