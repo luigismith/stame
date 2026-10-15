@@ -87,6 +87,7 @@ const char *ui_fmt_engine(uint8_t engine)
     case ENGINE_VA: return "VA";
     case ENGINE_FM: return "FM";
     case ENGINE_RP: return "RP";
+    case ENGINE_SMP: return "SMP";
     default:        return "??";
     }
 }

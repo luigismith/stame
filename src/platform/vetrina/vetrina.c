@@ -12,19 +12,9 @@
 #define LIST_IDLE_MS 10000u       /* UI-076 */
 #define PAGE_MS      5000u        /* UI-142a: la pagina dei comandi si chiude da sola */
 
-/* ---- dati inventati della vetrina (nessun preset dell'Orchid) ---- */
-typedef struct { const char *name; uint8_t engine; const char *cat; } snd_t;
-static const snd_t SOUNDS[] = {
-    { "Glass Pollen", ENGINE_FM, "bell" },     { "Night Greenhouse", ENGINE_VA, "pad" },
-    { "Anther Keys", ENGINE_RP, "keys" },      { "Slow Stamen", ENGINE_VA, "pad" },
-    { "Fern Pluck", ENGINE_VA, "pluck" },      { "Copper Reed", ENGINE_RP, "keys" },
-    { "Orbit Choir", ENGINE_FM, "voice" },     { "Moss Strings", ENGINE_VA, "strings" },
-    { "Dew Mallet", ENGINE_FM, "mallet" },     { "Tape Fern", ENGINE_VA, "lo-fi" },
-    { "Seed Organ", ENGINE_FM, "organ" },      { "Sun Room", ENGINE_RP, "keys" },
-    { "Linnaeus Lead", ENGINE_VA, "lead" },    { "Petal Brass", ENGINE_VA, "brass" },
-    { "Root Drone", ENGINE_FM, "drone" },      { "Vetro Pad", ENGINE_VA, "pad" },
-};
-static const char *const BASSES[] = { "Round Root", "Sub Floor", "Pluck Bass", "Reed Bass", "Velvet Sub", "Wood Bass" };
+/* ---- dati della vetrina (nessun preset dell'Orchid): suoni e bassi in patch_vetrina.c (tools/patch.py) ---- */
+#define SOUNDS vet_sound_info
+#define BASSES vet_bass_name
 /* i Beat della vetrina sono quelli di core/beat.c dall'indice 1 (lo 0 è il provvisorio di ACC-210) */
 #define BEATS_NAME(i) beat_name((i) + 1)
 
@@ -252,7 +242,10 @@ static void list_select(vet_t *v)
         else if (i == 3) v->m.prefs.legend = (uint8_t)!v->m.prefs.legend;
         else if (i == 4) v->m.prefs.meters = (uint8_t)!v->m.prefs.meters;
         else if (i == 5) v->demo_on = (uint8_t)!v->demo_on;
-        else if (i == 6) demo_start(v);                 /* il brano da capo, subito */
+        else if (i == 6) {                              /* il brano successivo, subito */
+            if (v->demo_running) v->demo_song = (uint8_t)((v->demo_song + 1) % vet_demo_songs_n);
+            demo_start(v);
+        }
         else if (i == 7) v->quit = 1;
         break;
     default: break;
@@ -498,7 +491,15 @@ static void feed(vet_t *v, const pnl_event_t *ev, int n)
 
 static void snd_sync(vet_t *v);
 
-uint32_t vet_demo_len(void) { return vet_demo_song_ms; }
+static const dsong_t *song_of(const vet_t *v) { return &vet_demo_songs[v->demo_song % vet_demo_songs_n]; }
+
+uint32_t vet_demo_len(int i)
+{
+    if (i < 0) return 0;
+    return vet_demo_songs[i % vet_demo_songs_n].ms;
+}
+
+void vet_demo_select(vet_t *v, int i) { v->demo_song = (uint8_t)((i % vet_demo_songs_n + vet_demo_songs_n) % vet_demo_songs_n); }
 
 /* tick del motore; senza motore, quelli che vet_tick conta dall'orologio */
 static uint32_t now_tick(const vet_t *v) { return v->snap ? v->snap->tick : v->vtick; }
@@ -556,7 +557,7 @@ static void demo_do(vet_t *v, const dstep_t *s)
     case D_BEAT: S.beat_mode = BEAT_PATTERN; S.beat = s->a; break;
     case D_BPM: turn(v, ENC_BPM, (int)s->c - S.bpm, false); break;
     case D_OPT: ain(v, ACC_IN_OPTION_SET, (uint8_t)s->a, s->b); break;
-    case D_TITLE: msg(v, MSG_INFO, vet_demo_song_title, 6000); break;
+    case D_TITLE: msg(v, MSG_INFO, song_of(v)->title, 6000); break;
     default: break;
     }
 }
@@ -614,12 +615,17 @@ static void demo_stop(vet_t *v)
 static void demo_run(vet_t *v)
 {
     uint32_t horizon = now_tick(v) + DEMO_AHEAD;
-    while (v->demo_step < (int)vet_demo_song_n) {
-        const dstep_t *s = &vet_demo_song[v->demo_step];
+    const dsong_t *song = song_of(v);
+    while (v->demo_step < (int)song->n) {
+        const dstep_t *s = &song->steps[v->demo_step];
         uint32_t at = v->demo_tick0 + s->t;
         if ((int32_t)(at - horizon) > 0) break;
         v->demo_step++;
-        if (s->act == D_END) { demo_start(v); return; }
+        if (s->act == D_END) {                          /* finito: il brano dopo, in giro */
+            v->demo_song = (uint8_t)((v->demo_song + 1) % vet_demo_songs_n);
+            demo_start(v);
+            return;
+        }
         v->snd_timed = 1;
         v->snd_at = at;
         demo_do(v, s);
@@ -738,7 +744,7 @@ void vet_init(vet_t *v, uint32_t now_ms)
     /* il Perform arriva dal suono al primo snd_sync (ACC-162); il Beat è scelto ma fermo (ACC-205) */
     S.sound = 2; S.fx_type = FX_REV; S.fx_amount = 4; S.bass = 0; S.volume = 72; S.bass_volume = 70;
     S.bpm = 120; S.beat_mode = BEAT_PATTERN; S.beat = 0; S.meter = METER_4_4; S.beat_on = 0;
-    S.beat_volume = 60; S.view = VIEW_CHORD;
+    S.beat_volume = 72; S.view = VIEW_CHORD;         /* i kit a campioni stanno a −1 dBFS: 72 ≈ −5,5 dB */
 
     ui_model_t *m = &v->m;
     m->layer.base = BASE_BOOT;

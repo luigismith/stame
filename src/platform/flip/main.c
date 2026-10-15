@@ -114,7 +114,7 @@ static int prova_audio(void)
     struct timespec a, b, c, d;
     double peggiore = 0.0;
     int voci = 0;
-    const uint32_t durata = 2600u + vet_demo_len();          /* avvio, poi il brano intero */
+    const uint32_t durata = 2600u + vet_demo_len(0);         /* avvio, poi il primo brano intero */
     clock_gettime(CLOCK_MONOTONIC, &a);
     for (uint32_t t = 0; t < durata; t++) {
         vet_tick(&vet, 1000 + t);

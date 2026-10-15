@@ -295,8 +295,8 @@ def scrivi_banco(sets, path):
         set_rec.append(struct.pack('<24sHHHH', nome.encode('ascii'), first, len(zone), flags, 0))
         for z in zone:
             y = z['data']
-            zone_rec.append(struct.pack('<IIIIIfBBBB', off, len(y), z['ls'], z['le'], FS, 1.0,
-                                        z['root'], z['lo'], z['hi'], z['vel_lo']))
+            zone_rec.append(struct.pack('<IIIIIfBBBBI', off, len(y), z['ls'], z['le'], FS, 1.0,
+                                        z['root'], z['lo'], z['hi'], z['vel_lo'], 0))      # 32 byte
             dati.append(y.tobytes())
             off += len(y)
         first += len(zone)

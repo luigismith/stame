@@ -167,7 +167,7 @@ static void wav_header(FILE *f, uint32_t frames)
 }
 
 /* WAV 16 bit stereo a 48 kHz di ms millisecondi: avvio, poi la demo (che parte da sola) */
-static int render_wav(const char *path, uint32_t ms, bool mpk)
+static int render_wav(const char *path, uint32_t ms, bool mpk, int song)
 {
     FILE *f = fopen(path, "wb");
     if (!f) { printf("errore: %s\n", path); return 1; }
@@ -175,8 +175,10 @@ static int render_wav(const char *path, uint32_t ms, bool mpk)
     vet_init(&vet, 100000);
     vet_battery(&vet, 87, false);
     if (mpk) vet_mpk(&vet, true, NULL, 100000);
+    vet_demo_select(&vet, song);
     vet_snd_init(&mot, &dsp, 48000u, 1);
     vet_set_motore(&vet, &mot.snap);
+    vet_set_scope(&vet, dsp.scope, DSP_SCOPE_N, &dsp.scope_wr, NULL);
     float L[DSP_BLOCK], R[DSP_BLOCK], pk = 0.0f;
     double sq = 0.0;
     int16_t out[DSP_BLOCK * 2];
@@ -220,6 +222,7 @@ static void seek(uint32_t t)
 {
     vet_snd_init(&mot, &dsp, 48000u, 1);
     vet_set_motore(&vet, &mot.snap);
+    vet_set_scope(&vet, dsp.scope, DSP_SCOPE_N, &dsp.scope_wr, NULL);   /* la forma d'onda vera */
     vet_demo_seek(&vet, t, seek_step, NULL);
 }
 
@@ -292,9 +295,14 @@ int main(int argc, char **argv)
     }
     crc_init();
     if (!strcmp(argv[1], "--wav") && argc >= 3) {
-        uint32_t ms = argc >= 4 && argv[3][0] != '-' ? (uint32_t)atoi(argv[3]) : 2600u + vet_demo_len();
-        bool m = argc >= 4 && !strcmp(argv[argc - 1], "--mpk");
-        return render_wav(argv[2], ms, m);
+        int song = 0;
+        bool m = false;
+        for (int i = 3; i < argc; i++) {
+            if (!strcmp(argv[i], "--mpk")) m = true;
+            else if (!strcmp(argv[i], "--song") && i + 1 < argc) song = atoi(argv[++i]);
+        }
+        uint32_t ms = argc >= 4 && argv[3][0] != '-' ? (uint32_t)atoi(argv[3]) : 2600u + vet_demo_len(song);
+        return render_wav(argv[2], ms, m, song);
     }
     const char *dir = argv[1];
     bool boot = false, mpk = false;
@@ -308,7 +316,7 @@ int main(int argc, char **argv)
         }
         if (!strcmp(argv[i], "--tutti") && i + 1 < argc) {
             uint32_t step = (uint32_t)atoi(argv[++i]);
-            for (uint32_t t = 0; t <= vet_demo_len(); t += step) {
+            for (uint32_t t = 0; t <= vet_demo_len(0); t += step) {
                 vet_init(&vet, 100000);
                 vet_battery(&vet, 87, false);
                 if (mpk) vet_mpk(&vet, true, NULL, 100000);

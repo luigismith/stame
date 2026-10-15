@@ -38,9 +38,10 @@ enum {
 
 typedef struct { uint32_t t; uint8_t act; int8_t a, b; uint8_t c, d; } dstep_t;
 
-extern const dstep_t vet_demo_song[];
-extern const uint16_t vet_demo_song_n;
-extern const uint32_t vet_demo_song_ms;     /* durata in ms, con i cambi di tempo */
-extern const char vet_demo_song_title[];
+/* un brano: titolo per il messaggio, passi, quanti, durata in ms con i suoi cambi di tempo */
+typedef struct { const char *title; const dstep_t *steps; uint16_t n; uint32_t ms; } dsong_t;
+
+extern const dsong_t vet_demo_songs[];      /* i brani della demo, uno dopo l'altro (demo_song.c) */
+extern const uint8_t vet_demo_songs_n;
 
 #endif

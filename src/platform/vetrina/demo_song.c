@@ -1,14 +1,12 @@
-/* demo_song.c — «Acacia», il brano della demo (demo.h). Brano originale di Stame.
+/* demo_song.c — i brani della demo (demo.h): «Acacia», «Felce» e «Pistillo», brani originali di Stame.
  *
- * Generato da tools/demo.py: non va modificato a mano. Re maggiore, poi Mi; 96 BPM con un
- * ritardando finale; 428 passi, 3:50. Tick a 96 PPQN dall'inizio del brano.
+ * Generato da tools/demo.py: non va modificato a mano. Tick a 96 PPQN dall'inizio di ogni brano.
  */
 #include "demo.h"
 #include "vetrina.h"
 
-const char vet_demo_song_title[] = "Demo song: Acacia";
-
-const dstep_t vet_demo_song[] = {
+/* Demo song: Acacia: 96 BPM, 89 battute, 428 passi, 3:50 */
+static const dstep_t SONG_0[] = {
     {      0, D_TITLE, 0, 0, 0, 0 },
     {      0, D_THEME, THEME_DARK, 0, 0, 0 },
     {      0, D_VIEW, VIEW_CHORD, 0, 0, 0 },
@@ -439,5 +437,569 @@ const dstep_t vet_demo_song[] = {
     {  34368, D_END, 0, 0, 0, 0 },
 };
 
-const uint16_t vet_demo_song_n = (uint16_t)(sizeof vet_demo_song / sizeof vet_demo_song[0]);
-const uint32_t vet_demo_song_ms = 230992u;
+/* Demo song: Felce: 112 BPM, 49 battute, 274 passi, 1:48 */
+static const dstep_t SONG_1[] = {
+    {      0, D_TITLE, 0, 0, 0, 0 },
+    {      0, D_THEME, THEME_DARK, 0, 0, 0 },
+    {      0, D_VIEW, VIEW_CHORD, 0, 0, 0 },
+    {      0, D_OPT, ACC_OPT_KEY_ON, 0, 0, 0 },
+    {      0, D_OPT, ACC_OPT_BASS_ON, 0, 0, 0 },
+    {      0, D_OPT, ACC_OPT_SINGLE_NOTES, 1, 0, 0 },
+    {      0, D_OPT, ACC_OPT_BASS_VOICING, 23, 0, 0 },
+    {      0, D_OPT, ACC_OPT_VOICING, 36, 0, 0 },
+    {      0, D_FOCUS, ENC_BPM, 0, 0, 0 },
+    {      0, D_BPM, 0, 0, 112, 0 },                          /* 112 BPM */
+    {     48, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {     48, D_SOUND, 0, 0, 16, 0 },                         /* Grand Piano, Strum 2 */
+    {     48, D_PERF, PERF_STRUM, 2, 0, 0 },
+    {    120, D_FOCUS, ENC_FX, 0, 0, 0 },
+    {    120, D_TURN, ENC_FX, 1, 0, 0 },                      /* un po' di riverbero */
+    {    192, D_CHORD, 0x2, 0xa, 9, 88 },                     /* Am9: C4 E4 G4 A4 B4 */
+    {    576, D_CHORD, 0x4, 0x4, 5, 86 },                     /* Fmaj7: C4 E4 F4 A4 */
+    {    960, D_CHORD, 0x2, 0x2, 2, 86 },                     /* Dm7: C4 D4 F4 A4 */
+    {   1152, D_CHORD, 0x4, 0x2, 7, 88 },                     /* G7: D4 F4 G4 B4 */
+    {   1344, D_CHORD, 0x4, 0x4, 0, 90 },                     /* Cmaj7: C4 E4 G4 B4 */
+    {   1536, D_CHORD, 0x4, 0x2, 4, 92 },                     /* E7: D4 E4 G#4 B4 */
+    {   1728, D_OFF, 0, 0, 0, 0 },
+    {   1728, D_BEAT, 1, 0, 0, 0 },                           /* Beat: Bossa, kit jazz */
+    {   1728, D_BEATON, 1, 0, 0, 0 },
+    {   1728, D_FOCUS, ENC_BASS, 0, 0, 0 },
+    {   1728, D_PRESS, ENC_BASS, 0, 0, 0 },                   /* basso acceso */
+    {   1728, D_VOICING, 0, 0, 24, 0 },                       /* voicing 24: finestra da C */
+    {   1728, D_CHORD, 0x2, 0x2, 9, 92 },                     /* Am7: C3 E3 G3 A3 */
+    {   1776, D_BASS, 0, 0, 0, 0 },                           /* Round Root */
+    {   1896, D_OFF, 0, 0, 0, 0 },
+    {   1920, D_CHORD, 0x2, 0x0, 9, 84 },                     /* Am: C3 E3 A3 */
+    {   2088, D_OFF, 0, 0, 0, 0 },
+    {   2112, D_CHORD, 0x4, 0x4, 5, 92 },                     /* Fmaj7: C3 E3 F3 A3 */
+    {   2280, D_OFF, 0, 0, 0, 0 },
+    {   2304, D_CHORD, 0x4, 0x0, 5, 84 },                     /* F: C3 F3 A3 */
+    {   2472, D_OFF, 0, 0, 0, 0 },
+    {   2496, D_CHORD, 0x2, 0x2, 2, 92 },                     /* Dm7: C3 D3 F3 A3 */
+    {   2664, D_OFF, 0, 0, 0, 0 },
+    {   2688, D_CHORD, 0x4, 0x2, 7, 84 },                     /* G7: D3 F3 G3 B3 */
+    {   2856, D_OFF, 0, 0, 0, 0 },
+    {   2880, D_CHORD, 0x4, 0x4, 0, 92 },                     /* Cmaj7: C3 E3 G3 B3 */
+    {   3048, D_OFF, 0, 0, 0, 0 },
+    {   3072, D_CHORD, 0x4, 0x2, 4, 84 },                     /* E7: D3 E3 G#3 B3 */
+    {   3240, D_OFF, 0, 0, 0, 0 },
+    {   3264, D_CHORD, 0x2, 0x2, 9, 92 },                     /* Am7: C3 E3 G3 A3 */
+    {   3432, D_OFF, 0, 0, 0, 0 },
+    {   3456, D_CHORD, 0x2, 0x0, 9, 84 },                     /* Am: C3 E3 A3 */
+    {   3624, D_OFF, 0, 0, 0, 0 },
+    {   3648, D_CHORD, 0x4, 0x4, 5, 92 },                     /* Fmaj7: C3 E3 F3 A3 */
+    {   3816, D_OFF, 0, 0, 0, 0 },
+    {   3840, D_CHORD, 0x4, 0x0, 5, 84 },                     /* F: C3 F3 A3 */
+    {   4008, D_OFF, 0, 0, 0, 0 },
+    {   4032, D_CHORD, 0x2, 0x2, 2, 92 },                     /* Dm7: C3 D3 F3 A3 */
+    {   4200, D_OFF, 0, 0, 0, 0 },
+    {   4224, D_CHORD, 0x4, 0x2, 7, 84 },                     /* G7: D3 F3 G3 B3 */
+    {   4392, D_OFF, 0, 0, 0, 0 },
+    {   4416, D_CHORD, 0x4, 0x4, 0, 92 },                     /* Cmaj7: C3 E3 G3 B3 */
+    {   4584, D_OFF, 0, 0, 0, 0 },
+    {   4608, D_CHORD, 0x4, 0x2, 4, 84 },                     /* E7: D3 E3 G#3 B3 */
+    {   4776, D_OFF, 0, 0, 0, 0 },
+    {   4800, D_LOOP, LOOP_C_PRESS, 0, 0, 0 },                /* REC: count-in, poi 4 battute */
+    {   4800, D_VIEW, VIEW_CHORD_KB, 0, 0, 0 },
+    {   5184, D_CHORD, 0x2, 0x2, 9, 82 },                     /* Am7: C3 E3 G3 A3 */
+    {   5352, D_OFF, 0, 0, 0, 0 },
+    {   5376, D_CHORD, 0x2, 0x0, 9, 74 },                     /* Am: C3 E3 A3 */
+    {   5544, D_OFF, 0, 0, 0, 0 },
+    {   5568, D_CHORD, 0x4, 0x4, 5, 82 },                     /* Fmaj7: C3 E3 F3 A3 */
+    {   5736, D_OFF, 0, 0, 0, 0 },
+    {   5760, D_CHORD, 0x4, 0x0, 5, 74 },                     /* F: C3 F3 A3 */
+    {   5928, D_OFF, 0, 0, 0, 0 },
+    {   5952, D_CHORD, 0x2, 0x2, 2, 82 },                     /* Dm7: C3 D3 F3 A3 */
+    {   6120, D_OFF, 0, 0, 0, 0 },
+    {   6144, D_CHORD, 0x4, 0x2, 7, 74 },                     /* G7: D3 F3 G3 B3 */
+    {   6312, D_OFF, 0, 0, 0, 0 },
+    {   6336, D_CHORD, 0x4, 0x4, 0, 82 },                     /* Cmaj7: C3 E3 G3 B3 */
+    {   6504, D_OFF, 0, 0, 0, 0 },
+    {   6528, D_CHORD, 0x4, 0x2, 4, 74 },                     /* E7: D3 E3 G#3 B3 */
+    {   6624, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {   6624, D_SOUND, 0, 0, 19, 0 },                         /* Vibraphone */
+    {   6624, D_PERF, PERF_OFF, 0, 0, 0 },
+    {   6648, D_HOLD, ENC_PERFORM, 0, 0, 0 },                 /* Lock del Perform acceso */
+    {   6672, D_VOICING, 0, 0, 48, 0 },                       /* voicing 48: finestra da C */
+    {   6696, D_OFF, 0, 0, 0, 0 },
+    {   6720, D_VIEW, VIEW_NOTES, 0, 0, 0 },
+    {   6720, D_CHORD, 0, 0, 4, 96 },                         /* E5 */
+    {   6864, D_CHORD, 0, 0, 7, 84 },                         /* G5 */
+    {   6912, D_CHORD, 0, 0, 9, 92 },                         /* A5 */
+    {   7008, D_CHORD, 0, 0, 11, 88 },                        /* B5 */
+    {   7104, D_CHORD, 0, 0, 11, 98 },                        /* B5 */
+    {   7248, D_CHORD, 0, 0, 9, 84 },                         /* A5 */
+    {   7296, D_CHORD, 0, 0, 7, 90 },                         /* G5 */
+    {   7440, D_CHORD, 0, 0, 4, 82 },                         /* E5 */
+    {   7488, D_CHORD, 0, 0, 9, 94 },                         /* A5 */
+    {   7584, D_CHORD, 0, 0, 5, 88 },                         /* F5 */
+    {   7680, D_CHORD, 0, 0, 4, 92 },                         /* E5 */
+    {   7824, D_CHORD, 0, 0, 2, 80 },                         /* D5 */
+    {   7872, D_CHORD, 0, 0, 4, 90 },                         /* E5 */
+    {   8160, D_CHORD, 0, 0, 11, 86 },                        /* B5 */
+    {   8256, D_CHORD, 0, 0, 11, 98 },                        /* B5 */
+    {   8352, D_CHORD, 0, 0, 9, 86 },                         /* A5 */
+    {   8400, D_CHORD, 0, 0, 7, 84 },                         /* G5 */
+    {   8448, D_CHORD, 0, 0, 4, 92 },                         /* E5 */
+    {   8544, D_CHORD, 0, 0, 2, 88 },                         /* D5 */
+    {   8640, D_CHORD, 0, 0, 5, 94 },                         /* F5 */
+    {   8784, D_CHORD, 0, 0, 9, 84 },                         /* A5 */
+    {   8832, D_CHORD, 0, 0, 7, 90 },                         /* G5 */
+    {   8928, D_CHORD, 0, 0, 5, 86 },                         /* F5 */
+    {   9024, D_CHORD, 0, 0, 4, 96 },                         /* E5 */
+    {   9120, D_CHORD, 0, 0, 2, 88 },                         /* D5 */
+    {   9216, D_CHORD, 0, 0, 0, 92 },                         /* C5 */
+    {   9312, D_CHORD, 0, 0, 11, 94 },                        /* B5 */
+    {   9408, D_CHORD, 0, 0, 9, 96 },                         /* A5 */
+    {   9696, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {   9696, D_SOUND, 0, 0, 24, 0 },                         /* Kalimba */
+    {   9696, D_PERF, PERF_OFF, 0, 0, 0 },
+    {   9744, D_VOICING, 0, 0, 36, 0 },                       /* voicing 36: finestra da C */
+    {   9792, D_OFF, 0, 0, 0, 0 },
+    {   9792, D_LOOP, LOOP_C_OVERDUB, 0, 0, 0 },              /* overdub */
+    {   9792, D_VIEW, VIEW_CHORD, 0, 0, 0 },
+    {   9792, D_CHORD, 0, 0, 9, 94 },                         /* A4 */
+    {   9821, D_OFF, 0, 0, 0, 0 },
+    {   9840, D_CHORD, 0, 0, 4, 80 },                         /* E4 */
+    {   9869, D_OFF, 0, 0, 0, 0 },
+    {   9888, D_CHORD, 0, 0, 0, 86 },                         /* C4 */
+    {   9917, D_OFF, 0, 0, 0, 0 },
+    {   9936, D_CHORD, 0, 0, 4, 78 },                         /* E4 */
+    {   9965, D_OFF, 0, 0, 0, 0 },
+    {   9984, D_CHORD, 0, 0, 9, 92 },                         /* A4 */
+    {  10013, D_OFF, 0, 0, 0, 0 },
+    {  10032, D_CHORD, 0, 0, 7, 80 },                         /* G4 */
+    {  10061, D_OFF, 0, 0, 0, 0 },
+    {  10080, D_CHORD, 0, 0, 4, 84 },                         /* E4 */
+    {  10109, D_OFF, 0, 0, 0, 0 },
+    {  10128, D_CHORD, 0, 0, 0, 76 },                         /* C4 */
+    {  10157, D_OFF, 0, 0, 0, 0 },
+    {  10176, D_CHORD, 0, 0, 9, 94 },                         /* A4 */
+    {  10205, D_OFF, 0, 0, 0, 0 },
+    {  10224, D_CHORD, 0, 0, 5, 80 },                         /* F4 */
+    {  10253, D_OFF, 0, 0, 0, 0 },
+    {  10272, D_CHORD, 0, 0, 0, 86 },                         /* C4 */
+    {  10301, D_OFF, 0, 0, 0, 0 },
+    {  10320, D_CHORD, 0, 0, 5, 78 },                         /* F4 */
+    {  10349, D_OFF, 0, 0, 0, 0 },
+    {  10368, D_CHORD, 0, 0, 9, 92 },                         /* A4 */
+    {  10397, D_OFF, 0, 0, 0, 0 },
+    {  10416, D_CHORD, 0, 0, 5, 80 },                         /* F4 */
+    {  10445, D_OFF, 0, 0, 0, 0 },
+    {  10464, D_CHORD, 0, 0, 4, 84 },                         /* E4 */
+    {  10493, D_OFF, 0, 0, 0, 0 },
+    {  10512, D_CHORD, 0, 0, 0, 76 },                         /* C4 */
+    {  10541, D_OFF, 0, 0, 0, 0 },
+    {  10560, D_CHORD, 0, 0, 5, 92 },                         /* F4 */
+    {  10589, D_OFF, 0, 0, 0, 0 },
+    {  10608, D_CHORD, 0, 0, 2, 80 },                         /* D4 */
+    {  10637, D_OFF, 0, 0, 0, 0 },
+    {  10656, D_CHORD, 0, 0, 9, 86 },                         /* A4 */
+    {  10685, D_OFF, 0, 0, 0, 0 },
+    {  10704, D_CHORD, 0, 0, 2, 78 },                         /* D4 */
+    {  10733, D_OFF, 0, 0, 0, 0 },
+    {  10752, D_CHORD, 0, 0, 7, 92 },                         /* G4 */
+    {  10781, D_OFF, 0, 0, 0, 0 },
+    {  10800, D_CHORD, 0, 0, 2, 80 },                         /* D4 */
+    {  10829, D_OFF, 0, 0, 0, 0 },
+    {  10848, D_CHORD, 0, 0, 11, 84 },                        /* B4 */
+    {  10877, D_OFF, 0, 0, 0, 0 },
+    {  10896, D_CHORD, 0, 0, 7, 76 },                         /* G4 */
+    {  10925, D_OFF, 0, 0, 0, 0 },
+    {  10944, D_CHORD, 0, 0, 7, 92 },                         /* G4 */
+    {  10973, D_OFF, 0, 0, 0, 0 },
+    {  10992, D_CHORD, 0, 0, 4, 80 },                         /* E4 */
+    {  11021, D_OFF, 0, 0, 0, 0 },
+    {  11040, D_CHORD, 0, 0, 0, 86 },                         /* C4 */
+    {  11069, D_OFF, 0, 0, 0, 0 },
+    {  11088, D_CHORD, 0, 0, 4, 78 },                         /* E4 */
+    {  11117, D_OFF, 0, 0, 0, 0 },
+    {  11136, D_CHORD, 0, 0, 8, 92 },                         /* G#4 */
+    {  11165, D_OFF, 0, 0, 0, 0 },
+    {  11184, D_CHORD, 0, 0, 4, 80 },                         /* E4 */
+    {  11213, D_OFF, 0, 0, 0, 0 },
+    {  11232, D_CHORD, 0, 0, 11, 84 },                        /* B4 */
+    {  11261, D_OFF, 0, 0, 0, 0 },
+    {  11280, D_CHORD, 0, 0, 4, 76 },                         /* E4 */
+    {  11309, D_OFF, 0, 0, 0, 0 },
+    {  11328, D_LOOP, LOOP_C_OVERDUB, 0, 0, 0 },              /* fine dell'overdub */
+    {  11328, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {  11328, D_SOUND, 0, 0, 28, 0 },                         /* Tenor Sax */
+    {  11328, D_PERF, PERF_OFF, 0, 0, 0 },
+    {  11328, D_VOICING, 0, 0, 41, 0 },                       /* voicing 41: finestra da F */
+    {  11328, D_THEME, THEME_LIGHT, 0, 0, 0 },
+    {  11328, D_VIEW, VIEW_REACT, 0, 0, 0 },
+    {  11328, D_CHORD, 0, 0, 4, 100 },                        /* E4 */
+    {  11510, D_OFF, 0, 0, 0, 0 },
+    {  11520, D_CHORD, 0, 0, 7, 92 },                         /* G4 */
+    {  11611, D_OFF, 0, 0, 0, 0 },
+    {  11616, D_CHORD, 0, 0, 9, 94 },                         /* A4 */
+    {  11707, D_OFF, 0, 0, 0, 0 },
+    {  11712, D_CHORD, 0, 0, 11, 104 },                       /* B4 */
+    {  11940, D_OFF, 0, 0, 0, 0 },
+    {  11952, D_CHORD, 0, 0, 9, 86 },                         /* A4 */
+    {  11998, D_OFF, 0, 0, 0, 0 },
+    {  12000, D_CHORD, 0, 0, 7, 92 },                         /* G4 */
+    {  12091, D_OFF, 0, 0, 0, 0 },
+    {  12096, D_CHORD, 0, 0, 7, 96 },                         /* G4 */
+    {  12233, D_OFF, 0, 0, 0, 0 },
+    {  12240, D_CHORD, 0, 0, 5, 86 },                         /* F4 */
+    {  12286, D_OFF, 0, 0, 0, 0 },
+    {  12288, D_CHORD, 0, 0, 4, 94 },                         /* E4 */
+    {  12470, D_OFF, 0, 0, 0, 0 },
+    {  12576, D_CHORD, 0, 0, 2, 88 },                         /* D4 */
+    {  12667, D_OFF, 0, 0, 0, 0 },
+    {  12672, D_CHORD, 0, 0, 4, 98 },                         /* E4 */
+    {  12854, D_OFF, 0, 0, 0, 0 },
+    {  12864, D_CHORD, 0, 0, 5, 100 },                        /* F4 */
+    {  13001, D_OFF, 0, 0, 0, 0 },
+    {  13008, D_CHORD, 0, 0, 9, 88 },                         /* A4 */
+    {  13054, D_OFF, 0, 0, 0, 0 },
+    {  13056, D_CHORD, 0, 0, 11, 104 },                       /* B4 */
+    {  13238, D_OFF, 0, 0, 0, 0 },
+    {  13248, D_CHORD, 0, 0, 11, 96 },                        /* B4 */
+    {  13339, D_OFF, 0, 0, 0, 0 },
+    {  13344, D_CHORD, 0, 0, 9, 86 },                         /* A4 */
+    {  13390, D_OFF, 0, 0, 0, 0 },
+    {  13392, D_CHORD, 0, 0, 7, 84 },                         /* G4 */
+    {  13438, D_OFF, 0, 0, 0, 0 },
+    {  13440, D_CHORD, 0, 0, 4, 96 },                         /* E4 */
+    {  13622, D_OFF, 0, 0, 0, 0 },
+    {  13632, D_CHORD, 0, 0, 9, 102 },                        /* A4 */
+    {  13769, D_OFF, 0, 0, 0, 0 },
+    {  13776, D_CHORD, 0, 0, 7, 90 },                         /* G4 */
+    {  13822, D_OFF, 0, 0, 0, 0 },
+    {  13824, D_CHORD, 0, 0, 11, 100 },                       /* B4 */
+    {  13915, D_OFF, 0, 0, 0, 0 },
+    {  13920, D_CHORD, 0, 0, 9, 94 },                         /* A4 */
+    {  14011, D_OFF, 0, 0, 0, 0 },
+    {  14016, D_CHORD, 0, 0, 9, 104 },                        /* A4 */
+    {  14290, D_OFF, 0, 0, 0, 0 },
+    {  14352, D_HOLD, ENC_PERFORM, 0, 0, 0 },                 /* Lock del Perform spento */
+    {  14352, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {  14352, D_SOUND, 0, 0, 23, 0 },                         /* Concert Harp, Harp 4 */
+    {  14352, D_PERF, PERF_HARP, 4, 0, 0 },
+    {  14352, D_VOICING, 0, 0, 36, 0 },                       /* voicing 36: finestra da C */
+    {  14400, D_VIEW, VIEW_CHORD, 0, 0, 0 },
+    {  14400, D_CHORD, 0x4, 0x4, 5, 78 },                     /* Fmaj7: C4 E4 F4 A4 */
+    {  14760, D_OFF, 0, 0, 0, 0 },
+    {  14784, D_CHORD, 0x4, 0x0, 7, 80 },                     /* G: D4 G4 B4 */
+    {  15144, D_OFF, 0, 0, 0, 0 },
+    {  15168, D_CHORD, 0x2, 0x2, 9, 78 },                     /* Am7: C4 E4 G4 A4 */
+    {  15528, D_OFF, 0, 0, 0, 0 },
+    {  15552, D_CHORD, 0x4, 0x2, 4, 82 },                     /* E7: D4 E4 G#4 B4 */
+    {  15912, D_OFF, 0, 0, 0, 0 },
+    {  15936, D_CHORD, 0x4, 0x4, 5, 80 },                     /* Fmaj7: C4 E4 F4 A4 */
+    {  15936, D_LOOP, LOOP_C_STOP, 0, 0, 0 },                 /* pausa del loop */
+    {  15936, D_BEATON, 0, 0, 0, 0 },
+    {  16296, D_OFF, 0, 0, 0, 0 },
+    {  16320, D_CHORD, 0x4, 0x0, 7, 82 },                     /* G: D4 G4 B4 */
+    {  16680, D_OFF, 0, 0, 0, 0 },
+    {  16704, D_CHORD, 0x2, 0x2, 9, 84 },                     /* Am7: C4 E4 G4 A4 */
+    {  17064, D_OFF, 0, 0, 0, 0 },
+    {  17088, D_CHORD, 0x2, 0x2, 9, 80 },                     /* Am7: C4 E4 G4 A4 */
+    {  17448, D_OFF, 0, 0, 0, 0 },
+    {  17472, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {  17472, D_SOUND, 0, 0, 21, 0 },                         /* Glockenspiel, Harp 3 */
+    {  17472, D_PERF, PERF_HARP, 3, 0, 0 },
+    {  17472, D_THEME, THEME_DARK, 0, 0, 0 },
+    {  17472, D_FOCUS, ENC_BPM, 0, 0, 0 },
+    {  17472, D_BPM, 0, 0, 100, 0 },                          /* ritardando: 100 BPM */
+    {  17472, D_LOOP, LOOP_C_CLEAR, 0, 0, 0 },                /* Clear */
+    {  17472, D_CHORD, 0x2, 0xa, 9, 92 },                     /* Am9: C4 E4 G4 A4 B4 */
+    {  17856, D_BPM, 0, 0, 88, 0 },                           /* ritardando: 88 BPM */
+    {  17856, D_VOICING, 0, 0, 41, 0 },                       /* voicing 41: finestra da F */
+    {  18240, D_BPM, 0, 0, 76, 0 },                           /* ritardando: 76 BPM */
+    {  18240, D_OFF, 0, 0, 0, 0 },
+    {  18240, D_VOICING, 0, 0, 46, 0 },                       /* voicing 46: finestra da A# */
+    {  19008, D_END, 0, 0, 0, 0 },
+};
+
+/* Demo song: Pistillo: 124 BPM, 49 battute, 277 passi, 1:38 */
+static const dstep_t SONG_2[] = {
+    {      0, D_TITLE, 0, 0, 0, 0 },
+    {      0, D_THEME, THEME_DARK, 0, 0, 0 },
+    {      0, D_VIEW, VIEW_CHORD, 0, 0, 0 },
+    {      0, D_OPT, ACC_OPT_KEY_ON, 0, 0, 0 },
+    {      0, D_OPT, ACC_OPT_BASS_ON, 0, 0, 0 },
+    {      0, D_OPT, ACC_OPT_SINGLE_NOTES, 1, 0, 0 },
+    {      0, D_OPT, ACC_OPT_BASS_VOICING, 23, 0, 0 },
+    {      0, D_OPT, ACC_OPT_VOICING, 36, 0, 0 },
+    {      0, D_FOCUS, ENC_BPM, 0, 0, 0 },
+    {      0, D_BPM, 0, 0, 124, 0 },                          /* 124 BPM */
+    {     48, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {     48, D_SOUND, 0, 0, 18, 0 },                         /* FM Piano, Pattern 5 */
+    {     48, D_PERF, PERF_PATTERN, 5, 0, 0 },
+    {    192, D_CHORD, 0x2, 0xa, 4, 90 },                     /* Em9: D4 E4 F#4 G4 B4 */
+    {    360, D_OFF, 0, 0, 0, 0 },
+    {    384, D_CHORD, 0x2, 0x2, 4, 82 },                     /* Em7: D4 E4 G4 B4 */
+    {    552, D_OFF, 0, 0, 0, 0 },
+    {    576, D_CHORD, 0x4, 0x4, 0, 90 },                     /* Cmaj7: C4 E4 G4 B4 */
+    {    744, D_OFF, 0, 0, 0, 0 },
+    {    768, D_CHORD, 0x4, 0x4, 0, 82 },                     /* Cmaj7: C4 E4 G4 B4 */
+    {    936, D_OFF, 0, 0, 0, 0 },
+    {    960, D_CHORD, 0x4, 0x0, 7, 90 },                     /* G: D4 G4 B4 */
+    {   1128, D_OFF, 0, 0, 0, 0 },
+    {   1152, D_CHORD, 0x4, 0x1, 7, 82 },                     /* G6: D4 E4 G4 B4 */
+    {   1320, D_OFF, 0, 0, 0, 0 },
+    {   1344, D_CHORD, 0x8, 0x2, 2, 90 },                     /* D7sus: C4 D4 G4 A4 */
+    {   1512, D_OFF, 0, 0, 0, 0 },
+    {   1536, D_CHORD, 0x4, 0x0, 2, 82 },                     /* D: D4 F#4 A4 */
+    {   1704, D_OFF, 0, 0, 0, 0 },
+    {   1728, D_BEAT, 6, 0, 0, 0 },                           /* Beat: Boom Bap, kit 808 */
+    {   1728, D_BEATON, 1, 0, 0, 0 },
+    {   1728, D_FOCUS, ENC_BASS, 0, 0, 0 },
+    {   1728, D_PRESS, ENC_BASS, 0, 0, 0 },                   /* basso acceso */
+    {   1728, D_VOICING, 0, 0, 24, 0 },                       /* voicing 24: finestra da C */
+    {   1728, D_CHORD, 0x2, 0xa, 4, 94 },                     /* Em9: D3 E3 F#3 G3 B3 */
+    {   1776, D_BASS, 0, 0, 1, 0 },                           /* Sub Floor */
+    {   1896, D_OFF, 0, 0, 0, 0 },
+    {   1920, D_CHORD, 0x2, 0x2, 4, 84 },                     /* Em7: D3 E3 G3 B3 */
+    {   2088, D_OFF, 0, 0, 0, 0 },
+    {   2112, D_CHORD, 0x4, 0x4, 0, 94 },                     /* Cmaj7: C3 E3 G3 B3 */
+    {   2280, D_OFF, 0, 0, 0, 0 },
+    {   2304, D_CHORD, 0x4, 0x4, 0, 84 },                     /* Cmaj7: C3 E3 G3 B3 */
+    {   2472, D_OFF, 0, 0, 0, 0 },
+    {   2496, D_CHORD, 0x4, 0x0, 7, 94 },                     /* G: D3 G3 B3 */
+    {   2664, D_OFF, 0, 0, 0, 0 },
+    {   2688, D_CHORD, 0x4, 0x1, 7, 84 },                     /* G6: D3 E3 G3 B3 */
+    {   2856, D_OFF, 0, 0, 0, 0 },
+    {   2880, D_CHORD, 0x8, 0x2, 2, 94 },                     /* D7sus: C3 D3 G3 A3 */
+    {   3048, D_OFF, 0, 0, 0, 0 },
+    {   3072, D_CHORD, 0x4, 0x0, 2, 84 },                     /* D: D3 F#3 A3 */
+    {   3240, D_OFF, 0, 0, 0, 0 },
+    {   3264, D_CHORD, 0x2, 0xa, 4, 94 },                     /* Em9: D3 E3 F#3 G3 B3 */
+    {   3432, D_OFF, 0, 0, 0, 0 },
+    {   3456, D_CHORD, 0x2, 0x2, 4, 84 },                     /* Em7: D3 E3 G3 B3 */
+    {   3624, D_OFF, 0, 0, 0, 0 },
+    {   3648, D_CHORD, 0x4, 0x4, 0, 94 },                     /* Cmaj7: C3 E3 G3 B3 */
+    {   3816, D_OFF, 0, 0, 0, 0 },
+    {   3840, D_CHORD, 0x4, 0x4, 0, 84 },                     /* Cmaj7: C3 E3 G3 B3 */
+    {   4008, D_OFF, 0, 0, 0, 0 },
+    {   4032, D_CHORD, 0x4, 0x0, 7, 94 },                     /* G: D3 G3 B3 */
+    {   4200, D_OFF, 0, 0, 0, 0 },
+    {   4224, D_CHORD, 0x4, 0x1, 7, 84 },                     /* G6: D3 E3 G3 B3 */
+    {   4392, D_OFF, 0, 0, 0, 0 },
+    {   4416, D_CHORD, 0x8, 0x2, 2, 94 },                     /* D7sus: C3 D3 G3 A3 */
+    {   4584, D_OFF, 0, 0, 0, 0 },
+    {   4608, D_CHORD, 0x4, 0x0, 2, 84 },                     /* D: D3 F#3 A3 */
+    {   4776, D_OFF, 0, 0, 0, 0 },
+    {   4800, D_LOOP, LOOP_C_PRESS, 0, 0, 0 },                /* REC: count-in, poi 4 battute */
+    {   4800, D_VIEW, VIEW_CHORD_KB, 0, 0, 0 },
+    {   5184, D_CHORD, 0x2, 0xa, 4, 96 },                     /* Em9: D3 E3 F#3 G3 B3 */
+    {   5352, D_OFF, 0, 0, 0, 0 },
+    {   5376, D_CHORD, 0x2, 0x2, 4, 86 },                     /* Em7: D3 E3 G3 B3 */
+    {   5544, D_OFF, 0, 0, 0, 0 },
+    {   5568, D_CHORD, 0x4, 0x4, 0, 96 },                     /* Cmaj7: C3 E3 G3 B3 */
+    {   5736, D_OFF, 0, 0, 0, 0 },
+    {   5760, D_CHORD, 0x4, 0x4, 0, 86 },                     /* Cmaj7: C3 E3 G3 B3 */
+    {   5928, D_OFF, 0, 0, 0, 0 },
+    {   5952, D_CHORD, 0x4, 0x0, 7, 96 },                     /* G: D3 G3 B3 */
+    {   6120, D_OFF, 0, 0, 0, 0 },
+    {   6144, D_CHORD, 0x4, 0x1, 7, 86 },                     /* G6: D3 E3 G3 B3 */
+    {   6312, D_OFF, 0, 0, 0, 0 },
+    {   6336, D_CHORD, 0x8, 0x2, 2, 96 },                     /* D7sus: C3 D3 G3 A3 */
+    {   6504, D_OFF, 0, 0, 0, 0 },
+    {   6528, D_CHORD, 0x4, 0x0, 2, 86 },                     /* D: D3 F#3 A3 */
+    {   6624, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {   6624, D_SOUND, 0, 0, 20, 0 },                         /* Marimba */
+    {   6624, D_PERF, PERF_OFF, 0, 0, 0 },
+    {   6648, D_HOLD, ENC_PERFORM, 0, 0, 0 },                 /* Lock del Perform acceso */
+    {   6672, D_VOICING, 0, 0, 48, 0 },                       /* voicing 48: finestra da C */
+    {   6696, D_OFF, 0, 0, 0, 0 },
+    {   6720, D_VIEW, VIEW_NOTES, 0, 0, 0 },
+    {   6720, D_CHORD, 0, 0, 4, 100 },                        /* E5 */
+    {   6763, D_OFF, 0, 0, 0, 0 },
+    {   6768, D_CHORD, 0, 0, 7, 86 },                         /* G5 */
+    {   6811, D_OFF, 0, 0, 0, 0 },
+    {   6816, D_CHORD, 0, 0, 11, 96 },                        /* B5 */
+    {   6902, D_OFF, 0, 0, 0, 0 },
+    {   6912, D_CHORD, 0, 0, 9, 90 },                         /* A5 */
+    {   6955, D_OFF, 0, 0, 0, 0 },
+    {   6960, D_CHORD, 0, 0, 7, 84 },                         /* G5 */
+    {   7003, D_OFF, 0, 0, 0, 0 },
+    {   7008, D_CHORD, 0, 0, 4, 92 },                         /* E5 */
+    {   7094, D_OFF, 0, 0, 0, 0 },
+    {   7104, D_CHORD, 0, 0, 9, 102 },                        /* A5 */
+    {   7147, D_OFF, 0, 0, 0, 0 },
+    {   7152, D_CHORD, 0, 0, 11, 88 },                        /* B5 */
+    {   7195, D_OFF, 0, 0, 0, 0 },
+    {   7200, D_CHORD, 0, 0, 7, 96 },                         /* G5 */
+    {   7286, D_OFF, 0, 0, 0, 0 },
+    {   7296, D_CHORD, 0, 0, 4, 92 },                         /* E5 */
+    {   7382, D_OFF, 0, 0, 0, 0 },
+    {   7392, D_CHORD, 0, 0, 2, 86 },                         /* D5 */
+    {   7478, D_OFF, 0, 0, 0, 0 },
+    {   7488, D_CHORD, 0, 0, 2, 98 },                         /* D5 */
+    {   7531, D_OFF, 0, 0, 0, 0 },
+    {   7536, D_CHORD, 0, 0, 7, 86 },                         /* G5 */
+    {   7579, D_OFF, 0, 0, 0, 0 },
+    {   7584, D_CHORD, 0, 0, 11, 96 },                        /* B5 */
+    {   7670, D_OFF, 0, 0, 0, 0 },
+    {   7680, D_CHORD, 0, 0, 9, 100 },                        /* A5 */
+    {   7766, D_OFF, 0, 0, 0, 0 },
+    {   7776, D_CHORD, 0, 0, 11, 90 },                        /* B5 */
+    {   7862, D_OFF, 0, 0, 0, 0 },
+    {   7872, D_CHORD, 0, 0, 9, 98 },                         /* A5 */
+    {   8002, D_OFF, 0, 0, 0, 0 },
+    {   8016, D_CHORD, 0, 0, 6, 86 },                         /* F#5 */
+    {   8059, D_OFF, 0, 0, 0, 0 },
+    {   8064, D_CHORD, 0, 0, 2, 94 },                         /* D5 */
+    {   8237, D_OFF, 0, 0, 0, 0 },
+    {   8256, D_CHORD, 0, 0, 4, 100 },                        /* E5 */
+    {   8299, D_OFF, 0, 0, 0, 0 },
+    {   8304, D_CHORD, 0, 0, 7, 86 },                         /* G5 */
+    {   8347, D_OFF, 0, 0, 0, 0 },
+    {   8352, D_CHORD, 0, 0, 11, 96 },                        /* B5 */
+    {   8438, D_OFF, 0, 0, 0, 0 },
+    {   8448, D_CHORD, 0, 0, 9, 92 },                         /* A5 */
+    {   8491, D_OFF, 0, 0, 0, 0 },
+    {   8496, D_CHORD, 0, 0, 11, 86 },                        /* B5 */
+    {   8539, D_OFF, 0, 0, 0, 0 },
+    {   8544, D_CHORD, 0, 0, 7, 92 },                         /* G5 */
+    {   8630, D_OFF, 0, 0, 0, 0 },
+    {   8640, D_CHORD, 0, 0, 11, 104 },                       /* B5 */
+    {   8726, D_OFF, 0, 0, 0, 0 },
+    {   8736, D_CHORD, 0, 0, 9, 90 },                         /* A5 */
+    {   8779, D_OFF, 0, 0, 0, 0 },
+    {   8784, D_CHORD, 0, 0, 7, 88 },                         /* G5 */
+    {   8827, D_OFF, 0, 0, 0, 0 },
+    {   8832, D_CHORD, 0, 0, 4, 94 },                         /* E5 */
+    {   8918, D_OFF, 0, 0, 0, 0 },
+    {   8928, D_CHORD, 0, 0, 2, 90 },                         /* D5 */
+    {   9014, D_OFF, 0, 0, 0, 0 },
+    {   9024, D_CHORD, 0, 0, 6, 96 },                         /* F#5 */
+    {   9110, D_OFF, 0, 0, 0, 0 },
+    {   9120, D_CHORD, 0, 0, 7, 92 },                         /* G5 */
+    {   9206, D_OFF, 0, 0, 0, 0 },
+    {   9216, D_CHORD, 0, 0, 9, 96 },                         /* A5 */
+    {   9302, D_OFF, 0, 0, 0, 0 },
+    {   9312, D_CHORD, 0, 0, 11, 100 },                       /* B5 */
+    {   9398, D_OFF, 0, 0, 0, 0 },
+    {   9408, D_CHORD, 0, 0, 4, 102 },                        /* E5 */
+    {   9667, D_OFF, 0, 0, 0, 0 },
+    {   9696, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {   9696, D_SOUND, 0, 0, 26, 0 },                         /* Pipe Organ */
+    {   9696, D_PERF, PERF_OFF, 0, 0, 0 },
+    {   9744, D_VOICING, 0, 0, 36, 0 },                       /* voicing 36: finestra da C */
+    {   9792, D_LOOP, LOOP_C_OVERDUB, 0, 0, 0 },              /* overdub */
+    {   9792, D_VIEW, VIEW_CHORD, 0, 0, 0 },
+    {   9792, D_CHORD, 0x2, 0xa, 4, 80 },                     /* Em9: D4 E4 F#4 G4 B4 */
+    {  10152, D_OFF, 0, 0, 0, 0 },
+    {  10176, D_CHORD, 0x4, 0x4, 0, 80 },                     /* Cmaj7: C4 E4 G4 B4 */
+    {  10536, D_OFF, 0, 0, 0, 0 },
+    {  10560, D_CHORD, 0x4, 0x0, 7, 82 },                     /* G: D4 G4 B4 */
+    {  10920, D_OFF, 0, 0, 0, 0 },
+    {  10944, D_CHORD, 0x8, 0x2, 2, 82 },                     /* D7sus: C4 D4 G4 A4 */
+    {  11304, D_OFF, 0, 0, 0, 0 },
+    {  11328, D_LOOP, LOOP_C_OVERDUB, 0, 0, 0 },              /* fine dell'overdub */
+    {  11328, D_BEAT, 7, 0, 0, 0 },                           /* Beat: Disco, kit studio */
+    {  11328, D_THEME, THEME_LIGHT, 0, 0, 0 },
+    {  11328, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {  11328, D_SOUND, 0, 0, 27, 0 },                         /* Alto Recorder */
+    {  11328, D_PERF, PERF_OFF, 0, 0, 0 },
+    {  11328, D_VOICING, 0, 0, 41, 0 },                       /* voicing 41: finestra da F */
+    {  11328, D_VIEW, VIEW_REACT, 0, 0, 0 },
+    {  11328, D_CHORD, 0, 0, 11, 96 },                        /* B4 */
+    {  11458, D_OFF, 0, 0, 0, 0 },
+    {  11472, D_CHORD, 0, 0, 9, 84 },                         /* A4 */
+    {  11515, D_OFF, 0, 0, 0, 0 },
+    {  11520, D_CHORD, 0, 0, 7, 92 },                         /* G4 */
+    {  11606, D_OFF, 0, 0, 0, 0 },
+    {  11616, D_CHORD, 0, 0, 4, 88 },                         /* E4 */
+    {  11702, D_OFF, 0, 0, 0, 0 },
+    {  11712, D_CHORD, 0, 0, 7, 96 },                         /* G4 */
+    {  11885, D_OFF, 0, 0, 0, 0 },
+    {  11904, D_CHORD, 0, 0, 9, 90 },                         /* A4 */
+    {  11990, D_OFF, 0, 0, 0, 0 },
+    {  12000, D_CHORD, 0, 0, 11, 94 },                        /* B4 */
+    {  12086, D_OFF, 0, 0, 0, 0 },
+    {  12096, D_CHORD, 0, 0, 11, 100 },                       /* B4 */
+    {  12226, D_OFF, 0, 0, 0, 0 },
+    {  12240, D_CHORD, 0, 0, 9, 86 },                         /* A4 */
+    {  12283, D_OFF, 0, 0, 0, 0 },
+    {  12288, D_CHORD, 0, 0, 7, 92 },                         /* G4 */
+    {  12374, D_OFF, 0, 0, 0, 0 },
+    {  12384, D_CHORD, 0, 0, 4, 88 },                         /* E4 */
+    {  12470, D_OFF, 0, 0, 0, 0 },
+    {  12480, D_CHORD, 0, 0, 6, 94 },                         /* F#4 */
+    {  12653, D_OFF, 0, 0, 0, 0 },
+    {  12672, D_CHORD, 0, 0, 2, 90 },                         /* D4 */
+    {  12845, D_OFF, 0, 0, 0, 0 },
+    {  12864, D_CHORD, 0, 0, 4, 92 },                         /* E4 */
+    {  12950, D_OFF, 0, 0, 0, 0 },
+    {  12960, D_CHORD, 0, 0, 7, 90 },                         /* G4 */
+    {  13046, D_OFF, 0, 0, 0, 0 },
+    {  13056, D_CHORD, 0, 0, 11, 98 },                        /* B4 */
+    {  13186, D_OFF, 0, 0, 0, 0 },
+    {  13200, D_CHORD, 0, 0, 9, 86 },                         /* A4 */
+    {  13243, D_OFF, 0, 0, 0, 0 },
+    {  13248, D_CHORD, 0, 0, 7, 94 },                         /* G4 */
+    {  13334, D_OFF, 0, 0, 0, 0 },
+    {  13344, D_CHORD, 0, 0, 4, 88 },                         /* E4 */
+    {  13430, D_OFF, 0, 0, 0, 0 },
+    {  13440, D_CHORD, 0, 0, 2, 92 },                         /* D4 */
+    {  13613, D_OFF, 0, 0, 0, 0 },
+    {  13632, D_CHORD, 0, 0, 11, 98 },                        /* B4 */
+    {  13718, D_OFF, 0, 0, 0, 0 },
+    {  13728, D_CHORD, 0, 0, 9, 100 },                        /* A4 */
+    {  13814, D_OFF, 0, 0, 0, 0 },
+    {  13824, D_CHORD, 0, 0, 11, 90 },                        /* B4 */
+    {  13867, D_OFF, 0, 0, 0, 0 },
+    {  13872, D_CHORD, 0, 0, 9, 86 },                         /* A4 */
+    {  13915, D_OFF, 0, 0, 0, 0 },
+    {  13920, D_CHORD, 0, 0, 7, 92 },                         /* G4 */
+    {  14006, D_OFF, 0, 0, 0, 0 },
+    {  14016, D_CHORD, 0, 0, 4, 96 },                         /* E4 */
+    {  14275, D_OFF, 0, 0, 0, 0 },
+    {  14352, D_HOLD, ENC_PERFORM, 0, 0, 0 },                 /* Lock del Perform spento */
+    {  14352, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {  14352, D_SOUND, 0, 0, 22, 0 },                         /* Tubular Bells */
+    {  14352, D_PERF, PERF_OFF, 0, 0, 0 },
+    {  14352, D_VOICING, 0, 0, 36, 0 },                       /* voicing 36: finestra da C */
+    {  14400, D_VIEW, VIEW_CHORD, 0, 0, 0 },
+    {  14400, D_FOCUS, ENC_KEY, 0, 0, 0 },
+    {  14400, D_PTURN, ENC_KEY, 2, 0, 0 },                    /* transpose +2: anche il loop sale (ACC-221) */
+    {  14400, D_CHORD, 0x2, 0xa, 4, 96 },                     /* Em9: D4 E4 F#4 G4 B4 */
+    {  14760, D_OFF, 0, 0, 0, 0 },
+    {  14976, D_CHORD, 0x4, 0x4, 0, 92 },                     /* Cmaj7: C4 E4 G4 B4 */
+    {  15144, D_OFF, 0, 0, 0, 0 },
+    {  15168, D_CHORD, 0x4, 0x0, 7, 94 },                     /* G: D4 G4 B4 */
+    {  15528, D_OFF, 0, 0, 0, 0 },
+    {  15744, D_CHORD, 0x8, 0x2, 2, 92 },                     /* D7sus: C4 D4 G4 A4 */
+    {  15912, D_OFF, 0, 0, 0, 0 },
+    {  15936, D_CHORD, 0x2, 0xa, 4, 98 },                     /* Em9: D4 E4 F#4 G4 B4 */
+    {  16296, D_OFF, 0, 0, 0, 0 },
+    {  16512, D_CHORD, 0x4, 0x4, 0, 94 },                     /* Cmaj7: C4 E4 G4 B4 */
+    {  16680, D_OFF, 0, 0, 0, 0 },
+    {  16704, D_CHORD, 0x4, 0x0, 7, 96 },                     /* G: D4 G4 B4 */
+    {  16872, D_OFF, 0, 0, 0, 0 },
+    {  16896, D_CHORD, 0x4, 0x0, 2, 100 },                    /* D: D4 F#4 A4 */
+    {  17064, D_OFF, 0, 0, 0, 0 },
+    {  17088, D_CHORD, 0x2, 0xa, 4, 104 },                    /* Em9: D4 E4 F#4 G4 B4 */
+    {  17448, D_OFF, 0, 0, 0, 0 },
+    {  17472, D_LOOP, LOOP_C_UNDO, 0, 0, 0 },                 /* Undo: via l'organo */
+    {  17472, D_BEATON, 0, 0, 0, 0 },
+    {  17472, D_THEME, THEME_DARK, 0, 0, 0 },
+    {  17472, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {  17472, D_SOUND, 0, 0, 23, 0 },                         /* Concert Harp, Harp 4 */
+    {  17472, D_PERF, PERF_HARP, 4, 0, 0 },
+    {  17472, D_FOCUS, ENC_BPM, 0, 0, 0 },
+    {  17472, D_BPM, 0, 0, 110, 0 },                          /* ritardando: 110 BPM */
+    {  17472, D_LOOP, LOOP_C_CLEAR, 0, 0, 0 },                /* Clear */
+    {  17472, D_CHORD, 0x2, 0xa, 4, 96 },                     /* Em9: D4 E4 F#4 G4 B4 */
+    {  17856, D_BPM, 0, 0, 96, 0 },                           /* ritardando: 96 BPM */
+    {  17856, D_VOICING, 0, 0, 41, 0 },                       /* voicing 41: finestra da F */
+    {  18240, D_BPM, 0, 0, 84, 0 },                           /* ritardando: 84 BPM */
+    {  18240, D_OFF, 0, 0, 0, 0 },
+    {  18240, D_VOICING, 0, 0, 46, 0 },                       /* voicing 46: finestra da A# */
+    {  19008, D_END, 0, 0, 0, 0 },
+};
+
+const dsong_t vet_demo_songs[] = {
+    { "Demo song: Acacia", SONG_0, (uint16_t)(sizeof SONG_0 / sizeof SONG_0[0]), 230992u },
+    { "Demo song: Felce", SONG_1, (uint16_t)(sizeof SONG_1 / sizeof SONG_1[0]), 108943u },
+    { "Demo song: Pistillo", SONG_2, (uint16_t)(sizeof SONG_2 / sizeof SONG_2[0]), 98461u },
+};
+
+const uint8_t vet_demo_songs_n = 3;

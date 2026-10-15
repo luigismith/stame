@@ -10,6 +10,7 @@ Sono patch di Stame, progettate sul carattere del nome: nessun preset dell'Orchi
 """
 import os
 import re
+import sys
 
 QUI = os.path.dirname(os.path.abspath(__file__))
 RADICE = os.path.dirname(QUI)
@@ -28,7 +29,26 @@ def leggi_patch_c():
 
 NOMI, DEF = leggi_patch_c()
 IDX = {n: i for i, n in enumerate(NOMI)}
-VA, RP, FM = 0, 1, 2
+VA, RP, FM, SMP = 0, 1, 2, 3
+# il campionatore (20 §7b, SND-371) legge i byte RP con altri nomi
+ALIAS = {'SMPSET': 'RPHEIGHT', 'SMPLOOP': 'RPDISTANCE', 'SMPSTART': 'RPKT', 'SMPTUNE': 'RPDECAY'}
+
+
+def leggi_set_idx():
+    """gli indici dei set del banco, da campioni_idx.h (generato da tools/campioni.py)"""
+    p = os.path.join(RADICE, 'src', 'platform', 'vetrina', 'campioni_idx.h')
+    if not os.path.exists(p):
+        return {}
+    return {m[1]: int(m[2]) for m in re.finditer(r'SMP_SET_([A-Z0-9_]+) = (\d+)', open(p, encoding='utf-8').read())}
+
+
+SET_IDX = leggi_set_idx()
+
+
+def set_idx(nome):
+    if nome.upper() not in SET_IDX:
+        sys.exit(f'set {nome} non nel banco: prima python -I tools/campioni.py')
+    return SET_IDX[nome.upper()]
 SAW, PULSE, TRI = 1, 2, 3
 # sorgenti e destinazioni della matrice (§8.3)
 KEY, VEL, RND = 0, 1, 3
@@ -49,8 +69,15 @@ def patch(model, matrice=(), **kw):
         p[IDX['RPHEIGHT']] = 64
         p[IDX['RPDISTANCE']] = 64
         p[IDX['RPVOL']] = 64
+    if model == SMP:                                  # INIT del campionatore (SND-371)
+        p[IDX['RPHEIGHT']] = 0
+        p[IDX['RPDISTANCE']] = 0
+        p[IDX['RPKT']] = 0
+        p[IDX['RPDECAY']] = 64
+        p[IDX['FTYPE']] = 0
+        p[IDX['E2R']] = 50
     for nome, v in kw.items():
-        p[IDX[nome]] = int(v)
+        p[IDX[ALIAS.get(nome, nome)]] = int(v)
     for n, (s, d, a) in enumerate(matrice, 1):
         p[IDX['M%dS' % n]], p[IDX['M%dD' % n]], p[IDX['M%dA' % n]] = s, d, a
     for i, v in enumerate(p):
@@ -132,6 +159,50 @@ SUONI = [
         **fx(1, CHORUS, 25, 60, 127), **fx(2, DELAY, 0, 25, 45, 70, 127, 0))),
 ]
 
+# ---- gli strumenti campionati (20 §7b): dal 15/10/2026, banco di tools/campioni.py ----
+if SET_IDX:
+    SUONI += [
+        ('Grand Piano', patch(SMP, [], SMPSET=set_idx('piano_kawai'), GVELO=100, FTYPE=1, CUTOFF=78, FVELO=55,
+            E2A=0, E2D=64, E2S=127, E2R=42, GAIN=82, REVSEND=28, REVSIZE=95)),
+        ('Upright Piano', patch(SMP, [], SMPSET=set_idx('piano_upright'), GVELO=100, FTYPE=1, CUTOFF=74, FVELO=55,
+            E2A=0, E2D=64, E2S=127, E2R=40, GAIN=82, REVSEND=22)),
+        ('FM Piano', patch(SMP, [], SMPSET=set_idx('fm_piano'), GVELO=90, E2A=0, E2D=64, E2S=127, E2R=45,
+            GAIN=80, REVSEND=30, **fx(1, CHORUS, 24, 40, 100))),
+        ('Vibraphone', patch(SMP, [], SMPSET=set_idx('vibes'), GVELO=90, E2A=0, E2D=64, E2S=127, E2R=60,
+            GAIN=80, REVSEND=45, REVSIZE=105, **fx(1, TREMOLO, 40, 45, 0))),
+        ('Marimba', patch(SMP, [], SMPSET=set_idx('marimba'), GVELO=95, E2A=0, E2D=64, E2S=127, E2R=35,
+            GAIN=82, REVSEND=35)),
+        ('Glockenspiel', patch(SMP, [], SMPSET=set_idx('glock'), GVELO=80, E2A=0, E2D=64, E2S=127, E2R=70,
+            GAIN=72, REVSEND=55, REVSIZE=110)),
+        ('Tubular Bells', patch(SMP, [], SMPSET=set_idx('chimes'), GVELO=85, E2A=0, E2D=64, E2S=127, E2R=90,
+            GAIN=74, REVSEND=60, REVSIZE=118)),
+        ('Concert Harp', patch(SMP, [], SMPSET=set_idx('harp'), GVELO=90, E2A=0, E2D=64, E2S=127, E2R=55,
+            GAIN=80, REVSEND=42, REVSIZE=100)),
+        ('Kalimba', patch(SMP, [], SMPSET=set_idx('kalimba'), GVELO=90, E2A=0, E2D=64, E2S=127, E2R=40,
+            GAIN=80, REVSEND=30, **fx(2, DELAY, 1, 30, 35, 70, 110, 20))),
+        ('Harpsichord', patch(SMP, [], SMPSET=set_idx('harpsichord'), GVELO=30, E2A=0, E2D=64, E2S=127, E2R=30,
+            GAIN=76, REVSEND=35, REVSIZE=100)),
+        ('Pipe Organ', patch(SMP, [], SMPSET=set_idx('organ'), GVELO=20, E2A=10, E2D=64, E2S=127, E2R=38,
+            GAIN=74, REVSEND=65, REVSIZE=120, REVLP=90)),
+        ('Alto Recorder', patch(SMP, [(LFO[1], D_PITCH, 68)], SMPSET=set_idx('recorder'), GVELO=60,
+            L1SHAPE=0, L1RATE=70, L1MODE=0, E2A=12, E2D=64, E2S=127, E2R=30, GAIN=76, REVSEND=45)),
+        ('Tenor Sax', patch(SMP, [], SMPSET=set_idx('sax'), GVELO=80, FTYPE=1, CUTOFF=92, FVELO=35,
+            E2A=8, E2D=64, E2S=127, E2R=32, GAIN=78, REVSEND=38)),
+    ]
+
+# famiglia di ogni suono, per la lista e il dettaglio della cella (UI-152)
+FAMIGLIA = {
+    'Glass Pollen': 'bell', 'Night Greenhouse': 'pad', 'Anther Keys': 'keys', 'Slow Stamen': 'pad',
+    'Fern Pluck': 'pluck', 'Copper Reed': 'keys', 'Orbit Choir': 'voice', 'Moss Strings': 'strings',
+    'Dew Mallet': 'mallet', 'Tape Fern': 'lo-fi', 'Seed Organ': 'organ', 'Sun Room': 'keys',
+    'Linnaeus Lead': 'lead', 'Petal Brass': 'brass', 'Root Drone': 'drone', 'Vetro Pad': 'pad',
+    'Grand Piano': 'piano', 'Upright Piano': 'piano', 'FM Piano': 'keys', 'Vibraphone': 'mallet',
+    'Marimba': 'mallet', 'Glockenspiel': 'bell', 'Tubular Bells': 'bell', 'Concert Harp': 'harp',
+    'Kalimba': 'pluck', 'Harpsichord': 'keys', 'Pipe Organ': 'organ', 'Alto Recorder': 'flute', 'Tenor Sax': 'reed',
+}
+# motore per la UI (ui_model.h: ENGINE_VA, ENGINE_FM, ENGINE_RP, ENGINE_SMP) dal modello della patch
+ENGINE_UI = {VA: 'ENGINE_VA', FM: 'ENGINE_FM', RP: 'ENGINE_RP', SMP: 'ENGINE_SMP'}
+
 # ---- i 6 bassi della vetrina, nell'ordine di BASSES[] ----
 BASSI = [
     ('Round Root', patch(VA, [], GLIDEMODE=2, O1SHAPE=TRI, O2SHAPE=SAW, O2GAIN=30, CUTOFF=58, RESONANCE=10,
@@ -158,6 +229,10 @@ LIVELLO_DB = {
     'Tape Fern': -0.5, 'Seed Organ': 0.8, 'Sun Room': -0.5, 'Linnaeus Lead': 1.8, 'Petal Brass': 1.0,
     'Root Drone': -4.7, 'Vetro Pad': -1.8,
     'Round Root': 7.3, 'Sub Floor': 5.0, 'Pluck Bass': 6.1, 'Reed Bass': -3.3, 'Velvet Sub': 6.5, 'Wood Bass': 5.8,
+    # campionati, misurati il 15/10/2026 con il banco della prima versione
+    'Grand Piano': 5.0, 'Upright Piano': 5.8, 'FM Piano': 4.9, 'Vibraphone': -1.0, 'Marimba': 2.8,
+    'Glockenspiel': 8.1, 'Tubular Bells': 5.9, 'Concert Harp': 3.8, 'Kalimba': 8.6, 'Harpsichord': 4.2,
+    'Pipe Organ': -4.9, 'Alto Recorder': -1.5, 'Tenor Sax': 1.7,
 }
 
 
@@ -169,6 +244,8 @@ PERFORM = {
     'Glass Pollen': (HARP, 3), 'Anther Keys': (STRUM, 2), 'Fern Pluck': (ARP, 6), 'Copper Reed': (STRUM, 3),
     'Moss Strings': (STRUM2, 4), 'Dew Mallet': (PATTERN, 5), 'Tape Fern': (SLOP, 4), 'Sun Room': (PATTERN, 2),
     'Linnaeus Lead': (ARP2, 4), 'Petal Brass': (STRUM, 1),
+    'Grand Piano': (STRUM, 2), 'FM Piano': (STRUM, 3), 'Vibraphone': (PATTERN, 3), 'Glockenspiel': (HARP, 3),
+    'Concert Harp': (HARP, 4), 'Kalimba': (PATTERN, 13), 'Harpsichord': (STRUM, 2), 'Marimba': (ARP, 6),
 }
 
 
@@ -228,9 +305,20 @@ def main():
           'const uint8_t vet_sound_perf[%d][2] STAME_ROM = {' % len(SUONI)]
     c += ['    { %d, %d },   /* %s */' % (PERFORM.get(nome, (OFF, 0)) + (nome,)) for nome, _ in SUONI]
     c += ['};', '']
+    c += ['/* nome, motore per la UI e famiglia di ogni suono (UI-152) */',
+          'const vet_snd_info_t vet_sound_info[%d] STAME_ROM = {' % len(SUONI)]
+    c += ['    { "%s", %s, "%s" },' % (nome, ENGINE_UI[p[IDX['MODEL']]], FAMIGLIA.get(nome, '')) for nome, p in SUONI]
+    c += ['};', '', 'const char *const vet_bass_name[%d] STAME_ROM = {' % len(BASSI)]
+    c += ['    "%s",' % nome for nome, _ in BASSI]
+    c += ['};', '']
     p = os.path.join(RADICE, 'src', 'platform', 'vetrina', 'patch_vetrina.c')
     open(p, 'w', encoding='utf-8', newline='\n').write('\n'.join(c))
-    print('patch: %d suoni, %d bassi' % (len(SUONI), len(BASSI)))
+    h = ['/* patch_vetrina.h — quanti suoni e bassi ha la vetrina. Generato da tools/patch.py. */',
+         '#ifndef STAME_PATCH_VETRINA_H', '#define STAME_PATCH_VETRINA_H',
+         '#define VET_N_SOUNDS  %d' % len(SUONI), '#define VET_N_BASSES  %d' % len(BASSI),
+         '#endif', '']
+    open(os.path.join(RADICE, 'src', 'platform', 'vetrina', 'patch_vetrina.h'), 'w', encoding='utf-8', newline='\n').write('\n'.join(h))
+    print('patch: %d suoni (%d campionati), %d bassi' % (len(SUONI), sum(1 for _, p in SUONI if p[IDX['MODEL']] == SMP), len(BASSI)))
 
 
 if __name__ == '__main__':

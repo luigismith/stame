@@ -286,6 +286,31 @@ static void scope(gfx_fb16_t *fb, const uf_pal_t *p, const ui_meters_t *me)
     }
 }
 
+/* ---- oscilloscopio di sfondo (vista Chord, UI-147b): la forma d'onda dietro il nome, nel colore
+ * delle celle spente, agganciata a uno zero crossing in salita così l'immagine sta ferma ---- */
+
+static void scope_bg(gfx_fb16_t *fb, const uf_pal_t *p, const ui_meters_t *me)
+{
+    const int x0 = NAME_X, w = NAME_MAXW, yc = 150, amp = 72;
+    if (!me->scope || me->scope_len < (uint16_t)(w + 512)) return;
+    uint32_t wr = me->scope_wr ? *me->scope_wr : 0, len = me->scope_len;
+    /* trigger: l'ultimo zero crossing in salita fra 896 e 392 campioni fa, altrimenti la finestra più recente */
+    uint32_t start = wr + len - (uint32_t)w - 512u;
+    uint32_t best = wr + len - (uint32_t)w;
+    for (uint32_t k = start + 1; k < wr + len - (uint32_t)w; k++) {
+        int16_t a = me->scope[(k - 1) % len], b = me->scope[k % len];
+        if (a < 0 && b >= 0) best = k;
+    }
+    gfx_c c = p->c[T_BAR];
+    int prev = yc;
+    for (int i = 0; i < w; i++) {
+        int y = yc - me->scope[(best + (uint32_t)i) % len] * amp / 32768;
+        int a = prev < y ? prev : y, b = prev < y ? y : prev;
+        gfx_fill(fb, x0 + i, a, 1, b - a + 1, c);
+        prev = y;
+    }
+}
+
 /* ---- firma e disegno ---- */
 
 uint64_t uf_sig_z2(const ui_model_t *m)
@@ -296,8 +321,8 @@ uint64_t uf_sig_z2(const ui_model_t *m)
     h = UF_HV(h, m->layer.prompt);
     h = UF_HV(h, m->prefs.pocket);
     h = UF_HV(h, m->prefs.linnaeus);
-    if (m->ctl.view == VIEW_REACT && m->meters.scope) {
-        uint32_t t = m->now_ms / 33u;
+    if ((m->ctl.view == VIEW_REACT || m->ctl.view == VIEW_CHORD) && m->meters.scope) {
+        uint32_t t = m->now_ms / 33u;                    /* 30 fotogrammi al secondo */
         h = UF_HV(h, t);
     }
     return h;
@@ -366,7 +391,8 @@ void uf_draw_z2(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
     }
     case VIEW_CHORD:
     default:
-        /* vetrino: angoli a squadra attorno al nome */
+        /* vetrino: la forma d'onda in trasparenza, poi gli angoli a squadra attorno al nome */
+        if (m->layer.prompt == PROMPT_NONE) scope_bg(fb, p, &m->meters);
         gfx_corners(fb, 4, 68, 408, 164, 9, 1, p->c[T_LINE]);
         draw_name(fb, p, mu, NAME_X + 4, -1, NAME_MAXW - 8, 0);
         if (m->prefs.pocket && mu->pocket_pc != 255) stick(fb, p, mu, 404, 222);

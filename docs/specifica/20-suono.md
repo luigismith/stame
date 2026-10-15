@@ -128,7 +128,7 @@ Fonte: Parinfo di Pistil 1.0.2 = firmware 3.92 `[O]`. "Def" è il default della 
 | Idx | Nome | Range | Def | Significato e codifica |
 |---:|---|---|---:|---|
 | 0 | VER | 2 | 2 | Versione del formato (§2.1). |
-| 1 | MODEL | 0–2 | 0 | 0 = VA, 1 = REED PIANO, 2 = FM. |
+| 1 | MODEL | 0–3 | 0 | 0 = VA, 1 = REED PIANO, 2 = FM; 3 = SMP, il campionatore di Stame (§7b), che nei byte 118…122 legge SMPSET, SMPLOOP, SMPSTART e SMPTUNE al posto dei parametri RP. |
 | 2 | FMALG | 0–7 | 0 | Algoritmo FM, mostrato "1"–"8" (§6.3). |
 | 3 | HIGHPASS | | 0 | Passa-alto di tastiera (§4.3). 0 = spento. |
 | 4 | GLIDE | | 0 | Tempo di glide (§4.1). 0 = spento. |
@@ -472,6 +472,30 @@ Le fonti divergono: il manuale dice che spariscono oscillatori, filtro e parte d
 
 ---
 
+## 7b. Modello SMP: il campionatore di Stame
+
+Aggiunta di Stame, decisa il 15/10/2026 (Luigi: «se possibile scarica e aggiungi dei samples magari di strumenti noti»; regola «tutto l'Orchid, e di più»). L'Orchid non ha un campionatore: il modello esiste solo nelle patch di Stame (MODEL = 3) e non altera gli altri tre. `src/dsp/smp.c`, `tools/campioni.py`, test T-SND-50…54 (`tests/unit/test_smp.c`).
+
+### 7b.1 Schema
+
+```
+ note-on ─► zona del set (nota, velocity) ─► lettura a 4 punti (Hermite) al passo rate/fs · 2^(semi/12)
+                                                     │  loop: da loop_end si torna a loop_start (dissolvenza già nel file)
+                                                     ▼
+                                   catena comune: filtro SVF, passa-alto, ENV2 come VCA, matrice, LFO, pan ─► FX1 ─► FX2
+```
+
+- **SND-370** Una patch con MODEL = 3 **DEVE** usare la catena comune del VA (filtro, passa-alto, inviluppi, LFO, matrice, GAIN, GVELO, PAN, FX) con il campione al posto degli oscillatori: NOISE, O1…O4, FM e le destinazioni degli oscillatori non hanno effetto. Il rumore della sezione VA resta disponibile (NOISE).
+- **SND-371** Nei byte RP la patch SMP legge: **SMPSET** = RPHEIGHT (118), l'indice del set nel banco; **SMPLOOP** = RPDISTANCE (119): 0 = il loop della zona se c'è, 1 = sempre one-shot; **SMPSTART** = RPKT (120): inizio della lettura fino al 25 % della zona (mai oltre il loop_start); **SMPTUNE** = RPDECAY (122): ±50 cent (64 = 0). La patch INIT del modello: SMPSET 0, SMPLOOP 0, SMPSTART 0, SMPTUNE 64, FTYPE OFF, E2R 50.
+- **SND-372** Il **banco** è un blob in sola lettura che la piattaforma carica prima che l'audio parta (`stame.smp` accanto al binario sulla Flip; `build/campioni/stame.smp` o `STAME_SMP` nel render) e che non cambia mentre si suona: le voci tengono puntatori dentro di esso. Senza banco una nota SMP tace e la voce si libera subito; l'avvio lo scrive nel log.
+- **SND-373** La **zona** di una nota è quella del set che copre la nota (lo…hi) con il layer di velocity più alto (`vel_lo`) non superiore alla velocity; il passo di lettura è `rate / fs · 2^((pitch − root + tune) / 12)` con `pitch` la nota con bend, glide e matrice PITCH, ricalcolato a ogni blocco. La lettura interpola a 4 punti (Hermite); oltre la fine del one-shot la voce scrive zeri e si libera anche se la nota è tenuta; in loop continua finché ENV2 non finisce il rilascio.
+- **SND-374** Formato del file `stame.smp` (little-endian): testa di 20 byte (`"STMP"`, u16 versione = 1, u16 n_set, u16 n_zone, u16 0, u32 offset dei dati (multiplo di 4), u32 numero di campioni); n_set record da 32 byte (nome 24 byte terminato da 0, u16 prima zona, u16 numero di zone, u16 flag: bit 0 = loop, u16 0); n_zone record da 32 byte (u32 offset in campioni, u32 lunghezza ≥ 4, u32 loop_start, u32 loop_end (0 = one-shot), u32 rate 8000…96000, f32 gain 0…16, u8 root, lo, hi, vel_lo); poi i campioni int16 mono. Limiti del lettore: 64 set, 640 zone. Un file non valido si rifiuta per intero.
+- **SND-375** `tools/campioni.py` costruisce il banco solo da campioni **CC0** (VCSL, Sonic Pi) e scrive `assets/campioni/FONTI.md` con ogni file e la sua licenza, e `src/platform/vetrina/campioni_idx.h` con gli indici dei set per le patch. Il banco non entra nel repo (si rigenera); va nel pacchetto della Flip. Preparazione: mono, senza continua, 32 kHz, testa tagliata a −45 dBFS, picco a −1 dBFS; one-shot tagliati sotto −66 dBFS con dissolvenza di 30 ms; loop cercato fra 0,4 e 1,5 s dalla fine con la giunzione più simile e dissolvenza di 30 ms incollata nel file, più 2 campioni oltre loop_end per l'interpolazione.
+- **SND-376** Set della prima versione del banco (15/10/2026): `piano_kawai`, `piano_upright`, `fm_piano`, `vibes`, `marimba`, `glock`, `chimes`, `harp`, `kalimba`, `harpsichord` (one-shot); `organ`, `recorder`, `sax` (loop); i kit `kit_studio`, `kit_jazz`, `kit_808` (§10.6, SND-537). Dimensione ≈ 35 MB a 32 kHz; per l'hardware dedicato servirà un banco ridotto `[D]`.
+- **SND-377** Costo per voce `[D]`: ~40 cicli/campione (lettura e Hermite) più la catena comune; sta dentro il budget di SND-700.
+
+---
+
 ## 8. Modulazioni
 
 ### 8.1 Inviluppi
@@ -618,6 +642,7 @@ Etichette dei parametri `[O: frontend di Pistil 1.0.2]`; descrizioni `[M]`; algo
 
 - **SND-535** `dsp_render16` **DEVE** sommare un bus stereo della batteria fornito dal chiamante, già processato dai suoi Drum FX (Reverb e Saturator, `10-accordi-e-performance.md`), dopo il riverbero e prima del volume master.
 - **SND-536** Volume master: `g_master(v)` con `v` 0–99 `[M: master 0–99]`, poi il soft clipper di SND-046.
+- **SND-537** **Kit a campioni** (aggiunta di Stame, 15/10/2026: le batterie sintetizzate «fanno cagare», Luigi). Ogni Beat ha un kit: il nome di un set del banco (SND-374) le cui zone hanno per nota l'id dello strumento di `drums.h` (0 = cassa … 11 = piatto) e, dove serve, layer di velocity (`vel_lo`); oppure nessun kit, e suona la sintesi in stile CR-78 (il kit «Chip»). `drums_hit` prende la zona dello strumento dal kit del Beat corrente e la legge con interpolazione lineare al passo `rate / fs`, senza intonazione; se lo strumento non è nel kit (i clic del metronomo, o un kit parziale) ricade nella sintesi. Il charleston chiuso strozza l'aperto anche quando è un campione (dissolvenza di 6 ms). Kit della prima versione: `kit_studio` (VCSL: cassa, rullante a due layer, cross stick, battimani, charleston, tom, shaker, conga, campanaccio, piatto), `kit_jazz` (Sonic Pi e VCSL), `kit_808` (Sonic Pi). I 12 Beat della vetrina e i loro kit sono in `src/core/beat.c`.
 
 ---
 

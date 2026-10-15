@@ -21,8 +21,7 @@
 
 #define VET_SCOPE_LEN 1024
 #define VET_SND_Q     512
-#define VET_N_SOUNDS  16
-#define VET_N_BASSES  6
+#include "patch_vetrina.h"      /* VET_N_SOUNDS, VET_N_BASSES: li scrive tools/patch.py */
 
 /* Comandi per il motore audio (core/motore e synth): la vetrina li mette in coda, la piattaforma li
  * legge con vet_snd_pop e li passa al motore (thread audio sulla Flip, render in WAV sul PC).
@@ -37,6 +36,10 @@ typedef struct { uint8_t type, engine, a, b, timed; uint32_t at; } vet_snd_t;   
 /* patch di Stame per i suoni e i bassi della vetrina (patch_vetrina.c, da tools/patch.py) */
 extern const uint8_t vet_sound_patch[VET_N_SOUNDS][DSP_NPAR];
 extern const uint8_t vet_bass_patch[VET_N_BASSES][DSP_NPAR];
+/* nome, motore (ENGINE_* di ui_model.h) e famiglia di ogni suono; nomi dei bassi */
+typedef struct { const char *name; uint8_t engine; const char *cat; } vet_snd_info_t;
+extern const vet_snd_info_t vet_sound_info[VET_N_SOUNDS];
+extern const char *const vet_bass_name[VET_N_BASSES];
 /* Perform di default di ogni suono: modo e amount (ACC-162, colonne di bank.idx) */
 extern const uint8_t vet_sound_perf[VET_N_SOUNDS][2];
 
@@ -80,6 +83,7 @@ typedef struct {
     uint32_t    demo_t0, last_input_ms;
     uint32_t    demo_tick0;           /* tick del motore a cui comincia il brano */
     int         demo_step;
+    uint8_t     demo_song;            /* quale brano di vet_demo_songs; alla fine passa al successivo */
     int16_t     demo_saved[6];        /* opzioni degli accordi da rimettere quando la demo si ferma */
     uint32_t    vtick, vt_acc;        /* senza motore: tick contati dall'orologio, al BPM corrente */
 
@@ -137,7 +141,9 @@ static inline bool vet_quit(const vet_t *v) { return v->quit != 0; }
 /* Per le prove: ferma l'avvio e porta la demo all'istante t_ms del suo copione, a passi di 10 ms.
  * step (se c'è) gira dopo ogni passo: la piattaforma vi passa i comandi al motore e rende l'audio. */
 void vet_demo_seek(vet_t *v, uint32_t t_ms, void (*step)(vet_t *v, void *ctx), void *ctx);
-/* Durata del brano della demo, in ms, con i suoi cambi di tempo. */
-uint32_t vet_demo_len(void);
+/* Durata del brano i della demo (o di quello corrente con i < 0), in ms, con i suoi cambi di tempo. */
+uint32_t vet_demo_len(int i);
+/* Sceglie il brano che la demo suonerà alla prossima partenza (il render lo usa per --song). */
+void vet_demo_select(vet_t *v, int i);
 
 #endif
