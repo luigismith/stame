@@ -341,6 +341,16 @@ STATI = {
 def plancia_svg(stato, width='100%'):
     return plancia(STATI[stato], width)
 
+
+def plancia_img(nome, width='100%'):
+    """Fotogramma vero della plancia, scritto da stame-render (vetrina del 14/10/2026) in img/."""
+    import base64
+    import os
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'img', nome + '.png')
+    data = base64.b64encode(open(p, 'rb').read()).decode('ascii')
+    return (f'<img src="data:image/png;base64,{data}" style="width:{width};image-rendering:pixelated;'
+            f'display:block;border-radius:1.5mm" alt="plancia: {nome}">')
+
 # ---------------------------------------------------------------- pagine del PDF
 
 def _zone_note(n, title, body):
@@ -350,19 +360,19 @@ def _zone_note(n, title, body):
 
 def _p2():
     notes = ''.join([
-        _zone_note('Z1', 'Barra di stato · 640×24', 'MPK e PAD collegati, banco stimato dei pad (A o B), attività MIDI, voci su 16, carico CPU, livello e clip, modo tascabile, batteria.'),
-        _zone_note('Z2', 'Accordo · 400×160', 'Tonalità e transpose; il <b>nome dell\'accordo</b> molto grande, leggibile a un braccio di distanza; le note che suonano, basso in arancio e treble in azzurro; Play Style.'),
-        _zone_note('Z3', 'Tempo e loop · 240×160', 'BPM, metrica, beat e battuta; un riquadro per movimento; stato del looper, battuta, barra di avanzamento e menu a tre voci. Cornice rossa mentre registra.'),
-        _zone_note('Z4', 'Tastiera · 640×104', '4 ottave che seguono le finestre: treble, basso e loop (striscia viola) sui tasti. Le due barre sopra sono le <b>finestre del voicing</b>: girando M la barra azzurra scorre di un semitono per scatto. Quadratini = note della tonalità.'),
-        _zone_note('Z5', 'Comandi · 640×144', 'Gli 11 controlli dell\'Orchid nell\'ordine del fuoco, con valore, dettaglio, LED, LOCK e la <b>legenda viva</b>: K = manopola della MPK, T = tasto del pad, M/m1/m2 = manopole del pad. Il fuoco ha la cornice verde. Qui si aprono anche liste e menu.'),
-        _zone_note('Z6', 'Barra contestuale · 640×48', 'Una cosa alla volta: avviso, valore che si sta cambiando (overlay), richiesta della tonalità, oppure la legenda dei tasti di Flip e MPK, che cambia con il contesto.'),
+        _zone_note('Z1', 'Testata · 640×24', 'Vuota quando tutto va bene: solo la batteria. Si accende in rosso per NO MPK, clip, xrun o batteria scarica. In Geek Out torna la barra completa: MIDI, voci, CPU, livelli.'),
+        _zone_note('Z2', 'Accordo · 416×216', 'Tonalità e transpose; il <b>nome dell\'accordo</b> a punti (Matrice, lettera alta 98 px), con i punti spenti visibili: l\'accordo in acqua, il basso dopo la barra in ambra, come i tasti accesi. Note, intervalli, Play Style e cartellino di Linneo stanno in Geek Out.'),
+        _zone_note('Z3', 'Tempo e loop · 224×216', 'BPM a sette segmenti alti 50 px e un riquadro per movimento. Il looper compare solo quando lavora: stato, battuta, barra a celle, menu a tre voci; cornice rossa mentre registra.'),
+        _zone_note('Z4', 'Tastiera · 640×144', '4 ottave che seguono le finestre: treble, basso e loop (striscia viola) sui tasti. I puntini sono i granelli di polline: le note della tonalità. Girando un voicing compaiono sopra i <b>filamenti</b> con le antere.'),
+        _zone_note('Z5', 'Comandi · a richiesta', 'Con L1/R1, croce, A o X della Flip, al posto della tastiera: gli 11 controlli dell\'Orchid con fuoco, LED, LOCK e legenda. Si chiude da sola dopo 5 s o con B. Qui si aprono anche liste e menu.'),
+        _zone_note('Z6', 'Banda · 640×96', 'Il <b>controllo appena toccato</b>, in grande, con un segno giallo a sinistra: è l\'overlay dell\'Orchid. A riposo, il suono. Avvisi e richiesta della tonalità passano davanti. I nomi dei comandi sono incisi sulla mascherina, non qui.'),
     ])
     return f"""
 <h2>La plancia sulla Flip</h2>
-<p class="sub">Schermo 640×480, tema Dark. Nulla si sposta e nulla copre accordo, tastiera, tempo e loop. Stato d'esempio: Do♯m7 con il basso, tonalità Fa♯ minore, transpose +3, looper in riproduzione, fuoco su FX.</p>
+<p class="sub">Schermo 640×480, tema Notte (VFD). <b>Plancia calma</b>: mentre si suona, quattro cose leggibili a un braccio; i comandi e il dettaglio a richiesta. Stato d'esempio: Si m7 con il basso, tonalità Fa♯ minore, looper in riproduzione con le note registrate (viola), MPK collegata.</p>
 <div style="display:flex;gap:7mm">
- <div style="flex:0 0 168mm">{plancia_svg('principale')}
-  <div class="muted" style="font-size:7.6pt;margin-top:1.2mm">Disegno a pixel veri secondo <code>30-interfaccia.md</code> §4 (UI-142…UI-160). Qui i caratteri sono un monospazio di sistema; nell'app sarà Spleen (font bitmap, licenza BSD-2).</div>
+ <div style="flex:0 0 168mm">{plancia_img('principale')}
+  <div class="muted" style="font-size:7.6pt;margin-top:1.2mm">Fotogramma vero del renderer della plancia (<code>stame-render</code>, plancia calma del 15/10/2026), lo stesso codice che gira sulla Flip. Identità: <code>docs/identita/README.md</code>; requisiti: <code>30-interfaccia.md</code> §4.</div>
  </div>
  <div style="flex:1">{notes}</div>
 </div>
@@ -370,17 +380,19 @@ def _p2():
 
 def _p3():
     def fig(stato, cap):
-        return f'<div style="flex:1;min-width:0">{plancia_svg(stato)}<div style="font-size:8pt;margin-top:1.2mm">{cap}</div></div>'
+        return f'<div style="flex:1;min-width:0">{plancia_img(stato)}<div style="font-size:8pt;margin-top:1.2mm">{cap}</div></div>'
     return f"""
 <h2>La plancia in altri stati</h2>
-<p class="sub">Liste e menu prendono solo la zona comandi; overlay e aiuti solo la barra in fondo. Il resto non si muove.</p>
-<div style="display:flex;gap:6mm;margin-bottom:3mm;padding:0 40mm">
- {fig('lista', '<b>Lista dei suoni aperta</b> (tocco di T1, oppure fuoco su Sound + A). Si scorre con m2 e si conferma premendo m2; la voce scelta sta sempre nella riga centrale.')}
- {fig('push_rec', '<b>Registrazione del loop, con T4 (Key) tenuto.</b> Cornice rossa sulla zona del loop; la cella KEY si riempie mentre il tasto è tenuto e la barra in fondo dice cosa succede girando K4.')}
+<p class="sub">La banda risponde a ciò che tocchi; liste, menu e pagina dei comandi prendono il posto della tastiera. Accordo e tempo non si muovono mai. Fotogrammi veri della vetrina.</p>
+<div style="display:flex;gap:6mm;margin-bottom:3mm">
+ {fig('tocco', '<b>Hai appena girato FX.</b> La banda mostra «REVERB 06» in grande per 3,4 s, con il segno giallo a sinistra, poi torna al suono.')}
+ {fig('comandi', '<b>Pagina dei comandi</b> (L1/R1 della Flip): le 11 celle al posto della tastiera, il fuoco in lime; in fondo il valore del controllo che giri.')}
+ {fig('lista', '<b>Lista dei suoni</b> (tocco di T1, oppure fuoco su Sound + A): la voce scelta sta nella riga centrale, la spunta segna il suono attivo; in fondo i tasti della Flip.')}
 </div>
-<div style="display:flex;gap:6mm;padding:0 40mm">
- {fig('transpose', '<b>Funzione secondaria</b> (T4 tenuto + gira K4): la barra in fondo diventa gialla con il valore, la cella si rinomina TRANSPOSE.')}
- {fig('tascabile', '<b>Senza MPK, modo tascabile.</b> «NO MPK» e «POCKET» in alto; sulla tastiera il contorno verde segna la nota scelta con la levetta; la barra in fondo spiega i comandi.')}
+<div style="display:flex;gap:6mm">
+ {fig('rec', '<b>Registrazione del loop.</b> Cornice rossa sulla zona del tempo, barra a celle rossa, menu a tre voci.')}
+ {fig('transpose', '<b>Funzione secondaria</b> (T4 tenuto + gira K4): etichetta in negativo e valore in giallo; la tonalità e il nome seguono il transpose.')}
+ {fig('giorno', '<b>Tema Giorno</b> (MENU › Theme › Light): un LCD riflettente, stessi ruoli e stesse forme del tema Notte.')}
 </div>
 """
 

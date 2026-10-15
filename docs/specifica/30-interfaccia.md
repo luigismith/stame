@@ -7,6 +7,15 @@ Questa sezione descrive cosa si **vede** e come lo si **comanda**: il modello da
 - il **comportamento** dell'Orchid resta fedele: cosa si apre con quale gesto, il contenuto dei menu, la Waiting Room, i tempi degli overlay (§3). Cambia solo il modo di disegnarlo;
 - le misure al pixel dell'OLED restano, ma valgono solo per l'hardware dedicato (§7, fase 2).
 
+**Identità visiva (14/10/2026)**, chiesta da Luigi: «un'identità estetica originale, intuitiva, ordinata, stile retro classica futurista, a tema con il device, una lore». La plancia è un **vetrino a fluorescenza**: vetro scuro con la maglia dei VFD, scritte fisse stampate color sabbia, valori accesi nei fosfori, segmenti spenti visibili, nome dell'accordo a punti (Matrice), BPM a sette segmenti. La storia, il marchio dei tre stami, i caratteri, la palette e le regole stanno in `docs/identita/README.md`; qui sotto restano i requisiti che il renderer deve rispettare. Il codice è in `src/gfx/` e `src/ui_flip/`; la vetrina dimostrativa che lo mostra sulla Flip in `src/platform/vetrina/` e `src/platform/flip/` (sezione 50, §11).
+
+**Plancia calma (15/10/2026).** Guardando le prime immagini Luigi ha scritto: «il display è estremamente pieno, sei sicuro che serva avere tutte quelle informazioni?». No: la prima plancia mostrava tutto insieme, ma a 50–70 cm si leggevano solo il nome dell'accordo e il BPM, e metà dello schermo ripeteva ciò che la mascherina del case (sezione 60) incide accanto ai comandi. Quindi, come sull'Orchid, che mostra l'accordo e per 3,4 s il controllo che si gira:
+- mentre si suona si vedono quattro cose: **accordo**, **tempo**, **tastiera** e una **banda** con il controllo appena toccato (a riposo, il suono);
+- **il case porta i nomi, lo schermo i valori**: niente legende fisse;
+- le 11 celle dei comandi compaiono solo quando si usano i tasti della Flip (UI-142a). Il dettaglio (note, intervalli, finestre, Linneo, voci, carico, livelli) sta nella vista **Geek Out**, che sull'Orchid serve proprio a questo.
+
+La decisione del 13/10/2026 resta: si disegna una plancia nativa e si vede in tempo reale ciò che serve; il resto arriva quando serve.
+
 ## 0. Convenzioni di questa sezione
 
 ### 0.1 Etichette
@@ -65,8 +74,8 @@ I testi dell'Orchid restano **in inglese**, come sull'originale («Volume», «C
 
 ```c
 /* gfx/gfx.h */
-typedef struct { uint16_t *px; uint16_t w, h, stride; } gfx_fb16_t;   /* RGB565, stride in pixel */
 typedef struct { int16_t x, y, w, h; } gfx_rect_t;
+typedef struct { uint16_t *px; uint16_t w, h, stride; gfx_rect_t clip; } gfx_fb16_t;   /* RGB565, stride in pixel; si disegna solo dentro clip */
 
 /* ui_flip/ui_flip.h */
 typedef struct ui_flip_state ui_flip_state_t;   /* firme delle zone, meter; memoria del chiamante */
@@ -102,6 +111,7 @@ typedef struct {
     ui_prefs_t     prefs;    /* tema e opzioni di resa                     UI-027 */
     ui_platform_t  plat;     /* MPK, MIDI, batteria della Flip             UI-027 */
     ui_msg_t       msg_core, msg_plat;  /* avvisi                          UI-028 */
+    ui_boot_t      boot;     /* avvio: tempo dall'inizio, righe, versione  UI-159 */
 } ui_model_t;
 ```
 
@@ -197,7 +207,7 @@ typedef enum { LP_IDLE, LP_WAITING_ROOM, LP_COUNT_IN, LP_REC, LP_PLAY, LP_OVERDU
 typedef enum { LPI_REC, LPI_PLAY, LPI_BACK, LPI_OVERDUB, LPI_PAUSE, LPI_CLEAR, LPI_STOP, LPI_UNDO } ui_lp_item_t;
 typedef struct {
     uint8_t  state;               /* ui_lp_state_t                                       */
-    uint8_t  free;                /* 1 = Free                                            */
+    uint8_t  free_mode;           /* 1 = Free («free» è un simbolo avvelenato da stame_base.h) */
     uint8_t  bars;                /* 1, 2, 4, 8, 16; in Free 0 finché il loop non è chiuso */
     uint8_t  cur_bar;             /* 1..bars                                             */
     uint16_t progress;            /* 0..65535 nel giro                                   */
@@ -290,8 +300,11 @@ typedef struct {
     ui_list_t    list;                 /* lista o menu in cima alla pila              */
     uint8_t      prompt;               /* NONE, SELECT_KEY (UI-096)                   */
     uint8_t      platform_menu;        /* 1 = la lista in cima è il menu della piattaforma */
+    uint8_t      page;                 /* PAGE_PLAY, PAGE_CONTROLS (UI-142a)          */
 } ui_layer_t;
 ```
+
+- `page` lo decide `core/ui` (UI-005), come la durata degli overlay: i renderer non tengono timer.
 
 - Il modello contiene **solo il livello in cima** di ogni tipo: chiusa una lista, `core/ui` ripubblica quella sotto.
 - La finestra di 9 voci basta per qualunque renderer (5 righe visibili più margine) e tiene il costo costante, anche per la lista Sound con 100 voci.
@@ -324,11 +337,12 @@ typedef struct {                         /* scelte del menu della piattaforma (U
     uint8_t theme;                       /* THEME_DARK (default), THEME_LIGHT                    */
     uint8_t legend;                      /* 1 = legenda viva accesa (default)                    */
     uint8_t note_labels;                 /* LBL_OCTAVES (default), LBL_ALL, LBL_OFF              */
-    uint8_t meters;                      /* 1 = voci, carico e livello nella barra di stato      */
+    uint8_t meters;                      /* 1 = voci, carico e livello nella testata (Geek Out) */
     uint8_t beat_flash;                  /* 1 = lampo sul numero del BPM a ogni movimento (default 0) */
     uint8_t ghost_chord;                 /* 1 = ultimo accordo in grigio dopo la persistenza (default 1) */
-    uint8_t debug;                       /* 1 = riga di debug nella barra contestuale (default 0) */
+    uint8_t debug;                       /* 1 = riga di debug nella banda (default 0)            */
     uint8_t pocket;                      /* modo tascabile acceso (40, MIDI-094); non salvato    */
+    uint8_t linnaeus;                    /* 1 = cartellino di Linneo nella zona accordo (UI-161, default 1) */
     uint32_t quit_seq;                   /* cambia quando si conferma «Quit Stame»               */
     uint32_t learn_pad_seq;              /* cambia quando si sceglie «Learn Pad» (40, MIDI-123)  */
 } ui_prefs_t;
@@ -341,6 +355,7 @@ typedef struct {
     uint8_t  pad_learn_step;             /* 0 = Learn Pad spento; 1..21 = passo in corso (MIDI-123) */
     uint32_t pad_learned;                /* un bit per passo già imparato                        */
     uint8_t  mpk_profile;                /* da core/input: STAME o FACTORY (40, MIDI-088)        */
+    uint8_t  mpk_bank;                   /* banco stimato dei pad: sconosciuto, A, B (40, MIDI-089) */
     char     mpk_fw[8];                  /* "1.13" dall'Identity Reply (MIDI-073)                */
     char     mpk_last[24];               /* ultimo messaggio ricevuto, in esadecimale            */
     uint32_t midi_in_ms, midi_out_ms;    /* ultimo messaggio dalla MPK o dal DIN IN; verso il DIN OUT */
@@ -490,7 +505,7 @@ Si scelgono da Options > System > View; la vista attiva ha la spunta [M MAN; O Q
 
 ### 3.5 Overlay
 
-Sull'Orchid un overlay è una schermata temporanea che compare quando si gira o si preme un encoder. Sulla plancia diventa un'**evidenza**: la cella del controllo si accende e la barra contestuale mostra il valore in grande (UI-154), senza coprire l'accordo.
+Sull'Orchid un overlay è una schermata temporanea che compare quando si gira o si preme un encoder. Sulla plancia diventa un'**evidenza**: la banda in fondo mostra nome e valore del controllo in grande (UI-154), senza coprire l'accordo; nella pagina dei comandi si accende anche la sua cella.
 
 **UI-065** I contenuti degli overlay sono questi. Le gamme dei valori e i nomi sono delle sezioni 10 e 20; l'impaginazione al pixel sull'OLED è in UI-061..UI-068.
 
@@ -662,7 +677,7 @@ Il comportamento del looper (stati, battute, overdub, undo, salvataggio) è nell
 | FX | Lock di FX | `st[ENC_FX]` `CF_LOCK` | [M; O] |
 | vicino a Volume | alimentazione e batteria; lampeggia sempre più in fretta mentre la batteria scende | `plat.battery_pct` | [M MAN] |
 
-**UI-108** [D] Sulla Flip i LED diventano contrassegni nelle celle dei controlli (UI-153) e l'icona della batteria nella barra di stato (UI-126). I LED del trasporto della MPK seguono 40 (MIDI-085): Rec in registrazione e overdub (lampeggia nel count-in), Play con Beat o metronomo attivi, Stop con il loop in pausa.
+**UI-108** [D] Sulla Flip i LED diventano contrassegni nelle celle dei controlli (UI-153) e l'icona della batteria nella testata (UI-126). I LED del trasporto della MPK seguono 40 (MIDI-085): Rec in registrazione e overdub (lampeggia nel count-in), Play con Beat o metronomo attivi, Stop con il loop in pausa.
 
 ### 3.10 Thread e tempi
 
@@ -681,80 +696,99 @@ La disposizione dei thread è della sezione 50.
 
 **UI-116** [O] Lo schermo della Miyoo Flip è **640×480** [O nota Flip; tabella hardware di 50]. Le app native aprono una finestra KMSDRM a schermo intero con dimensione logica 640×480 (`SDL_RenderSetLogicalSize(640, 480)`, PLT-059).
 
-**UI-140** [D] Principi della plancia:
-1. **Niente clone dell'OLED** (decisione di Luigi, in testa alla sezione): si disegna una plancia nativa a colori, che mostra in tempo reale tutto ciò che serve per suonare.
-2. **Zone fisse**: ogni informazione ha un posto che non cambia. Nulla si sposta e nulla compare sopra un'altra informazione.
-3. **Le zone critiche non si coprono mai**: accordo, tastiera, tempo e loop restano visibili anche con una lista aperta, un overlay o un avviso. Liste e menu usano la zona comandi, overlay e avvisi la barra contestuale.
-4. **Gerarchia per distanza**: la Flip sta appoggiata accanto alla MPK, a distanza di braccio (circa 50–70 cm). Ciò che serve mentre si suona usa le classi grandi di UI-141; ciò che si legge da vicino usa quelle piccole.
-5. **Colore con un ruolo fisso**, sempre accompagnato da una forma o da una posizione: treble, basso e loop si distinguono anche per registro, finestre e marcatori, non solo per il colore.
+**UI-140** [D] Principi della plancia (plancia calma, 15/10/2026):
+1. **Niente clone dell'OLED** (decisione di Luigi, in testa alla sezione): si disegna una plancia nativa a colori, che mostra in tempo reale ciò che serve per suonare.
+2. **Mentre si suona, solo ciò che si legge a un braccio.** La Flip sta accanto alla MPK, a circa 50–70 cm. A quella distanza una maiuscola deve essere alta almeno 16 minuti d'arco, cioè circa 3 mm (27 px a 9 px/mm). La pagina di gioco mostra quattro cose: **accordo**, **tempo**, **tastiera** e la **banda** con il controllo appena toccato. Il resto non scompare: arriva quando serve (punti 3 e 4).
+3. **Il case porta i nomi, lo schermo i valori.** La mascherina incide accanto a ogni comando della MPK la sua funzione (sezione 60): sullo schermo niente legende fisse e niente sigle dei controlli. Toccando un controllo, la banda ne mostra nome e valore in grande per la durata dell'overlay (UI-069), come fa l'Orchid.
+4. **Il dettaglio a richiesta.** Le 11 celle dei comandi e la legenda dei tasti della Flip compaiono solo nella pagina dei comandi (UI-142a), che si apre con i tasti del fuoco e si chiude da sola. Note scritte, intervalli, finestre, Play Style, cartellino di Linneo, attività MIDI, voci, carico e livelli stanno nella vista **Geek Out** (UI-051).
+5. **Lo stato tace.** Quando tutto va bene la testata mostra solo la batteria; un problema (MPK assente, clip, xrun, batteria scarica) compare solo finché dura.
+6. **Posti fissi**: ogni informazione ha un posto che non cambia e nulla compare sopra un'altra. Tastiera e comandi condividono lo stesso rettangolo e se ne vede uno alla volta.
+7. **Le zone critiche non si coprono mai**: accordo, tempo e loop restano visibili anche con una lista aperta, la pagina dei comandi o un avviso.
+8. **Colore con un ruolo fisso**, sempre accompagnato da una forma o da una posizione: treble, basso e loop si distinguono anche per registro e marcatori, non solo per il colore.
+9. **Due inchiostri** (identità, 14/10/2026): le scritte fisse (titoli, BPM, SOUND, nomi dei tasti nella legenda) sono «stampate» in `dim`, color sabbia; i valori che cambiano si accendono in `text` e nei colori dei ruoli.
+10. **Segmenti spenti visibili**: il nome dell'accordo in Matrice e le cifre a sette segmenti mostrano anche i punti e i segmenti spenti, in `seg_off`; le celle dei movimenti e le barre sono fatte di celle che si accendono. Le parole lunghe in Matrice della banda (nomi dei suoni) non mostrano i punti spenti: diventerebbero una griglia. Il fondo di ogni zona è il vetro: `bg` con un punto `mesh` ogni 4 pixel, a righe sfalsate.
 
 **UI-141** [D] Classi di testo. Le misure in millimetri valgono per lo schermo da 3,5" della Flip, circa 9 px/mm [D, da misurare: VF-UI-01].
 
 | Classe | Font (UI-144) | Altezza delle maiuscole | Circa | Uso |
 |---|---|---|---|---|
-| XL | Spleen 16×32 ×3 | 66 px (glifo 96) | 7 mm | nome dell'accordo |
-| L | Spleen 16×32 | 22 px | 2,4 mm | tonalità, transpose, BPM, valore nella barra contestuale |
-| M | Spleen 12×24 | 16 px | 1,8 mm | valori delle celle, elenco delle note, stato del looper, voci delle liste |
-| S | Spleen 8×16 | 11 px | 1,2 mm | titoli delle celle, barra di stato, legenda, dettagli |
+| XL | Matrice 5×7, punti con passo 6–14 px (UI-146) | 42–98 px | 4,7–11 mm | nome dell'accordo (passo 14 di norma); valore dell'overlay nella banda (passo 6) |
+| L | Spleen 16×32; cifre a sette segmenti alte 32–50 px | 22 px | 2,4 mm | tonalità, transpose, stato del looper, avvisi nella banda; BPM e numeri della banda a sette segmenti |
+| M | Spleen 12×24 | 16 px | 1,8 mm | valori delle celle, voci delle liste, metrica in Geek Out |
+| S | Spleen 8×16 | 11 px | 1,2 mm | titoli delle celle, testata, etichette della banda, legenda, dettagli |
 | XS | Spleen 6×12 | 8 px | 0,9 mm | legende dei controlli MPK nelle celle, etichette delle ottave |
 
-Le classi S e XS si leggono solo da vicino: NON DEVONO portare informazioni che servono mentre si suona.
+Le classi M, S e XS si leggono solo da vicino: NON DEVONO portare informazioni che servono mentre si suona. Nella pagina di gioco (vista Chord, nessun overlay) compaiono solo come etichette stampate (BPM, SOUND, dettaglio del suono, nomi delle ottave) e negli avvisi della testata; i valori usano Matrice, le sette cifre o la classe L.
 
 ### 4.2 Layout
 
-**UI-142** [D] Zone fisse della plancia, dall'alto:
+**UI-142** [D] Zone della plancia, dall'alto. Z4 e Z5 occupano lo stesso rettangolo: nella pagina di gioco (`PAGE_PLAY`) si vede la tastiera, nella pagina dei comandi (`PAGE_CONTROLS`, UI-142a) o con una lista aperta si vedono le celle o la lista.
 
 | Zona | Rettangolo (x, y, w, h) | Contenuto | Requisiti |
 |---|---|---|---|
-| Z1 barra di stato | 0, 0, 640, 24 | MPK, attività MIDI, voci, carico, livello e clip, macro pad, modo tascabile, batteria | UI-126 |
-| Z2 zona accordo | 0, 24, 400, 160 | tonalità e transpose, **nome dell'accordo**, note che suonano, Play Style; contenuto secondo la vista | UI-145..UI-147 |
-| Z3 tempo e loop | 400, 24, 240, 160 | BPM e metrica, Beat, movimenti e battuta, stato, posizione e menu del looper | UI-148, UI-149 |
-| Z4 tastiera | 0, 184, 640, 104 | 4 ottave che seguono le finestre, con treble, basso e loop, finestre del voicing, marcatori della tonalità | UI-150 |
-| Z5 zona comandi | 0, 288, 640, 144 | gli **11 controlli** con valore, fuoco e legenda della MPK e del macro pad; oppure la lista o il menu aperto | UI-151..UI-153, UI-157 |
-| Z6 barra contestuale | 0, 432, 640, 48 | evidenza degli overlay, avvisi, richiesta della tonalità, legenda viva dei tasti | UI-154..UI-156 |
+| Z1 testata | 0, 0, 640, 24 | batteria; avvisi solo quando servono. In Geek Out la barra completa: MPK, attività MIDI, voci, carico, livello e clip, macro pad, modo tascabile | UI-126 |
+| Z2 zona accordo | 0, 24, 416, 216 | tonalità e transpose, **nome dell'accordo**; contenuto secondo la vista | UI-145..UI-147 |
+| Z3 tempo e loop | 416, 24, 224, 216 | **BPM** e movimenti; il looper quando lavora; in Geek Out metrica, ritmo e battuta | UI-148, UI-149 |
+| Z4 tastiera | 0, 240, 640, 144 | 4 ottave che seguono le finestre, con treble, basso e loop, marcatori della tonalità; le finestre del voicing mentre lo si gira e in Geek Out | UI-150 |
+| Z5 zona comandi | 0, 240, 640, 144 | gli **11 controlli** con valore, fuoco e legenda; oppure la lista o il menu aperto. Solo nella pagina dei comandi | UI-151..UI-153, UI-157 |
+| Z6 banda | 0, 384, 640, 96 | **il controllo appena toccato** in grande (overlay), avvisi, richiesta della tonalità; a riposo il suono; nella pagina dei comandi la legenda dei tasti della Flip | UI-154..UI-156 |
 
-- Separatori di 1 px nel colore `line` a y = 24, 184, 288, 432 e a x = 400 tra Z2 e Z3.
-- **Perché quest'ordine**: in alto, dove l'occhio arriva per primo, ci sono il nome dell'accordo (cosa suona) e il tempo (dove sono nella battuta e nel loop). Subito sotto la tastiera, che mostra le stesse note in forma spaziale: voicing, rivolti, basso e loop. Più in basso la superficie di comando, che si guarda quando si cambia qualcosa, poi la riga di aiuto. La barra di stato in cima è sottile perché si legge di rado, ma deve restare sempre visibile: se la MPK cade o l'audio va in clip lo si vede subito.
+- Separatori di 1 px nel colore `line` a y = 24, 240, 384 e a x = 416 tra Z2 e Z3.
+- **Perché quest'ordine**: in alto, dove l'occhio arriva per primo, ci sono il nome dell'accordo (cosa suona) e il tempo (dove sono nella battuta e nel loop). Subito sotto la tastiera, che mostra le stesse note in forma spaziale: voicing, rivolti, basso e loop. In fondo la banda, che risponde a ciò che la mano ha appena toccato. La testata in cima è sottile e quasi sempre vuota: se la MPK cade o l'audio va in clip, lì lo si vede subito.
 - La zona comandi riprende l'ordine del fuoco (MIDI-092): da sinistra a destra e dall'alto in basso, così L1/R1 spostano il fuoco in un percorso di lettura naturale.
 
-**UI-143** [D] Mockup della plancia principale (1 carattere ≈ 8×16 px; nella tastiera 2 caratteri = 1 tasto bianco, 4 ottave da C2 a B5; `#` = pieno, `T` treble, `B` basso, `L` loop). Stato: Do♯ minore settima con il basso, looper in riproduzione, fuoco su FX, MPK e macro pad collegati (legende di UI-152 e UI-155 nella versione con il macro pad; nella cella Options il disegno tronca «m2 T9 SEL»).
+**UI-142a** [D] **Pagina dei comandi.** `core/ui` porta `layer.page` a `PAGE_CONTROLS` quando arriva dalla Flip un tasto del fuoco: L1, R1, croce, A o X (anche ripetuti). La pagina resta aperta finché arrivano quei tasti e si chiude **5000 ms** dopo l'ultimo, oppure subito con B quando non c'è una lista da chiudere. Una lista o un menu aperti tengono la pagina aperta finché non si chiudono. I comandi che arrivano dalla MPK, dal macro pad o dalle scorciatoie dirette della Flip (Y, SELECT, START) **non** aprono la pagina: accendono solo la banda (UI-154), perché chi li usa ha già i nomi sotto le dita. Il valore di 5000 ms è da provare.
+
+**UI-143** [D] Mockup delle due pagine (1 carattere ≈ 8×16 px; nella tastiera 2 caratteri = 1 tasto bianco, 4 ottave da C2 a B5; `#` = pieno, `T` treble, `B` basso, `L` loop). Stato: Do♯ minore settima con il basso, looper in riproduzione, MPK collegata.
+
+Pagina di gioco, a riposo (la banda mostra il suono):
 
 ```
 +------------------------------------------------------------------------------+
-|MPK STAME A  IN * OUT o  VOX 07/16  CPU 23%  [######---]  clip  PAD   87% [==]|
-+------------------------------------------------+-----------------------------+
-|F# Minor                               Trans +3 |120 BPM                  4/4 |
-|                                                |BEAT 03 Funk           BAR 12|
-|   ####   # #             7                     |[######] [    ] [    ] [    ]|
-|  ##  ## #####                                  |                             |
-|  ##      # #  ## ##  ##                        |> PLAY                L2  2/4|
-|  ##     ##### ### ### ##                       |[#######|###---|      |     ]|
-|  ##  ##  # #  ##  ##  ##                       |[OVERDUB] [ PAUSE ] [ CLEAR ]|
-|   ####        ##  ##  ##                       |                             |
-|C#2 : C#3 E3 G#3 B3                      SIMPLE |                             |
-+------------------------------------------------+-----------------------------+
-|                [======W======]                                               |
-|  [=====WB======]                                                             |
+|                                                                      87% [==]|
++----------------------------------------------------+-------------------------+
+| F# Minor                                 Trans +3  |  888                    |
+| .                                               .  |  8 8 BPM                |
+|    ####   # #               7                      |                         |
+|   ##  ## #####                                     | [#####] [   ] [   ] [   ]|
+|   ##      # #  ## ##  ##                           |                         |
+|   ##     ##### ### ### ##                          | > PLAY           L2 2/4 |
+|   ##  ##  # #  ##  ##  ##                          | [######|###---|   |   ] |
+|    ####        ##  ##  ##                          | [OVERDUB][PAUSE][CLEAR] |
+| .                                               .  |                         |
++----------------------------------------------------+-------------------------+
 |  B #   # # #   T #   # T #   # #   # # #   # #   # # #                       |
 | C D E F G L B C D T F G L T C D L F G A B C D E F G A B                      |
 | C2            C3            C4            C5                                 |
++------------------------------------------------------------------------------+
+| SOUND                                                             VA  pluck  |
+| 03 Analog Flower                                                             |
++------------------------------------------------------------------------------+
+```
+
+Pagina dei comandi (dopo L1 o R1, fuoco su FX; la banda mostra la legenda della Flip):
+
+```
++----------------------------------------------------+-------------------------+
+|                 (testata, accordo e tempo come sopra)                         |
 +-------------------------+-------------------+#################+--------------+
 |SOUND                    |PERFORM       LOCK #>FX              #KEY          *|
 |03 Analog Flower         |Arpeggiate         #Reverb 04        #F# Minor      |
 |VA  pluck                |16  UP/DOWN        #REV4 CHO3 DLY5   #Trans +3      |
-|K1 T1                    |K2 T2              #K3 T3            #K4 T4         |
+|K1                       |K2 B3              #K3               #K4 B1         |
 +-----------------+---------+----------+---------+-------+----------+----------+
 |BASS     UNISON *|LOOP     |BPM      *|VOLUME   |OPTIONS|CH.VOICING|BS.VOICING|
 |On  03           |Play     |120       |72       |Chord  |025       |24        |
 |Fifth Organ Bass |bar 2/4  |Beat 03   |Bass 70  |Simple |C#3 Oct   |C#2       |
-|K5 T5            |K6 T6 Rec|K7 T7 Play|K8 T8    |m2 T9  |M         |m1 Y      |
+|K5 B2            |K6 B5 Rec|K7 B6 Play|K8       |B7 SEL |B4        |Y         |
 +-----------------+---------+----------+---------+-------+----------+----------+
-|L1 R1 focus  + turn  A press  B back  X push  Y bs.voicing  SEL opt  START bpm|
-|Rec loop  Stop pause  T press  T+K press&turn  M voicing  m1 bs.voic  m2 list |
+|                                                                              |
+|   L1 R1 focus  + turn  A press  B back  X push  Y bs.voic  SEL opt  START bpm |
+|                                                                              |
 +------------------------------------------------------------------------------+
 ```
 
-Nel disegno vero: il nome è grande (classe XL), la cella con il fuoco ha una cornice di 2 px nel colore `focus` e il titolo in negativo, il pannello del looper ha la cornice rossa durante registrazione e overdub.
+Nel disegno vero: il nome è in Matrice (UI-146), il BPM a sette segmenti alti 50 px, la cella con il fuoco ha una cornice di 2 px nel colore `focus` e il titolo in negativo, il pannello del looper ha la cornice rossa durante registrazione e overdub. Le immagini di riferimento sono in `docs/identita/img/`.
 
 ### 4.3 Font
 
@@ -765,13 +799,19 @@ Nel disegno vero: il nome è grande (classe XL), la cella con il fuoco ha una co
 - i glifi che Spleen non ha (♯, ♭, ●, ○, ◉, ✓, ✚, ▶, ■, ❚❚, ◀, ▲, ▼, «, », lampo della carica) si disegnano in un font di simboli di Stame nelle stesse misure; la copertura esatta di Spleen va controllata all'importazione (VF-UI-03);
 - riserva, se Spleen non andasse bene: **Terminus** (SIL OFL 1.1), fino a 16×32.
 
+Fatto il 14/10/2026: `tools/bdf2c.py` converte Spleen 2.1.0 (ASCII, Latin-1 e pochi simboli; il 32×64 solo ASCII); `tools/simboli.py` disegna i simboli di Stame nelle stesse celle (a mano nelle misure 6×12 e 8×16, da forme geometriche nelle altre), con in più il trattino lungo e medio e il marchio a U+E000. VF-UI-03 è risolta: Spleen non ha ♯ ♭ ◉ ✓ ✚ ▶ ◀ né i trattini, e nella misura 6×12 neanche ● ○ ▲ ▼ ■ ….
+
+**UI-144a** [D] Due caratteri propri di Stame, per le scritte grandi (identità, `docs/identita/README.md` §3.2):
+- **Matrice**: font a punti 5×7 con due righe di discendente, 77 glifi, larghezza da 1 a 5 punti (`tools/matrice.py` → `src/gfx/font_matrice.c`). Ogni punto acceso è un cerchio pieno con il bordo in `edge` (il colore mescolato con il fondo); i punti spenti della cella si disegnano in `seg_off`. Il diametro è circa il 75% del passo (`gfx_matrix`);
+- **sette segmenti** inclinati di 5°, con i segmenti spenti in `seg_off`, per i numeri che cambiano mentre si suona: BPM (UI-148) e valori numerici delle evidenze (UI-154) (`gfx_seg7`).
+
 I font dell'OLED sono diversi e propri (§7.2).
 
 **UI-019** [D] Le stringhe arrivano a `gfx` in UTF-8. Oltre all'ASCII stampabile DEVONO essere riconosciuti almeno `♯` (U+266F), `♭` (U+266D), `✓` (U+2713), `●` (U+25CF), `°` (U+00B0) e i simboli di UI-144. Un carattere sconosciuto diventa `?`. I testi restano in inglese (§0.4).
 
-### 4.4 Barra di stato
+### 4.4 Testata
 
-**UI-126** [D] Z1 (0, 0, 640, 24), testo in classe S alle righe 4..19:
+**UI-126** [D] Z1 (0, 0, 640, 24), testo in classe S alle righe 4..19. **Fuori da Geek Out lo stato tace**: la testata mostra a destra la batteria e, da x = 8 verso destra e solo finché servono, «NO MPK» (lampeggia), «MPK BUSY», «MPK ERROR», «MPK FACTORY», «PAD» (macro pad in errore o senza mappa), «POCKET», «CLIP» (1500 ms) e «XRUN» (2 s), con 16 px tra l'uno e l'altro; «NO MPK» tiene il suo posto anche quando è spento, così il resto non si sposta. Attività MIDI, voci, carico e livelli non si disegnano e non ridisegnano la zona. Nella vista **Geek Out** la testata è la barra completa:
 
 | Elemento | x | Contenuto |
 |---|---|---|
@@ -785,81 +825,87 @@ I font dell'OLED sono diversi e propri (§7.2).
 | modo tascabile | 520..567 | contrassegno «POCKET» in `active`, solo se acceso |
 | batteria | 576..635 | «87%» e un'icona da 28×12 px con il riempimento proporzionale e il lampo durante la carica; sotto il 15% in `warn` (PLT-090), sotto il 10% lampeggia a 1 Hz |
 
-- Con `prefs.meters` spento si nascondono voci, carico, livello e clip.
+- In Geek Out, con `prefs.meters` spento si nascondono voci, carico, livello e clip.
 - Le informazioni di piattaforma stanno solo qui, nel menu della piattaforma e negli avvisi (UI-156).
 
 **UI-127** [D] Collegamento e scollegamento della MPK o del macro pad a caldo: cambia il contrassegno MPK o «PAD» e compare un avviso breve (UI-156); con il macro pad cambiano anche le legende (UI-152, UI-155). Il riconoscimento è della sezione 40 (§11, MIDI-127).
 
 ### 4.5 Zona accordo
 
-**UI-145** [D] Z2 (0, 24, 400, 160), margini interni x 4..395. Nella vista Chord (UI-147):
+**UI-145** [D] Z2 (0, 24, 416, 216), margini interni x 12..403. Nella vista Chord (UI-147), quella di fabbrica, ci sono solo tre cose:
 
 | Righe | Contenuto |
 |---|---|
-| 26..57 | **tonalità** in classe L a x = 4 («F♯ Minor»); con la Key mode spenta «Key Off» in `dim`. **Transpose** in classe L, allineato a destra a x = 395 («Trans +3»), in `active`, solo se diverso da zero |
-| 60..155 | **nome dell'accordo** (UI-146) |
-| 158..181 | a sinistra le **note che suonano** in classe M (UI-041), con l'ottava: il basso in `bass`, poi «:», poi le treble in `treble` («C♯2 : E3 G♯3 B3 C♯4»); se non stanno, si tronca con «…». A destra, in classe S, i contrassegni del **Play Style** («SIMPLE», «ADVANCED», «FREE») e, se attivi, «SECRET» (Secret Chords) e «STICK E» (modo tascabile, classe scelta con la levetta) |
+| 30..61 | **tonalità** in classe L a x = 12 («F♯ Minor»); con la Key mode spenta non si scrive nulla. **Transpose** in classe L, allineato a destra a x = 404 («Trans +3»), in `active`, solo se diverso da zero |
+| 68..231 | **nome dell'accordo** (UI-146), in un vetrino: quattro angoli a squadra in `line` (x 4..411, righe 68..231) |
 
-- Colore del nome: `text` durante il suono e la persistenza, `ghost` in `CH_GHOST`; con `CH_NONE` la riga resta vuota.
+- Colore del nome (identità, 14/10/2026): l'accordo in `treble` e il basso dopo la barra in `bass`, gli stessi colori dei tasti accesi, durante il suono e la persistenza; tutto in `ghost` in `CH_GHOST`; con `CH_NONE` il vetrino resta vuoto.
+- Le note che suonano non si scrivono: le mostra la tastiera (Z4). Si scrivono nelle viste Notes e Geek Out.
+- Play Style e Secret Chords si vedono nella cella Options della pagina dei comandi, nel loro overlay e in Geek Out. Con il modo tascabile acceso, «STICK E» in XS in `focus` allineato a destra a x = 404 sulla riga 222.
 - Nota singola (UI-037): fondamentale e alterazione come un accordo, l'ottava come apice in `dim`.
-- Richiesta della tonalità (UI-096): al posto del nome, «Select Key» in classe L in `active`, centrato.
+- Richiesta della tonalità (UI-096): al posto del nome, «Select Key» in Matrice con passo 6 in `active`, centrato.
 
-**UI-146** [D] Impaginazione del nome. Le parti di `chord_label_t` si disegnano da sinistra, a partire da x = 4, nell'ordine fondamentale, alterazione, qualità, apice, «/», basso. Si sceglie la **scala s più grande** (3, 2 o 1) per cui il nome sta in 392 px:
+**UI-146** [D] Impaginazione del nome, in **Matrice** (UI-144a). Le parti di `chord_label_t` si disegnano da sinistra, a partire da x = 16, nell'ordine fondamentale, alterazione, qualità, apice, «/», basso. Si sceglie la **scala più grande** (4, 3, 2 o 1) per cui il nome sta in 384 px. I numeri sono i passi dei punti in pixel:
 
-| Parte | s = 3 | s = 2 | s = 1 | Allineamento verticale |
-|---|---|---|---|---|
-| fondamentale | 16×32 ×3 (48×96 per glifo) | 32×64 | 16×32 | riquadro della fondamentale |
-| alterazione (♯ ♭ x) | 32×64 | 16×32 | 12×24 | in alto, sul bordo superiore della fondamentale |
-| qualità (m, dim, sus, +, m(add4)) | 32×64 | 16×32 | 12×24 | in basso, sulla linea di base |
-| apice (7, M7, 9, JAZZ, WTF…) | 16×32 | 12×24 | 8×16 | in alto |
-| «/» e basso | 32×64 | 16×32 | 12×24 | in basso; l'alterazione del basso alla misura dell'apice, in alto |
+| Parte | s = 4 | s = 3 | s = 2 | s = 1 | Allineamento verticale |
+|---|---|---|---|---|---|
+| fondamentale | 14 (lettera 70×98) | 12 | 9 | 6 | sulla linea di base |
+| alterazione (♯ ♭ x) | 10 | 8 | 6 | 4 | in alto, sulla cima della fondamentale |
+| qualità (m, dim, sus, +, m(add4)) | 10 | 8 | 6 | 4 | sulla linea di base |
+| apice (7, M7, 9, JAZZ, WTF…) | 7 | 6 | 4 | 3 | in alto, sulla cima della fondamentale |
+| «/» e basso | 10 | 8 | 6 | 4 | sulla linea di base; l'alterazione del basso al passo dell'apice, in alto |
 
-- Riquadro della fondamentale: righe 60..155 per s = 3, 76..139 per s = 2, 92..123 per s = 1 (centrato nelle righe 60..155).
-- Spazio tra le parti: 2·s px; tra fondamentale e alterazione −s px (il ♯ si avvicina, come sull'originale).
-- Esempi di larghezza: «C♯m⁷/G♯» a s = 3 occupa 48 + 32 + 32 + 16 + 96 + spazi ≈ 240 px; «C♯m(add4)ᴹ⁷⁹/G♯» non sta a s = 3 (circa 440 px) e passa a s = 2.
+- Linea di base: 149 + 7·p/2, dove p è il passo della fondamentale (riga 198 per s = 4, 191 per s = 3, 180 per s = 2, 170 per s = 1): le maiuscole sono centrate sulla riga 149, a metà del vetrino.
+- Spazio tra le parti: un punto del passo della qualità; tra fondamentale e alterazione mezzo punto della fondamentale (il ♯ si avvicina, come sull'originale).
+- Esempi: «F♯m7» a s = 4 occupa circa 230 px; «C♯m(add4)M79/G♯» passa a s = 2 o 1.
 - La fondamentale **non** si allarga per riempire lo spazio (l'impaginazione elastica è dell'OLED, UI-035): sulla plancia il nome resta a sinistra, con la stessa misura per tutti gli accordi della stessa lunghezza, così l'occhio non deve riadattarsi.
 
-**UI-147** [D] La vista (UI-051) decide il contenuto di Z2; testata (righe 26..57) uguale in tutte:
+**UI-147** [D] La vista (UI-051) decide il contenuto di Z2; testata (righe 30..61) uguale in tutte, tranne React:
 
-| Vista | Righe 60..181 |
+| Vista | Righe 68..231 |
 |---|---|
-| **Chord** (default) | nome (UI-146) e note (UI-145) |
-| **Chord + Keyboard** | nome con s ≤ 2 in x 4..235; a destra (x 244..395, righe 62..155) una tastiera di un'ottava con le classi ripiegate: treble in `treble`, basso in `bass`, marcatori della tonalità; note alle righe 158..181 |
-| **Keyboard** | tastiera di un'ottava con le classi ripiegate su tutta la larghezza (x 4..395, righe 62..181) |
-| **Notes** | nome con s = 1 alle righe 60..91; note in 32×64 alle righe 100..163, nei colori dei ruoli, centrate, ristrette a 16×32 se non stanno |
-| **Geek Out** | nome con s = 2 alle righe 60..123; tre righe in classe S: note con l'ottava; intervalli dalla fondamentale («1 ♭3 5 ♭7»); finestre «W 49 C♯3 · WB 37 C♯2 · Octave» |
-| **React** | oscilloscopio dell'uscita (SND-033): traccia di 1 px in `treble` su 392 punti, centrata sulla riga 121, ±56 px a fondo scala; nome con s = 1 in alto a destra della traccia |
+| **Chord** (default) | nome (UI-146) nel vetrino, e basta |
+| **Chord + Keyboard** | nome con s ≤ 3 in x 12..247, sulla linea di base della vista Chord; a destra (x 264..403, righe 76..227) una tastiera di un'ottava con le classi ripiegate: treble in `treble`, basso in `bass`, marcatori della tonalità |
+| **Keyboard** | tastiera di un'ottava con le classi ripiegate su tutta la larghezza (x 12..403, righe 72..227) |
+| **Notes** | nome con s = 1, linea di base 116; note in 32×64 alle righe 140..203, nei colori dei ruoli, centrate, ristrette a 16×32 (riga 160) se non stanno |
+| **Geek Out** | nome con s ≤ 2, linea di base 136; tre righe in classe S alle righe 152, 172 e 192: note con l'ottava («C♯2 : E3 G♯3 B3»); intervalli dalla fondamentale («INT 1 ♭3 5 ♭7»); finestre «W 48 C3 · WB 36 C2 · Octave». Alla riga 220, a destra, i tre Play Style («SIMPLE ADV FREE»: l'attivo in `text`, gli altri in `seg_off`), «SECRET» e «STICK». In alto a destra la classe di Linneo (UI-161) |
+| **React** | oscilloscopio dell'uscita (SND-033): traccia di 1 px in `treble` su 392 punti, centrata sulla riga 150, ±64 px a fondo scala; nome con s = 1 allineato a destra a x = 404, linea di base 74; niente testata |
 
-La tastiera a 4 ottave di Z4 c'è sempre, in tutte le viste.
+In Geek Out cambiano anche le altre zone: la testata diventa la barra completa (UI-126), Z3 aggiunge metrica, ritmo e battuta (UI-148), la tastiera mostra sempre le finestre (UI-150). La tastiera a 4 ottave di Z4 c'è in tutte le viste, tranne quando la pagina dei comandi o una lista ne prendono il posto.
+
+**UI-161** [D] **Cartellino di Linneo** (identità, 14/10/2026). Linneo classificava le piante contando gli stami; Stame conta le note: una classe di nota è uno stame. Nella vista **Geek Out**, in alto a destra (riga 74, allineato a x = 404), il marchio piccolo (U+E000, classe XS) e il nome della classe in XS stampato: le classi di nota distinte delle note che suonano danno «MONANDRIA» (1), «DIANDRIA» (2), «TRIANDRIA» (3), «TETRANDRIA» (4) … «DODECANDRIA» (11, 12) (`ui_fmt_linnaeus`). Dal 15/10/2026 non compare più nella vista Chord: è un dettaglio da guardare da vicino (UI-140).
+- Si disegna solo se non tocca il nome: fra la fine del nome e il cartellino restano almeno 16 px.
+- In `dim`; in `ghost` con l'accordo in `CH_GHOST`; nascosto con `CH_NONE` e con `prefs.linnaeus` spento (menu della piattaforma, *Linnaeus Tag*, default acceso).
 
 ### 4.6 Zona tempo e loop
 
-**UI-148** [D] Z3 (400, 24, 240, 160), margini interni x 408..631. Parte del tempo:
+**UI-148** [D] Z3 (416, 24, 224, 216), margini interni x 428..631. Parte del tempo:
 
 | Righe | Contenuto |
 |---|---|
-| 26..57 | **BPM** in classe L a x = 408 («120») e «BPM» in classe S accanto, alle righe 40..55; **metrica** in classe L allineata a destra a x = 631 («4/4», «6/8») |
-| 60..75 | in classe S: a sinistra la sorgente del ritmo («BEAT 03 Funk», «METRO», «BEAT OFF» in `dim`); a destra «BAR 12» con il trasporto in moto, «—» da fermo |
-| 80..105 | **celle dei movimenti**: una per movimento della battuta, larghe `(224 − 4·(n − 1)) / n` px con 4 px di spazio. Movimento corrente pieno in `text` (il primo della battuta in `focus`), gli altri solo contorno in `line`; da fermo tutte in contorno |
+| 36..85 | **BPM** a sette segmenti alti 50 px a x = 428 (tre cifre, quelle spente in `seg_off`: « 96» mostra l'otto spento davanti) e «BPM» stampato in XS accanto, alla riga 76. Solo in Geek Out, la **metrica** in classe M allineata a destra a x = 632 («4/4», «6/8») |
+| 94..109 | solo in Geek Out, in classe S: a sinistra la sorgente del ritmo («BEAT 03 Funk», «METRO», «BEAT OFF» in `dim`, «LOOP 03» con uno slot caricato); a destra «BAR 12» con il trasporto in moto |
+| 116..143 | **celle dei movimenti**: una per movimento della battuta, larghe `(204 − 6·(n − 1)) / n` px con 6 px di spazio. Movimento corrente pieno in `text` (il primo della battuta in `focus`), gli altri pieni in `seg_off` (spenti ma visibili); da fermo tutte in `seg_off` |
 
-- Con `prefs.beat_flash` acceso, il fondo del numero del BPM lampeggia in `bar` per 60 ms a ogni movimento.
+- Con `prefs.beat_flash` acceso, il fondo del numero del BPM (x 424..535, righe 32..89) lampeggia in `bar` per 60 ms a ogni movimento.
 - Durante il count-in le celle mostrano al centro i numeri che mancano, in classe M.
+- Il ritmo che suona si riconosce dalle celle che si accendono; il nome del pattern compare nella banda quando lo si cambia (overlay) e nella cella BPM della pagina dei comandi.
 
-**UI-149** [D] Parte del looper:
+**UI-149** [D] Parte del looper. Si disegna **solo quando il looper lavora** (stato diverso da `LP_IDLE`) o quando Loop è il bersaglio della rotazione (`turn_target`); a riposo le righe 152..233 restano vuote, senza l'aiuto «Rec / B5: loop» (lo dice la mascherina).
 
 | Righe | Contenuto |
 |---|---|
-| 110..133 | **stato** in classe M con il simbolo: «● REC» e «◉ DUB» in `warn`, «▶ PLAY» in `loop`, «❚❚ PAUSE» in `dim`, «WAIT» nella Waiting Room, «COUNT 3» nel count-in, «LOOP —» in `dim` a riposo. A destra gli strati in classe S («L2») e la battuta corrente su quelle totali in classe M («2/4»; «FREE» in Free) |
-| 138..151 | **barra di avanzamento** di 224×14 px divisa in `bars` segmenti (2 px di spazio tra uno e l'altro): parte suonata in `loop` (in `warn` in registrazione), resto in `bar`, testina di 2 px in `text`. In Free durante la prima registrazione: tratteggio che scorre (UI-086). Nella Waiting Room: segmenti della scelta selezionata, vuoti |
-| 156..179 | **menu a tre voci** (UI-088): tre pulsanti da 72×24 (x 408..479, 484..555, 560..631) con il testo in classe S centrato. La voce selezionata è piena: in `focus` se Loop è il bersaglio della rotazione (`turn_target`), altrimenti in `bar`. A riposo, in `dim`, l'aiuto «Rec / B5: loop» |
+| 152..183 | **stato** in classe L con il simbolo: «● REC» e «◉ DUB» in `warn`, «▶ PLAY» in `loop`, «❚❚ PAUSE» in `dim`, «WAIT» nella Waiting Room, «COUNT» nel count-in, «LOOP» in `dim` se Loop è solo toccato. A destra la battuta corrente su quelle totali in classe L («2/4»; «FREE» in Free) e, prima, gli strati in classe S («L2») |
+| 190..201 | **barra di avanzamento** di 204×12 px divisa in `bars` segmenti (2 px di spazio tra uno e l'altro): parte suonata in `loop` (in `warn` in registrazione), resto in `seg_off`, testina di 2 px in `text`. In Free durante la prima registrazione: tratteggio che scorre (UI-086). Nella Waiting Room: segmenti della scelta selezionata, vuoti |
+| 210..233 | **menu a tre voci** (UI-088): tre pulsanti da 65×24 (x 428..492, 497..561, 566..630) con il testo in classe S centrato. La voce selezionata è piena: in `focus` se Loop è il bersaglio della rotazione, altrimenti in `bar` |
 
 - Durante registrazione, overdub e count-in il bordo di Z3 diventa una cornice di 2 px in `warn`: si capisce da lontano che si sta registrando.
-- `loop_full` aggiunge «FULL» in `warn` accanto agli strati; uno slot caricato aggiunge «Loop 03» in classe S nella riga 60..75, al posto della sorgente del ritmo, per la durata di un overlay.
+- `loop_full` aggiunge «FULL» in `warn` sopra lo stato.
 - Con il looper attivo l'accordo resta visibile in Z2: sulla plancia non vale UI-090, che riguarda solo l'OLED.
 
 ### 4.7 Tastiera
 
-**UI-150** [D] Z4 (0, 184, 640, 104). Tastiera di **4 ottave che segue le finestre del voicing**, 28 tasti bianchi larghi 21 px. Decisione di Luigi del 13/10/2026 («riducila»): tasti più grandi e leggibili a distanza di braccio, al posto delle 8 ottave fisse della prima bozza.
+**UI-150** [D] Z4 (0, 240, 640, 144). Tastiera di **4 ottave che segue le finestre del voicing**, 28 tasti bianchi larghi 21 px. Decisione di Luigi del 13/10/2026 («riducila»): tasti più grandi e leggibili a distanza di braccio, al posto delle 8 ottave fisse della prima bozza.
 
 Gamma visibile: da `kb_lo` a `kb_lo + 47`, dove `kb_lo` è sempre un Do (multiplo di 12).
 - All'avvio `kb_lo` = il Do dell'ottava che contiene WB: con WB = 37 la gamma va da C2 a B5.
@@ -868,28 +914,29 @@ Gamma visibile: da `kb_lo` a `kb_lo + 47`, dove `kb_lo` è sempre un Do (multipl
 
 | Elemento | Geometria e colore |
 |---|---|
-| tasto bianco `i` (0..27) | x = 12 + 22·i, largo 21 px, righe 200..271, colore `kb_white`; la colonna x + 21 è lo spazio in `bg` |
-| tasto nero dopo il bianco `i` | x = 12 + 22·i + 15 .. + 27 (13 px, centrato sullo spazio), righe 200..243, colore `kb_black` |
+| tasto bianco `i` (0..27) | x = 12 + 22·i, largo 21 px, righe 262..361, colore `kb_white`; la colonna x + 21 è lo spazio in `bg` |
+| tasto nero dopo il bianco `i` | x = 12 + 22·i + 15 .. + 27 (13 px, centrato sullo spazio), righe 262..321, colore `kb_black` |
 | note dal vivo | tasto pieno nel colore del ruolo: `treble` o `bass`; se la stessa altezza è sia treble sia basso, metà sinistra `treble` e metà destra `bass` |
-| note del looper | striscia in `loop` in fondo al tasto: righe 262..271 sui bianchi, 236..243 sui neri; si vede anche sopra un tasto pieno |
-| marcatori della tonalità | con la Key mode accesa, quadratino in `in_key` sulle classi di `pc_in_key`: 6×6 px alle righe 252..257 sui bianchi, 5×5 alle righe 228..232 sui neri, centrati; su un tasto pieno si disegna in `bg` |
-| finestra treble | barra di 2 px in `treble` alle righe 189..190, dal bordo sinistro del tasto W al bordo destro del tasto W + 11, con stanghette alle estremità (righe 187..191) |
-| finestra del basso | uguale in `bass`, righe 195..196 (stanghette 193..197), da WB a WB + 11 |
-| ottava delle note singole | in Full Octave, linea tratteggiata in `treble` alla riga 198 sull'ottava che contiene W (ACC-080) |
-| note fuori gamma | triangolo di 8×16 px nel colore del ruolo: ◀ a x 2..9 per le note sotto `kb_lo`, ▶ a x 630..637 per quelle sopra `kb_lo + 47`, righe 228..243. Capita con Strum 2 Oct, Arp 2 Oct, Harp e con il loop |
+| note del looper | striscia in `loop` in fondo al tasto: righe 350..361 sui bianchi, 314..321 sui neri; si vede anche sopra un tasto pieno |
+| marcatori della tonalità | con la Key mode accesa, un **granello di polline** in `in_key` sulle classi di `pc_in_key`: punto tondo di diametro 6 px centrato sulla riga 342 sui bianchi, 5 px sulla riga 308 sui neri; su un tasto pieno si disegna in `bg` |
+| finestra treble | **solo mentre si gira un voicing** (overlay `OV_VOICING`, `OV_BASS_VOICING`, `OV_SINGLE_NOTES`) **e in Geek Out**: barra di 2 px in `treble` alle righe 246..247, dal bordo sinistro del tasto W al bordo destro del tasto W + 11 |
+| finestra del basso | come la treble, in `bass`, righe 252..253, da WB a WB + 11 |
+| antere delle finestre | identità: a ogni capo delle due finestre un punto tondo di raggio 3 px nel colore della finestra (il filamento con le sue antere) |
+| ottava delle note singole | con le finestre, in Full Octave, linea tratteggiata in `treble` alla riga 256 sull'ottava che contiene W (ACC-080) |
+| note fuori gamma | triangolo di 8×16 px nel colore del ruolo: ◀ a x 2..9 per le note sotto `kb_lo`, ▶ a x 630..637 per quelle sopra `kb_lo + 47`, righe 300..315. Capita con Strum 2 Oct, Arp 2 Oct, Harp e con il loop |
 | modo tascabile | i tasti della classe `pocket_pc` dentro la finestra treble hanno un contorno di 2 px in `focus` |
-| etichette | righe 272..287, classe S: «C2» … «C5» sotto ogni Do, cioè il nome reale dell'ottava visibile (il Do centrale, C4, in `text`, gli altri in `dim`). Con `note_labels` = All anche la lettera di ogni tasto bianco in classe XS; con Off nessuna |
+| etichette | righe 364..379, classe S: «C2» … «C5» sotto ogni Do, cioè il nome reale dell'ottava visibile (il Do centrale, C4, in `text`, gli altri in `dim`). Con `note_labels` = All anche la lettera di ogni tasto bianco in classe XS; con Off nessuna |
 
-Le finestre mostrano la **posizione del voicing**: girando Chord Voicing la barra treble scorre di un semitono per scatto e si vede come cambia il rivolto.
+Le finestre mostrano la **posizione del voicing**: girando Chord Voicing compaiono, la barra treble scorre di un semitono per scatto e si vede come cambia il rivolto; finito l'overlay spariscono. Le righe 241..261 restano vuote quando non servono.
 
 ### 4.8 Zona comandi
 
-**UI-151** [D] Z5 (0, 288, 640, 144) contiene le 11 celle dei controlli in due file da 72 px, nell'ordine del fuoco (MIDI-092):
+**UI-151** [D] Z5 (0, 240, 640, 144), **solo nella pagina dei comandi** (UI-142a), contiene le 11 celle dei controlli in due file da 72 px, nell'ordine del fuoco (MIDI-092):
 
 | Fila | Celle (larghezza in px) |
 |---|---|
-| 1, righe 288..359 | Sound 208 · Perform 160 · FX 144 · Key 128 |
-| 2, righe 360..431 | Bass 144 · Loop 80 · BPM 88 · Volume 80 · Options 72 · Chord Voicing 88 · Bass Voicing 88 |
+| 1, righe 240..311 | Sound 208 · Perform 160 · FX 144 · Key 128 |
+| 2, righe 312..383 | Bass 144 · Loop 80 · BPM 88 · Volume 80 · Options 72 · Chord Voicing 88 · Bass Voicing 88 |
 
 Interno di una cella con origine `(x, y)` e larghezza `w`, margine di 4 px:
 
@@ -904,8 +951,6 @@ Un testo che non sta nella cella si tronca con «…».
 
 **UI-152** [D] Contenuto delle celle (testi composti con `ui_fmt_*`):
 
-| Controllo | Titolo | Valore (M) | Dettaglio (S) | Legenda (XS) |
-|---|---|---|---|---|
 | Controllo | Titolo | Valore (M) | Dettaglio (S) | Legenda senza macro pad (XS) | Legenda con il macro pad (XS) |
 |---|---|---|---|---|---|
 | Sound | SOUND | «03 Analog Flower», «U05 Nome» | motore e categoria («VA  pluck»), «legacy» se `CF_LEGACY` | K1 | K1 T1 |
@@ -920,7 +965,7 @@ Un testo che non sta nella cella si tronca con «…».
 | Chord Voicing | CH.VOICING | «032» (3 cifre, come l'overlay) | nota d'inizio e modo: «C♯3 Oct», «C♯3 Split» | B4 | M |
 | Bass Voicing | BS.VOICING | «23» | nota d'inizio: «C♯2» | Y | m1 Y |
 
-- Le legende riprendono la mappa di 40 (§8.5, §8.10, §9.1): sono la **legenda viva** della MPK e del macro pad. Con il macro pad collegato (`pad_link` = `PADL_OPEN`) si usa l'ultima colonna: manopola della MPK, tasto o manopola del macro pad e, dove c'è, la scorciatoia sempre a portata (trasporto o tasto della Flip). I pad del banco B, che con il macro pad sono una riserva, non compaiono. Ogni legenda sta nella sua cella con le misure di UI-151 (XS = 6 px per carattere).
+- Le legende riprendono la mappa di 40 (§8.5, §8.10, §9.1): sono la **legenda viva** della MPK e del macro pad. Restano nelle celle anche con la plancia calma: la pagina dei comandi si guarda da vicino e, finché il case non c'è, è l'unico promemoria della mappa. Con il macro pad collegato (`pad_link` = `PADL_OPEN`) si usa l'ultima colonna: manopola della MPK, tasto o manopola del macro pad e, dove c'è, la scorciatoia sempre a portata (trasporto o tasto della Flip). I pad del banco B, che con il macro pad sono una riserva, non compaiono. Ogni legenda sta nella sua cella con le misure di UI-151 (XS = 6 px per carattere).
 - Options non ha una manopola sulla MPK: si ruota con m2, « », joystick o croce dopo averlo premuto, perché la pressione porta lì il fuoco (MIDI-104). Senza macro pad lo stesso vale per Chord Voicing e Bass Voicing, che dal 13/10/2026 non hanno più una manopola sulla MPK: si raggiungono con L1/R1 o premendo B4 o Y.
 
 **UI-153** [D] Stati di una cella, cumulabili:
@@ -934,49 +979,56 @@ Un testo che non sta nella cella si tronca con «…».
 | **Lock** (`CF_LOCK`) | contrassegno «LOCK» in negativo su `active` a destra del titolo |
 | **PUSH bersaglio** (`push` = TARGET(k)) | la cella dell'encoder di Kn mostra lo stato «premuto», anche se la pressione arriva da B8 o da X. Con il macro pad la pressione di Tn è una pressione normale (`CF_PRESSED`) |
 
-### 4.9 Barra contestuale
+### 4.9 Banda
 
-**UI-154** [D] Z6 (0, 432, 640, 48) mostra **una sola cosa alla volta**, in quest'ordine di priorità:
-1. avviso `MSG_WARN` (UI-156);
-2. **evidenza dell'overlay** attivo (`layer.ov`);
-3. richiesta della tonalità (UI-096): «Select Key: press a key (hold Min for minor)»;
-4. avviso `MSG_INFO`;
-5. riga di debug, se `prefs.debug` è acceso (solo la seconda riga, UI-155);
-6. legenda viva (UI-155).
+**UI-154** [D] Z6 (0, 384, 640, 96) mostra **una sola cosa alla volta**, in quest'ordine di priorità:
+1. avviso `MSG_WARN` (UI-156), in classe L in `warn`, con una barra di 6 px in `warn` a sinistra;
+2. **evidenza dell'overlay** attivo (`layer.ov`): il controllo appena toccato;
+3. richiesta della tonalità (UI-096): «Select Key» in classe L in `active` e, sotto, «press a key (hold Min for minor)» in classe S;
+4. avviso `MSG_INFO`, in classe L;
+5. riga di debug, se `prefs.debug` è acceso (UI-155);
+6. un aiuto di contesto (UI-155): pagina dei comandi, lista aperta, PUSH armato, Bass Voicing tenuto, modo tascabile, nessuna MPK, Learn Pad;
+7. **a riposo, il suono**: «SOUND», il numero e il nome.
 
-Resa dell'evidenza: etichetta dell'overlay (UI-065) in classe M in `dim` a x = 8, poi il valore in classe L; i dettagli in classe S a destra. Esempi:
+Resa dell'evidenza, la stessa per tutti gli overlay (UI-065):
+- **etichetta** dell'overlay in classe S maiuscola, con un pixel di spaziatura, in `dim`, a x = 16, riga 394; il **dettaglio** in classe S in `dim`, allineato a destra a x = 624;
+- **valore** alle righe 420..467: le cifre a sette segmenti alte 48 px, poi il testo in Matrice con passo 6 (5, 4 o 3 se non sta, altrimenti classe L troncata), **senza** i punti spenti; per Volume, Bass Volume, Beat Volume e i due voicing, dopo il valore, una barra a celle alta 24 px (celle da 6 px, spazio 2) proporzionale al valore;
+- una barra di 4 px in `active` lungo il bordo sinistro dice che il controllo è stato appena toccato;
+- **funzioni secondarie** (Transpose, Bass Volume, Beat Volume: premi e gira): l'etichetta è in negativo (`bg` su `active`, come il tasto tenuto) e il valore è in `active`.
 
-| Overlay | Barra |
+A riposo la banda usa la stessa impaginazione un gradino sotto: niente barra a sinistra, cifre alte 32 px e nome in Matrice con passo al massimo 4, a partire dalla riga 428. Quando si tocca un controllo, il valore cresce: si nota anche con la coda dell'occhio. Esempi:
+
+| Overlay | Banda |
 |---|---|
-| `OV_SOUND` | «Sound» **03 Analog Flower** … «VA pluck» |
-| `OV_ARP` | «Arpeggiate» **16 UP/DOWN** |
-| `OV_FX` | «Reverb» **04** |
-| `OV_KEY`, `OV_KEY_TOGGLE` | «Key» **F♯ Minor** / **Off** |
-| `OV_TRANSPOSE`, `OV_BASS_VOLUME`, `OV_BEAT_VOLUME` | barra **in negativo** su `active` (funzione secondaria, come la barra piena dell'originale) |
-| `OV_VOLUME`, `OV_BASS_VOLUME`, `OV_BEAT_VOLUME` | dietro il testo un riempimento in `bar` proporzionale al valore (0–99) |
-| `OV_VOICING` | «Voicing» **032** … «C♯3» |
-| `OV_BATTERY` | «Battery» **87%** … «Charging» / «No cable detected»; nella barra di stato l'icona si incornicia in `active` |
-| `OV_COUNT_IN` | «Counting in» **3** |
-| `OV_SAVED` | «Saved» **U05** |
-| `OV_LOW_BATTERY` | in `warn`: «Low Battery» **10%** |
+| `OV_SOUND` | SOUND … «VA  pluck» · **03** **Analog Flower** |
+| `OV_ARP` | ARPEGGIATE · **16** **UP/DOWN** |
+| `OV_FX` | REVERB · **04** |
+| `OV_KEY`, `OV_KEY_TOGGLE` | KEY · **F♯ Minor** / **Off** |
+| `OV_TRANSPOSE` | TRANSPOSE in negativo · **+3** in `active` |
+| `OV_VOLUME` | VOLUME · **72** e la barra a celle |
+| `OV_BASS_VOLUME`, `OV_BEAT_VOLUME` | etichetta in negativo · **70** e la barra in `active` |
+| `OV_VOICING` | VOICING · **032** **C♯3** e la barra |
+| `OV_BATTERY` | BATTERY … «Charging» / «No cable detected» · **87** **%** |
+| `OV_COUNT_IN` | COUNTING IN · **03** |
+| `OV_SAVED` | SAVED · **U05** |
+| `OV_LOW_BATTERY` | LOW BATTERY · **10** **%** |
 
 L'evidenza dura quanto l'overlay (UI-069) e la chiude `PNL_BACK` (UI-070).
 
-**UI-155** [D] Legenda viva: due righe in classe S (righe 436..451 e 456..471), al massimo 78 caratteri ciascuna; i nomi dei tasti in negativo (`bg` su `dim`), le funzioni in `text`. La riga 1 parla della Flip, la riga 2 della MPK e, quando è collegato (`pad_link` = `PADL_OPEN`), anche del macro pad (40, §8.10). Cambia con il contesto:
+**UI-155** [D] Aiuto di contesto: una riga in classe S centrata nella banda (riga 424), o due righe (riga 404 e 436) dove serve; i nomi dei tasti in negativo (`bg` su `dim`), le funzioni in `text`. **Non c'è più una legenda fissa** della MPK e del macro pad: i loro nomi sono incisi sulla mascherina (sezione 60) e nella pagina dei comandi ogni cella porta la sua sigla. Restano gli aiuti che servono in un momento preciso:
 
-| Contesto | Riga 1 (Flip) | Riga 2 senza macro pad (MPK) | Riga 2 con il macro pad (MPK e macro pad) |
-|---|---|---|---|
-| gioco | «L1 R1 focus  ✚ turn  A press  B back  X push  Y bs.voicing  SEL opt  START bpm» | «Rec loop  Play bpm  Stop pause/hold clear  « » joy turn  B8 push» | «Rec loop  Stop pause  T press  T+K press&turn  M voicing  m1 bs.voic  m2 list» |
-| lista o menu aperto | «✚ ▲▼ scroll  A select  B back  MENU menu» | «« » joy ▲▼ scroll  joy▶ select  joy◀ back» | «m2 scroll  m2 press select  T10 back  T11 menu  « » joy ▲▼ scroll» |
-| PUSH armato (B8 o X tenuto) | «PUSH: touch or turn a knob to press it» | «K1 Sound K2 Perform K3 FX K4 Key K5 Bass K6 Loop K7 BPM K8 Vol  +Stop panic» | come senza macro pad |
-| Bass Voicing tenuto (m1 o Y) | «BASS VOICING held: Loop = hard exit  BPM = drums  Bass = bass on/off» | — | «T6 = hard exit  T7 = drums  T5 = bass on/off  (release m1 or Y to end)» |
-| modo tascabile | «L-stick note  A play  L2 L1 R1 R2 Dim Min Maj Sus  ✚ 6 m7 M7 9» | «R-stick X voicing, Y turn  R3 press  X Y focus  L3 bs.voicing  B back» | come senza macro pad |
-| banco B stimato (MIDI-089) | riga 1 come nel contesto attuale | «PADS B: B1 key B2 bass B3 perf B4 voic B5 loop B6 bpm B7 opt B8 push» | come senza macro pad |
-| nessuna MPK | riga 1 come nel contesto attuale | «No MPK: Flip keys only.  MENU > Pocket Mode to play without MPK» | «No MPK: macro pad and Flip keys.  MENU > Pocket Mode to play notes» |
-| Learn Pad in corso (UI-175) | «LEARN PAD 05/21: press T5 (Bass)» | — | «B = previous step  MENU = cancel  a code already used must be repeated» |
-| debug | — | «frame 2.1 ms  dsp 23/31%  period 256x2  xrun 0  ALSA  snap 6 ms» | come senza macro pad |
+| Contesto | Riga |
+|---|---|
+| pagina dei comandi | «L1 R1 focus  ✚ turn  A press  B back  X push  Y bs.voic  SEL opt  START bpm» |
+| lista o menu aperto | «✚ ▲▼ scroll  A select  B back  MENU menu» |
+| PUSH armato (B8 o X tenuto) | «PUSH: touch or turn a knob to press it» |
+| Bass Voicing tenuto (m1 o Y) | «BASS VOICING held: Loop = hard exit  BPM = drums  Bass = bass on/off» |
+| modo tascabile | due righe: «L-stick note  A play  L2 L1 R1 R2 Dim Min Maj Sus  ✚ 6 m7 M7 9» e «R-stick X voicing, Y turn  R3 press  X Y focus  L3 bs.voicing  B back» |
+| nessuna MPK, a riposo | «No MPK: Flip keys only.  MENU > Pocket Mode to play without MPK» (con il macro pad: «No MPK: macro pad and Flip keys.  MENU > Pocket Mode to play notes») |
+| Learn Pad in corso (UI-175) | due righe: «LEARN PAD 05/21: press T5 (Bass)» e «B = previous step  MENU = cancel  a code already used must be repeated» |
+| debug | «frame 2.1 ms  dsp 23/31%  period 256x2  xrun 0  ALSA  snap 6 ms» |
 
-Con `prefs.legend` spento le righe di legenda restano vuote; avvisi, evidenze e richieste si vedono comunque.
+Con `prefs.legend` spento non compaiono le righe della pagina dei comandi e delle liste; avvisi, evidenze, richieste e gli altri aiuti si vedono comunque.
 
 **UI-156** [D] Avvisi:
 
@@ -998,15 +1050,15 @@ Con `prefs.legend` spento le righe di legenda restano vuote; avvisi, evidenze e 
 
 ### 4.10 Liste e menu
 
-**UI-157** [D] Una lista o un menu aperto (UI-025) prende il posto delle celle in **Z5**; Z2, Z3 e Z4 non cambiano.
+**UI-157** [D] Una lista o un menu aperto (UI-025) prende il posto della tastiera o delle celle in **Z5**, anche dalla pagina di gioco (UI-142a); Z2 e Z3 non cambiano.
 
 | Righe | Contenuto |
 |---|---|
-| 288..311 | intestazione in classe S: percorso a x = 8 («OPTIONS > INSTRUMENT > PLAY STYLE»), posizione a destra («3/4»); fondo `panel` |
-| 312..431 | **5 righe da 24 px**, testo in classe M a x = 16. La voce selezionata sta **sempre nella riga centrale** (righe 360..383), piena in `focus` con il testo in `bg` (UI-073) |
+| 240..263 | intestazione in classe S: percorso a x = 8 («OPTIONS > INSTRUMENT > PLAY STYLE»), posizione a destra («3/4»); fondo `panel` |
+| 264..383 | **5 righe da 24 px**, testo in classe M a x = 16. La voce selezionata sta **sempre nella riga centrale** (righe 312..335), piena in `focus` con il testo in `bg` (UI-073) |
 
 - Colonne: numero («03», «U05») a x = 16; etichetta a x = 64 (o a x = 16 se non c'è numero); colonna informativa in classe S in `dim` a x = 448 (lista Sound: motore e categoria); valore allineato a destra a x = 604; marcatore (✓, ●, indice, ›) a x = 616.
-- Barra di scorrimento di 3 px a x 636..638, righe 312..431.
+- Barra di scorrimento di 3 px a x 636..638, righe 264..383.
 - Voce numerica in modifica (UI-075): il valore in negativo, con il lampeggio di UI-075.
 - Voci senza effetto sulla Flip (Audio Output, UI-080): colonna informativa «set by spruceOS».
 - **Direzione dei tasti**: in una lista la croce e il joystick verso l'alto DEVONO portare alla voce precedente (più in alto sullo schermo) e verso il basso alla successiva; le rotazioni restano orario = successiva (UI-074). Con la mappa di 40, dove croce su e joystick su valgono +1, i due versi sono opposti: come risolverlo è in §9.4.
@@ -1056,7 +1108,13 @@ Evidenza di una funzione secondaria (Key premuto e girato), in Z6:
 ### 4.11 Altre schermate
 
 **UI-159** [D]
-- **Avvio** (UI-091, UI-092): l'unico stato a tutto schermo. Logo di Stame a colori centrato (righe 120..247) e, sotto, in classe S, le righe dell'inizializzazione: «Audio  ALSA hw 48 kHz 256x2  ok», «MIDI   MPK mini Plus  ok» oppure «searching…», «Sounds 70 factory · 3 user»; versione in basso a destra.
+- **Avvio** (UI-091, UI-092): l'unico stato a tutto schermo, sul vetro con la maglia, con le squadre di una tavola botanica agli angoli e «TAB. I» in alto a sinistra (identità, `docs/identita/README.md` §3.5):
+  - 0–800 ms: crescono i tre filamenti del marchio (centro 320, 150; alto 170 px), in `treble`;
+  - 800, 1000 e 1200 ms: si accendono le antere, dalla più bassa (prima sono in `seg_off`);
+  - dai 1200 ms: «STAME» in Matrice (passo 9, linea di base 318), celle spente subito, una lettera accesa ogni 80 ms;
+  - dai 1600 ms: «STAMEN HARMONICUM · TRIANDRIA» in XS stampato;
+  - in basso, in classe S stampata, le righe dell'inizializzazione: «Audio  ALSA hw 48 kHz 256x2  ok», «MIDI   MPK mini Plus  ok» oppure «searching…», «Sounds 70 factory · 3 user»; versione in basso a destra;
+  - **logo sonoro** (`assets/suoni/stame_avvio.wav`): tre note che salgono con le antere. Nello Stame vero è un'opzione del menu della piattaforma (*Boot Sound*) **spenta per default**; nella vetrina suona.
 - **Batteria** (premere Volume): evidenza `OV_BATTERY` (UI-154).
 - **Scelta rapida della tonalità**: «Select Key» in Z2 (UI-145), richiesta in Z6, cella Key attiva.
 - **MPK Status** (menu della piattaforma): in Z5 cinque righe: dispositivo e firmware («MPK mini Plus 09e8:0054  fw 1.13»), porte («Port 1 open (controller)  Port 2 open (DIN)»), programma («STAME» o «factory, reduced functions»), ultimo messaggio ricevuto e da quanto («B0 48 01  12 ms ago»), LED del trasporto («ok» o «unknown», VM-13).
@@ -1064,29 +1122,32 @@ Evidenza di una funzione secondaria (Key premuto e girato), in Z6:
 
 ### 4.12 Temi e colori
 
-**UI-128** [D] Due temi; i colori sono token che `ui_flip` legge da una tabella costante. Default: **Dark**.
+**UI-128** [D] Due temi; i colori sono token che `ui_flip` legge da una tabella costante (`src/ui_flip/tema.c`). Default: **Dark**, cioè **Notte**, un display a fluorescenza (VFD); **Light** è **Giorno**, un LCD riflettente (identità, 14/10/2026). Nel menu restano «Dark» e «Light».
 
-| Token | Ruolo | Dark | Light |
+| Token | Ruolo | Notte (Dark) | Giorno (Light) |
 |---|---|---|---|
-| `bg` | sfondo | `#0E1114` | `#F4F2EC` |
-| `panel` | fondo delle intestazioni e delle liste | `#161A1F` | `#FFFFFF` |
-| `line` | separatori e contorni | `#2A3038` | `#D5D2C8` |
-| `bar` | barre di valore, traccia del progresso | `#26303A` | `#E3E0D6` |
-| `text` | testo e grafica principale, LED | `#E8ECF0` | `#1A1A1A` |
-| `dim` | testo secondario, legende | `#8A949E` | `#5E5E5E` |
-| `ghost` | ultimo accordo, dopo la persistenza | `#56606B` | `#A8A49A` |
-| `treble` | note treble, finestra del voicing, oscilloscopio | `#38C8F0` | `#0A6FA8` |
-| `bass` | note e finestra del basso | `#FF9A2E` | `#B35300` |
-| `loop` | note e avanzamento del looper | `#B48CFF` | `#6A3DB8` |
-| `focus` | fuoco, selezione nelle liste, «MPK STAME», primo movimento | `#3BE01E` | `#1A7F00` |
-| `active` | evidenza degli overlay, transpose diverso da zero, LOCK, avvertenze lievi | `#FFD23F` | `#8A6500` |
-| `warn` | avvisi, registrazione, clip, batteria bassa | `#FF5252` | `#C62828` |
-| `kb_white` | tasti bianchi | `#4A525C` | `#FFFFFF` |
-| `kb_black` | tasti neri | `#15181C` | `#2B2B2B` |
-| `in_key` | marcatori della tonalità | `#8A949E` | `#9C978A` |
+| `bg` | vetro | `#050C0B` | `#CED4C2` |
+| `mesh` | maglia del vetro: un punto ogni 4 px, righe sfalsate | `#0A1614` | `#C8CEBB` |
+| `panel` | fondo delle intestazioni, delle liste e della testata | `#0A1715` | `#D9DECE` |
+| `line` | separatori, contorni, angoli del vetrino | `#1B302C` | `#A2AA95` |
+| `seg_off` | punti e segmenti spenti, celle spente, Play Style non attivi | `#10221F` | `#C1C8B4` |
+| `bar` | barre di valore, traccia del progresso | `#123029` | `#B5BDA7` |
+| `ghost` | ultimo accordo dopo la persistenza, legende dei comandi nelle celle | `#3F655D` | `#879180` |
+| `text` | valori accesi, LED | `#DDFBF1` | `#141B18` |
+| `dim` | scritte stampate: titoli, unità, nomi dei tasti (sabbia) | `#A99F86` | `#424C47` |
+| `treble` | accordo, note treble, finestra del voicing, oscilloscopio | `#3FE3CB` | `#005A51` |
+| `bass` | basso, nota e finestra del basso | `#FFAE4A` | `#853A00` |
+| `loop` | note e avanzamento del looper | `#B996FF` | `#4A2894` |
+| `focus` | fuoco, selezione nelle liste, «MPK STAME», primo movimento | `#A4F06A` | `#285C00` |
+| `active` | evidenza degli overlay, transpose diverso da zero, LOCK, avvertenze lievi | `#FFDD5E` | `#634A00` |
+| `warn` | avvisi, registrazione, clip, batteria bassa | `#FF6156` | `#9E160C` |
+| `kb_white` | tasti bianchi spenti | `#183632` | `#E3E7D8` |
+| `kb_black` | tasti neri spenti | `#08110F` | `#252D29` |
+| `in_key` | granelli di polline (note della tonalità) | `#6FA597` | `#424C47` |
 
-- **Contrasto** (rapporto WCAG): i token di testo (`text`, `dim`, `treble`, `bass`, `loop`, `focus`, `active`, `warn`) DEVONO avere almeno **4,5:1** su `bg` e su `panel`; il testo in negativo almeno 4,5:1 sul suo fondo; i colori dei ruoli almeno **3:1** su `kb_white`. `ghost` è volutamente tenue (circa 2–3:1): indica un ricordo, non un dato attivo. I valori della tabella rispettano queste soglie (T-UI-20).
-- Nel tema Dark i tasti bianchi sono grigio scuro: così i tasti accesi nei colori dei ruoli spiccano. Il verde del fuoco richiama l'unico accento verde dell'Orchid [O INT], senza logo né marchio.
+- **Contrasto** (rapporto WCAG): i token di testo (`text`, `dim`, `treble`, `bass`, `loop`, `focus`, `active`, `warn`) DEVONO avere almeno **4,5:1** su `bg` e su `panel`; il testo in negativo almeno 4,5:1 sul suo fondo; i colori dei ruoli almeno **3:1** su `kb_white`. `ghost` è volutamente tenue (2–3,5:1): indica un ricordo, non un dato attivo. `seg_off` sta fra 1,05 e 1,6:1: si intuisce, non si legge. I valori della tabella rispettano queste soglie (T-UI-20, `tests/unit/test_plancia.c`).
+- Colori derivati, calcolati una volta al cambio di tema: `edge` (il bordo dei punti accesi di Matrice, il colore mescolato con `bg`) e `soft`.
+- Nel tema Notte i tasti bianchi sono verde-grigio scuro: i tasti accesi nei colori dei ruoli spiccano come segmenti accesi. Il verde del fuoco richiama l'unico accento verde dell'Orchid [O INT], senza logo né marchio.
 - Cambiare tema ridisegna tutto subito.
 
 ### 4.13 Disegno e aggiornamento
@@ -1104,7 +1165,9 @@ Evidenza di una funzione secondaria (Key premuto e girato), in Z6:
 3. la piattaforma carica solo quei rettangoli in una texture streaming `SDL_PIXELFORMAT_RGB565` (`SDL_UpdateTexture` con `SDL_Rect`), poi copia e presenta (PLT-063);
 4. solo rettangoli interi e glifi bitmap: niente fusioni alfa, niente antialiasing, niente scalature non intere.
 
-Budget sulla Flip (A55 a 1,8 GHz): disegno di un fotogramma tipico (trasporto in moto) **≤ 4 ms**, ridisegno completo ≤ 8 ms [D; V T-PLT-11]. Il simulatore su PC usa lo stesso renderer (PLT-078); il render offline scrive i fotogrammi come PPM a colori.
+Budget sulla Flip (A55 a 1,8 GHz): disegno di un fotogramma tipico (trasporto in moto) **≤ 4 ms**, ridisegno completo ≤ 8 ms [D; V T-PLT-11]. Il simulatore su PC usa lo stesso renderer (PLT-078); il render offline (`stame-render`) scrive i fotogrammi come PNG a colori.
+
+Misura del 14/10/2026 con `stame --prova` sulla Flip, lanciato via SSH con la console nel menu di spruce (CPU al passo ridotto, fino a 1,1 GHz, e condivisa con il menu): 70 s della demo della vetrina, 3449 fotogrammi disegnati, **0,6 ms in media** in quattro prove; ridisegno completo fra 2,3 e 18 ms secondo il momento. Il fotogramma peggiore (19–31 ms) non è il primo e cambia da una prova all'altra: più probabile un'interruzione del processo che un costo del disegno [D]. La firma dei pixel è uguale in tutte le prove (UI-003). T-PLT-11 resta da chiudere con l'app in primo piano a 1,8 GHz.
 
 ---
 
@@ -1124,6 +1187,8 @@ Note Labels    Octaves / All / Off               (✓)
 Meters         On / Off                          (✓)
 Beat Flash     Off / On                          (✓)
 Ghost Chord    On / Off                          (✓)
+Linnaeus Tag   On / Off                          (✓)  cartellino di Linneo (UI-161)
+Boot Sound     Off / On                          (✓)  logo sonoro all'avvio (UI-159), spento per default
 Debug          Off / On                          (✓)
 Quit Stame     → Back / Quit now
 ```
@@ -1190,7 +1255,7 @@ Gli eventi musicali (`PNL_KEY_*`, `PNL_CHORD_*`, `PNL_BEND`, `PNL_MOD`, `PNL_SUS
 
 - Combinazioni con il Bass Voicing tenuto (m1 del macro pad premuta, oppure Y della Flip): + T6, Rec o B5 = uscita forzata dal looper; + T7, Play o B6 = batteria da suonare; + T5 o B2 = basso on/off (UI-104).
 - LED del trasporto: MIDI-085 (UI-108).
-- Le legende delle celle (UI-152) e della barra contestuale (UI-155) DEVONO essere generate da questa mappa: se la 40 cambia, cambiano anche loro.
+- Le legende delle celle (UI-152) e gli aiuti della banda (UI-155) DEVONO essere generate da questa mappa: se la 40 cambia, cambiano anche loro.
 
 **UI-132** [D] Sintesi dei tasti della Flip, **schema a fuoco sempre attivo**, con o senza MPK (deciso da Luigi il 13/10/2026; normativa in 40 §9.1):
 
@@ -1400,19 +1465,20 @@ per (x,y) nella maschera dell'anello:
 
 | Test | Verifica |
 |---|---|
-| T-UI-15 | Immagini di riferimento, nei due temi: riposo; Do♯m⁷ con basso e loop (UI-143); looper in registrazione 2/4; count-in; lista Options; lista Sound; menu della piattaforma; evidenza Transpose; avviso «MPK busy»; modo tascabile; nessuna MPK |
-| T-UI-16 | Zone: ogni zona disegna solo dentro il suo rettangolo (UI-142); aprendo una lista o un overlay i pixel di Z2, Z3 e Z4 restano identici allo stato senza lista |
+| T-UI-15 | Immagini di riferimento, nei due temi: riposo; Do♯m⁷ con basso e loop (UI-143); pagina dei comandi con il fuoco su FX; looper in registrazione 2/4; count-in; lista Options; lista Sound; menu della piattaforma; evidenza Volume e Transpose; avviso «MPK busy»; modo tascabile; nessuna MPK; le sei viste |
+| T-UI-16 | Zone: ogni zona disegna solo dentro il suo rettangolo (UI-142); aprendo una lista, la pagina dei comandi o un overlay i pixel di Z2 e Z3 restano identici; con un overlay diverso dai voicing restano identici anche quelli di Z4 |
 | T-UI-17 | Testi: i 70 nomi di fabbrica, i 12 bassi, nomi utente di 16 caratteri larghi («WWWWWWWWWWWWWWWW»), tutte le voci di Options e del menu della piattaforma, tutte le evidenze e le legende stanno nel loro riquadro o vengono troncati con «…» |
 | T-UI-18 | Nome dell'accordo: scala scelta e riquadri delle parti per C, C♯m⁷/G♯, B♭dim^WTF/E♭, C♯m(add4)ᴹ⁷⁹/G♯, nota singola C♯4 (UI-146) |
 | T-UI-19 | Tastiera: MIDI 12 a x = 12, MIDI 107 nell'ultimo tasto; ruoli, metà e metà, strisce del loop, marcatori della tonalità, finestre W e WB, triangoli fuori gamma (UI-150) |
 | T-UI-20 | Contrasto dei token nei due temi secondo UI-128, calcolato dalla tabella dei colori |
 | T-UI-21 | Fuoco: L1/R1 percorrono le 11 celle nell'ordine dello schermo; `PNL_ENC_DOWN` dalla MPK sposta la cornice; barra del tenuto alla soglia giusta |
 | T-UI-22 | Legenda: testi attesi nei contesti di UI-155, tutti entro 78 caratteri, coerenti con la mappa di 40 |
-| T-UI-23 | Priorità della barra contestuale: avviso warn > evidenza > richiesta > avviso info > legenda |
+| T-UI-23 | Priorità della banda: avviso warn > evidenza > richiesta > avviso info > aiuto di contesto > suono a riposo |
 | T-UI-24 | Aggiornamento: con il trasporto in moto si ridisegnano solo Z3, le celle interessate e i meter; sulla Flip fotogramma tipico ≤ 4 ms e completo ≤ 8 ms (T-PLT-11); CPU a riposo ≤ 5% (PLT-014) |
 | T-UI-25 | Latenza dall'azione al pixel ≤ 50 ms (marca temporale nella riga di debug, oppure ripresa ad alta velocità) |
-| T-UI-26 | Barra di stato: stati della MPK, stati del macro pad («PAD»), pallini MIDI di 50 ms, clip per 1500 ms, «XRUN» per 2 s, soglie della batteria al 15% e al 10% |
+| T-UI-26 | Testata: stati della MPK, stati del macro pad («PAD»), pallini MIDI di 50 ms, clip per 1500 ms, «XRUN» per 2 s, soglie della batteria al 15% e al 10% |
 | T-UI-27 | Menu della piattaforma: tutte le voci; Quit con conferma; Pocket Mode non salvato; tema e opzioni salvati; Learn Pad grigia senza macro pad, schermata di UI-175 a ogni passo |
+| T-UI-28 | Plancia calma (UI-140, UI-142a): la pagina di gioco disegna 5 zone e nessuna cella; fuori da Geek Out attività MIDI, voci e carico non ridisegnano la testata; girare il voicing non ridisegna la banda a riposo; L1/R1, croce, A e X aprono la pagina dei comandi, 5000 ms senza quei tasti o B la chiudono; i comandi della MPK non la aprono |
 
 ### 8.3 Renderer OLED (fase 2)
 
@@ -1482,7 +1548,7 @@ La colonna «Vale per» dice se il dato serve anche alla Flip (comportamento o t
 - **Ultimo accordo in grigio** (`CH_GHOST`): sull'Orchid il nome sparisce; sulla plancia resta tenue, perché è un'informazione utile. È un'opzione (Ghost Chord), accesa per default.
 - **Lingua**: testi in inglese come l'Orchid. Spleen copre l'ISO 8859-1, quindi un menu della piattaforma in italiano sarebbe possibile. Le categorie dei Sound della sezione 20 sono in italiano («piano elettrico»): o si traducono in 20, o la cella Sound mescola le lingue.
 - **Tema di default**: Dark.
-- **Barra contestuale**: durante un'evidenza la legenda non si vede. Va provato se dà fastidio a chi sta imparando.
+- ~~Plancia con tutto in vista~~: **decisa il 15/10/2026**, plancia calma (UI-140): quattro cose mentre si suona, i comandi a richiesta, il dettaglio in Geek Out. Da provare sulla Flip: la durata della pagina dei comandi (5000 ms) e se il suono a riposo nella banda è utile o è già troppo.
 - ~~Tastiera fissa a 8 ottave~~: **decisa il 13/10/2026**, 4 ottave che seguono le finestre del voicing, con tasti larghi 21 px (UI-150).
 - **Panic** nel menu della piattaforma oltre che su PUSH (B8 o X) + Stop e su T12 del macro pad tenuto 1 s: va bene in seconda posizione?
 

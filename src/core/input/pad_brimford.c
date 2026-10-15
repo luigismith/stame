@@ -8,7 +8,7 @@ static const uint8_t T_ENC[9] STAME_ROM = {
 /* M, m1, m2; m2 ruota senza PNL_F_VERTICAL: orario = voce successiva (MIDI-105) */
 static const uint8_t KNOB_ENC[3] STAME_ROM = { ENC_CHORD_VOICING, ENC_BASS_VOICING, ENC_FOCUS };
 
-enum { T_BACK = 9, T_MENU = 10, T_PANIC = 11 };
+enum { T_BACK = 9, T_MENU = 10, T_PANIC = 11, T_MOD = 12, T_STOP = 13, T_UNDO = 14 };   /* T13–T15: 15/10/2026 */
 enum { ACT_CCW, ACT_PUSH, ACT_CW };
 
 static void mpad_reset(void *st)
@@ -26,7 +26,7 @@ static int mpad_on_pad(void *st, uint16_t code, int32_t value, uint32_t t_us, pn
     if (value != 0 && value != 1) return 0;                       /* 2 = ripetizione del kernel (MIDI-125) */
     bool down = value == 1;
 
-    if (code <= MPAD_T12) {
+    if (code <= MPAD_T15) {
         int i = code - MPAD_T1;
         uint16_t bit = (uint16_t)(1u << i);
         if (down == ((s->t_down & bit) != 0)) return 0;          /* nessun cambio */
@@ -34,7 +34,12 @@ static int mpad_on_pad(void *st, uint16_t code, int32_t value, uint32_t t_us, pn
         if (i < T_BACK) pnl_put(&o, down ? PNL_ENC_DOWN : PNL_ENC_UP, T_ENC[i], 0);
         else if (i == T_BACK) { if (down) pnl_put(&o, PNL_BACK, 0, 0); }
         else if (i == T_MENU) { if (down) pnl_put(&o, PNL_MACRO, MACRO_SYSTEM_MENU, 0); }
-        else { s->t12 = down; s->t12_t0 = t_us; }                 /* MIDI-126: il Panic lo decide on_tick */
+        else if (i == T_PANIC) { s->t12 = down; s->t12_t0 = t_us; }   /* MIDI-126: il Panic lo decide on_tick */
+        else if (i == T_MOD) pnl_put(&o, down ? PNL_ENC_DOWN : PNL_ENC_UP, ENC_BASS_VOICING, 0);   /* Bass Voicing tenuto */
+        else if (i == T_STOP) {                                   /* Stop del loop; tenuto 1 s = Clear */
+            if (down) { pnl_put(&o, PNL_MACRO, MACRO_LOOP_STOP, 0); s->t14 = 1; s->t14_t0 = t_us; }
+            else s->t14 = 0;
+        } else if (down) pnl_put(&o, PNL_MACRO, MACRO_LOOP_UNDO, 0);   /* T15 Undo del loop */
         return o.n;
     }
 
@@ -66,6 +71,10 @@ static int mpad_on_tick(void *st, uint32_t t_us, pnl_event_t *out, int max)
         pnl_put(&o, PNL_MACRO, MACRO_PANIC, 0);                   /* una volta sola */
         s->t12 = 2;
     }
+    if (s->t14 == 1 && pnl_dt(t_us, s->t14_t0) >= (int32_t)MPAD_CLEAR_HOLD_US) {
+        pnl_put(&o, PNL_MACRO, MACRO_LOOP_CLEAR, 0);
+        s->t14 = 2;
+    }
     return o.n;
 }
 
@@ -78,6 +87,7 @@ static int mpad_on_lost(void *st, uint32_t t_us, pnl_event_t *out, int max)
 
     for (int i = 0; i < T_BACK; i++)
         if (s->t_down & (1u << i)) pnl_put(&o, PNL_ENC_UP, T_ENC[i], PNL_B_SYNTH);
+    if (s->t_down & (1u << T_MOD)) pnl_put(&o, PNL_ENC_UP, ENC_BASS_VOICING, PNL_B_SYNTH);
     for (int k = 0; k < 3; k++)
         if (s->knob_down & (1u << k)) pnl_put(&o, PNL_ENC_UP, KNOB_ENC[k], PNL_B_SYNTH);
     pnl_put(&o, PNL_SRC_LOST, SRC_MACROPAD, 0);

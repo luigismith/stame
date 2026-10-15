@@ -1,0 +1,11 @@
+track.new {"kind": "instrument", "name": "Stame", "instrument": "subtractive_synth"}
+mix.instrument {"track": "Stame", "plugin": "subtractive_synth", "params": {"osc1_wave": 3, "osc2_wave": 2, "osc2_semitones": 12, "osc2_detune": 4, "osc_mix": 38, "cutoff": 2600, "resonance": 8, "filter_env_amount": 35, "amp_attack": 3, "amp_decay": 1500, "amp_sustain": 22, "amp_release": 1600, "filter_attack": 2, "filter_decay": 1100, "filter_sustain": 18, "filter_release": 1200, "glide": 0, "velocity": 65, "level": -9}}
+mix.insert {"track": "Stame", "slot": 0, "plugin": "chorus", "params": {"rate": 0.33, "depth": 28, "delay": 14, "feedback": 0, "mix": 28, "spread": 100}}
+mix.insert {"track": "Stame", "slot": 1, "plugin": "mod_delay", "params": {"time": 375, "feedback": 22, "mix": 16, "mod_rate": 0.4, "mod_depth": 10, "lpf": 4500}}
+mix.insert {"track": "Stame", "slot": 2, "plugin": "plate_reverb", "params": {"mix": 30, "pre_delay": 22, "decay": 3.4, "size": 72, "damping": 6500, "diffusion": 88, "width": 100, "low_cut": 160}}
+midi.new_clip {"track": "Stame", "start": 0, "length": 288000}
+midi.note_add {"clip": 2, "pitch": 52, "start_ticks": 0, "length_ticks": 4992, "velocity": 92}
+midi.note_add {"clip": 2, "pitch": 59, "start_ticks": 384, "length_ticks": 4608, "velocity": 84}
+midi.note_add {"clip": 2, "pitch": 68, "start_ticks": 768, "length_ticks": 4224, "velocity": 78}
+midi.note_add {"clip": 2, "pitch": 76, "start_ticks": 1248, "length_ticks": 2688, "velocity": 52}
+file.bounce_mix {"path": "stame_avvio.wav", "format": "wav", "bit_depth": 16, "start": 0, "end": 264000, "normalize": true}

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Stame, centine: 3 centine del ponte, compensato 4.0 mm. Scala 1:1, millimetri. Rosso taglio, nero incisione, blu segno. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="318.00mm" height="90.00mm" viewBox="0 0 318.000 90.000">
+<title>Stame — centine</title>
+<g id="incisione" fill="#000000" stroke="none">
+
+</g>
+<g id="segno" fill="none" stroke="#0000FF" stroke-width="0.1">
+
+</g>
+<g id="taglio" fill="none" stroke="#FF0000" stroke-width="0.1">
+<path d="M92.000,69.046 L2.000,69.046 L2.000,2.000 L92.000,26.115 Z"/>
+<rect x="62.000" y="47.046" width="30.000" height="18.000" rx="6.000" ry="6.000"/>
+<path d="M196.000,69.046 L106.000,69.046 L106.000,2.000 L196.000,26.115 Z"/>
+<rect x="166.000" y="47.046" width="30.000" height="18.000" rx="6.000" ry="6.000"/>
+<path d="M300.000,69.046 L210.000,69.046 L210.000,2.000 L300.000,26.115 Z"/>
+<rect x="270.000" y="47.046" width="30.000" height="18.000" rx="6.000" ry="6.000"/>
+</g>
+</svg>

@@ -6,14 +6,14 @@
 Stame è un **clone fedele dell'Orchid (ORC—1)** di Telepathic Instruments: lo stesso comportamento musicale (accordi, Secret Chords, voicing a finestra, Key mode, basso, Play Style, Perform, beat, looper, MIDI) e lo stesso suono (motori VA, FM e Reed Piano, basso, effetti).
 
 Il progetto procede in due fasi:
-1. **Fase 1, questa specifica:** un'app nativa per la **Miyoo Flip**, suonata con la **Akai MPK mini Plus** collegata in USB, affiancata da un **macro pad BRIMFORD** (12 tasti e 3 manopole) che fa da pulsanti degli encoder.
+1. **Fase 1, questa specifica:** un'app nativa per la **Miyoo Flip**, suonata con la **Akai MPK mini Plus** collegata in USB, affiancata da un **macro pad BRIMFORD** (15 tasti e 3 manopole) che fa da pulsanti degli encoder.
 2. **Fase 2:** uno strumento hardware dedicato, probabilmente Teensy 4.1 + Audio Shield, che riusa il nucleo senza modificarlo.
 
 Il nome viene dal fiore: l'editor ufficiale dell'Orchid si chiama Pistil (pistillo), lo stame è l'altra metà.
 
 ## 2. Principi
 1. **Fedeltà al comportamento e al suono dell'originale.** Le migliorie vanno in appendice, come opzioni spente per default.
-2. **Lo schermo invece NON si clona** (decisione di Luigi del 13/10/2026). La Flip ha uno schermo 640×480 a colori, quindi mostra una **plancia nativa** con tutto ciò che serve o è utile vedere in tempo reale. Le 6 viste dell'OLED 128×128 restano specificate solo per l'hardware della fase 2.
+2. **Lo schermo invece NON si clona** (decisione di Luigi del 13/10/2026). La Flip ha uno schermo 640×480 a colori, quindi mostra una **plancia nativa** con tutto ciò che serve o è utile vedere in tempo reale. Dal 15/10/2026 è una **plancia calma**: mentre si suona mostra accordo, tempo, tastiera e il controllo appena toccato; i comandi e il dettaglio arrivano quando servono (30, UI-140). Le 6 viste dell'OLED 128×128 restano specificate solo per l'hardware della fase 2.
 3. **Nucleo portabile.** `core`, `dsp`, `ui`, `gfx` e `ui_flip` sono in C11 puro: niente heap, niente I/O, niente SDL o ALSA. La piattaforma passa la memoria come array statici.
 4. **Separato da OpenOrc / Cirmolo:** niente codice né confronti in comune.
 5. **Identità propria in MIDI:** mai l'ID SysEx `00 22 0C` né nomi di porta che inizino con "orchid".
@@ -70,7 +70,8 @@ Il macro pad (BRIMFORD CusKeyboard0227) è una tastiera USB HID: Stame lo legge 
 | [`30-interfaccia.md`](30-interfaccia.md) | `ui_model_t`, plancia 640×480 della Flip, overlay e menu, gesti, menu della piattaforma; renderer OLED per la fase 2 | `UI-` |
 | [`40-midi-e-controlli.md`](40-midi-e-controlli.md) | MIDI dell'Orchid replicato, clock e trasporto, identità e SysEx, MPK mini Plus e programma "STAME", tasti della Flip, strato di input logico, hot-plug e panic | `MIDI-` |
 | [`50-piattaforma-flip.md`](50-piattaforma-flip.md) | hardware e sistema della Flip, moduli e API del nucleo, thread, audio, MIDI, input, video, persistenza, build, test, deploy, gotcha, portabilità verso Teensy, piano per fasi F0–F6 | `PLT-` |
-| [`60-case.md`](60-case.md) | bozza del case della fase 1, che tiene insieme MPK mini Plus, macro pad BRIMFORD e Flip con hub e cavi | `CASE-` |
+| [`60-case.md`](60-case.md) | case della fase 1 (bozza 2): telaio di betulla, mascherina della MPK, culla e visiera della Flip, vano del macro pad; pezzi generati da `hardware/case/genera.py` | `CASE-` |
+| [`../identita/README.md`](../identita/README.md) | **identità**: la storia (lo stame, la serra degli anni Settanta, Linneo), il marchio dei tre stami, la plancia come vetrino a fluorescenza, caratteri, palette, case e logo sonoro | — |
 | [`../disegni/stame-plancia-e-controlli.pdf`](../disegni/stame-plancia-e-controlli.pdf) | **disegni**: la plancia della Flip in cinque stati, MPK e Flip con la funzione di ogni comando, gesti, ricette d'uso, preparazione | — |
 | [`90-questioni-aperte.md`](90-questioni-aperte.md) | tutte le verifiche (Orchid, MPK, Flip), i dati mancanti e le decisioni ancora da prendere | — |
 
@@ -97,8 +98,14 @@ Ogni fase si chiude con l'ascolto di Luigi, non solo con le prove automatiche.
 | **Play Style** | come i tasti accordo e la tastiera interagiscono (Simple, Advanced, Free) |
 | **Perform** | modi di esecuzione: Strum, Slop, Arp, Pattern, Harp… |
 | **Fuoco** | il controllo rotante del pannello a cui vanno m2 del macro pad, « », joystick e croce della Flip |
-| **Macro pad** | il BRIMFORD CusKeyboard0227: 12 tasti (T1–T12) e 3 manopole (M, m1, m2), profilo `pad_brimford` |
+| **Macro pad** | il BRIMFORD CusKeyboard0227 (USB `1189:8840`): 15 tasti (T1–T12 assegnati, T13–T15 da decidere) e 3 manopole (M, m1, m2), profilo `pad_brimford` |
 | **PUSH** | B8 o X della Flip tenuto: la manopola della MPK toccata viene "premuta"; riserva per quando il macro pad non c'è |
 | **Pistil** | editor ufficiale dei suoni dell'Orchid; Stame legge il suo formato `.inc` |
 | **`ui_model_t`** | lo stato completo da mostrare, prodotto dal nucleo e disegnato dai renderer |
 | **[M] [O] [D] [V]** | manuale, osservato, dedotto, da verificare su un Orchid vero |
+| **Vetrina** | pilota dimostrativo che mostra la plancia sulla Flip con il motore degli accordi vero e il resto simulato (sez. 50 §15.1) |
+| **Matrice** | il font a punti 5×7 di Stame, per il nome dell'accordo e la scritta STAME |
+| **Cartellino di Linneo** | la classe dell'accordo contata in stami: TRIANDRIA per tre note, TETRANDRIA per quattro; nella vista Geek Out (UI-161) |
+| **Plancia calma** | la plancia della Flip dal 15/10/2026: quattro cose mentre si suona, i comandi e il dettaglio a richiesta (UI-140) |
+| **Banda** | la riga in fondo alla plancia: il controllo appena toccato in grande, a riposo il suono (UI-154) |
+| **Pagina dei comandi** | le 11 celle dei controlli al posto della tastiera, aperte dai tasti del fuoco della Flip e chiuse dopo 5 s (UI-142a) |

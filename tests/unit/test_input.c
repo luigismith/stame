@@ -697,6 +697,27 @@ static void t_macro_pad(void)
     CHECK(raw[0].type == PNL_ENC_TURN && raw[0].a == ENC_FOCUS && raw[0].b == 1);   /* senza PNL_F_VERTICAL */
     CHECK_EQ(PAD_BRIMFORD.on_pad(&s, MPAD_M2_CW, 0, T0, raw, PNL_MAX_OUT), 0);      /* il rilascio non conta */
 
+    /* T13 Mod = Bass Voicing tenuto; T14 Stop, tenuto 1 s = Clear; T15 Undo (15/10/2026) */
+    clear();
+    pad(MPAD_T13, 1);
+    CHECK(gest_held(&H.gest, ENC_BASS_VOICING));
+    tap(MPAD_T6);
+    CHECK_EQ(count(G_PRESS, ENC_LOOP), 1);
+    pad(MPAD_T13, 0);
+    CHECK(!gest_held(&H.gest, ENC_BASS_VOICING));
+    clear();
+    tap(MPAD_T14);
+    CHECK(only(PNL_MACRO, MACRO_LOOP_STOP, 0));
+    clear();
+    pad(MPAD_T14, 1);
+    wait_us(1200000);
+    pad(MPAD_T14, 0);
+    CHECK_EQ(count(PNL_MACRO, MACRO_LOOP_STOP), 1);
+    CHECK_EQ(count(PNL_MACRO, MACRO_LOOP_CLEAR), 1);
+    clear();
+    tap(MPAD_T15);
+    CHECK(only(PNL_MACRO, MACRO_LOOP_UNDO, 0));
+
     /* T-MIDI-20: scollegato con T1 tenuto: rilascio sintetico, poi SRC_LOST; niente G_HOLD dopo */
     PAD_BRIMFORD.reset(&s);
     PAD_BRIMFORD.on_pad(&s, MPAD_T1, 1, T0, raw, PNL_MAX_OUT);
@@ -818,6 +839,123 @@ static void t_nomi(void)
     CHECK(!starts_orchid(mpk_profile_name(&s)));
 }
 
+/* MPK mini IV nel preset DAW (§8.9b): i messaggi sono quelli catturati il 15/10/2026 */
+static midi_parser_t MP2;
+
+static void mk4_daw(const char *hex)              /* byte della porta 2 (DAW) */
+{
+    midi_msg_t m[MIDI_PARSE_MAX_OUT];
+    for (const char *p = hex; *p; ) {
+        while (*p == ' ') p++;
+        if (!*p) break;
+        int k = midi_parse_byte(&MP2, (uint8_t)hexbyte(&p), NOW, m);
+        for (int j = 0; j < k; j++) NEV += inp_midi(&H, &m[j], EV + NEV, MAXEV - NEV);
+    }
+}
+
+static void t_mk4(void)
+{
+    reset();
+    lost(SRC_MPK);
+    inp_set_mpk_model(&H, MPK_MODEL_MK4);
+    connected(SRC_MPK);
+    midi_parser_init(&MP2, MIDI_PORT_DIN);
+    clear();
+
+    /* tasti sulla porta 1: il Do3 (48) è la classe 0 */
+    mpk("90 30 77");
+    CHECK(only(PNL_KEY_DOWN, 0, 119));
+    clear();
+    mpk("80 30 00");
+    CHECK(only(PNL_KEY_UP, 0, 0));
+
+    /* pad: in alto a sinistra 40 = Dim, in basso a destra 39 = 9; la copia sulla porta 2 si ignora */
+    clear();
+    mpk("99 28 4A");
+    mk4_daw("99 28 4A");
+    CHECK(only(PNL_CHORD_DOWN, CHB_DIM, 0));
+    clear();
+    mpk("A9 28 7F 89 28 00");
+    CHECK(only(PNL_CHORD_UP, CHB_DIM, 0));
+    clear();
+    mpk("99 27 3D");
+    CHECK(only(PNL_CHORD_DOWN, CHB_9, 0));
+    mpk("89 27 00");
+
+    /* K1 relativa: 12 unità = uno scatto di Sound, in tutti e due i versi */
+    clear();
+    for (int i = 0; i < 6; i++) mk4_daw("B0 18 02");
+    CHECK(only(G_TURN, ENC_SOUND, 1));
+    clear();
+    for (int i = 0; i < 12; i++) mk4_daw("B0 18 7F");
+    CHECK(only(G_TURN, ENC_SOUND, -1));
+
+    /* SHIFT = PUSH: SHIFT + K4 toccata e poi girata = premi e ruota Key; toccata e lasciata = premi Key */
+    clear();
+    mk4_daw("B0 11 7F");
+    mk4_daw("B0 1B 01");
+    wait_us(400000);
+    for (int i = 0; i < 12; i++) mk4_daw("B0 1B 01");
+    mk4_daw("B0 11 00");
+    CHECK_EQ(count(G_PRESS_TURN, ENC_KEY), 1);
+    CHECK_EQ(count(G_PRESS, ENC_KEY), 0);
+    clear();
+    mk4_daw("B0 11 7F B0 1B 01 B0 11 00");
+    CHECK_EQ(count(G_PRESS, ENC_KEY), 1);
+
+    /* trasporto (solo pressione) */
+    clear();
+    mk4_daw("B0 4D 7F");
+    CHECK_EQ(count(G_PRESS, ENC_LOOP), 1);                        /* REC = Loop */
+    clear();
+    mk4_daw("B0 4C 7F");
+    CHECK_EQ(count(G_PRESS, ENC_BPM), 1);                         /* STOP/PLAY = BPM */
+    clear();
+    mk4_daw("B0 11 7F B0 4C 7F B0 11 00");
+    CHECK(only(PNL_MACRO, MACRO_PANIC, 0));                       /* SHIFT + STOP/PLAY */
+    clear();
+    mk4_daw("B0 49 7F");
+    CHECK(only(PNL_MACRO, MACRO_LOOP_UNDO, 0));
+    clear();
+    mk4_daw("B0 11 7F B0 49 7F B0 11 00");
+    CHECK(only(PNL_MACRO, MACRO_LOOP_CLEAR, 0));                  /* SHIFT + UNDO */
+    clear();
+    mk4_daw("B0 4E 7F");
+    CHECK(only(PNL_MACRO, MACRO_LOOP_OVERDUB, 0));                /* ⊕ */
+    clear();
+    mk4_daw("B0 4A 7F");
+    CHECK(only(PNL_MACRO, MACRO_LOOP_STOP, 0));                   /* LOOP */
+
+    /* − = Back, + = menu della piattaforma */
+    clear();
+    mk4_daw("B0 50 7F B0 50 00");
+    CHECK(only(PNL_BACK, 0, 0));
+    clear();
+    mk4_daw("B0 51 7F B0 51 00");
+    CHECK(only(PNL_MACRO, MACRO_SYSTEM_MENU, 0));
+
+    /* manopola di navigazione con la lista dei suoni aperta: orario = voce successiva */
+    clear();
+    gest_set_owner(&H.gest, ENC_SOUND, true);
+    mk4_daw("B0 0E 01 B0 0E 7F");
+    CHECK_EQ(NEV, 2);
+    CHECK(EV[0].type == G_TURN && EV[0].a == ENC_SOUND && EV[0].b == 1);
+    CHECK(EV[1].type == G_TURN && EV[1].a == ENC_SOUND && EV[1].b == -1);
+    gest_set_owner(&H.gest, ENC_COUNT, false);
+
+    /* pitch bend a riposo; scollegamento con un tasto tenuto */
+    clear();
+    mpk("E0 00 40");
+    CHECK(only(PNL_BEND, 0, 0));
+    clear();
+    mpk("90 3C 40");
+    lost(SRC_MPK);
+    CHECK_EQ(count(PNL_KEY_UP, 0), 1);
+    CHECK_EQ(count(PNL_SRC_LOST, SRC_MPK), 1);
+    inp_set_mpk_model(&H, MPK_MODEL_PLUS);
+    connected(SRC_MPK);
+}
+
 void test_input(void)
 {
     t_esempio();
@@ -837,5 +975,6 @@ void test_input(void)
     t_macro_pad();
     t_scollegamento();
     t_nomi();
+    t_mk4();
     CHECK_EQ(DROPPED + inp_dropped(&H), 0);                   /* nessun evento perso */
 }

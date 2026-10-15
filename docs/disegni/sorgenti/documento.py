@@ -3,7 +3,7 @@ import sys, os
 sys.path.insert(0, os.path.dirname(__file__))
 from controlli import mpk_svg, flip_svg, focus_ring_svg, C
 from pad_case import pad_svg, twin_svg, tk_timeline_svg, case_top_svg, case_side_svg, wiring_svg
-from plancia import plancia_svg, PLANCIA_PAGINE
+from plancia import plancia_svg, plancia_img, PLANCIA_PAGINE
 
 CSS = """
 @page { size: A4 landscape; margin: 0; }
@@ -52,13 +52,15 @@ def legend():
         f'<span><span class="sw" style="background:{C[k][1]};border-color:{C[k][0]}"></span>{t}</span>' for k, t in items) + '</div>'
 
 def page(body, n, total):
-    return (f'<section class="page">{body}<div class="foot"><span>Stame · plancia e controlli · bozza 2, con il macro pad · 13/10/2026</span>'
+    return (f'<section class="page">{body}<div class="foot"><span>Stame · plancia e controlli · bozza 4, plancia calma · 15/10/2026</span>'
             f'<span>{n} / {total}</span></div></section>')
 
 def k(t):
     return '<kbd>' + t.replace('<', '&lt;').replace('>', '&gt;') + '</kbd>'
 
 PAGES = []
+from case_pagine import img as _img
+CASE_COPERTINA = _img('case_3d.png', '70%')
 
 def seq(*steps):
     out = []
@@ -99,13 +101,13 @@ PAGES.append(f"""
    <tr><td>7</td><td>I quattro gesti degli encoder</td></tr>
    <tr><td>8</td><td>Ogni controllo dell'Orchid, gesto per gesto</td></tr>
    <tr><td>9</td><td>Ricette</td></tr>
-   <tr><td>10–11</td><td>Il case: disposizione, sezione, cablaggio, parti</td></tr>
-   <tr><td>12</td><td>Preparazione e punti da verificare</td></tr>
+   <tr><td>10–12</td><td>Il case (bozza 2): la console, la tavola d'insieme e la mascherina, i pezzi e il cablaggio</td></tr>
+   <tr><td>13</td><td>Preparazione e punti da verificare</td></tr>
   </table>
  </div>
  <div style="flex:1;display:flex;flex-direction:column;gap:3mm;justify-content:center">
-  {plancia_svg('principale', width='100%')}
-  {case_top_svg(width='100%')}
+  {plancia_img('principale', width='100%')}
+  {CASE_COPERTINA}
  </div>
 </div>
 """)
@@ -317,70 +319,10 @@ PAGES.append(f"""
 </div>
 """)
 
-# 10 — case, disposizione
-PAGES.append(f"""
-<h2>Il case — tutto in un pezzo</h2>
-<p class="sub">Bozza. Gli apparecchi entrano interi e si tolgono in un minuto: nessuna vite nella MPK, nessuna modifica alla Flip o al pad.</p>
-<div class="cols">
- <div style="flex:1.55">{case_top_svg('100%')}</div>
- <div>
-  <h3 style="margin-top:0">Scelte</h3>
-  <ul>
-   <li><b>MPK davanti</b>, in un vano con un bordo basso che la tiene ferma (spessori in TPU per il gioco).</li>
-   <li><b>Pad a destra</b>, rialzato di circa 10 mm perché i tasti stiano all'altezza del piano della MPK. È dove sull'Orchid stanno le manopole del voicing.</li>
-   <li><b>Flip dietro ai pad</b>, al centro-sinistra: lontana dai connettori della MPK (tutti nella metà destra del retro) e davanti agli occhi. I suoi tasti restano raggiungibili.</li>
-   <li><b>Vano dietro al pad</b> per l'hub USB e, se serve, un powerbank. Coperchio con feritoie.</li>
-   <li><b>Canale dei cavi</b> lungo il retro della MPK: USB-B, pedale, MIDI e CV escono senza pieghe strette.</li>
-  </ul>
-  <h3>Numeri</h3>
-  <table>
-   <tr><td>Ingombro</td><td>610 × 300 mm</td></tr>
-   <tr><td>Altezza</td><td>≈ 58 mm al dorso; ≈ 160 mm in cima allo schermo</td></tr>
-   <tr><td>Peso</td><td>≈ 2,8 kg con tutto dentro (stima)</td></tr>
-  </table>
- </div>
-</div>
-<div class="cols" style="margin-top:3mm">
- <div class="box"><b>Alternative scartate.</b> <i>Tutto stampato</i>: 610 mm non stanno nel piano da 250 mm, servirebbero 6–8 pezzi incollati e la base
- verrebbe meno rigida. <i>Guscio unico che smonta la MPK</i>: è il lavoro della fase 2 (strumento dedicato), non di questa.
- <i>Pad a sinistra</i>: comodo per «tasto + manopola» con due mani, ma la manopola grande del voicing finirebbe lontano dalla mano che suona i tasti.</div>
- <div class="box"><b>Prossimi passi.</b> Misurare pad e Flip (porte, jack, altoparlante). Modello parametrico in OpenSCAD in <code>hardware/case/</code>,
- con le misure in un solo file. Prima stampa di prova: culla della Flip e piattaforma del pad, che sono le parti più incerte. Poi i moduli del dorso.</div>
-</div>
-""")
-
-# 11 — case, costruzione
-PARTS = [
-  ('Base', 'compensato di betulla 6 mm (o MDF)', '610 × 300', 'taglio dritto, angoli raggiati, piedini in gomma'),
-  ('Bordo del vano MPK', 'PETG stampato, 4 pezzi', '≤ 240 mm, alto 16', 'tiene la MPK senza viti; spessori in TPU'),
-  ('Dorso posteriore', 'PETG, 3 moduli', '≈ 150 × 96 × 58', 'incastri a coda di rondine, inserti a caldo M3 nella base'),
-  ('Coperchi del canale cavi', 'PETG, 3 pezzi', '≈ 150 × 24', 'a scatto, con uscite per USB-B, pedale, MIDI, CV'),
-  ('Culla della Flip', 'PETG + appoggi in TPU', '100 × 90, inclinata 15°', 'aperture per USB-C, jack e altoparlante (posizioni da misurare)'),
-  ('Piattaforma del pad', 'PETG', '133 × 110 × 10', 'bordo alto 8 mm, cava per il cavo USB-C'),
-  ('Vano hub e coperchio', 'PETG', '133 × 166', 'feritoie; fermo per il powerbank'),
-  ('Minuteria', 'viti M3 × 8, inserti a caldo', '≈ 24 + 24', '—'),
-]
-parts = ''.join(f'<tr><td><b>{a}</b></td><td>{b}</td><td>{c}</td><td class="muted">{d}</td></tr>' for a, b, c, d in PARTS)
-PAGES.append(f"""
-<h2>Il case — sezione, cablaggio e parti</h2>
-<p class="sub">Ogni parte stampata sta nel piano della Kobra S1 (250 × 250 mm); la base, troppo grande, è un pannello di legno.</p>
-<div class="cols">
- <div style="flex:1.2">
-  <h3 style="margin-top:0">Sezione dalla destra, attraverso la Flip</h3>
-  {case_side_svg('100%')}
- </div>
- <div>
-  <h3 style="margin-top:0">Cablaggio</h3>
-  {wiring_svg('100%')}
-  <div class="warn" style="margin-top:2mm;font-size:8pt">Solo un <b>hub USB 2.0 semplice, senza PD</b>: le docking station non funzionano con la Flip.
-  Mai forzare <code>otg_mode</code> in host. La ricarica della Flip dalla porta di sotto va fatta a console spenta.</div>
- </div>
-</div>
-<table style="margin-top:2mm">
- <tr><th>Parte</th><th>Materiale</th><th>Misure (mm)</th><th>Note</th></tr>
- {parts}
-</table>
-""")
+# 10–11 — case, bozza 2 (14/10/2026): pagine in case_pagine.py
+from case_pagine import CASE_PAGINE, img as case_img
+for body in CASE_PAGINE:
+    PAGES.append(body)
 
 # 12 — preparazione e verifiche
 PAGES.append(f"""

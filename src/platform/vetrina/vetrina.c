@@ -1,0 +1,1049 @@
+/* vetrina.c — pilota dimostrativo della plancia (vetrina.h). Codice di piattaforma: niente veleni. */
+#include "vetrina.h"
+#include "../../ui/ui_fmt.h"
+#include <math.h>
+#include <string.h>
+
+#define BOOT_MS      2600u
+#define OVERLAY_MS   3400u        /* UI-069 */
+#define LINGER_MS    2000u
+#define DEMO_IDLE_MS 20000u
+#define LIST_IDLE_MS 10000u       /* UI-076 */
+#define PAGE_MS      5000u        /* UI-142a: la pagina dei comandi si chiude da sola */
+
+/* ---- dati inventati della vetrina (nessun preset dell'Orchid) ---- */
+typedef struct { const char *name; uint8_t engine; const char *cat; } snd_t;
+static const snd_t SOUNDS[] = {
+    { "Glass Pollen", ENGINE_FM, "bell" },     { "Night Greenhouse", ENGINE_VA, "pad" },
+    { "Anther Keys", ENGINE_RP, "keys" },      { "Slow Stamen", ENGINE_VA, "pad" },
+    { "Fern Pluck", ENGINE_VA, "pluck" },      { "Copper Reed", ENGINE_RP, "keys" },
+    { "Orbit Choir", ENGINE_FM, "voice" },     { "Moss Strings", ENGINE_VA, "strings" },
+    { "Dew Mallet", ENGINE_FM, "mallet" },     { "Tape Fern", ENGINE_VA, "lo-fi" },
+    { "Seed Organ", ENGINE_FM, "organ" },      { "Sun Room", ENGINE_RP, "keys" },
+    { "Linnaeus Lead", ENGINE_VA, "lead" },    { "Petal Brass", ENGINE_VA, "brass" },
+    { "Root Drone", ENGINE_FM, "drone" },      { "Vetro Pad", ENGINE_VA, "pad" },
+};
+static const char *const BASSES[] = { "Round Root", "Sub Floor", "Pluck Bass", "Reed Bass", "Velvet Sub", "Wood Bass" };
+static const char *const BEATS[] = { "Funk", "Bossa", "Motorik", "Lounge", "Shuffle", "Halftime" };
+
+#define N_SOUNDS ((int)STAME_COUNT(SOUNDS))
+#define N_BASSES ((int)STAME_COUNT(BASSES))
+#define N_BEATS  ((int)STAME_COUNT(BEATS))
+
+/* stato simulato dei controlli */
+typedef struct {
+    int sound, perf_mode, perf_amount, arp_rate, arp_dir, fx_type, fx_amount, bass, volume, bass_volume;
+    int bpm, beat_mode, beat, beat_volume, view;
+    uint8_t lock_perf, lock_fx, sec[ENC_COUNT];
+} sim_t;
+static sim_t S;                    /* una vetrina sola per processo */
+
+static int wrap(int v, int n) { v %= n; return v < 0 ? v + n : v; }
+static int clampi(int v, int a, int b) { return v < a ? a : v > b ? b : v; }
+static float clampf(float v, float a, float b) { return v < a ? a : v > b ? b : v; }
+
+static void snd_push(vet_t *v, uint8_t type, uint8_t engine, uint8_t a, uint8_t b)
+{
+    if ((uint16_t)(v->snd_w - v->snd_r) >= VET_SND_Q) return;       /* coda piena: si scarta */
+    vet_snd_t *e = &v->snd_q[v->snd_w % VET_SND_Q];
+    e->type = type; e->engine = engine; e->a = a; e->b = b;
+    v->snd_w++;
+}
+
+bool vet_snd_pop(vet_t *v, vet_snd_t *out)
+{
+    if (v->snd_r == v->snd_w) return false;
+    *out = v->snd_q[v->snd_r % VET_SND_Q];
+    v->snd_r++;
+    return true;
+}
+
+void vet_set_scope(vet_t *v, const int16_t *buf, uint16_t len, const volatile uint32_t *wr,
+                   const volatile float *peak)
+{
+    v->ext_scope = buf;
+    v->ext_scope_len = len;
+    v->ext_scope_wr = wr;
+    v->ext_peak = peak;
+}
+
+/* motore degli accordi: le note TREBLE vanno al Sound, le BASS al Bass (specifica 20, §9) */
+static void ain(vet_t *v, uint8_t type, uint8_t a, int16_t b)
+{
+    int n = acc_input(&v->acc, type, a, b, 0, v->ev, (int)STAME_COUNT(v->ev));
+    if (type == ACC_IN_KEY_DOWN) snd_push(v, VS_CHORD_START, 0, 0, 0);
+    for (int i = 0; i < n; i++) {
+        const acc_note_ev *e = &v->ev[i];
+        if (e->role != ACC_ROLE_TREBLE && e->role != ACC_ROLE_BASS) continue;
+        uint8_t eng = e->role == ACC_ROLE_BASS ? 1 : 0;
+        if (e->on && e->vel) snd_push(v, VS_NOTE_ON, eng, e->note, e->vel);
+        else snd_push(v, VS_NOTE_OFF, eng, e->note, 0);
+    }
+}
+
+static void overlay(vet_t *v, uint8_t kind, uint8_t enc, int value)
+{
+    v->m.layer.ov.kind = kind;
+    v->m.layer.ov.enc = enc;
+    v->m.layer.ov.value = (int16_t)value;
+    v->ov_until = v->now_ms + OVERLAY_MS;
+    v->m.layer.ov.until_ms = v->ov_until;
+    if (!v->list_kind) gest_set_owner(&v->inp.gest, enc < ENC_COUNT ? enc : ENC_COUNT, false);
+}
+
+static void msg(vet_t *v, uint8_t level, const char *text, uint32_t ms)
+{
+    ui_msg_t *mm = &v->m.msg_plat;
+    mm->level = level;
+    mm->until_ms = v->now_ms + ms;
+    ui_fmt_copy(mm->text, sizeof mm->text, text);
+}
+
+/* ---- liste ---- */
+enum { L_NONE, L_SOUND, L_PERFORM, L_OPTIONS, L_PLATFORM };
+
+static int list_n(int kind)
+{
+    switch (kind) {
+    case L_SOUND: return N_SOUNDS;
+    case L_PERFORM: return PERF_COUNT;
+    case L_OPTIONS: return 5;
+    case L_PLATFORM: return 7;
+    default: return 0;
+    }
+}
+
+static void list_item(const vet_t *v, int kind, int i, ui_item_t *it)
+{
+    memset(it, 0, sizeof *it);
+    it->enabled = 1;
+    switch (kind) {
+    case L_SOUND:
+        ui_fmt_int(it->num, sizeof it->num, i + 1, 2);
+        ui_fmt_copy(it->label, sizeof it->label, SOUNDS[i].name);
+        ui_fmt_cat(it->info, sizeof it->info, ui_fmt_engine(SOUNDS[i].engine), "  ");
+        ui_fmt_cat(it->info, sizeof it->info, it->info, SOUNDS[i].cat);
+        if (i == S.sound) it->mark = MK_CHECK;
+        break;
+    case L_PERFORM:
+        ui_fmt_copy(it->label, sizeof it->label, i == 0 ? "Off" : ui_fmt_perf_long((uint8_t)i));
+        if (i == S.perf_mode) it->mark = MK_DOT;
+        break;
+    case L_OPTIONS: {
+        static const char *const L[] = { "Exit", "View", "Play Style", "Single Notes", "Secret Chords" };
+        ui_fmt_copy(it->label, sizeof it->label, L[i]);
+        if (i == 1) ui_fmt_copy(it->value, sizeof it->value, ui_fmt_view_short((uint8_t)S.view));
+        if (i == 2) ui_fmt_copy(it->value, sizeof it->value, ui_fmt_play_style(v->acc.style));
+        if (i == 3) ui_fmt_copy(it->value, sizeof it->value, v->acc.single_notes ? "Octave" : "Split");
+        if (i == 4) ui_fmt_copy(it->value, sizeof it->value, v->acc.secret ? "On" : "Off");
+        break;
+    }
+    case L_PLATFORM: {
+        static const char *const L[] = { "Exit", "Theme", "Linnaeus Tag", "Legend", "Meters", "Demo", "Quit Stame" };
+        ui_fmt_copy(it->label, sizeof it->label, L[i]);
+        if (i == 1) ui_fmt_copy(it->value, sizeof it->value, v->m.prefs.theme ? "Light" : "Dark");
+        if (i == 2) ui_fmt_copy(it->value, sizeof it->value, v->m.prefs.linnaeus ? "On" : "Off");
+        if (i == 3) ui_fmt_copy(it->value, sizeof it->value, v->m.prefs.legend ? "On" : "Off");
+        if (i == 4) ui_fmt_copy(it->value, sizeof it->value, v->m.prefs.meters ? "On" : "Off");
+        if (i == 5) ui_fmt_copy(it->value, sizeof it->value, v->demo_on ? "Auto" : "Off");
+        break;
+    }
+    default: break;
+    }
+}
+
+static void list_open(vet_t *v, int kind, uint8_t owner)
+{
+    v->list_kind = (uint8_t)kind;
+    v->list_owner = owner;
+    v->list_ms = v->now_ms;
+    v->m.layer.ov.kind = OV_NONE;
+    switch (kind) {
+    case L_SOUND: v->list_sel = (uint16_t)S.sound; break;
+    case L_PERFORM: v->list_sel = (uint16_t)S.perf_mode; break;
+    default: v->list_sel = 0; break;
+    }
+    gest_set_owner(&v->inp.gest, owner, true);
+}
+
+static void list_close(vet_t *v)
+{
+    v->list_kind = L_NONE;
+    gest_set_owner(&v->inp.gest, ENC_COUNT, false);
+}
+
+static void list_select(vet_t *v)
+{
+    int i = v->list_sel;
+    v->list_ms = v->now_ms;
+    switch (v->list_kind) {
+    case L_SOUND: S.sound = i; break;
+    case L_PERFORM: S.perf_mode = i; if (S.perf_amount == 0) S.perf_amount = 5; break;
+    case L_OPTIONS:
+        if (i == 0) list_close(v);
+        else if (i == 1) S.view = wrap(S.view + 1, VIEW_COUNT);
+        else if (i == 2) ain(v, ACC_IN_OPTION_SET, ACC_OPT_PLAY_STYLE, (int16_t)wrap(v->acc.style + 1, 3));
+        else if (i == 3) ain(v, ACC_IN_SINGLE_NOTES_TOGGLE, 0, 0);
+        else if (i == 4) ain(v, ACC_IN_OPTION_SET, ACC_OPT_SECRET, v->acc.secret ? ACC_SECRET_OFF : ACC_SECRET_ALL);
+        break;
+    case L_PLATFORM:
+        if (i == 0) list_close(v);
+        else if (i == 1) v->m.prefs.theme = (uint8_t)!v->m.prefs.theme;
+        else if (i == 2) v->m.prefs.linnaeus = (uint8_t)!v->m.prefs.linnaeus;
+        else if (i == 3) v->m.prefs.legend = (uint8_t)!v->m.prefs.legend;
+        else if (i == 4) v->m.prefs.meters = (uint8_t)!v->m.prefs.meters;
+        else if (i == 5) v->demo_on = (uint8_t)!v->demo_on;
+        else if (i == 6) v->quit = 1;
+        break;
+    default: break;
+    }
+}
+
+/* ---- looper simulato ---- */
+static uint32_t bar_ms(void) { return 4u * 60000u / (uint32_t)S.bpm; }
+
+static void looper_press(vet_t *v)
+{
+    switch (v->lp_state) {
+    case LP_IDLE:
+        v->lp_state = LP_REC; v->lp_bars = 4; v->lp_t0_ms = v->now_ms; v->lp_layers = 1;
+        memset(v->lp_rec_pcs, 0, sizeof v->lp_rec_pcs);
+        break;
+    case LP_REC:     v->lp_state = LP_PLAY; break;
+    case LP_PLAY:    v->lp_state = LP_OVERDUB; v->lp_layers++; break;
+    case LP_OVERDUB: v->lp_state = LP_PLAY; break;
+    case LP_PAUSE:   v->lp_state = LP_PLAY; break;
+    default: break;
+    }
+}
+
+static void looper_stop(vet_t *v)
+{
+    if (v->lp_state == LP_REC || v->lp_state == LP_OVERDUB) v->lp_state = LP_PLAY;
+    else if (v->lp_state == LP_PLAY) v->lp_state = LP_PAUSE;
+    else if (v->lp_state == LP_PAUSE) v->lp_state = LP_PLAY;
+}
+
+/* ---- gesti ---- */
+static void turn(vet_t *v, int enc, int d, bool pressed)
+{
+    if (v->list_kind) {
+        if (enc == v->list_owner) {
+            v->list_sel = (uint16_t)clampi((int)v->list_sel + d, 0, list_n(v->list_kind) - 1);
+            v->list_ms = v->now_ms;
+            return;
+        }
+        list_close(v);
+    }
+    switch (enc) {
+    case ENC_SOUND:
+        S.sound = wrap(S.sound + d, N_SOUNDS);
+        overlay(v, OV_SOUND, ENC_SOUND, S.sound + 1);
+        break;
+    case ENC_PERFORM:
+        if (S.perf_mode == PERF_ARP || S.perf_mode == PERF_ARP2) {
+            static const int R[] = { 4, 8, 12, 16, 24, 32 };
+            int i = 0;
+            while (i < 5 && R[i] != S.arp_rate) i++;
+            S.arp_rate = R[clampi(i + d, 0, 5)];
+            overlay(v, OV_ARP, ENC_PERFORM, S.arp_rate);
+        } else {
+            S.perf_amount = clampi(S.perf_amount + d, 0, 10);
+            overlay(v, OV_PERFORM, ENC_PERFORM, S.perf_amount);
+        }
+        break;
+    case ENC_FX:
+        S.fx_amount = clampi(S.fx_amount + d, 0, 10);
+        overlay(v, OV_FX, ENC_FX, S.fx_amount);
+        break;
+    case ENC_KEY:
+        if (pressed) {
+            ain(v, ACC_IN_TRANSPOSE_STEP, 0, (int16_t)d);
+            S.sec[ENC_KEY] = 1;
+            overlay(v, OV_TRANSPOSE, ENC_KEY, v->acc.transpose);
+        } else {
+            ain(v, ACC_IN_KEY_SELECT, (uint8_t)wrap(v->acc.key_index + d, ACC_KEY_COUNT), 0);
+            if (!v->acc.key_on) ain(v, ACC_IN_KEY_MODE_TOGGLE, 0, 0);
+            overlay(v, OV_KEY, ENC_KEY, v->acc.key_index);
+        }
+        break;
+    case ENC_BASS:
+        S.bass = wrap(S.bass + d, N_BASSES);
+        overlay(v, OV_BASS_SOUND, ENC_BASS, S.bass + 1);
+        break;
+    case ENC_LOOP:
+        if (v->lp_state != LP_IDLE) v->m.looper.menu_sel = (uint8_t)clampi(v->m.looper.menu_sel + d, 0, 2);
+        break;
+    case ENC_BPM:
+        if (pressed) {
+            S.beat_volume = clampi(S.beat_volume + d, 0, 99);
+            S.sec[ENC_BPM] = 1;
+            overlay(v, OV_BEAT_VOLUME, ENC_BPM, S.beat_volume);
+        } else {
+            S.bpm = clampi(S.bpm + d, 60, 200);
+            overlay(v, OV_BPM, ENC_BPM, S.bpm);
+        }
+        break;
+    case ENC_VOLUME:
+        if (pressed) {
+            S.bass_volume = clampi(S.bass_volume + d, 0, 99);
+            S.sec[ENC_VOLUME] = 1;
+            overlay(v, OV_BASS_VOLUME, ENC_VOLUME, S.bass_volume);
+        } else {
+            S.volume = clampi(S.volume + d, 0, 99);
+            overlay(v, OV_VOLUME, ENC_VOLUME, S.volume);
+        }
+        break;
+    case ENC_OPTIONS:
+        S.view = wrap(S.view + d, VIEW_COUNT);
+        break;
+    case ENC_CHORD_VOICING:
+        ain(v, ACC_IN_VOICING_STEP, 0, (int16_t)d);
+        overlay(v, OV_VOICING, ENC_CHORD_VOICING, v->acc.v);
+        break;
+    case ENC_BASS_VOICING:
+        ain(v, ACC_IN_BASS_VOICING_STEP, 0, (int16_t)d);
+        overlay(v, OV_BASS_VOICING, ENC_BASS_VOICING, v->acc.vb);
+        break;
+    default: break;
+    }
+}
+
+static void press(vet_t *v, int enc)
+{
+    if (v->list_kind) {
+        if (enc == v->list_owner) { list_select(v); return; }
+        list_close(v);
+    }
+    switch (enc) {
+    case ENC_SOUND: list_open(v, L_SOUND, ENC_SOUND); break;
+    case ENC_PERFORM: list_open(v, L_PERFORM, ENC_PERFORM); break;
+    case ENC_FX: overlay(v, OV_FX, ENC_FX, S.fx_amount); break;
+    case ENC_KEY:
+        ain(v, ACC_IN_KEY_MODE_TOGGLE, 0, 0);
+        overlay(v, OV_KEY_TOGGLE, ENC_KEY, v->acc.key_on);
+        break;
+    case ENC_BASS:
+        ain(v, ACC_IN_BASS_TOGGLE, 0, 0);
+        overlay(v, OV_BASS_TOGGLE, ENC_BASS, v->acc.bass_on);
+        break;
+    case ENC_LOOP: looper_press(v); break;
+    case ENC_BPM: S.beat_mode = wrap(S.beat_mode + 1, 3); break;
+    case ENC_VOLUME: overlay(v, OV_BATTERY, ENC_VOLUME, 0); break;
+    case ENC_OPTIONS: list_open(v, L_OPTIONS, ENC_OPTIONS); break;
+    case ENC_CHORD_VOICING:
+        ain(v, ACC_IN_SINGLE_NOTES_TOGGLE, 0, 0);
+        overlay(v, OV_SINGLE_NOTES, ENC_CHORD_VOICING, v->acc.single_notes);
+        break;
+    default: break;
+    }
+}
+
+static void handle(vet_t *v, const pnl_event_t *e)
+{
+    switch (e->type) {
+    case PNL_KEY_DOWN: ain(v, ACC_IN_KEY_DOWN, e->a, e->b); break;
+    case PNL_KEY_UP: ain(v, ACC_IN_KEY_UP, e->a, 0); break;
+    case PNL_CHORD_DOWN:
+        if (e->a < 4) ain(v, ACC_IN_TYPE_DOWN, e->a, 0); else ain(v, ACC_IN_EXT_DOWN, (uint8_t)(e->a - 4), 0);
+        break;
+    case PNL_CHORD_UP:
+        if (e->a < 4) ain(v, ACC_IN_TYPE_UP, e->a, 0); else ain(v, ACC_IN_EXT_UP, (uint8_t)(e->a - 4), 0);
+        break;
+    case PNL_BACK:
+        if (v->list_kind) list_close(v);
+        else {
+            v->m.layer.ov.kind = OV_NONE;
+            gest_set_owner(&v->inp.gest, ENC_COUNT, false);
+            v->page_until = v->now_ms;                  /* B chiude anche la pagina dei comandi */
+        }
+        break;
+    case PNL_MACRO:
+        if (e->a == MACRO_SYSTEM_MENU) {
+            if (v->list_kind == L_PLATFORM) list_close(v); else list_open(v, L_PLATFORM, ENC_OPTIONS);
+            v->m.layer.platform_menu = 1;
+        } else if (e->a == MACRO_LOOP_STOP) looper_stop(v);
+        else if (e->a == MACRO_LOOP_CLEAR) { v->lp_state = LP_IDLE; v->lp_layers = 0; }
+        else if (e->a == MACRO_LOOP_OVERDUB) {                 /* ⊕ della MK4: entra ed esce dall'overdub */
+            if (v->lp_state == LP_PLAY) { v->lp_state = LP_OVERDUB; v->lp_layers++; }
+            else if (v->lp_state == LP_OVERDUB) v->lp_state = LP_PLAY;
+        }
+        else if (e->a == MACRO_LOOP_UNDO && v->lp_state != LP_IDLE) {
+            if (v->lp_layers > 1) v->lp_layers--;
+            else { v->lp_state = LP_IDLE; v->lp_layers = 0; }   /* con lo strato 0 solo l'Undo diventa Clear (ACC-222) */
+        }
+        else if (e->a == MACRO_PANIC) { msg(v, MSG_INFO, "Panic: all notes off", 2000); snd_push(v, VS_ALL_OFF, 0, 0, 0); }
+        break;
+    case PNL_SRC_CONNECTED:
+        if (e->a == SRC_MACROPAD) msg(v, MSG_INFO, "Pad connected", 2000);
+        break;
+    case PNL_SRC_LOST:
+        if (e->a == SRC_MACROPAD) msg(v, MSG_WARN, "Pad disconnected", 2000);
+        break;
+    case G_TURN: turn(v, e->a, e->b, false); break;
+    case G_PRESS_TURN: turn(v, e->a, e->b, true); break;
+    case G_PRESS: press(v, e->a); break;
+    case G_HOLD:
+        if (e->a == ENC_PERFORM) S.lock_perf = (uint8_t)!S.lock_perf;
+        if (e->a == ENC_FX) S.lock_fx = (uint8_t)!S.lock_fx;
+        break;
+    case G_RELEASE:
+        if (e->a < ENC_COUNT) S.sec[e->a] = 0;
+        break;
+    default: break;
+    }
+}
+
+static void feed(vet_t *v, const pnl_event_t *ev, int n)
+{
+    for (int i = 0; i < n; i++) handle(v, &ev[i]);
+}
+
+/* ---- demo automatica ---- */
+enum { D_CHORD, D_OFF, D_TURN, D_PRESS, D_PTURN, D_BACK, D_FOCUS, D_VIEW, D_THEME, D_LOOP, D_MENU, D_PAGE, D_END };
+typedef struct { uint32_t t; uint8_t act; int8_t a, b, c; } dstep_t;
+#define TY(x) (1 << (x))
+/* accordi: a = tipi (bit DIM MIN MAJ SUS), b = estensioni (bit 6 m7 M7 9), c = classe del tasto */
+static const dstep_t DEMO[] = {
+    {     0, D_THEME, THEME_DARK, 0, 0 },
+    {     0, D_VIEW, VIEW_CHORD, 0, 0 },
+    {   200, D_CHORD, TY(1), TY(1), 6 },         /* F♯m7 */
+    {  2200, D_CHORD, TY(2), TY(2), 2 },         /* DM7 */
+    {  4200, D_CHORD, TY(2), TY(3), 9 },         /* A9 */
+    {  6200, D_CHORD, TY(3), 0, 4 },             /* Esus */
+    {  7000, D_FOCUS, ENC_CHORD_VOICING, 0, 0 },
+    {  7200, D_TURN, ENC_CHORD_VOICING, 2, 0 },
+    {  7500, D_TURN, ENC_CHORD_VOICING, 2, 0 },
+    {  7800, D_TURN, ENC_CHORD_VOICING, 2, 0 },
+    {  8200, D_CHORD, TY(1), TY(1), 1 },         /* C♯m7 */
+    {  9200, D_TURN, ENC_CHORD_VOICING, -3, 0 },
+    {  9600, D_TURN, ENC_CHORD_VOICING, -3, 0 },
+    { 10200, D_LOOP, 1, 0, 0 },
+    { 10200, D_CHORD, TY(1), TY(1), 6 },
+    { 12200, D_CHORD, TY(2), TY(2), 2 },
+    { 14200, D_CHORD, TY(2), TY(3), 9 },
+    { 16200, D_CHORD, TY(3), TY(1), 4 },         /* Esusm7 */
+    { 18200, D_LOOP, 2, 0, 0 },
+    { 18200, D_CHORD, TY(1), TY(1), 11 },        /* Bm7 */
+    { 20200, D_CHORD, TY(2), TY(1), 1 },         /* C♯7 */
+    { 21000, D_FOCUS, ENC_SOUND, 0, 0 },
+    { 21000, D_PAGE, 7, 0, 0 },                  /* come con L1/R1 della Flip */
+    { 21200, D_TURN, ENC_SOUND, 1, 0 },
+    { 21700, D_TURN, ENC_SOUND, 1, 0 },
+    { 22200, D_TURN, ENC_SOUND, 1, 0 },
+    { 22200, D_CHORD, TY(1), 0, 6 },             /* F♯m */
+    { 24200, D_PRESS, ENC_SOUND, 0, 0 },
+    { 24200, D_CHORD, TY(2), TY(2), 2 },
+    { 24800, D_TURN, ENC_SOUND, 1, 0 },
+    { 25300, D_TURN, ENC_SOUND, 1, 0 },
+    { 25800, D_TURN, ENC_SOUND, 1, 0 },
+    { 26200, D_CHORD, TY(2), TY(3), 9 },
+    { 26400, D_PRESS, ENC_SOUND, 0, 0 },
+    { 27200, D_BACK, 0, 0, 0 },
+    { 28000, D_FOCUS, ENC_FX, 0, 0 },
+    { 28200, D_TURN, ENC_FX, 1, 0 },
+    { 28200, D_CHORD, TY(3), 0, 4 },
+    { 28600, D_TURN, ENC_FX, 1, 0 },
+    { 30200, D_FOCUS, ENC_KEY, 0, 0 },
+    { 30200, D_CHORD, TY(1), TY(1), 6 },
+    { 30400, D_PTURN, ENC_KEY, 2, 0 },
+    { 32200, D_PTURN, ENC_KEY, -2, 0 },
+    { 32200, D_CHORD, TY(2), TY(2), 2 },
+    { 34200, D_VIEW, VIEW_GEEK, 0, 0 },
+    { 34200, D_CHORD, TY(1), TY(1) | TY(3), 6 }, /* F♯m9 con la settima */
+    { 36200, D_CHORD, TY(2), TY(2), 2 },
+    { 38200, D_VIEW, VIEW_NOTES, 0, 0 },
+    { 38200, D_CHORD, TY(2), TY(3), 9 },
+    { 40200, D_CHORD, TY(3), 0, 4 },
+    { 42200, D_VIEW, VIEW_CHORD_KB, 0, 0 },
+    { 42200, D_CHORD, TY(1), TY(1), 1 },
+    { 44200, D_CHORD, TY(1), TY(1), 11 },
+    { 46200, D_VIEW, VIEW_REACT, 0, 0 },
+    { 46200, D_CHORD, TY(2), TY(1), 1 },
+    { 48200, D_CHORD, TY(1), TY(1), 6 },
+    { 50200, D_VIEW, VIEW_CHORD, 0, 0 },
+    { 50200, D_THEME, THEME_LIGHT, 0, 0 },
+    { 50200, D_CHORD, TY(2), TY(2), 2 },
+    { 52200, D_CHORD, TY(2), TY(3), 9 },
+    { 54200, D_CHORD, TY(3), 0, 4 },
+    { 56200, D_CHORD, TY(1), TY(1), 1 },
+    { 58200, D_THEME, THEME_DARK, 0, 0 },
+    { 58200, D_LOOP, 3, 0, 0 },
+    { 58200, D_CHORD, TY(1), TY(1), 6 },
+    { 60200, D_OFF, 0, 0, 0 },
+    { 62500, D_MENU, 0, 0, 0 },
+    { 63300, D_TURN, ENC_OPTIONS, 1, 0 },
+    { 63800, D_TURN, ENC_OPTIONS, 1, 0 },
+    { 65500, D_BACK, 0, 0, 0 },
+    { 66500, D_END, 0, 0, 0 },
+};
+
+uint32_t vet_demo_len(void) { return DEMO[STAME_COUNT(DEMO) - 1].t; }
+
+static uint8_t demo_types, demo_exts;
+static int8_t demo_key = -1;
+
+static void demo_release(vet_t *v)
+{
+    if (demo_key >= 0) ain(v, ACC_IN_KEY_UP, (uint8_t)demo_key, 0);
+    for (int i = 0; i < 4; i++) if (demo_types >> i & 1) ain(v, ACC_IN_TYPE_UP, (uint8_t)i, 0);
+    for (int i = 0; i < 4; i++) if (demo_exts >> i & 1) ain(v, ACC_IN_EXT_UP, (uint8_t)i, 0);
+    demo_types = demo_exts = 0;
+    demo_key = -1;
+}
+
+static void demo_do(vet_t *v, const dstep_t *s)
+{
+    switch (s->act) {
+    case D_CHORD:
+        demo_release(v);
+        for (int i = 0; i < 4; i++) if ((uint8_t)s->a >> i & 1) ain(v, ACC_IN_TYPE_DOWN, (uint8_t)i, 0);
+        for (int i = 0; i < 4; i++) if ((uint8_t)s->b >> i & 1) ain(v, ACC_IN_EXT_DOWN, (uint8_t)i, 0);
+        ain(v, ACC_IN_KEY_DOWN, (uint8_t)s->c, 96);
+        demo_types = (uint8_t)s->a;
+        demo_exts = (uint8_t)s->b;
+        demo_key = s->c;
+        v->m.plat.midi_in_ms = v->now_ms;
+        break;
+    case D_OFF: demo_release(v); break;
+    case D_TURN: turn(v, s->a, s->b, false); break;
+    case D_PTURN: turn(v, s->a, s->b, true); break;
+    case D_PRESS: press(v, s->a); break;
+    case D_BACK: { pnl_event_t e = { PNL_BACK, SRC_FLIP, 0, 0, 0 }; handle(v, &e); break; }
+    case D_FOCUS: v->inp.gest.focus = (uint8_t)s->a; break;
+    case D_VIEW: S.view = s->a; break;
+    case D_THEME: v->m.prefs.theme = (uint8_t)s->a; break;
+    case D_LOOP:
+        if (s->a == 1) { v->lp_state = LP_IDLE; looper_press(v); }
+        else if (s->a == 2) v->lp_state = LP_PLAY;
+        else { v->lp_state = LP_IDLE; v->lp_layers = 0; }
+        break;
+    case D_MENU: { pnl_event_t e = { PNL_MACRO, SRC_FLIP, MACRO_SYSTEM_MENU, 0, 0 }; handle(v, &e); break; }
+    case D_PAGE: v->page_until = v->now_ms + (uint32_t)s->a * 1000u; break;
+    default: break;
+    }
+}
+
+static void demo_reset(vet_t *v)
+{
+    demo_release(v);
+    if (v->list_kind) list_close(v);
+    v->m.layer.ov.kind = OV_NONE;
+    v->lp_state = LP_IDLE;
+    v->lp_layers = 0;
+    ain(v, ACC_IN_OPTION_SET, ACC_OPT_VOICING, ACC_V_DEFAULT);
+    ain(v, ACC_IN_OPTION_SET, ACC_OPT_TRANSPOSE, 0);
+    S.sound = 2; S.fx_amount = 4; S.view = VIEW_CHORD; S.bpm = 120;
+    v->inp.gest.focus = ENC_SOUND;
+    v->page_until = v->now_ms;
+}
+
+static void demo_start(vet_t *v)
+{
+    demo_reset(v);
+    v->demo_running = 1;
+    v->demo_t0 = v->now_ms;
+    v->demo_step = 0;
+    v->t0_ms = v->now_ms;
+}
+
+static void demo_stop(vet_t *v)
+{
+    if (!v->demo_running) return;
+    v->demo_running = 0;
+    demo_release(v);
+    v->m.prefs.theme = THEME_DARK;
+}
+
+static void demo_run(vet_t *v)
+{
+    uint32_t t = v->now_ms - v->demo_t0;
+    while (v->demo_step < (int)STAME_COUNT(DEMO) && DEMO[v->demo_step].t <= t) {
+        const dstep_t *s = &DEMO[v->demo_step++];
+        if (s->act == D_END) { demo_start(v); return; }
+        demo_do(v, s);
+    }
+}
+
+void vet_demo_seek(vet_t *v, uint32_t t_ms)
+{
+    v->booting = 0;
+    v->m.layer.base = BASE_PLAY;
+    demo_start(v);
+    uint32_t start = v->now_ms;
+    for (uint32_t t = 0; t <= t_ms; t += 10) {     /* come l'app: un modello a ogni passo */
+        vet_tick(v, start + t);
+        vet_model(v);
+    }
+}
+
+/* ---- ingressi ---- */
+static void user_input(vet_t *v, uint32_t now_ms)
+{
+    v->last_input_ms = now_ms;
+    if (v->booting) { v->booting = 0; v->m.layer.base = BASE_PLAY; v->t0_ms = now_ms; }
+    demo_stop(v);
+}
+
+void vet_midi(vet_t *v, const midi_msg_t *msg, uint32_t now_ms)
+{
+    pnl_event_t ev[INP_MAX_OUT];
+    v->now_ms = now_ms;
+    v->m.plat.midi_in_ms = now_ms;
+    if (msg->port != MIDI_PORT_CTL && v->inp.mpk_model != MPK_MODEL_MK4) return;
+    uint8_t st = msg->n ? msg->b[0] & 0xF0 : 0;
+    if (st == 0x90 || st == 0xB0 || st == 0xE0) user_input(v, now_ms);
+    int n = inp_midi(&v->inp, msg, ev, INP_MAX_OUT);
+    feed(v, ev, n);
+}
+
+static uint32_t menu_down_ms;      /* uscita di sicurezza della vetrina: MENU tenuto 2 s */
+static uint8_t menu_down;
+
+void vet_pad(vet_t *v, uint16_t code, int32_t value, uint32_t now_ms)
+{
+    pnl_event_t ev[INP_MAX_OUT];
+    v->now_ms = now_ms;
+    if (code == PAD_MENU && value != 2) { menu_down = value == 1; menu_down_ms = now_ms; }
+    if (value == 1) user_input(v, now_ms);
+    /* i tasti del fuoco aprono la pagina dei comandi e la tengono aperta (UI-142a) */
+    if (value != 0 && (code == PAD_L1 || code == PAD_R1 || code == PAD_A || code == PAD_X ||
+                       code == PAD_UP || code == PAD_DOWN || code == PAD_LEFT || code == PAD_RIGHT))
+        v->page_until = now_ms + PAGE_MS;
+    int n = inp_pad(&v->inp, code, value, now_ms * 1000u, ev, INP_MAX_OUT);
+    feed(v, ev, n);
+}
+
+void vet_mpk_model(vet_t *v, uint8_t model) { inp_set_mpk_model(&v->inp, model); }
+
+void vet_mpk(vet_t *v, bool connected, const char *fw, uint32_t now_ms)
+{
+    pnl_event_t ev[INP_MAX_OUT];
+    v->now_ms = now_ms;
+    int n = connected ? inp_connected(&v->inp, SRC_MPK, now_ms * 1000u, ev, INP_MAX_OUT)
+                      : inp_lost(&v->inp, SRC_MPK, now_ms * 1000u, ev, INP_MAX_OUT);
+    feed(v, ev, n);
+    v->m.plat.mpk_link = connected ? MPK_OPEN : MPK_ABSENT;
+    if (fw) ui_fmt_copy(v->m.plat.mpk_fw, sizeof v->m.plat.mpk_fw, fw);
+    msg(v, connected ? MSG_INFO : MSG_WARN, connected ? "MPK connected" : "MPK disconnected", 2000);
+}
+
+/* macro pad collegato (link = PADL_*) o perso: avvisi, stato «PAD» e rilasci sintetici (MIDI-127) */
+void vet_macropad(vet_t *v, uint8_t link, uint32_t now_ms)
+{
+    pnl_event_t ev[INP_MAX_OUT];
+    v->now_ms = now_ms;
+    bool on = link == PADL_OPEN || link == PADL_UNMAPPED;
+    bool was = v->m.plat.pad_link == PADL_OPEN || v->m.plat.pad_link == PADL_UNMAPPED;
+    if (on != was) {
+        int n = on ? inp_connected(&v->inp, SRC_MACROPAD, now_ms * 1000u, ev, INP_MAX_OUT)
+                   : inp_lost(&v->inp, SRC_MACROPAD, now_ms * 1000u, ev, INP_MAX_OUT);
+        feed(v, ev, n);
+    }
+    v->m.plat.pad_link = link;
+}
+
+void vet_battery(vet_t *v, uint8_t pct, bool charging)
+{
+    v->m.plat.battery_pct = pct;
+    v->m.plat.charging = charging;
+}
+
+/* ---- inizializzazione ---- */
+void vet_init(vet_t *v, uint32_t now_ms)
+{
+    memset(v, 0, sizeof *v);
+    memset(&S, 0, sizeof S);
+    acc_init(&v->acc);
+    inp_init(&v->inp);
+    v->now_ms = v->boot_ms = v->last_ms = v->t0_ms = now_ms;
+    v->booting = 1;
+    v->demo_on = 1;
+    v->last_input_ms = now_ms;
+    v->tick_us = now_ms * 1000u;
+
+    /* F♯ minore, basso acceso */
+    for (int k = 21; k < ACC_KEY_COUNT; k++) {
+        acc_spelled sp;
+        acc_key_degree_spelling(k, 0, &sp);
+        if (sp.letter == 'F' && sp.acc == ACC_ACC_SHARP) { ain(v, ACC_IN_KEY_SELECT, (uint8_t)k, 0); break; }
+    }
+    if (!v->acc.key_on) ain(v, ACC_IN_KEY_MODE_TOGGLE, 0, 0);
+    ain(v, ACC_IN_OPTION_SET, ACC_OPT_BASS_ON, 1);
+
+    S.sound = 2; S.perf_mode = PERF_ARP; S.perf_amount = 5; S.arp_rate = 16; S.arp_dir = ARP_UPDOWN;
+    S.fx_type = FX_REV; S.fx_amount = 4; S.bass = 0; S.volume = 72; S.bass_volume = 70;
+    S.bpm = 120; S.beat_mode = BEAT_PATTERN; S.beat = 0; S.beat_volume = 60; S.view = VIEW_CHORD;
+
+    ui_model_t *m = &v->m;
+    m->layer.base = BASE_BOOT;
+    m->prefs.theme = THEME_DARK;
+    m->prefs.legend = 1;
+    m->prefs.meters = 1;
+    m->prefs.ghost_chord = 1;
+    m->prefs.linnaeus = 1;
+    m->plat.mpk_link = MPK_ABSENT;
+    m->plat.battery_pct = 255;
+    m->plat.midi_in_ms = m->plat.midi_out_ms = now_ms - 1000;
+    ui_fmt_copy(m->boot.line[0], sizeof m->boot.line[0], "Audio   16 voices  VA FM RP  48 kHz");
+    ui_fmt_copy(m->boot.line[1], sizeof m->boot.line[1], "MIDI    looking for the MPK mini Plus");
+    ui_fmt_copy(m->boot.line[2], sizeof m->boot.line[2], "Sounds  16 demo  0 user");
+    ui_fmt_copy(m->boot.version, sizeof m->boot.version, "vetrina 0.1");
+    v->inp.gest.focus = ENC_SOUND;
+    v->snd_sound = v->snd_bass = v->snd_vol = v->snd_bvol = v->snd_fx = -1;
+}
+
+/* ---- synth: suono, basso, effetto principale e volumi verso il dsp ---- */
+
+/* SND-601: l'effetto principale è il primo slot con intensità > 0 fra FX1, FX2 e Reverb; se sono
+ * tutti a 0, FX1 se il tipo non è OFF, altrimenti Reverb. Restituisce l'indice del parametro. */
+static int fx_main(const uint8_t *p, int *ui_type)
+{
+    static const uint8_t UI[8] = { FX_REV, FX_CHO, FX_ENS, FX_PHA, FX_FLA, FX_DRV, FX_TRM, FX_DLY };
+    int t1 = p[SND_P_FX1TYPE], t2 = p[SND_P_FX2TYPE];
+    int i1 = SND_P_FX1TYPE + (t1 == SND_FX_TREMOLO ? 1 : 2);
+    int i2 = SND_P_FX2TYPE + (t2 == SND_FX_TREMOLO ? 1 : 2);
+    if (t1 && p[i1] > 0) { *ui_type = UI[t1 & 7]; return i1; }
+    if (t2 && p[i2] > 0) { *ui_type = UI[t2 & 7]; return i2; }
+    if (p[SND_P_REVSEND] > 0 || !t1) { *ui_type = FX_REV; return SND_P_REVSEND; }
+    *ui_type = UI[t1 & 7];
+    return i1;
+}
+
+static int fx_display(int raw) { return (raw * 10 + 63) / 127; }      /* round(raw / 12,7) */
+
+static void snd_sync(vet_t *v)
+{
+    if (S.sound != v->snd_sound) {
+        const uint8_t *p = vet_sound_patch[S.sound % VET_N_SOUNDS];
+        snd_push(v, VS_PATCH, 0, (uint8_t)S.sound, 0);
+        int t;
+        v->snd_fx_idx = (uint8_t)fx_main(p, &t);
+        S.fx_type = t;
+        S.fx_amount = fx_display(p[v->snd_fx_idx]);
+        v->snd_sound = (int16_t)S.sound;
+        v->snd_fx = (int16_t)S.fx_amount;
+    }
+    if (S.fx_amount != v->snd_fx) {
+        int raw = S.fx_amount * 127 / 10;
+        snd_push(v, VS_PARAM, 0, v->snd_fx_idx, (uint8_t)raw);
+        v->snd_fx = (int16_t)S.fx_amount;
+    }
+    if (S.bass != v->snd_bass) { snd_push(v, VS_PATCH, 1, (uint8_t)S.bass, 0); v->snd_bass = (int16_t)S.bass; }
+    if (S.volume != v->snd_vol) { snd_push(v, VS_MASTER, 0, (uint8_t)S.volume, 0); v->snd_vol = (int16_t)S.volume; }
+    if (S.bass_volume != v->snd_bvol) { snd_push(v, VS_BASS_VOL, 1, (uint8_t)S.bass_volume, 0); v->snd_bvol = (int16_t)S.bass_volume; }
+}
+
+/* ---- tempo che passa ---- */
+static void synth_scope(vet_t *v, uint32_t dt_ms)
+{
+    const float sr = 9600.0f;
+    int n = (int)((float)dt_ms * sr / 1000.0f);
+    if (n > VET_SCOPE_LEN) n = VET_SCOPE_LEN;
+    const acc_state *s = &v->acc;
+    float f[8];
+    int k = 0;
+    for (int i = 0; i < s->treble.n && k < 6; i++) f[k++] = 440.0f * powf(2.0f, ((float)s->treble.note[i] - 69.0f) / 12.0f);
+    if (s->bass_note >= 0 && k < 8) f[k++] = 440.0f * powf(2.0f, ((float)s->bass_note - 69.0f) / 12.0f);
+    for (int j = 0; j < n; j++) {
+        float x = 0.0f;
+        for (int i = 0; i < k; i++) {
+            v->phase[i] += f[i] / sr;
+            if (v->phase[i] > 1.0f) v->phase[i] -= 1.0f;
+            x += sinf(6.2831853f * v->phase[i]) + 0.3f * sinf(12.566371f * v->phase[i]);
+        }
+        x = k ? x / (float)k * v->level * 1.6f : 0.0f;
+        if (x > 0.98f) x = 0.98f;
+        if (x < -0.98f) x = -0.98f;
+        v->scope[v->scope_wr % VET_SCOPE_LEN] = (int16_t)(x * 32767.0f);
+        v->scope_wr++;
+    }
+}
+
+void vet_tick(vet_t *v, uint32_t now_ms)
+{
+    pnl_event_t ev[INP_MAX_OUT];
+    uint32_t dt = now_ms - v->last_ms;
+    v->now_ms = now_ms;
+    v->last_ms = now_ms;
+    if (menu_down && now_ms - menu_down_ms >= 2000) v->quit = 1;
+
+    if (v->booting) {
+        v->m.boot.t_ms = (uint16_t)(now_ms - v->boot_ms);
+        if (now_ms - v->boot_ms >= BOOT_MS) {
+            v->booting = 0;
+            v->m.layer.base = BASE_PLAY;
+            v->t0_ms = now_ms;
+            v->last_input_ms = now_ms - DEMO_IDLE_MS;      /* la demo parte subito dopo l'avvio */
+        }
+    }
+    /* gesti a tempo (G_HOLD, ripetizioni) */
+    while ((int32_t)(now_ms * 1000u - v->tick_us) >= 0) {
+        int n = inp_tick(&v->inp, v->tick_us, ev, INP_MAX_OUT);
+        feed(v, ev, n);
+        v->tick_us += PNL_TICK_US;
+        if ((int32_t)(now_ms * 1000u - v->tick_us) > 100000) v->tick_us = now_ms * 1000u;
+    }
+    /* demo */
+    if (!v->booting) {
+        if (v->demo_running) demo_run(v);
+        else if (v->demo_on && now_ms - v->last_input_ms > DEMO_IDLE_MS && !v->list_kind) demo_start(v);
+    }
+    /* overlay e liste che scadono */
+    if (v->m.layer.ov.kind != OV_NONE && (int32_t)(now_ms - v->ov_until) >= 0) {
+        v->m.layer.ov.kind = OV_NONE;
+        if (!v->list_kind) gest_set_owner(&v->inp.gest, ENC_COUNT, false);
+    }
+    if (v->list_kind && (v->list_kind == L_SOUND || v->list_kind == L_PERFORM) && now_ms - v->list_ms > LIST_IDLE_MS)
+        list_close(v);
+    if (v->m.msg_plat.level && (int32_t)(now_ms - v->m.msg_plat.until_ms) >= 0) v->m.msg_plat.level = MSG_NONE;
+
+    /* livello e oscilloscopio finti */
+    float target = v->acc.sounding ? 0.55f + 0.04f * (float)v->acc.treble.n : 0.0f;
+    float a = target > v->level ? 0.5f : 0.02f;
+    v->level += (target - v->level) * a;
+    if (!v->ext_scope) synth_scope(v, dt);
+    snd_sync(v);
+}
+
+/* ---- modello ---- */
+static void spell(const acc_state *s, int midi, char *buf, int n)
+{
+    static const char *const ACC[5] = { "", "\xE2\x99\xAF", "\xE2\x99\xAD", "x", "\xE2\x99\xAD\xE2\x99\xAD" };
+    acc_spelled sp = acc_spell_pc(s, midi % 12);
+    int oct = midi / 12 - 1;
+    if (sp.letter == 'B' && (sp.acc == ACC_ACC_SHARP || sp.acc == ACC_ACC_DSHARP) && midi % 12 <= 1) oct--;
+    if (sp.letter == 'C' && (sp.acc == ACC_ACC_FLAT || sp.acc == ACC_ACC_DFLAT) && midi % 12 >= 10) oct++;
+    char o[6], l[2] = { sp.letter, 0 };
+    ui_fmt_int(o, sizeof o, oct, 1);
+    ui_fmt_cat(buf, n, l, ACC[sp.acc < 5 ? sp.acc : 0]);
+    ui_fmt_cat(buf, n, buf, o);
+}
+
+static void label_from(const acc_chord_name *nm, chord_label_t *c)
+{
+    static const char *const ACC[5] = { "", "\xE2\x99\xAF", "\xE2\x99\xAD", "x", "\xE2\x99\xAD\xE2\x99\xAD" };
+    memset(c, 0, sizeof *c);
+    c->root[0] = nm->root.letter;
+    ui_fmt_copy(c->acc, sizeof c->acc, ACC[nm->root.acc < 5 ? nm->root.acc : 0]);
+    if (!nm->single) {
+        ui_fmt_copy(c->quality, sizeof c->quality, nm->quality);
+        ui_fmt_copy(c->sup, sizeof c->sup, nm->sup);
+        if (nm->has_slash) {
+            c->slash_root[0] = nm->slash.letter;
+            ui_fmt_copy(c->slash_acc, sizeof c->slash_acc, ACC[nm->slash.acc < 5 ? nm->slash.acc : 0]);
+        }
+    }
+}
+
+static void set_bit(uint32_t *m, int n) { if (n >= 0 && n < 128) m[n >> 5] |= 1u << (n & 31); }
+
+static void fill_music(vet_t *v, ui_music_t *mu)
+{
+    const acc_state *s = &v->acc;
+    bool sounding = s->sounding && s->has_name;
+    if (sounding) {
+        v->have_last = 1;
+        v->released_ms = v->now_ms;
+        label_from(&s->name, &v->last_chord);
+        v->last_single = s->name.single;
+        v->last_single_midi = s->name.single_note;
+        int n = 0;
+        if (s->bass_note >= 0) {
+            v->last_notes[n].midi = (uint8_t)s->bass_note;
+            v->last_notes[n].role = ROLE_BASS;
+            spell(s, s->bass_note, v->last_notes[n].name, sizeof v->last_notes[n].name);
+            n++;
+        }
+        for (int i = 0; i < s->treble.n && n < UI_NOTES_MAX; i++, n++) {
+            v->last_notes[n].midi = s->treble.note[i];
+            v->last_notes[n].role = ROLE_TREBLE;
+            spell(s, s->treble.note[i], v->last_notes[n].name, sizeof v->last_notes[n].name);
+        }
+        v->last_n = (uint8_t)n;
+        for (int i = 0; i < s->treble.n; i++) { set_bit(mu->live_treble, s->treble.note[i]); mu->pc_sounding |= (uint16_t)(1u << (s->treble.note[i] % 12)); }
+        if (s->bass_note >= 0) set_bit(mu->live_bass, s->bass_note);
+    }
+    if (v->have_last) {
+        uint32_t since = v->now_ms - v->released_ms;
+        mu->chord_state = sounding ? CH_SOUNDING : since < LINGER_MS ? CH_LINGER : v->m.prefs.ghost_chord ? CH_GHOST : CH_NONE;
+        mu->chord = v->last_chord;
+        mu->single_note = v->last_single;
+        mu->single_midi = v->last_single_midi;
+        if (mu->chord_state == CH_SOUNDING || mu->chord_state == CH_LINGER) {
+            mu->n_notes = v->last_n;
+            memcpy(mu->notes, v->last_notes, sizeof mu->notes);
+        } else {
+            mu->n_notes = v->last_n;
+            memcpy(mu->notes, v->last_notes, sizeof mu->notes);
+        }
+    }
+    mu->key_on = s->key_on;
+    mu->key_index = s->key_index;
+    if (s->key_on) {
+        int ek = acc_effective_key(s->key_index, s->transpose);
+        for (int pc = 0; pc < 12; pc++) if (acc_key_in_scale(ek, pc)) mu->pc_in_key |= (uint16_t)(1u << pc);
+        acc_spelled sp;
+        acc_key_degree_spelling(ek, 0, &sp);
+        static const char *const ACC[5] = { "", "\xE2\x99\xAF", "\xE2\x99\xAD", "x", "\xE2\x99\xAD\xE2\x99\xAD" };
+        char l[2] = { sp.letter, 0 };
+        ui_fmt_cat(mu->key_name, sizeof mu->key_name, l, ACC[sp.acc < 5 ? sp.acc : 0]);
+        ui_fmt_cat(mu->key_name, sizeof mu->key_name, mu->key_name, acc_key_is_minor(ek) ? " Minor" : " Major");
+    }
+    mu->transpose = s->transpose;
+    mu->v = s->v;
+    mu->vb = s->vb;
+    mu->W = (uint8_t)(s->v + ACC_W_OFFSET);
+    mu->WB = (uint8_t)(s->vb + ACC_WB_OFFSET);
+    mu->single_notes = s->single_notes;
+    mu->play_style = s->style;
+    mu->secret_chords = s->secret != ACC_SECRET_OFF;
+    mu->pocket_pc = 255;
+}
+
+static void fill_tempo_looper(vet_t *v, ui_model_t *m)
+{
+    uint32_t beat_ms = 60000u / (uint32_t)S.bpm, bms = bar_ms();
+    uint32_t el = v->now_ms - v->t0_ms;
+    ui_tempo_t *t = &m->tempo;
+    t->bpm = (uint16_t)S.bpm;
+    t->beats_per_bar = 4;
+    t->beat_unit = 4;
+    t->running = !v->booting;
+    t->beat = (uint8_t)((el / beat_ms) % 4);
+    t->bar = 1 + el / bms;
+    t->beat_phase = (uint16_t)((el % beat_ms) * 65536u / beat_ms);
+    t->beat_mode = (uint8_t)S.beat_mode;
+    t->beat_index = (uint8_t)(S.beat + 3);
+    ui_fmt_copy(t->beat_name, sizeof t->beat_name, BEATS[S.beat % N_BEATS]);
+    t->beat_volume = (uint8_t)S.beat_volume;
+
+    ui_looper_t *lp = &m->looper;
+    lp->state = v->lp_state;
+    lp->layers = v->lp_layers;
+    if (v->lp_state != LP_IDLE) {
+        uint32_t len = bms * v->lp_bars;
+        uint32_t pos = (v->now_ms - v->lp_t0_ms) % len;
+        if (v->lp_state == LP_REC && v->now_ms - v->lp_t0_ms >= len) { v->lp_state = LP_PLAY; lp->state = LP_PLAY; }
+        lp->bars = v->lp_bars;
+        lp->cur_bar = (uint8_t)(1 + pos / bms);
+        lp->progress = (uint16_t)((uint64_t)pos * 65536u / len);
+        int bar = lp->cur_bar - 1;
+        if (v->lp_state == LP_REC || v->lp_state == LP_OVERDUB) {
+            if (m->music.pc_sounding) v->lp_rec_pcs[bar][0] = m->music.pc_sounding;
+            for (int i = 0; i < m->music.n_notes; i++)
+                if (m->music.notes[i].role == ROLE_BASS && m->music.chord_state == CH_SOUNDING)
+                    v->lp_rec_pcs[bar][1] = (uint16_t)(1u << (m->music.notes[i].midi % 12));
+        }
+        if (v->lp_state == LP_PLAY || v->lp_state == LP_OVERDUB) {
+            for (int pc = 0; pc < 12; pc++) {
+                if (v->lp_rec_pcs[bar][0] >> pc & 1) set_bit(m->music.loop_treble, acc_place(pc, m->music.W));
+                if (v->lp_rec_pcs[bar][1] >> pc & 1) set_bit(m->music.loop_bass, acc_place(pc, m->music.WB));
+            }
+        }
+        static const uint8_t MENU[7][3] = {
+            { LPI_REC, LPI_PLAY, LPI_BACK }, { LPI_REC, LPI_PLAY, LPI_BACK }, { LPI_REC, LPI_PLAY, LPI_BACK },
+            { LPI_PLAY, LPI_UNDO, LPI_CLEAR }, { LPI_OVERDUB, LPI_PAUSE, LPI_CLEAR },
+            { LPI_PLAY, LPI_UNDO, LPI_CLEAR }, { LPI_PLAY, LPI_CLEAR, LPI_BACK },
+        };
+        memcpy(lp->menu, MENU[lp->state < 7 ? lp->state : 0], 3);
+        lp->menu_sel = m->looper.menu_sel;
+    }
+}
+
+const ui_model_t *vet_model(vet_t *v)
+{
+    ui_model_t *m = &v->m;
+    /* azzera le parti calcolate, tiene preferenze, piattaforma, avvisi e stato delle liste */
+    memset(&m->music, 0, sizeof m->music);
+    uint8_t menu_sel = m->looper.menu_sel;
+    memset(&m->tempo, 0, sizeof m->tempo);
+    memset(&m->looper, 0, sizeof m->looper);
+    m->looper.menu_sel = menu_sel;
+    memset(&m->ctl, 0, sizeof m->ctl);
+    memset(&m->meters, 0, sizeof m->meters);
+
+    m->now_ms = m->core_ms = v->now_ms;
+    m->seq++;
+    fill_music(v, &m->music);
+    fill_tempo_looper(v, m);
+
+    ui_controls_t *c = &m->ctl;
+    c->focus = v->inp.gest.focus;
+    c->turn_target = gest_target(&v->inp.gest);
+    c->push = v->inp.mpk.push;
+    for (int k = 0; k < ENC_COUNT; k++) {
+        if (gest_held(&v->inp.gest, (uint8_t)k)) {
+            c->st[k].flags |= CF_PRESSED;
+            c->st[k].pressed_since_ms = v->inp.gest.t_down[k] / 1000u;
+        }
+        c->st[k].t_hold_ms = 1000;
+        if (S.sec[k]) c->st[k].flags |= CF_SECONDARY;
+    }
+    if (m->layer.ov.kind != OV_NONE && m->layer.ov.enc < ENC_COUNT) c->st[m->layer.ov.enc].flags |= CF_ACTIVE;
+    if (v->acc.key_on) c->st[ENC_KEY].flags |= CF_LED;
+    if (v->acc.bass_on) c->st[ENC_BASS].flags |= CF_LED;
+    if (S.lock_perf) c->st[ENC_PERFORM].flags |= CF_LOCK | CF_LED;
+    if (S.lock_fx) c->st[ENC_FX].flags |= CF_LOCK | CF_LED;
+    c->sound_num = (uint8_t)(S.sound + 1);
+    ui_fmt_copy(c->sound_name, sizeof c->sound_name, SOUNDS[S.sound].name);
+    c->sound_engine = SOUNDS[S.sound].engine;
+    ui_fmt_copy(c->sound_cat, sizeof c->sound_cat, SOUNDS[S.sound].cat);
+    c->perf_mode = (uint8_t)S.perf_mode;
+    c->perf_amount = (uint8_t)S.perf_amount;
+    c->arp_rate = (uint8_t)S.arp_rate;
+    c->arp_dir = (uint8_t)S.arp_dir;
+    c->fx_main_type = (uint8_t)S.fx_type;
+    c->fx_main_amount = (uint8_t)S.fx_amount;
+    c->fx[0].type = FX_REV; c->fx[0].amount = (uint8_t)S.fx_amount;
+    c->fx[1].type = FX_CHO; c->fx[1].amount = 3;
+    c->fx[2].type = FX_DLY; c->fx[2].amount = 5;
+    c->fx[3].type = FX_FLT; c->fx[3].amount = 0;
+    c->bass_on = v->acc.bass_on;
+    c->bass_num = (uint8_t)(S.bass + 1);
+    ui_fmt_copy(c->bass_name, sizeof c->bass_name, BASSES[S.bass]);
+    c->volume = (uint8_t)S.volume;
+    c->bass_volume = (uint8_t)S.bass_volume;
+    c->view = (uint8_t)S.view;
+
+    /* lista: finestra di 9 voci attorno alla selezione */
+    ui_list_t *l = &m->layer.list;
+    memset(l, 0, sizeof *l);
+    if (v->list_kind) {
+        static const char *const PATH[] = { "", "SOUND", "PERFORM", "OPTIONS", "MENU" };
+        l->open = 1;
+        l->owner = v->list_owner;
+        l->kind = v->list_kind == L_SOUND ? LS_SOUND : v->list_kind == L_PERFORM ? LS_PERFORM :
+                  v->list_kind == L_OPTIONS ? LS_OPTIONS : LS_PLATFORM;
+        ui_fmt_copy(l->path, sizeof l->path, PATH[v->list_kind]);
+        l->n = (uint16_t)list_n(v->list_kind);
+        l->sel = v->list_sel;
+        int first = (int)l->sel - UI_LIST_WIN / 2;
+        if (first < 0) first = 0;
+        l->win_first = (uint16_t)first;
+        for (int i = 0; i < UI_LIST_WIN && first + i < l->n; i++) list_item(v, v->list_kind, first + i, &l->win[i]);
+    }
+    m->layer.platform_menu = v->list_kind == L_PLATFORM;
+    m->layer.page = (v->list_kind || (int32_t)(v->page_until - v->now_ms) > 0) ? PAGE_CONTROLS : PAGE_PLAY;
+
+    /* meter finti */
+    int voices = m->music.chord_state == CH_SOUNDING ? m->music.n_notes : 0;
+    m->meters.voices_used = (uint8_t)voices;
+    m->meters.dsp_load_pct = (uint8_t)(11 + voices * 2);
+    uint16_t pk = (uint16_t)(v->level * 26000.0f);
+    m->meters.peak[0] = pk;
+    m->meters.peak[1] = (uint16_t)(pk * 9 / 10);
+    m->meters.scope = v->scope;
+    m->meters.scope_len = VET_SCOPE_LEN;
+    m->meters.scope_wr = (const volatile uint32_t *)&v->scope_wr;
+    if (v->ext_scope) {                                   /* uscita vera del synth */
+        m->meters.scope = v->ext_scope;
+        m->meters.scope_len = v->ext_scope_len;
+        m->meters.scope_wr = v->ext_scope_wr;
+    }
+    if (v->ext_peak) {
+        m->meters.peak[0] = (uint16_t)(clampf(v->ext_peak[0], 0.0f, 1.0f) * 32767.0f);
+        m->meters.peak[1] = (uint16_t)(clampf(v->ext_peak[1], 0.0f, 1.0f) * 32767.0f);
+    }
+    return m;
+}

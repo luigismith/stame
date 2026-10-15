@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Stame, base_sx: base, compensato 6.0 mm; le due metà si incastrano a coda di rondine. Scala 1:1, millimetri. Rosso taglio, nero incisione, blu segno. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="308.00mm" height="290.00mm" viewBox="0 0 308.000 290.000">
+<title>Stame — base_sx</title>
+<g id="incisione" fill="#000000" stroke="none">
+
+</g>
+<g id="segno" fill="none" stroke="#0000FF" stroke-width="0.1">
+<circle cx="26.000" cy="21.000" r="6.000"/>
+<circle cx="26.000" cy="269.000" r="6.000"/>
+<circle cx="265.000" cy="21.000" r="6.000"/>
+<circle cx="265.000" cy="269.000" r="6.000"/>
+<rect x="3.000" y="101.000" width="291.000" height="180.000"/>
+</g>
+<g id="taglio" fill="none" stroke="#FF0000" stroke-width="0.1">
+<path d="M1.000,1.000 L295.000,1.000 L295.000,47.000 L305.000,43.000 L305.000,79.000 L295.000,75.000 L295.000,187.000 L305.000,183.000 L305.000,219.000 L295.000,215.000 L295.000,289.000 L1.000,289.000 Z"/>
+<circle cx="13.000" cy="31.000" r="1.700"/>
+<circle cx="13.000" cy="151.000" r="1.700"/>
+<circle cx="13.000" cy="261.000" r="1.700"/>
+</g>
+</svg>

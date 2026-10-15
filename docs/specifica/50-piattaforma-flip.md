@@ -384,6 +384,8 @@ log_level=1
   - `render` → `build/pc/stame-render.exe`;
   - `portabilita` → controlli del §14.4;
   - `pacchetto` → `build/pacchetto/App/Stame/`.
+
+  Stato del 14/10/2026: `render`, `flip` e `pacchetto` esistono già e costruiscono la **vetrina** (§15.1); `pc` (simulatore con finestra) non ancora. Le variabili sono `ZIG` (zig.exe) e `SDL_INCLUDE` (header di SDL 2.32, solo per `flip`; per default `D:\dev\toolchain\sdl2\SDL2-2.32.10\include`).
 - **PLT-073** `[D]` Gli script **DEVONO** essere scritti con l'editor (non generati da heredoc nella shell) e tenuti con fine riga LF (`.gitattributes`: `*.sh text eol=lf`). Motivo `[O]`: nella Git Bash le sequenze `\b`, `\f`, `\t` nei percorsi Windows diventano caratteri di controllo, e uno script CRLF non gira sulla console.
 
 ### 10.2 Struttura del repo
@@ -566,6 +568,19 @@ Callback audio (`AudioStream::update()` con conversione float → int16), driver
 | **F6 — App completa** | tutti i motori, effetti, preset, looper, MIDI out e clock, overlay di debug, ottimizzazioni | requisiti PLT-029, 031, 034 rispettati con 16 voci; ascolto di Luigi in cuffia e all'altoparlante; pacchetto pronto |
 
 - **PLT-108** `[D]` Ogni fase **DEVE** chiudersi con i propri criteri e con il second brain aggiornato; non si passa alla Flip (F4) prima che il nucleo abbia i suoi test sul PC (F1).
+
+### 15.1 La vetrina (14/10/2026)
+
+Luigi ha chiesto di vedere sulla Flip la nuova identità della plancia (`docs/identita/README.md`) prima delle fasi F2–F5. La **vetrina** anticipa una parte di F3 e F5 senza il suono:
+- `gfx`, `ui` (modello e `ui_fmt`) e `ui_flip` sono i moduli veri, portabili e con i test (`test_gfx.c`, `test_plancia.c`);
+- `src/platform/vetrina/` è un pilota dimostrativo: usa il motore degli accordi (`core/acc`) e lo strato di input (`core/input`) veri, simula suoni, effetti, looper e liste, e dopo 20 s senza ingressi fa partire una demo che passa per tutti gli stati della plancia. Non è `core/ui`: andrà sostituito;
+- `src/platform/flip/` apre SDL con `dlopen` (PLT-059..063), legge i tasti da evdev (PLT-052..054), la MPK da rawmidi (§6.1) e la batteria (PLT-090);
+- **dal 15/10/2026 la vetrina suona** con il synth vero (`src/dsp`, specifica 20), anticipando F2 e F4: il motore degli accordi manda le note TREBLE al Sound e le BASS al Bass; suono, basso, effetto principale e volumi della vetrina diventano patch e parametri (`vetrina_dsp.c`). Le patch sono quelle di Stame per i 16 suoni e i 6 bassi della vetrina (`tools/patch.py`, banchi in `assets/patch/`). L'audio è il backend SDL di riserva (PLT-022): callback di SDL, periodo `STAME_AUDIO_FRAMES` (default 512, nel `launch.sh`), comandi su una coda SPSC dal thread principale, logo sonoro sommato nell'uscita. Il backend ALSA diretto resta da fare;
+- `stame --prova-audio` rende 30 s della demo nel synth in memoria e misura la CPU, senza dispositivo audio: 15/10/2026, con il menu di spruce aperto (1,1 GHz), **28,7 % di un core** con al massimo 8 voci; il blocco peggiore (35 ms) è da ricontrollare con l'app in primo piano;
+- `stame --prova` fa girare la vetrina in memoria e misura il disegno, senza schermo né tasti: si può lanciare via SSH senza disturbare chi usa la console (15/10/2026, plancia calma: 0,64 ms per fotogramma in media, 1,71 ms per uno schermo intero);
+- la plancia è quella calma (30, UI-140, 15/10/2026): L1, R1, croce, A e X aprono la pagina dei comandi, che si chiude 5 s dopo l'ultimo di quei tasti o con B (UI-142a); la demo la apre solo durante la scelta del suono;
+- nella vetrina MENU apre il menu della piattaforma (Theme, Linnaeus Tag, Legend, Meters, Demo, Quit Stame); tenere MENU per 2 s esce, come rete di sicurezza della sola vetrina (nell'app vera vale PLT-057);
+- `tools/flip-ssh.sh` e `tools/deploy.sh` seguono PLT-093 e PLT-094; l'indirizzo sta in `tools/flip.ip`, fuori da git.
 - **PLT-109** `[M]` `CLAUDE.md` del progetto In nessuna fase si forza la porta USB-C OTG in host (`echo host > …/otg_mode`). Se un test richiede di toccare porte, alimentazione o ricarica, prima si spiega il rischio e si chiede l'ok a Luigi.
 
 ---

@@ -56,7 +56,8 @@
   3. altrimenti si prende una voce `FREE`;
   4. altrimenti si ruba, tra le voci `RELEASED` di qualunque motore, quella con l'ampiezza corrente più bassa;
   5. altrimenti si ruba la voce `HELD` più vecchia del **Sound**. Una voce `HELD` del Bass **NON DEVE** essere rubata da una nota del Sound.
-- **SND-024** Una voce rubata **NON DEVE** produrre click: il suo stato viene copiato in uno dei **4 slot di coda** (`DYING`), che lo dissolve linearmente a zero in **2 ms**, mentre la voce riparte subito con la nuova nota `[D]`. Se i 4 slot sono occupati, si chiude lo slot più vecchio. Gli slot di coda non contano come voci.
+- **SND-024** Una voce rubata **NON DEVE** produrre click: il suo stato viene copiato in uno dei **16 slot di coda** (`DYING`), insieme a una copia della patch del suo motore, e lo slot lo dissolve linearmente a zero in **2 ms**, mentre la voce riparte subito con la nuova nota `[D]`. Se gli slot sono tutti occupati, si chiude il più vecchio. Gli slot di coda non contano come voci. (Il 15/10/2026 gli slot sono passati da 4 a 16: servono anche al cambio di patch, SND-026.)
+- **SND-026** Cambio di patch con note in suono `[D, 15/10/2026]`: le voci del motore passano negli slot di coda con la patch vecchia. Le voci **tenute** si dissolvono in **10 ms** e le stesse note ripartono subito con la patch nuova (stessa velocity, stato del sustain conservato); le voci **in rilascio** finiscono il loro rilascio con la patch vecchia. Così girare Sound mentre si tiene un accordo fa sentire subito il suono nuovo, senza buchi né clic, anche fra modelli diversi.
 - **SND-025** `CC120 All Sound Off` **DEVE** azzerare all'istante tutte le voci, gli slot di coda e i due oggetti RP; `All Notes Off` **DEVE** mandare in rilascio tutte le voci `HELD`, ignorando il sustain `[O]`.
 
 ### 1.4 Interfaccia del modulo
@@ -270,7 +271,7 @@ Il manuale dà solo percentuali `[M]`; le curve reali (Hz, ms) non sono note. Le
 | `T_glide` | 0 → spento; `0.003 + 2.0 * x^1.585` s (tempo per arrivare a −60 dB dall'intervallo) | | `[V → QA-SND-07]` |
 | `f_lfo` rate LFO | interpolazione logaritmica tra i punti (x, Hz): (0; 0,033), (0,2; 0,1), (0,3; 1), (0,6; 4), (0,7; 8), (1; 60) | 0 → 30 s/ciclo | `[V → QA-SND-06]`, coerente con le fasce del manuale `[M]` |
 | `f_cut` cutoff | `20 * 1000^x` Hz, limitato a `0.45 * fs` | 64 → 640 Hz; 1 passo ≈ 0,94 semitoni | `[V → QA-SND-04]` |
-| `k_res` risonanza | `k = 2 * (1 − x^0.8)` (smorzamento dell'SVF); 127 → auto-oscillazione | | `[V → QA-SND-04]`; auto-oscillazione `[M]` |
+| `k_res` risonanza | `k = √2 * (1 − x^0.8)` (smorzamento dell'SVF): raw 0 = Butterworth, −3 dB a `f_cut` come chiede T-SND-06; 127 → auto-oscillazione | 0 → k 1,414 (Q 0,71) | `[V → QA-SND-04]`; auto-oscillazione `[M]`. Il 15/10/2026 il fattore 2 è diventato √2: con k = 2 a `f_cut` c'erano −6 dB, in contrasto con T-SND-06 |
 | `f_hp` passa-alto di tastiera | 0 → bypass; `20 * 100^x` Hz | 127 → 2 kHz | `[V → QA-SND-04]` |
 | `g_vol` GAIN di patch, RPVOL | `(raw / 64)^2` | 64 → 0 dB; 127 → +11,9 dB | `[V → QA-SND-28]` |
 | `g_osc` GAIN dell'oscillatore VA | `raw / 64` | 64 → 0 dB; 127 → +6 dB | `[V → QA-SND-28]` |

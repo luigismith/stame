@@ -1,6 +1,6 @@
 # Disegni
 
-- `stame-plancia-e-controlli.pdf` — come appare la plancia sulla Miyoo Flip, come funzionano i controlli (MPK mini Plus, macro pad BRIMFORD, tasti della Flip), ricette d’uso e bozza del case. Bozza 2, 13/10/2026, 12 pagine.
+- `stame-plancia-e-controlli.pdf` — come appare la plancia sulla Miyoo Flip, come funzionano i controlli (MPK mini Plus, macro pad BRIMFORD, tasti della Flip), ricette d’uso e case. Bozza 4, 15/10/2026, 13 pagine: la plancia calma è fatta di fotogrammi veri del renderer, il case è la bozza 2 di `60-case.md`.
 - `stame-plancia-e-controlli.html` — la stessa cosa in HTML.
 - `sorgenti/` — gli script Python che generano l'HTML; il PDF si stampa con Chrome:
 

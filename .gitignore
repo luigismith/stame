@@ -5,3 +5,5 @@ zig-out/
 *.wav
 /private/
 __pycache__/
+/tools/flip.ip
+!/assets/suoni/*.wav

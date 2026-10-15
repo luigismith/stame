@@ -25,9 +25,9 @@ enum {
      * già scalate dalla piattaforma con i limiti di EVIOCGABS */
     PAD_L2 = 0x410, PAD_R2, PAD_LSTICK_X, PAD_LSTICK_Y, PAD_RSTICK_X, PAD_RSTICK_Y,
 
-    /* macro pad BRIMFORD (§8.10): T1–T12 e le tre azioni di ciascuna manopola */
+    /* macro pad BRIMFORD (§8.10): T1–T15 e le tre azioni di ciascuna manopola */
     MPAD_T1 = 0x800, MPAD_T2, MPAD_T3, MPAD_T4, MPAD_T5, MPAD_T6,
-    MPAD_T7, MPAD_T8, MPAD_T9, MPAD_T10, MPAD_T11, MPAD_T12,
+    MPAD_T7, MPAD_T8, MPAD_T9, MPAD_T10, MPAD_T11, MPAD_T12, MPAD_T13, MPAD_T14, MPAD_T15,
     MPAD_M_CCW, MPAD_M_PUSH, MPAD_M_CW,
     MPAD_M1_CCW, MPAD_M1_PUSH, MPAD_M1_CW,
     MPAD_M2_CCW, MPAD_M2_PUSH, MPAD_M2_CW,

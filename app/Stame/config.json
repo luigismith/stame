@@ -1,0 +1,7 @@
+{
+  "label": "Stame",
+  "icon": "icon.png",
+  "launch": "launch.sh",
+  "description": "Stame, synth ad accordi. Collega la MPK mini Plus alla porta USB-C di sopra.",
+  "devices": ["MIYOO_FLIP"]
+}

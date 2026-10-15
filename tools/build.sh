@@ -73,10 +73,51 @@ do_ciao() {
     echo "ciao: ok — da provare sulla Flip: scp build/flip/ciao root@<ip>:/tmp/ && ssh root@<ip> /tmp/ciao"
 }
 
+SDL_INCLUDE="${SDL_INCLUDE:-/d/dev/toolchain/sdl2/SDL2-2.32.10/include}"
+VETRINA="src/platform/vetrina/vetrina.c src/platform/vetrina/patch_vetrina.c src/platform/vetrina/vetrina_dsp.c"
+
+# render: stame-render per il PC, scrive i fotogrammi della plancia in PNG (PLT-076, solo immagini)
+do_render() {
+    mkdir -p build/pc
+    # shellcheck disable=SC2046,SC2086
+    "$ZIG" cc $CFLAGS -DSTAME_HOST -Isrc $(sorgenti_portabili) $VETRINA src/platform/offline/render.c \
+        -o build/pc/stame-render.exe
+    echo "render: ok — build/pc/stame-render.exe <cartella> [ms…] [--boot ms…] [--icona file.png]"
+}
+
+# flip: la vetrina per la Miyoo Flip (aarch64, SDL caricata con dlopen: niente link a SDL, PLT-071)
+do_flip() {
+    mkdir -p build/flip
+    [ -f "$SDL_INCLUDE/SDL.h" ] || { echo "manca SDL.h in $SDL_INCLUDE (variabile SDL_INCLUDE)"; exit 1; }
+    # shellcheck disable=SC2046,SC2086
+    "$ZIG" cc $CFLAGS -DSTAME_HOST -target aarch64-linux-gnu.2.27 -mcpu=cortex_a55 -Isrc -I"$SDL_INCLUDE" \
+        $(sorgenti_portabili) $VETRINA src/platform/flip/*.c -o build/flip/stame -lpthread -ldl -lm
+    file build/flip/stame 2>/dev/null || ls -l build/flip/stame
+}
+
+# pacchetto: build/pacchetto/App/Stame, pronta per tools/deploy.sh (PLT-082, PLT-083)
+do_pacchetto() {
+    do_flip
+    do_render
+    P=build/pacchetto/App/Stame
+    rm -rf build/pacchetto
+    mkdir -p "$P"
+    cp app/Stame/config.json app/Stame/launch.sh "$P/"
+    cp build/flip/stame "$P/stame"
+    cp assets/suoni/stame_avvio.wav "$P/stame_avvio.wav"
+    ./build/pc/stame-render.exe build/pacchetto --icona "$P/icon.png" > /dev/null
+    cp third_party/spleen/LICENSE "$P/LICENSE-spleen"
+    echo "pacchetto: ok — $P"
+    ls -l "$P"
+}
+
 case "${1:-}" in
     test)        do_test ;;
     portabilita) do_portabilita ;;
     ciao)        do_ciao ;;
-    flip|pc|render|pacchetto) echo "target '$1' non ancora disponibile (fasi F2–F5)"; exit 2 ;;
-    *) echo "uso: tools/build.sh test|portabilita|ciao|flip|pc|render|pacchetto"; exit 2 ;;
+    render)      do_render ;;
+    flip)        do_flip ;;
+    pacchetto)   do_pacchetto ;;
+    pc) echo "target 'pc' (simulatore con finestra) non ancora disponibile"; exit 2 ;;
+    *) echo "uso: tools/build.sh test|portabilita|ciao|render|flip|pacchetto"; exit 2 ;;
 esac

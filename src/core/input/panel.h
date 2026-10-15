@@ -20,7 +20,7 @@ typedef enum {                      /* gli 8 tasti accordo */
 } chord_btn_t;
 
 typedef enum {
-    MACRO_LOOP_STOP, MACRO_LOOP_CLEAR, MACRO_PANIC, MACRO_SYSTEM_MENU
+    MACRO_LOOP_STOP, MACRO_LOOP_CLEAR, MACRO_PANIC, MACRO_SYSTEM_MENU, MACRO_LOOP_UNDO, MACRO_LOOP_OVERDUB
 } macro_t;
 
 typedef enum {

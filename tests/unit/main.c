@@ -9,6 +9,9 @@ void test_acc(void);
 void test_midi(void);
 void test_input(void);
 void test_blob(void);
+void test_gfx(void);
+void test_plancia(void);
+void test_dsp(void);
 
 int main(void)
 {
@@ -17,6 +20,9 @@ int main(void)
     test_suite = "midi";  test_midi();
     test_suite = "input"; test_input();
     test_suite = "blob";  test_blob();
+    test_suite = "gfx";   test_gfx();
+    test_suite = "plancia"; test_plancia();
+    test_suite = "dsp";   test_dsp();
     printf("%d controlli, %d falliti\n", test_checks, test_failures);
     return test_failures ? 1 : 0;
 }
