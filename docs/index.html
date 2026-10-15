@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stame</title>
+<meta name="description" content="Stame: a faithful, open clone of the Orchid chord synth, grown on a Miyoo Flip and played on an Akai MPK mini IV and a macro pad.">
+<meta property="og:title" content="Stame · a chord synth grown on a handheld">
+<meta property="og:description" content="A faithful, open clone of the Orchid chord synth, running on a Miyoo Flip with an Akai MPK mini IV and a fifteen-key macro pad.">
+<meta property="og:image" content="https://luigismith.github.io/stame/sito/img/plancia_notte.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050C0B">
+<link rel="icon" type="image/png" href="sito/favicon.png">
+<link rel="alternate" hreflang="it" href="index.it.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="sito/stame.css">
+<script>
+/* the theme the reader chose last time, before the first paint */
+try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+
+<header class="barra">
+  <div class="contenitore">
+    <a class="marchio" href="#inizio" aria-label="Stame, home">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><path d="M30 98 L70 98"/><path d="M50 98 C47 62 22 52 16 36"/><path d="M50 98 C50 75 50 50 50 30"/><path d="M50 98 C53 62 78 52 84 36"/></g><g fill="currentColor"><ellipse cx="16" cy="26" rx="10.5" ry="17" transform="rotate(-26 16 26)"/><ellipse cx="50" cy="20" rx="10.5" ry="17"/><ellipse cx="84" cy="26" rx="10.5" ry="17" transform="rotate(26 84 26)"/></g></svg>
+      STAME
+    </a>
+    <nav aria-label="Sections">
+      <a href="#cosa">What</a><a href="#postazione">Rig</a><a href="#plancia">Panel</a><a href="#suono">Sound</a><a href="#stato">Status</a><a href="#prova">Try it</a><a href="#documenti">Docs</a>
+    </nav>
+    <div class="lingua">
+      <a href="index.html" aria-current="page" hreflang="en">EN</a>
+      <a href="index.it.html" hreflang="it" lang="it">IT</a>
+      <button type="button" id="tema" aria-label="Switch between Night and Day theme">Night / Day</button>
+    </div>
+  </div>
+</header>
+
+<main id="inizio">
+<section class="copertina">
+  <div class="contenitore">
+    <div class="vetrino">
+      <span class="etichetta tab">TAB. I</span>
+      <svg class="logo" viewBox="0 0 100 100" role="img" aria-label="The Stame mark: three stamens rising from one receptacle, the anthers like note heads"><g fill="none" stroke="var(--treble)" stroke-width="3.5" stroke-linecap="round"><path d="M30 98 L70 98"/><path d="M50 98 C47 62 22 52 16 36"/><path d="M50 98 C50 75 50 50 50 30"/><path d="M50 98 C53 62 78 52 84 36"/></g><g fill="var(--treble)"><ellipse class="antera" cx="16" cy="26" rx="10.5" ry="17" transform="rotate(-26 16 26)"/><ellipse class="antera" cx="50" cy="20" rx="10.5" ry="17"/><ellipse class="antera" cx="84" cy="26" rx="10.5" ry="17" transform="rotate(26 84 26)"/></g></svg>
+      <div class="nome">STAME</div>
+      <div class="specie">STAMEN HARMONICUM · TRIANDRIA</div>
+    </div>
+    <div>
+      <h1>A faithful, open clone of the <em>Orchid</em> chord synth, grown on a handheld.</h1>
+      <p class="intro">Hold a chord button, press one key, and a voiced chord with its bass comes out. Stame does what the Orchid does — strums, arpeggios, patterns, beats, a looper — on a <strong>Miyoo Flip</strong>, played with an <strong>Akai MPK mini IV</strong> and a fifteen-key <strong>macro pad</strong>. Then, with more keys and more power than the original, a little more.</p>
+      <div class="bottoni">
+        <a class="bottone primo" href="https://github.com/luigismith/stame">Source on GitHub</a>
+        <a class="bottone" href="#prova">Build and install</a>
+        <a class="bottone" href="https://github.com/luigismith/stame/blob/main/docs/manuale/manuale.md" hreflang="it">Manual (Italian)</a>
+      </div>
+      <p class="stato">Phase 1 · <b>showcase 0.1</b> running on the Flip · phase 2: dedicated hardware · not affiliated with Telepathic Instruments</p>
+    </div>
+  </div>
+</section>
+
+<section class="sezione" id="cosa">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">What it is</span>
+      <h2>One finger, one chord. A whole band, if you keep going.</h2>
+    </div>
+    <div class="due">
+      <div class="prosa">
+        <p>The <a href="https://telepathicinstruments.com/">Orchid</a> by Telepathic Instruments is a small synth with eight chord buttons on the left and one octave of keys on the right. Hold <em>Min</em> and press F♯: you get an F♯ minor chord, voiced in a window you choose with a dial, with a bass note under it. Add an extension (6, m7, M7, 9), let a performance play it for you (strum, arpeggio, pattern, harp), start a beat, record a loop, overdub. It is an instrument for people who hear chords before they can name them.</p>
+        <p>Stame reproduces that behaviour: the chord logic, the Secret Chords, the voicing windows, Key mode and transpose, the bass, the performances, the beat and the looper, the MIDI. It is described in a <a href="https://github.com/luigismith/stame/blob/main/docs/specifica/00-panoramica.md" hreflang="it">functional specification</a> written from the public manual and from observation, before the first line of code; it holds no factory data of the original. The core is plain C11 — no heap, no I/O — so the same engine can move to dedicated hardware in phase 2.</p>
+        <p>Where the Orchid has eight encoders and a 128×128 OLED, Stame has a keyboard, a macro pad and a 640×480 colour screen. The rule is simple: everything the Orchid does, Stame does, and that behaviour is never altered. Then, because there are more keys, more knobs and more CPU, it does a little more — a sampler, sampled drum kits, a knob Lock, a view key.</p>
+      </div>
+      <div class="prosa">
+        <h3>The name, the greenhouse, the botanist</h3>
+        <p>In a flower the <strong>stamen</strong> makes the pollen and the pistil receives it. The Orchid's editor is called <em>Pistil</em>; Stame is the other half.</p>
+        <p>The rest of the identity comes from a greenhouse of the 1970s, the years of <em>The Secret Life of Plants</em> and of Mort Garson's <em>Plantasia</em>, Moog music «for plants and the people who love them». Stame is the synth that greenhouse would have had: a wooden console with a display that lights up like a slide under a microscope.</p>
+        <p>And from <strong>Linnaeus</strong>, who in 1735 classified plants by counting their stamens: one, <em>Monandria</em>; two, <em>Diandria</em>; three, <em>Triandria</em>. Stame keeps the rule: <strong>one note is one stamen</strong>. A triad is Triandria, a seventh chord Tetrandria, and the boot screen reads <em>Stamen harmonicum</em>, class Triandria. The chord name is set in dots, like a vacuum fluorescent display.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sezione" id="postazione">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">The rig</span>
+      <h2>Three devices, one instrument.</h2>
+      <p>Left hand on the pads, right hand on the keys, the macro pad a palm away, the Flip above it with the screen facing you.</p>
+    </div>
+    <figure class="foto-grande">
+      <img src="sito/img/postazione.jpg" alt="The rig on a desk: the Akai MPK mini IV on the left, the macro pad with three metal knobs on the right in line with the keys, the Miyoo Flip open above the pad" width="1600" height="595">
+      <figcaption>The composition chosen on the desk: MPK mini IV, macro pad in line with the keys, Flip open above the pad so the screen never covers the keys.</figcaption>
+    </figure>
+    <div class="galleria">
+      <figure>
+        <img src="sito/img/mk4.jpg" alt="Akai MPK mini IV seen from above: pads, eight knobs, transport buttons and two octaves of keys" width="1600" height="901">
+        <figcaption><b>Akai MPK mini IV.</b> The eight pads are the Orchid's chord buttons (Dim, Min, Maj, Sus / 6, m7, M7, 9); the keys give the root; the eight knobs turn Sound, Perform, FX, Key, Bass, Loop, BPM and Volume; the transport is the looper.</figcaption>
+      </figure>
+      <figure>
+        <img src="sito/img/pad.jpg" alt="The macro pad: fifteen white keys in three rows of five, two small metal knobs and one large one on the right" width="1600" height="1129">
+        <figcaption><b>Macro pad.</b> Fifteen keys and three detented, pushable knobs. Keys T1–T8 are the <em>buttons</em> of the eight knobs, a twin grid; the big knob is the Chord Voicing dial. T13 is the Lock, T14 the View, T15 the Page.</figcaption>
+      </figure>
+      <figure>
+        <img src="sito/img/flip.jpg" alt="The Miyoo Flip, open, a small clamshell console with a 3.5-inch screen, a d-pad and four coloured buttons" width="997" height="1200">
+        <figcaption><b>Miyoo Flip.</b> The brain and the display: a 640×480 screen on a hinge, a Cortex-A55 running the synth at 48 kHz. Its own buttons move a focus, open the controls page and the menu.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section class="sezione" id="plancia">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">The panel</span>
+      <h2>A calm slide of fluorescent glass.</h2>
+      <p>While you play, the screen shows four things: the chord, the tempo, the keyboard and the control you just touched. Everything else arrives when you ask for it.</p>
+    </div>
+    <div class="galleria">
+      <figure><img src="sito/img/plancia_notte.png" alt="Play page, Night theme: F sharp minor seventh in large dots, 120 BPM in seven-segment digits, four octaves of keys with the chord lit, the band shows the sound Anther Keys" width="640" height="480" loading="lazy"><figcaption><b>Play page, Night.</b> The chord name in dots, the BPM in seven segments, the keys that sound in teal and the bass in amber.</figcaption></figure>
+      <figure><img src="sito/img/plancia_tocco.png" alt="The band at the bottom shows REVERB 06 in large digits after the FX knob was turned" width="640" height="480" loading="lazy"><figcaption><b>The band answers the hand.</b> Turn a knob and its name and value appear large at the bottom, like the Orchid's overlay, without covering the chord.</figcaption></figure>
+      <figure><img src="sito/img/plancia_comandi.png" alt="Controls page: eleven cells with Sound, Perform, FX, Key, Bass, Loop, BPM, Volume, Options, Chord Voicing and Bass Voicing, the Sound cell focused" width="640" height="480" loading="lazy"><figcaption><b>Controls page.</b> The eleven controls as cells, opened with the Flip's focus keys or with T15 of the pad; the case carries the names, the screen the values.</figcaption></figure>
+      <figure><img src="sito/img/plancia_looper.png" alt="Looper panel: PLAY, bar 2 of 4, a cell bar for the loop position and the OVERDUB, PAUSE and CLEAR entries" width="640" height="480" loading="lazy"><figcaption><b>The looper.</b> A loop of events, four bars, overdub layer by layer, undo; the frame turns red while it records.</figcaption></figure>
+      <figure><img src="sito/img/plancia_giorno.png" alt="The same panel in the Day theme: grey-green background with dark inks" width="640" height="480" loading="lazy"><figcaption><b>Day theme.</b> A reflective LCD instead of a VFD: same roles, same shapes, inks instead of phosphors.</figcaption></figure>
+      <figure><img src="sito/img/plancia_geek.png" alt="Geek Out view: the notes written out, the voicing windows on the keyboard, the Linnaeus tag and the meters in the header" width="640" height="480" loading="lazy"><figcaption><b>Geek Out.</b> Notes, intervals, voicing windows, the Linnaeus tag and the meters: the detail you look at from up close.</figcaption></figure>
+      <figure><img src="sito/img/plancia_lista.png" alt="A list open in place of the keyboard, with the selected entry highlighted" width="640" height="480" loading="lazy"><figcaption><b>A list.</b> Sounds, performances, beats and options scroll with the Flip's d-pad or the pad's small knob.</figcaption></figure>
+      <figure><img src="sito/img/plancia_react.png" alt="React view: the chord zone reacts to the notes with large shapes" width="640" height="480" loading="lazy"><figcaption><b>React.</b> One of the six views of the original, redrawn for the Flip's colour screen.</figcaption></figure>
+      <figure><img src="sito/img/avvio_3.png" alt="Boot screen: the three-stamen mark, STAME in dots, STAMEN HARMONICUM TRIANDRIA and the corners of a botanical plate" width="640" height="480" loading="lazy"><figcaption><b>Boot.</b> The filaments grow, the three anthers light up one by one with the sound logo, and the species name appears.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="sezione" id="suono">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">How it sounds</span>
+      <h2>Three synth models, a sampler, four drum kits, sixteen voices.</h2>
+      <p>Two engines, Sound and Bass, share a pool of sixteen voices at 48 kHz, with two FX slots each, a delay and a reverb. Everything is 32-bit float C11 that also compiles for a Cortex-M7.</p>
+    </div>
+    <div class="schede">
+      <div class="scheda"><span class="etichetta">Model</span><h3>VA</h3><p>Four band-limited oscillators, noise, a state-variable filter, four envelopes, four LFOs and an eight-slot modulation matrix.</p></div>
+      <div class="scheda"><span class="etichetta">Model</span><h3>FM</h3><p>Four operators, eight algorithms, feedback on the fourth operator: bells, organs, plucks and the glassy stuff.</p></div>
+      <div class="scheda"><span class="etichetta">Model</span><h3>Reed Piano</h3><p>A physical model of a 1960s reed electric piano: a tine with three modes, a non-linear pickup, clank, hammer and key-off noises, tremolo.</p></div>
+      <div class="scheda focus"><span class="etichetta">Stame addition</span><h3>SMP, the sampler</h3><p>A fourth model that plays a bank of CC0 samples: Kawai grand and upright pianos, a TX81Z FM piano, vibraphone, marimba, glockenspiel, chimes, harp, kalimba, harpsichord, pipe organ, recorder, tenor sax. Loops found and faded at build time, read with Hermite interpolation.</p></div>
+      <div class="scheda loop"><span class="etichetta">Beat</span><h3>Twelve patterns, four kits</h3><p>Funk, Bossa, Motorik, Lounge, Shuffle, Halftime, Boom Bap, Disco, Samba, Ballad, Train, Chip. Three kits of real samples (Studio, Jazz, 808) and the synthesized CR-78-style kit for the chiptune moments.</p></div>
+      <div class="scheda bass"><span class="etichetta">Performance</span><h3>Strum, Slop, Arpeggiate, Pattern, Harp</h3><p>The chord can be played for you: strummed over one or two octaves, loosened, arpeggiated, sequenced by one of the patterns, or cascaded like a harp. Lock keeps the performance when you change sound.</p></div>
+      <div class="scheda active"><span class="etichetta">Demo</span><h3>«Acacia», «Felce», «Pistillo»</h3><p>Leave it alone for twenty seconds and Stame plays three original pieces by itself, in turn: chords, bass, loop with overdub, sound changes, sampled piano, vibraphone, kalimba and sax, a ritardando. Every gesture shows on the panel as it happens.</p></div>
+      <div class="scheda"><span class="etichetta">Stame sounds</span><h3>Sixteen, plus the bank</h3><p>Glass Pollen, Night Greenhouse, Anther Keys, Slow Stamen, Fern Pluck, Copper Reed, Orbit Choir, Moss Strings, Dew Mallet, Tape Fern, Seed Organ, Sun Room, Linnaeus Lead, Petal Brass, Root Drone, Vetro Pad — and six basses. Designed for Stame, no preset of the original.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sezione" id="stato">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">Status · October 2026</span>
+      <h2>What works today, what is specified and not built yet.</h2>
+      <p>Honest list. The showcase on the Flip is version 0.1: it plays, it loops, it has a demo; it is not the finished instrument.</p>
+    </div>
+    <div class="celle">
+      <div class="oggi">
+        <h3>Running on the Flip</h3>
+        <ul>
+          <li>Chords from pads and keys, extensions, Secret Chords, Chord and Bass Voicing, Split / Octave, Key mode, transpose, Play Style</li>
+          <li>The real synth: VA, FM, Reed Piano and the SMP sampler, 16 Stame sounds, 6 basses, FX and reverb</li>
+          <li>Performances: Strum, Strum 2 Octaves, Slop, Arpeggiate (1 and 2 octaves), Pattern, Harp, with Lock</li>
+          <li>Beat with twelve patterns and sampled kits, metronome in four metres, beat volume</li>
+          <li>Looper: REC with a count-in, four bars, overdub, pause, undo, clear, synced with the transport</li>
+          <li>Macro pad: twin grid T1–T8, Options, Back, Menu, Panic (held 1 s) and Reset (held 3 s), T13 Lock, T14 View, T15 Page</li>
+          <li>MPK mini IV profile in the DAW preset: pads, keys, knobs, SHIFT as push, navigation knob, transport</li>
+          <li>The panel: play page, controls page, six views, two themes, lists, platform menu, demo «Acacia»</li>
+        </ul>
+      </div>
+      <div class="previsto">
+        <h3>Specified, not built yet</h3>
+        <ul>
+          <li>Save / Save As / Delete of User Sounds; loading a private factory bank from the SD card</li>
+          <li>Waiting Room and loop length (Free, 1–16 bars), ten loop slots, soft and hard exit</li>
+          <li>Drums on the keys (Bass Voicing held + BPM) and the other Mod combinations</li>
+          <li>MIDI out to the DIN port of the MPK, MIDI clock, external control</li>
+          <li>Pocket Mode (playing with the Flip alone), Learn Pad, MPK status page</li>
+          <li>The case: designed (birch, engraved black acrylic, PETG), not cut yet</li>
+          <li>Phase 2: the same core on dedicated hardware (Teensy 4.1 + Audio Shield, probably)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sezione" id="prova">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">Try it</span>
+      <h2>Build on a PC, install over SSH.</h2>
+      <p>You need a Miyoo Flip with a spruceOS-based firmware, an Akai MPK mini IV in its DAW preset, and, optionally, the fifteen-key macro pad on a plain USB 2.0 hub (no Power Delivery) on the Flip's top USB-C port.</p>
+    </div>
+    <div class="due">
+      <div class="prosa">
+        <p>The build runs in Git Bash on Windows with <a href="https://ziglang.org/">Zig</a> as the C compiler (<code>zig cc</code>, cross-compiling for aarch64 glibc 2.27) and the SDL2 headers; the core compiles with no dependency at all. The tests and the portability checks must pass before every commit: the portability target compiles the core as freestanding Cortex-M7 code, to keep phase 2 honest.</p>
+<pre><code>sh tools/build.sh test          # core unit tests on the PC
+sh tools/build.sh portabilita   # allowed headers, poisoned symbols, Cortex-M7 trial build
+sh tools/build.sh render        # offline renderer: PNG frames and WAV of the demo
+python -I tools/campioni.py     # downloads the CC0 samples and builds the bank (once)
+sh tools/build.sh pacchetto     # the app for the Flip in build/pacchetto/App/Stame
+sh tools/deploy.sh              # copies it over SSH (the Flip's address in tools/flip.ip)</code></pre>
+        <p>On the Flip, Stame appears under <span class="tasto">App</span> › <span class="tasto">Altro</span>. The sample bank is built on the PC from <code>tools/campioni.py</code> (it needs <code>numpy</code> and <code>soundfile</code>) and shipped next to the binary; without it the sampled sounds and kits stay silent, everything else plays.</p>
+      </div>
+      <div class="prosa">
+        <h3>Playing it, in three lines</h3>
+        <p><strong>Hold a pad, press a key.</strong> Top row Dim, Min, Maj, Sus; bottom row the extensions 6, m7, M7, 9. The key gives the root; the big knob of the pad moves the voicing window.</p>
+        <p><strong>Turn a knob, the band answers.</strong> K1 Sound, K2 Perform, K3 FX, K4 Key, K5 Bass, K6 Loop, K7 BPM, K8 Volume; press the twin key on the pad to «push» it. T13 locks the pad's three knobs onto Sound, Perform and Key, with their clicks.</p>
+        <p><strong>REC, play four bars, ⊕ to overdub.</strong> The transport buttons of the MPK are the looper; STOP/PLAY starts the beat. T12 held for a second is Panic, three seconds is Reset.</p>
+        <p>The Italian <a href="https://github.com/luigismith/stame/blob/main/docs/manuale/manuale.md" hreflang="it">manual</a> and the one-page <a href="https://github.com/luigismith/stame/blob/main/docs/manuale/prontuario.md" hreflang="it">quick reference</a> have all of it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sezione" id="documenti">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">Documents</span>
+      <h2>Specification first, then code.</h2>
+    </div>
+    <div class="schede">
+      <div class="scheda"><span class="etichetta">docs/specifica</span><h3>The functional specification</h3><p>Seven sections: overview, chords and performance, sound, interface, MIDI and controls, the Flip platform, the case. Every requirement has an ID and a source tag: [M] manual, [O] observed, [D] deduced, [V] to verify on a real unit. Open questions are listed, not hidden.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/specifica/00-panoramica.md" hreflang="it">Start from the overview</a></p></div>
+      <div class="scheda"><span class="etichetta">docs/manuale</span><h3>Manual and quick reference</h3><p>How to play the showcase on the Flip: the rig, chords, every control and its gestures, the looper step by step, beats, the macro pad with Lock / View / Page, the Flip's pages and menu, what to do when something is red.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/manuale/manuale.md" hreflang="it">Manual</a> · <a href="https://github.com/luigismith/stame/blob/main/docs/manuale/prontuario.md" hreflang="it">Quick reference</a></p></div>
+      <div class="scheda"><span class="etichetta">docs/identita</span><h3>The identity</h3><p>The story, the mark, the two themes, the dot-matrix font drawn for Stame, the seven-segment digits, the botanical plate, the sound logo of the boot. The same language on the screen and on the case.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/identita/README.md" hreflang="it">Read it</a></p></div>
+      <div class="scheda"><span class="etichetta">hardware/case</span><h3>The case</h3><p>A birch plywood console with an engraved black acrylic mask over the MPK, a tower on the right for the pad and the Flip, a PETG cradle holding the screen at 65°. Generated from a table of measurements: SVG for the laser, STL for the printer.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/specifica/60-case.md" hreflang="it">Draft 3</a></p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sezione" id="crediti">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">Credits and licences</span>
+      <h2>Open, and careful about what is not ours.</h2>
+    </div>
+    <div class="scorri">
+      <table class="tabella">
+        <tr><th>What</th><th>Licence</th><th>Where</th></tr>
+        <tr><td>Stame: code, specification, identity, case</td><td>MIT, © 2026 Luigi Massari</td><td><a href="https://github.com/luigismith/stame/blob/main/LICENSE">LICENSE</a></td></tr>
+        <tr><td>Sample bank: pianos, mallets, harp, organ, winds, drums</td><td>CC0 1.0: Versilian Community Sample Library (VCSL) and the Sonic Pi sample set (freesound.org)</td><td><a href="https://github.com/luigismith/stame/blob/main/assets/campioni/FONTI.md">assets/campioni/FONTI.md</a></td></tr>
+        <tr><td>Spleen bitmap font</td><td>BSD 2-Clause, Frederic Cambus</td><td><a href="https://github.com/luigismith/stame/blob/main/third_party/spleen/LICENSE">third_party/spleen</a></td></tr>
+        <tr><td>Matrice dot font, mark, sounds, beats, «Acacia»</td><td>Made for Stame, MIT with the rest</td><td>src/gfx, tools/matrice.py, tools/patch.py, tools/demo.py</td></tr>
+      </table>
+    </div>
+    <div class="prosa" style="margin-top:20px">
+      <p>Stame is an independent project, not affiliated with or endorsed by Telepathic Instruments. «Orchid» and «Pistil» are their names. The repository contains no factory data of the original: no presets, no firmware, no sample of its sounds. Its behaviour is described from the public manual and from listening, and every requirement says where it comes from. If you own an Orchid, the open questions marked [V] in the specification are the ones only you can answer.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="piede">
+  <div class="contenitore">
+    <div>Stame · <a href="https://github.com/luigismith/stame">github.com/luigismith/stame</a> · MIT</div>
+    <div>Stamen harmonicum, class Triandria. One note is one stamen.</div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var b = document.getElementById('tema');
+  if (!b) return;
+  b.addEventListener('click', function () {
+    var r = document.documentElement;
+    var light = window.matchMedia('(prefers-color-scheme: light)').matches;
+    var cur = r.dataset.theme || (light ? 'giorno' : 'notte');
+    var next = cur === 'notte' ? 'giorno' : 'notte';
+    r.dataset.theme = next;
+    try { localStorage.setItem('stame-tema', next); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
