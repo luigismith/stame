@@ -30,10 +30,12 @@ static const char *const BEATS[] = { "Funk", "Bossa", "Motorik", "Lounge", "Shuf
 #define N_BASSES ((int)STAME_COUNT(BASSES))
 #define N_BEATS  ((int)STAME_COUNT(BEATS))
 
-/* stato simulato dei controlli */
+/* stato dei controlli. perf_amount è l'amount di ACC-160: 1…6 per Arpeggiate (tipo di ACC-171),
+ * 1…13 per Pattern, 1…10 per gli altri modi; 0 = spento. beat_mode è la selezione del menu dei Beat
+ * (metronomo con la metrica, o un Beat), beat_on dice se suona (TRANSPORT_TOGGLE, ACC-205). */
 typedef struct {
-    int sound, perf_mode, perf_amount, arp_rate, arp_dir, fx_type, fx_amount, bass, volume, bass_volume;
-    int bpm, beat_mode, beat, beat_volume, view;
+    int sound, perf_mode, perf_amount, fx_type, fx_amount, bass, volume, bass_volume;
+    int bpm, beat_mode, beat, meter, beat_on, beat_volume, view;
     uint8_t lock_perf, lock_fx, sec[ENC_COUNT];
 } sim_t;
 static sim_t S;                    /* una vetrina sola per processo */
@@ -67,10 +69,20 @@ void vet_set_scope(vet_t *v, const int16_t *buf, uint16_t len, const volatile ui
     v->ext_peak = peak;
 }
 
+void vet_set_motore(vet_t *v, const mot_snap_t *snap) { v->snap = snap; }
+
+static uint8_t lp_state(const vet_t *v) { return v->snap ? v->snap->lp_state : (uint8_t)LP_IDLE; }
+static int count_in_left(const vet_t *v);
+
 /* motore degli accordi: le note TREBLE vanno al Sound, le BASS al Bass (specifica 20, §9) */
 static void ain(vet_t *v, uint8_t type, uint8_t a, int16_t b)
 {
     int n = acc_input(&v->acc, type, a, b, 0, v->ev, (int)STAME_COUNT(v->ev));
+    /* il transpose arriva al motore prima delle note che lo usano: il looper registra senza (ACC-220) */
+    if (v->acc.transpose != v->snd_tr) {
+        snd_push(v, VS_TRANSPOSE, 0, (uint8_t)(int8_t)v->acc.transpose, 0);
+        v->snd_tr = v->acc.transpose;
+    }
     if (type == ACC_IN_KEY_DOWN) snd_push(v, VS_CHORD_START, 0, 0, 0);
     for (int i = 0; i < n; i++) {
         const acc_note_ev *e = &v->ev[i];
@@ -99,8 +111,19 @@ static void msg(vet_t *v, uint8_t level, const char *text, uint32_t ms)
     ui_fmt_copy(mm->text, sizeof mm->text, text);
 }
 
+/* ---- Perform: amount di ACC-160 ---- */
+static int perf_max(int mode)
+{
+    return mode == PERF_ARP || mode == PERF_ARP2 ? 6 : mode == PERF_PATTERN ? 13 : mode ? 10 : 0;
+}
+
+static bool perf_arp(void) { return S.perf_mode == PERF_ARP || S.perf_mode == PERF_ARP2; }
+
 /* ---- liste ---- */
-enum { L_NONE, L_SOUND, L_PERFORM, L_OPTIONS, L_PLATFORM };
+enum { L_NONE, L_SOUND, L_PERFORM, L_OPTIONS, L_PLATFORM, L_BEATS };
+
+/* lista dei Beat (UI-077): Exit, le quattro metriche del metronomo, poi i Beat */
+#define BEAT_ITEMS (5 + N_BEATS)
 
 static int list_n(int kind)
 {
@@ -109,9 +132,12 @@ static int list_n(int kind)
     case L_PERFORM: return PERF_COUNT;
     case L_OPTIONS: return 5;
     case L_PLATFORM: return 7;
+    case L_BEATS: return BEAT_ITEMS;
     default: return 0;
     }
 }
+
+static int beat_item(void) { return S.beat_mode == BEAT_PATTERN ? 5 + S.beat : 1 + S.meter; }
 
 static void list_item(const vet_t *v, int kind, int i, ui_item_t *it)
 {
@@ -138,6 +164,16 @@ static void list_item(const vet_t *v, int kind, int i, ui_item_t *it)
         if (i == 4) ui_fmt_copy(it->value, sizeof it->value, v->acc.secret ? "On" : "Off");
         break;
     }
+    case L_BEATS: {
+        static const char *const M[] = { "Exit", "2/4", "3/4", "4/4", "6/8" };
+        if (i < 5) ui_fmt_copy(it->label, sizeof it->label, M[i]);
+        else {
+            ui_fmt_int(it->num, sizeof it->num, i - 4, 2);
+            ui_fmt_copy(it->label, sizeof it->label, BEATS[i - 5]);
+        }
+        if (i && i == beat_item()) it->mark = MK_CHECK;
+        break;
+    }
     case L_PLATFORM: {
         static const char *const L[] = { "Exit", "Theme", "Linnaeus Tag", "Legend", "Meters", "Demo", "Quit Stame" };
         ui_fmt_copy(it->label, sizeof it->label, L[i]);
@@ -161,6 +197,7 @@ static void list_open(vet_t *v, int kind, uint8_t owner)
     switch (kind) {
     case L_SOUND: v->list_sel = (uint16_t)S.sound; break;
     case L_PERFORM: v->list_sel = (uint16_t)S.perf_mode; break;
+    case L_BEATS: v->list_sel = (uint16_t)beat_item(); break;
     default: v->list_sel = 0; break;
     }
     gest_set_owner(&v->inp.gest, owner, true);
@@ -178,7 +215,16 @@ static void list_select(vet_t *v)
     v->list_ms = v->now_ms;
     switch (v->list_kind) {
     case L_SOUND: S.sound = i; break;
-    case L_PERFORM: S.perf_mode = i; if (S.perf_amount == 0) S.perf_amount = 5; break;
+    case L_PERFORM:
+        S.perf_mode = i;
+        if (S.perf_amount == 0) S.perf_amount = perf_arp() ? 6 : S.perf_mode == PERF_PATTERN ? 1 : 5;
+        S.perf_amount = clampi(S.perf_amount, 0, perf_max(S.perf_mode));
+        break;
+    case L_BEATS:
+        if (i == 0) list_close(v);
+        else if (i < 5) { S.beat_mode = BEAT_METRONOME; S.meter = i - 1; }
+        else { S.beat_mode = BEAT_PATTERN; S.beat = i - 5; }
+        break;
     case L_OPTIONS:
         if (i == 0) list_close(v);
         else if (i == 1) S.view = wrap(S.view + 1, VIEW_COUNT);
@@ -199,30 +245,52 @@ static void list_select(vet_t *v)
     }
 }
 
-/* ---- looper simulato ---- */
-static uint32_t bar_ms(void) { return 4u * 60000u / (uint32_t)S.bpm; }
+/* ---- looper: comandi al motore e menu a tre voci (UI-088) ---- */
+static void loop_send(vet_t *v, int cmd) { snd_push(v, VS_LOOP, 0, (uint8_t)cmd, 0); }
 
-static void looper_press(vet_t *v)
+static void loop_menu(const vet_t *v, uint8_t *out)
 {
-    switch (v->lp_state) {
-    case LP_IDLE:
-        v->lp_state = LP_REC; v->lp_bars = 4; v->lp_t0_ms = v->now_ms; v->lp_layers = 1;
-        memset(v->lp_rec_pcs, 0, sizeof v->lp_rec_pcs);
+    static const uint8_t M[5][3] = {
+        { LPI_REC, LPI_PLAY, LPI_BACK },          /* count-in e registrazione */
+        { LPI_OVERDUB, LPI_PAUSE, LPI_CLEAR },    /* riproduzione con il solo strato 0 */
+        { LPI_OVERDUB, LPI_PAUSE, LPI_UNDO },     /* riproduzione dopo un overdub */
+        { LPI_STOP, LPI_PLAY, LPI_CLEAR },        /* overdub */
+        { LPI_OVERDUB, LPI_PLAY, LPI_CLEAR },     /* pausa */
+    };
+    uint8_t st = lp_state(v), layers = v->snap ? v->snap->lp_layers : 0;
+    int k = st == LP_PLAY ? (layers > 1 ? 2 : 1) : st == LP_OVERDUB ? 3 : st == LP_PAUSE ? 4 : 0;
+    memcpy(out, M[k], 3);
+}
+
+static void looper_item(vet_t *v, uint8_t item)
+{
+    uint8_t st = lp_state(v);
+    switch (item) {
+    case LPI_REC: if (st == LP_IDLE) loop_send(v, LOOP_C_PRESS); break;
+    case LPI_PLAY: if (st == LP_REC || st == LP_OVERDUB || st == LP_PAUSE) loop_send(v, LOOP_C_STOP); break;
+    case LPI_OVERDUB:
+        if (st == LP_PAUSE) loop_send(v, LOOP_C_STOP);           /* riparte e registra sopra */
+        loop_send(v, LOOP_C_OVERDUB);
         break;
-    case LP_REC:     v->lp_state = LP_PLAY; break;
-    case LP_PLAY:    v->lp_state = LP_OVERDUB; v->lp_layers++; break;
-    case LP_OVERDUB: v->lp_state = LP_PLAY; break;
-    case LP_PAUSE:   v->lp_state = LP_PLAY; break;
+    case LPI_PAUSE: if (st == LP_PLAY) loop_send(v, LOOP_C_STOP); break;
+    case LPI_STOP: if (st == LP_OVERDUB) loop_send(v, LOOP_C_STOP); break;
+    case LPI_UNDO: loop_send(v, LOOP_C_UNDO); break;
+    case LPI_CLEAR: loop_send(v, LOOP_C_CLEAR); break;
+    case LPI_BACK: gest_set_owner(&v->inp.gest, ENC_COUNT, false); break;
     default: break;
     }
 }
 
-static void looper_stop(vet_t *v)
+/* premere Loop: da fermo parte il count-in, poi esegue la voce selezionata del menu */
+static void looper_press(vet_t *v)
 {
-    if (v->lp_state == LP_REC || v->lp_state == LP_OVERDUB) v->lp_state = LP_PLAY;
-    else if (v->lp_state == LP_PLAY) v->lp_state = LP_PAUSE;
-    else if (v->lp_state == LP_PAUSE) v->lp_state = LP_PLAY;
+    if (lp_state(v) == LP_IDLE) { loop_send(v, LOOP_C_PRESS); return; }
+    uint8_t menu[3];
+    loop_menu(v, menu);
+    looper_item(v, menu[v->m.looper.menu_sel % 3]);
 }
+
+static void looper_stop(vet_t *v) { loop_send(v, LOOP_C_STOP); }
 
 /* ---- gesti ---- */
 static void turn(vet_t *v, int enc, int d, bool pressed)
@@ -240,17 +308,9 @@ static void turn(vet_t *v, int enc, int d, bool pressed)
         S.sound = wrap(S.sound + d, N_SOUNDS);
         overlay(v, OV_SOUND, ENC_SOUND, S.sound + 1);
         break;
-    case ENC_PERFORM:
-        if (S.perf_mode == PERF_ARP || S.perf_mode == PERF_ARP2) {
-            static const int R[] = { 4, 8, 12, 16, 24, 32 };
-            int i = 0;
-            while (i < 5 && R[i] != S.arp_rate) i++;
-            S.arp_rate = R[clampi(i + d, 0, 5)];
-            overlay(v, OV_ARP, ENC_PERFORM, S.arp_rate);
-        } else {
-            S.perf_amount = clampi(S.perf_amount + d, 0, 10);
-            overlay(v, OV_PERFORM, ENC_PERFORM, S.perf_amount);
-        }
+    case ENC_PERFORM:                                   /* amount del modo: per Arpeggiate il tipo (ACC-171) */
+        S.perf_amount = clampi(S.perf_amount + d, 0, perf_max(S.perf_mode));
+        overlay(v, perf_arp() && S.perf_amount ? OV_ARP : OV_PERFORM, ENC_PERFORM, S.perf_amount);
         break;
     case ENC_FX:
         S.fx_amount = clampi(S.fx_amount + d, 0, 10);
@@ -272,7 +332,7 @@ static void turn(vet_t *v, int enc, int d, bool pressed)
         overlay(v, OV_BASS_SOUND, ENC_BASS, S.bass + 1);
         break;
     case ENC_LOOP:
-        if (v->lp_state != LP_IDLE) v->m.looper.menu_sel = (uint8_t)clampi(v->m.looper.menu_sel + d, 0, 2);
+        if (lp_state(v) != LP_IDLE) v->m.looper.menu_sel = (uint8_t)clampi(v->m.looper.menu_sel + d, 0, 2);
         break;
     case ENC_BPM:
         if (pressed) {
@@ -328,7 +388,7 @@ static void press(vet_t *v, int enc)
         overlay(v, OV_BASS_TOGGLE, ENC_BASS, v->acc.bass_on);
         break;
     case ENC_LOOP: looper_press(v); break;
-    case ENC_BPM: S.beat_mode = wrap(S.beat_mode + 1, 3); break;
+    case ENC_BPM: S.beat_on = !S.beat_on; break;          /* TRANSPORT_TOGGLE (ACC-205) */
     case ENC_VOLUME: overlay(v, OV_BATTERY, ENC_VOLUME, 0); break;
     case ENC_OPTIONS: list_open(v, L_OPTIONS, ENC_OPTIONS); break;
     case ENC_CHORD_VOICING:
@@ -363,15 +423,9 @@ static void handle(vet_t *v, const pnl_event_t *e)
             if (v->list_kind == L_PLATFORM) list_close(v); else list_open(v, L_PLATFORM, ENC_OPTIONS);
             v->m.layer.platform_menu = 1;
         } else if (e->a == MACRO_LOOP_STOP) looper_stop(v);
-        else if (e->a == MACRO_LOOP_CLEAR) { v->lp_state = LP_IDLE; v->lp_layers = 0; }
-        else if (e->a == MACRO_LOOP_OVERDUB) {                 /* ⊕ della MK4: entra ed esce dall'overdub */
-            if (v->lp_state == LP_PLAY) { v->lp_state = LP_OVERDUB; v->lp_layers++; }
-            else if (v->lp_state == LP_OVERDUB) v->lp_state = LP_PLAY;
-        }
-        else if (e->a == MACRO_LOOP_UNDO && v->lp_state != LP_IDLE) {
-            if (v->lp_layers > 1) v->lp_layers--;
-            else { v->lp_state = LP_IDLE; v->lp_layers = 0; }   /* con lo strato 0 solo l'Undo diventa Clear (ACC-222) */
-        }
+        else if (e->a == MACRO_LOOP_CLEAR) loop_send(v, LOOP_C_CLEAR);
+        else if (e->a == MACRO_LOOP_OVERDUB) loop_send(v, LOOP_C_OVERDUB);   /* ⊕ della MK4: entra ed esce dall'overdub */
+        else if (e->a == MACRO_LOOP_UNDO) loop_send(v, LOOP_C_UNDO);         /* con lo strato 0 vale Clear (ACC-222) */
         else if (e->a == MACRO_PANIC) { msg(v, MSG_INFO, "Panic: all notes off", 2000); snd_push(v, VS_ALL_OFF, 0, 0, 0); }
         break;
     case PNL_SRC_CONNECTED:
@@ -386,6 +440,7 @@ static void handle(vet_t *v, const pnl_event_t *e)
     case G_HOLD:
         if (e->a == ENC_PERFORM) S.lock_perf = (uint8_t)!S.lock_perf;
         if (e->a == ENC_FX) S.lock_fx = (uint8_t)!S.lock_fx;
+        if (e->a == ENC_BPM) list_open(v, L_BEATS, ENC_BPM);  /* tempo in chiave e Beat (UI-077) */
         break;
     case G_RELEASE:
         if (e->a < ENC_COUNT) S.sec[e->a] = 0;
@@ -400,13 +455,18 @@ static void feed(vet_t *v, const pnl_event_t *ev, int n)
 }
 
 /* ---- demo automatica ---- */
-enum { D_CHORD, D_OFF, D_TURN, D_PRESS, D_PTURN, D_BACK, D_FOCUS, D_VIEW, D_THEME, D_LOOP, D_MENU, D_PAGE, D_END };
+enum { D_CHORD, D_OFF, D_TURN, D_PRESS, D_PTURN, D_BACK, D_FOCUS, D_VIEW, D_THEME, D_LOOP, D_BEAT, D_MENU, D_PAGE,
+       D_END };
 typedef struct { uint32_t t; uint8_t act; int8_t a, b, c; } dstep_t;
 #define TY(x) (1 << (x))
-/* accordi: a = tipi (bit DIM MIN MAJ SUS), b = estensioni (bit 6 m7 M7 9), c = classe del tasto */
+/* accordi: a = tipi (bit DIM MIN MAJ SUS), b = estensioni (bit 6 m7 M7 9), c = classe del tasto.
+ * A 120 BPM una battuta dura 2 s e gli accordi cambiano sulla battuta. Il looper registra le battute
+ * da 10,2 a 18,2 s (count-in da 8,2 s), poi il loop suona da solo mentre cambiano suono, effetto e
+ * transpose; dopo il Clear si suona dal vivo con il Perform del suono scelto. */
 static const dstep_t DEMO[] = {
     {     0, D_THEME, THEME_DARK, 0, 0 },
     {     0, D_VIEW, VIEW_CHORD, 0, 0 },
+    {   200, D_BEAT, 1, 0, 0 },                  /* il Beat parte con il primo accordo */
     {   200, D_CHORD, TY(1), TY(1), 6 },         /* F♯m7 */
     {  2200, D_CHORD, TY(2), TY(2), 2 },         /* DM7 */
     {  4200, D_CHORD, TY(2), TY(3), 9 },         /* A9 */
@@ -415,40 +475,33 @@ static const dstep_t DEMO[] = {
     {  7200, D_TURN, ENC_CHORD_VOICING, 2, 0 },
     {  7500, D_TURN, ENC_CHORD_VOICING, 2, 0 },
     {  7800, D_TURN, ENC_CHORD_VOICING, 2, 0 },
+    {  8200, D_LOOP, 1, 0, 0 },                  /* una battuta di count-in */
     {  8200, D_CHORD, TY(1), TY(1), 1 },         /* C♯m7 */
     {  9200, D_TURN, ENC_CHORD_VOICING, -3, 0 },
     {  9600, D_TURN, ENC_CHORD_VOICING, -3, 0 },
-    { 10200, D_LOOP, 1, 0, 0 },
-    { 10200, D_CHORD, TY(1), TY(1), 6 },
+    { 10200, D_CHORD, TY(1), TY(1), 6 },         /* nel loop: F♯m7 DM7 A9 Esusm7 */
     { 12200, D_CHORD, TY(2), TY(2), 2 },
     { 14200, D_CHORD, TY(2), TY(3), 9 },
-    { 16200, D_CHORD, TY(3), TY(1), 4 },         /* Esusm7 */
-    { 18200, D_LOOP, 2, 0, 0 },
-    { 18200, D_CHORD, TY(1), TY(1), 11 },        /* Bm7 */
-    { 20200, D_CHORD, TY(2), TY(1), 1 },         /* C♯7 */
+    { 16200, D_CHORD, TY(3), TY(1), 4 },
+    { 18100, D_OFF, 0, 0, 0 },                   /* da 18,2 s il loop suona da solo */
     { 21000, D_FOCUS, ENC_SOUND, 0, 0 },
     { 21000, D_PAGE, 7, 0, 0 },                  /* come con L1/R1 della Flip */
-    { 21200, D_TURN, ENC_SOUND, 1, 0 },
+    { 21200, D_TURN, ENC_SOUND, 1, 0 },          /* il loop suona con il suono corrente (ACC-221) */
     { 21700, D_TURN, ENC_SOUND, 1, 0 },
     { 22200, D_TURN, ENC_SOUND, 1, 0 },
-    { 22200, D_CHORD, TY(1), 0, 6 },             /* F♯m */
     { 24200, D_PRESS, ENC_SOUND, 0, 0 },
-    { 24200, D_CHORD, TY(2), TY(2), 2 },
     { 24800, D_TURN, ENC_SOUND, 1, 0 },
     { 25300, D_TURN, ENC_SOUND, 1, 0 },
     { 25800, D_TURN, ENC_SOUND, 1, 0 },
-    { 26200, D_CHORD, TY(2), TY(3), 9 },
     { 26400, D_PRESS, ENC_SOUND, 0, 0 },
     { 27200, D_BACK, 0, 0, 0 },
     { 28000, D_FOCUS, ENC_FX, 0, 0 },
     { 28200, D_TURN, ENC_FX, 1, 0 },
-    { 28200, D_CHORD, TY(3), 0, 4 },
     { 28600, D_TURN, ENC_FX, 1, 0 },
-    { 30200, D_FOCUS, ENC_KEY, 0, 0 },
-    { 30200, D_CHORD, TY(1), TY(1), 6 },
-    { 30400, D_PTURN, ENC_KEY, 2, 0 },
-    { 32200, D_PTURN, ENC_KEY, -2, 0 },
-    { 32200, D_CHORD, TY(2), TY(2), 2 },
+    { 29600, D_FOCUS, ENC_KEY, 0, 0 },
+    { 29900, D_PTURN, ENC_KEY, 2, 0 },           /* anche il loop sale di un tono */
+    { 33900, D_PTURN, ENC_KEY, -2, 0 },
+    { 34200, D_LOOP, 3, 0, 0 },                  /* Clear: da qui si suona dal vivo */
     { 34200, D_VIEW, VIEW_GEEK, 0, 0 },
     { 34200, D_CHORD, TY(1), TY(1) | TY(3), 6 }, /* F♯m9 con la settima */
     { 36200, D_CHORD, TY(2), TY(2), 2 },
@@ -468,9 +521,9 @@ static const dstep_t DEMO[] = {
     { 54200, D_CHORD, TY(3), 0, 4 },
     { 56200, D_CHORD, TY(1), TY(1), 1 },
     { 58200, D_THEME, THEME_DARK, 0, 0 },
-    { 58200, D_LOOP, 3, 0, 0 },
     { 58200, D_CHORD, TY(1), TY(1), 6 },
     { 60200, D_OFF, 0, 0, 0 },
+    { 60200, D_BEAT, 0, 0, 0 },
     { 62500, D_MENU, 0, 0, 0 },
     { 63300, D_TURN, ENC_OPTIONS, 1, 0 },
     { 63800, D_TURN, ENC_OPTIONS, 1, 0 },
@@ -513,11 +566,8 @@ static void demo_do(vet_t *v, const dstep_t *s)
     case D_FOCUS: v->inp.gest.focus = (uint8_t)s->a; break;
     case D_VIEW: S.view = s->a; break;
     case D_THEME: v->m.prefs.theme = (uint8_t)s->a; break;
-    case D_LOOP:
-        if (s->a == 1) { v->lp_state = LP_IDLE; looper_press(v); }
-        else if (s->a == 2) v->lp_state = LP_PLAY;
-        else { v->lp_state = LP_IDLE; v->lp_layers = 0; }
-        break;
+    case D_LOOP: loop_send(v, s->a == 1 ? LOOP_C_PRESS : LOOP_C_CLEAR); break;
+    case D_BEAT: S.beat_on = s->a; break;
     case D_MENU: { pnl_event_t e = { PNL_MACRO, SRC_FLIP, MACRO_SYSTEM_MENU, 0, 0 }; handle(v, &e); break; }
     case D_PAGE: v->page_until = v->now_ms + (uint32_t)s->a * 1000u; break;
     default: break;
@@ -529,11 +579,12 @@ static void demo_reset(vet_t *v)
     demo_release(v);
     if (v->list_kind) list_close(v);
     v->m.layer.ov.kind = OV_NONE;
-    v->lp_state = LP_IDLE;
-    v->lp_layers = 0;
+    loop_send(v, LOOP_C_CLEAR);
     ain(v, ACC_IN_OPTION_SET, ACC_OPT_VOICING, ACC_V_DEFAULT);
     ain(v, ACC_IN_OPTION_SET, ACC_OPT_TRANSPOSE, 0);
-    S.sound = 2; S.fx_amount = 4; S.view = VIEW_CHORD; S.bpm = 120;
+    S.sound = 2; S.view = VIEW_CHORD; S.bpm = 120;
+    S.beat_mode = BEAT_PATTERN; S.beat = 0; S.beat_on = 0;
+    v->snd_sound = -1;                          /* suono, Perform ed effetto del suono 3 da capo (ACC-162) */
     v->inp.gest.focus = ENC_SOUND;
     v->page_until = v->now_ms;
 }
@@ -544,14 +595,17 @@ static void demo_start(vet_t *v)
     v->demo_running = 1;
     v->demo_t0 = v->now_ms;
     v->demo_step = 0;
-    v->t0_ms = v->now_ms;
 }
 
+/* chi tocca un controllo suona da solo: loop, Beat e transpose della demo si spengono */
 static void demo_stop(vet_t *v)
 {
     if (!v->demo_running) return;
     v->demo_running = 0;
     demo_release(v);
+    loop_send(v, LOOP_C_CLEAR);
+    S.beat_on = 0;
+    if (v->acc.transpose) ain(v, ACC_IN_OPTION_SET, ACC_OPT_TRANSPOSE, 0);
     v->m.prefs.theme = THEME_DARK;
 }
 
@@ -565,7 +619,7 @@ static void demo_run(vet_t *v)
     }
 }
 
-void vet_demo_seek(vet_t *v, uint32_t t_ms)
+void vet_demo_seek(vet_t *v, uint32_t t_ms, void (*step)(vet_t *v, void *ctx), void *ctx)
 {
     v->booting = 0;
     v->m.layer.base = BASE_PLAY;
@@ -573,6 +627,7 @@ void vet_demo_seek(vet_t *v, uint32_t t_ms)
     uint32_t start = v->now_ms;
     for (uint32_t t = 0; t <= t_ms; t += 10) {     /* come l'app: un modello a ogni passo */
         vet_tick(v, start + t);
+        if (step) step(v, ctx);
         vet_model(v);
     }
 }
@@ -581,7 +636,7 @@ void vet_demo_seek(vet_t *v, uint32_t t_ms)
 static void user_input(vet_t *v, uint32_t now_ms)
 {
     v->last_input_ms = now_ms;
-    if (v->booting) { v->booting = 0; v->m.layer.base = BASE_PLAY; v->t0_ms = now_ms; }
+    if (v->booting) { v->booting = 0; v->m.layer.base = BASE_PLAY; }
     demo_stop(v);
 }
 
@@ -656,7 +711,7 @@ void vet_init(vet_t *v, uint32_t now_ms)
     memset(&S, 0, sizeof S);
     acc_init(&v->acc);
     inp_init(&v->inp);
-    v->now_ms = v->boot_ms = v->last_ms = v->t0_ms = now_ms;
+    v->now_ms = v->boot_ms = v->last_ms = now_ms;
     v->booting = 1;
     v->demo_on = 1;
     v->last_input_ms = now_ms;
@@ -671,9 +726,10 @@ void vet_init(vet_t *v, uint32_t now_ms)
     if (!v->acc.key_on) ain(v, ACC_IN_KEY_MODE_TOGGLE, 0, 0);
     ain(v, ACC_IN_OPTION_SET, ACC_OPT_BASS_ON, 1);
 
-    S.sound = 2; S.perf_mode = PERF_ARP; S.perf_amount = 5; S.arp_rate = 16; S.arp_dir = ARP_UPDOWN;
-    S.fx_type = FX_REV; S.fx_amount = 4; S.bass = 0; S.volume = 72; S.bass_volume = 70;
-    S.bpm = 120; S.beat_mode = BEAT_PATTERN; S.beat = 0; S.beat_volume = 60; S.view = VIEW_CHORD;
+    /* il Perform arriva dal suono al primo snd_sync (ACC-162); il Beat è scelto ma fermo (ACC-205) */
+    S.sound = 2; S.fx_type = FX_REV; S.fx_amount = 4; S.bass = 0; S.volume = 72; S.bass_volume = 70;
+    S.bpm = 120; S.beat_mode = BEAT_PATTERN; S.beat = 0; S.meter = METER_4_4; S.beat_on = 0;
+    S.beat_volume = 60; S.view = VIEW_CHORD;
 
     ui_model_t *m = &v->m;
     m->layer.base = BASE_BOOT;
@@ -691,6 +747,7 @@ void vet_init(vet_t *v, uint32_t now_ms)
     ui_fmt_copy(m->boot.version, sizeof m->boot.version, "vetrina 0.1");
     v->inp.gest.focus = ENC_SOUND;
     v->snd_sound = v->snd_bass = v->snd_vol = v->snd_bvol = v->snd_fx = -1;
+    v->snd_bpm = v->snd_perf = v->snd_beat = v->snd_meter = v->snd_beat_on = v->snd_beat_vol = -1;
 }
 
 /* ---- synth: suono, basso, effetto principale e volumi verso il dsp ---- */
@@ -720,9 +777,13 @@ static void snd_sync(vet_t *v)
         int t;
         v->snd_fx_idx = (uint8_t)fx_main(p, &t);
         S.fx_type = t;
-        S.fx_amount = fx_display(p[v->snd_fx_idx]);
         v->snd_sound = (int16_t)S.sound;
-        v->snd_fx = (int16_t)S.fx_amount;
+        if (S.lock_fx) v->snd_fx = -1;              /* con il Lock l'intensità resta e passa alla patch nuova */
+        else { S.fx_amount = fx_display(p[v->snd_fx_idx]); v->snd_fx = (int16_t)S.fx_amount; }
+        if (!S.lock_perf) {                         /* Perform di default del suono (ACC-162) */
+            S.perf_mode = vet_sound_perf[S.sound % VET_N_SOUNDS][0];
+            S.perf_amount = vet_sound_perf[S.sound % VET_N_SOUNDS][1];
+        }
     }
     if (S.fx_amount != v->snd_fx) {
         int raw = S.fx_amount * 127 / 10;
@@ -732,6 +793,25 @@ static void snd_sync(vet_t *v)
     if (S.bass != v->snd_bass) { snd_push(v, VS_PATCH, 1, (uint8_t)S.bass, 0); v->snd_bass = (int16_t)S.bass; }
     if (S.volume != v->snd_vol) { snd_push(v, VS_MASTER, 0, (uint8_t)S.volume, 0); v->snd_vol = (int16_t)S.volume; }
     if (S.bass_volume != v->snd_bvol) { snd_push(v, VS_BASS_VOL, 1, (uint8_t)S.bass_volume, 0); v->snd_bvol = (int16_t)S.bass_volume; }
+
+    /* tempo, Perform e Beat verso il motore; la selezione del Beat prima dell'accensione */
+    if (S.bpm != v->snd_bpm) { snd_push(v, VS_BPM, 0, (uint8_t)S.bpm, 0); v->snd_bpm = (int16_t)S.bpm; }
+    int perf = S.perf_mode << 8 | S.perf_amount;
+    if (perf != v->snd_perf) {
+        snd_push(v, VS_PERF, 0, (uint8_t)S.perf_mode, (uint8_t)S.perf_amount);
+        v->snd_perf = (int16_t)perf;
+    }
+    int beat = S.beat_mode << 8 | S.beat;
+    if (beat != v->snd_beat) {                      /* i Beat della vetrina sono 1…6 in core/beat */
+        snd_push(v, VS_BEAT, 0, S.beat_mode == BEAT_METRONOME ? BEAT_M_METRONOME : BEAT_M_PATTERN, (uint8_t)(S.beat + 1));
+        v->snd_beat = (int16_t)beat;
+    }
+    if (S.meter != v->snd_meter) { snd_push(v, VS_METER, 0, (uint8_t)S.meter, 0); v->snd_meter = (int16_t)S.meter; }
+    if (S.beat_on != v->snd_beat_on) { snd_push(v, VS_BEAT_ON, 0, (uint8_t)S.beat_on, 0); v->snd_beat_on = (int16_t)S.beat_on; }
+    if (S.beat_volume != v->snd_beat_vol) {
+        snd_push(v, VS_BEAT_VOL, 0, (uint8_t)S.beat_volume, 0);
+        v->snd_beat_vol = (int16_t)S.beat_volume;
+    }
 }
 
 /* ---- tempo che passa ---- */
@@ -773,7 +853,6 @@ void vet_tick(vet_t *v, uint32_t now_ms)
         if (now_ms - v->boot_ms >= BOOT_MS) {
             v->booting = 0;
             v->m.layer.base = BASE_PLAY;
-            v->t0_ms = now_ms;
             v->last_input_ms = now_ms - DEMO_IDLE_MS;      /* la demo parte subito dopo l'avvio */
         }
     }
@@ -789,12 +868,20 @@ void vet_tick(vet_t *v, uint32_t now_ms)
         if (v->demo_running) demo_run(v);
         else if (v->demo_on && now_ms - v->last_input_ms > DEMO_IDLE_MS && !v->list_kind) demo_start(v);
     }
+    /* count-in: «04» … «01» sopra la plancia (UI-089) */
+    if (lp_state(v) == LP_COUNT_IN) {
+        v->m.layer.ov.kind = OV_COUNT_IN;
+        v->m.layer.ov.enc = ENC_LOOP;
+        v->m.layer.ov.value = (int16_t)count_in_left(v);
+        v->ov_until = now_ms + 100u;
+        v->m.layer.ov.until_ms = v->ov_until;
+    }
     /* overlay e liste che scadono */
     if (v->m.layer.ov.kind != OV_NONE && (int32_t)(now_ms - v->ov_until) >= 0) {
         v->m.layer.ov.kind = OV_NONE;
         if (!v->list_kind) gest_set_owner(&v->inp.gest, ENC_COUNT, false);
     }
-    if (v->list_kind && (v->list_kind == L_SOUND || v->list_kind == L_PERFORM) && now_ms - v->list_ms > LIST_IDLE_MS)
+    if ((v->list_kind == L_SOUND || v->list_kind == L_PERFORM || v->list_kind == L_BEATS) && now_ms - v->list_ms > LIST_IDLE_MS)
         list_close(v);
     if (v->m.msg_plat.level && (int32_t)(now_ms - v->m.msg_plat.until_ms) >= 0) v->m.msg_plat.level = MSG_NONE;
 
@@ -901,54 +988,68 @@ static void fill_music(vet_t *v, ui_music_t *mu)
     mu->pocket_pc = 255;
 }
 
+/* metrica in uso: quella del metronomo, o 4/4 con un Beat (ACC-209) */
+static void meter_now(uint32_t *bar, uint32_t *click, int *bpb, int *unit)
+{
+    static const uint8_t BPB[4] = { 2, 3, 4, 6 };
+    int meter = S.beat_mode == BEAT_PATTERN ? METER_4_4 : S.meter;
+    *bar = meter_bar(meter);
+    *click = meter_click(meter);
+    *bpb = BPB[meter & 3];
+    *unit = meter == METER_6_8 ? 8 : 4;
+}
+
+/* battiti che mancano alla fine del count-in: 4 … 1 in 4/4 (UI-089) */
+static int count_in_left(const vet_t *v)
+{
+    uint32_t bar, click;
+    int bpb, unit;
+    meter_now(&bar, &click, &bpb, &unit);
+    uint32_t c = v->snap->tick - v->snap->tr_t0;
+    return bpb - (int)(c < bar ? c / click : (uint32_t)bpb - 1u);
+}
+
 static void fill_tempo_looper(vet_t *v, ui_model_t *m)
 {
-    uint32_t beat_ms = 60000u / (uint32_t)S.bpm, bms = bar_ms();
-    uint32_t el = v->now_ms - v->t0_ms;
+    uint32_t bar, click;
+    int bpb, unit;
+    meter_now(&bar, &click, &bpb, &unit);
     ui_tempo_t *t = &m->tempo;
     t->bpm = (uint16_t)S.bpm;
-    t->beats_per_bar = 4;
-    t->beat_unit = 4;
-    t->running = !v->booting;
-    t->beat = (uint8_t)((el / beat_ms) % 4);
-    t->bar = 1 + el / bms;
-    t->beat_phase = (uint16_t)((el % beat_ms) * 65536u / beat_ms);
+    t->beats_per_bar = (uint8_t)bpb;
+    t->beat_unit = (uint8_t)unit;
     t->beat_mode = (uint8_t)S.beat_mode;
-    t->beat_index = (uint8_t)(S.beat + 3);
+    t->beat_index = (uint8_t)(S.beat + 1);
     ui_fmt_copy(t->beat_name, sizeof t->beat_name, BEATS[S.beat % N_BEATS]);
     t->beat_volume = (uint8_t)S.beat_volume;
+    t->drums_on = (uint8_t)(S.beat_on && S.beat_mode == BEAT_PATTERN);
+    const mot_snap_t *sn = v->snap;
+    if (sn && sn->tr_on) {                                        /* posizione del trasporto vero */
+        uint32_t pos = sn->tick - sn->tr_t0;
+        t->running = 1;
+        t->beat = (uint8_t)((pos % bar) / click);
+        t->bar = 1 + pos / bar;
+        t->beat_phase = (uint16_t)((pos % click) * 65536u / click);
+    }
 
     ui_looper_t *lp = &m->looper;
-    lp->state = v->lp_state;
-    lp->layers = v->lp_layers;
-    if (v->lp_state != LP_IDLE) {
-        uint32_t len = bms * v->lp_bars;
-        uint32_t pos = (v->now_ms - v->lp_t0_ms) % len;
-        if (v->lp_state == LP_REC && v->now_ms - v->lp_t0_ms >= len) { v->lp_state = LP_PLAY; lp->state = LP_PLAY; }
-        lp->bars = v->lp_bars;
-        lp->cur_bar = (uint8_t)(1 + pos / bms);
-        lp->progress = (uint16_t)((uint64_t)pos * 65536u / len);
-        int bar = lp->cur_bar - 1;
-        if (v->lp_state == LP_REC || v->lp_state == LP_OVERDUB) {
-            if (m->music.pc_sounding) v->lp_rec_pcs[bar][0] = m->music.pc_sounding;
-            for (int i = 0; i < m->music.n_notes; i++)
-                if (m->music.notes[i].role == ROLE_BASS && m->music.chord_state == CH_SOUNDING)
-                    v->lp_rec_pcs[bar][1] = (uint16_t)(1u << (m->music.notes[i].midi % 12));
-        }
-        if (v->lp_state == LP_PLAY || v->lp_state == LP_OVERDUB) {
-            for (int pc = 0; pc < 12; pc++) {
-                if (v->lp_rec_pcs[bar][0] >> pc & 1) set_bit(m->music.loop_treble, acc_place(pc, m->music.W));
-                if (v->lp_rec_pcs[bar][1] >> pc & 1) set_bit(m->music.loop_bass, acc_place(pc, m->music.WB));
-            }
-        }
-        static const uint8_t MENU[7][3] = {
-            { LPI_REC, LPI_PLAY, LPI_BACK }, { LPI_REC, LPI_PLAY, LPI_BACK }, { LPI_REC, LPI_PLAY, LPI_BACK },
-            { LPI_PLAY, LPI_UNDO, LPI_CLEAR }, { LPI_OVERDUB, LPI_PAUSE, LPI_CLEAR },
-            { LPI_PLAY, LPI_UNDO, LPI_CLEAR }, { LPI_PLAY, LPI_CLEAR, LPI_BACK },
-        };
-        memcpy(lp->menu, MENU[lp->state < 7 ? lp->state : 0], 3);
-        lp->menu_sel = m->looper.menu_sel;
-    }
+    uint8_t st = lp_state(v);
+    if (st != v->lp_seen) { lp->menu_sel = 0; v->lp_seen = st; }  /* voce iniziale del menu (UI-088) */
+    lp->state = st;
+    if (st == LP_IDLE || !sn) return;
+    lp->layers = sn->lp_layers;
+    lp->loop_full = sn->lp_full;
+    uint32_t len = sn->lp_len ? sn->lp_len : bar, pos = 0;
+    if (st == LP_REC) pos = sn->tick - sn->lp_t0 < len ? sn->tick - sn->lp_t0 : len - 1;
+    else if (st == LP_PLAY || st == LP_OVERDUB) pos = (sn->tick - sn->lp_t0) % len;
+    lp->bars = (uint8_t)(len / bar);
+    lp->cur_bar = (uint8_t)(1 + pos / bar);
+    lp->progress = (uint16_t)((uint64_t)pos * 65535u / len);
+    if (st == LP_COUNT_IN) lp->count_in = (uint8_t)count_in_left(v);
+    for (int r = 0; r < 2; r++)                                   /* le note che il loop sta suonando */
+        for (int i = 0; i < 128; i++)
+            if (sn->lp_notes[r][i >> 3] >> (i & 7) & 1u) set_bit(r ? m->music.loop_bass : m->music.loop_treble, i);
+    loop_menu(v, lp->menu);
 }
 
 const ui_model_t *vet_model(vet_t *v)
@@ -991,8 +1092,8 @@ const ui_model_t *vet_model(vet_t *v)
     ui_fmt_copy(c->sound_cat, sizeof c->sound_cat, SOUNDS[S.sound].cat);
     c->perf_mode = (uint8_t)S.perf_mode;
     c->perf_amount = (uint8_t)S.perf_amount;
-    c->arp_rate = (uint8_t)S.arp_rate;
-    c->arp_dir = (uint8_t)S.arp_dir;
+    c->arp_rate = S.perf_amount > 3 ? 16 : 8;              /* tipo di ACC-171 dall'amount */
+    c->arp_dir = (uint8_t)(S.perf_amount ? (S.perf_amount - 1) % 3 : 0);
     c->fx_main_type = (uint8_t)S.fx_type;
     c->fx_main_amount = (uint8_t)S.fx_amount;
     c->fx[0].type = FX_REV; c->fx[0].amount = (uint8_t)S.fx_amount;
@@ -1010,11 +1111,11 @@ const ui_model_t *vet_model(vet_t *v)
     ui_list_t *l = &m->layer.list;
     memset(l, 0, sizeof *l);
     if (v->list_kind) {
-        static const char *const PATH[] = { "", "SOUND", "PERFORM", "OPTIONS", "MENU" };
+        static const char *const PATH[] = { "", "SOUND", "PERFORM", "OPTIONS", "MENU", "BEATS" };
+        static const uint8_t KIND[] = { 0, LS_SOUND, LS_PERFORM, LS_OPTIONS, LS_PLATFORM, LS_BEATS };
         l->open = 1;
         l->owner = v->list_owner;
-        l->kind = v->list_kind == L_SOUND ? LS_SOUND : v->list_kind == L_PERFORM ? LS_PERFORM :
-                  v->list_kind == L_OPTIONS ? LS_OPTIONS : LS_PLATFORM;
+        l->kind = KIND[v->list_kind];
         ui_fmt_copy(l->path, sizeof l->path, PATH[v->list_kind]);
         l->n = (uint16_t)list_n(v->list_kind);
         l->sel = v->list_sel;

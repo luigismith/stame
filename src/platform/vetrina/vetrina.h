@@ -1,9 +1,10 @@
 /* vetrina.h — la vetrina di Stame: un pilota dimostrativo della plancia.
  *
- * Non è il nucleo (core/ui, looper e suono arriveranno con le fasi F2–F4): serve a vedere e
- * provare l'identità visiva sulla Flip prima di allora. Usa il motore degli accordi vero
- * (core/acc) e lo strato di input vero (core/input: profili della MPK, della Flip e del macro pad,
- * gesti e fuoco); il resto (suoni, effetti, looper, liste) è simulato con dati inventati.
+ * Non è ancora core/ui: serve a suonare e provare Stame sulla Flip prima di allora. Usa il motore
+ * degli accordi vero (core/acc), lo strato di input vero (core/input: profili della MPK, della
+ * Flip e del macro pad, gesti e fuoco) e, attraverso la coda dei comandi, il motore audio vero
+ * (core/motore: synth, Perform, Beat, metronomo e looper). Nomi dei suoni, effetti secondari e
+ * meter di riserva sono dati della vetrina.
  *
  * Senza ingressi per 20 secondi parte una dimostrazione automatica che passa per tutti gli stati
  * della plancia; un tasto o un accordo la ferma.
@@ -13,6 +14,7 @@
 
 #include "../../core/acc.h"
 #include "../../core/input/input.h"
+#include "../../core/motore.h"
 #include "../../ui/ui_model.h"
 #include "../../dsp/patch.h"
 
@@ -21,14 +23,19 @@
 #define VET_N_SOUNDS  16
 #define VET_N_BASSES  6
 
-/* Comandi per il synth (specifica 20): la vetrina li mette in coda, la piattaforma li legge con
- * vet_snd_pop e li passa al dsp (thread audio sulla Flip, render in WAV sul PC). */
-enum { VS_NOTE_ON, VS_NOTE_OFF, VS_CHORD_START, VS_PATCH, VS_PARAM, VS_MASTER, VS_BASS_VOL, VS_ALL_OFF };
+/* Comandi per il motore audio (core/motore e synth): la vetrina li mette in coda, la piattaforma li
+ * legge con vet_snd_pop e li passa al motore (thread audio sulla Flip, render in WAV sul PC).
+ * VS_PERF: a = modo, b = amount; VS_BEAT: a = BEAT_M_*, b = indice; VS_LOOP: a = LOOP_C_*;
+ * VS_TRANSPOSE: a = semitoni con segno. */
+enum { VS_NOTE_ON, VS_NOTE_OFF, VS_CHORD_START, VS_PATCH, VS_PARAM, VS_MASTER, VS_BASS_VOL, VS_ALL_OFF,
+       VS_BPM, VS_PERF, VS_BEAT, VS_METER, VS_BEAT_ON, VS_BEAT_VOL, VS_TRANSPOSE, VS_LOOP };
 typedef struct { uint8_t type, engine, a, b; } vet_snd_t;   /* engine: 0 Sound, 1 Bass */
 
 /* patch di Stame per i suoni e i bassi della vetrina (patch_vetrina.c, da tools/patch.py) */
 extern const uint8_t vet_sound_patch[VET_N_SOUNDS][DSP_NPAR];
 extern const uint8_t vet_bass_patch[VET_N_BASSES][DSP_NPAR];
+/* Perform di default di ogni suono: modo e amount (ACC-162, colonne di bank.idx) */
+extern const uint8_t vet_sound_perf[VET_N_SOUNDS][2];
 
 typedef struct {
     /* nucleo vero */
@@ -50,12 +57,9 @@ typedef struct {
     ui_note_t   last_notes[UI_NOTES_MAX];
     uint8_t     last_n;
 
-    /* trasporto e looper simulati */
-    uint32_t    t0_ms;                /* inizio del trasporto */
-    uint8_t     lp_state, lp_bars;
-    uint32_t    lp_t0_ms;
-    uint16_t    lp_rec_pcs[16][2];    /* treble e basso registrati per battuta */
-    uint8_t     lp_layers;
+    /* trasporto e looper veri: lo stato che pubblica il motore audio (vet_set_motore) */
+    const mot_snap_t *snap;
+    uint8_t     lp_seen;              /* ultimo stato del looper visto, per il menu a tre voci */
 
     /* overlay e liste */
     uint32_t    ov_until;
@@ -81,6 +85,7 @@ typedef struct {
     vet_snd_t   snd_q[VET_SND_Q];
     uint16_t    snd_w, snd_r;
     int16_t     snd_sound, snd_bass, snd_vol, snd_bvol, snd_fx;
+    int16_t     snd_bpm, snd_perf, snd_beat, snd_meter, snd_beat_on, snd_beat_vol, snd_tr;
     uint8_t     snd_fx_idx;           /* parametro dell'effetto principale del suono (SND-601) */
     /* oscilloscopio e livelli veri, se la piattaforma li ha (vet_set_scope) */
     const int16_t *ext_scope;
@@ -96,6 +101,8 @@ bool vet_snd_pop(vet_t *v, vet_snd_t *out);
 /* L'oscilloscopio e i picchi dell'uscita vera prendono il posto di quelli simulati. */
 void vet_set_scope(vet_t *v, const int16_t *buf, uint16_t len, const volatile uint32_t *wr,
                    const volatile float *peak);
+/* Stato del motore audio (trasporto, Beat, looper) per la plancia; senza, tempo e looper restano fermi. */
+void vet_set_motore(vet_t *v, const mot_snap_t *snap);
 
 void vet_init(vet_t *v, uint32_t now_ms);
 /* Messaggio MIDI completo dalla porta 1 della MPK. */
@@ -116,8 +123,9 @@ void vet_battery(vet_t *v, uint8_t pct, bool charging);
 const ui_model_t *vet_model(vet_t *v);
 /* 1 quando si sceglie «Quit Stame» nel menu. */
 static inline bool vet_quit(const vet_t *v) { return v->quit != 0; }
-/* Per le prove: ferma l'avvio e porta la demo all'istante t_ms del suo copione. */
-void vet_demo_seek(vet_t *v, uint32_t t_ms);
+/* Per le prove: ferma l'avvio e porta la demo all'istante t_ms del suo copione, a passi di 10 ms.
+ * step (se c'è) gira dopo ogni passo: la piattaforma vi passa i comandi al motore e rende l'audio. */
+void vet_demo_seek(vet_t *v, uint32_t t_ms, void (*step)(vet_t *v, void *ctx), void *ctx);
 /* Durata del copione della demo, in ms. */
 uint32_t vet_demo_len(void);
 

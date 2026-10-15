@@ -161,6 +161,17 @@ LIVELLO_DB = {
 }
 
 
+# Perform di default di ogni suono (ACC-162; colonne perform_mode e perform_amount di bank.idx, SND-131).
+# Modi di ACC-160: 0 Off, 1 Strum, 2 Strum 2 Oct, 3 Slop, 4 Arpeggiate, 5 Arp 2 Oct, 6 Pattern, 7 Harp.
+# Scelte di Stame per i suoi suoni, non dati dell'Orchid. I bassi non hanno performance (ACC-142).
+OFF, STRUM, STRUM2, SLOP, ARP, ARP2, PATTERN, HARP = range(8)
+PERFORM = {
+    'Glass Pollen': (HARP, 3), 'Anther Keys': (STRUM, 2), 'Fern Pluck': (ARP, 6), 'Copper Reed': (STRUM, 3),
+    'Moss Strings': (STRUM2, 4), 'Dew Mallet': (PATTERN, 5), 'Tape Fern': (SLOP, 4), 'Sun Room': (PATTERN, 2),
+    'Linnaeus Lead': (ARP2, 4), 'Petal Brass': (STRUM, 1),
+}
+
+
 def livella(voci):
     for nome, p in voci:
         g = p[IDX['GAIN']] * 10.0 ** (LIVELLO_DB.get(nome, 0.0) / 40.0)
@@ -188,7 +199,8 @@ def scrivi_banco(cartella, voci):
         dati = inc(p).encode('ascii')
         assert len(dati) == 3414, (nome, len(dati))
         open(os.path.join(cartella, f), 'wb').write(dati)
-        idx.append('%02d\t%s\t%s\t0\t0' % (n, nome, f))
+        modo, amount = PERFORM.get(nome, (OFF, 0))
+        idx.append('%02d\t%s\t%s\t%d\t%d' % (n, nome, f, modo, amount))
     open(os.path.join(cartella, 'bank.idx'), 'w', encoding='utf-8', newline='\n').write('\n'.join(idx) + '\n')
 
 
@@ -212,6 +224,10 @@ def main():
          '#include "vetrina.h"', '']
     c += tabella('vet_sound_patch', SUONI) + ['']
     c += tabella('vet_bass_patch', BASSI) + ['']
+    c += ['/* Perform di default: modo di ACC-160 e amount (ACC-162) */',
+          'const uint8_t vet_sound_perf[%d][2] STAME_ROM = {' % len(SUONI)]
+    c += ['    { %d, %d },   /* %s */' % (PERFORM.get(nome, (OFF, 0)) + (nome,)) for nome, _ in SUONI]
+    c += ['};', '']
     p = os.path.join(RADICE, 'src', 'platform', 'vetrina', 'patch_vetrina.c')
     open(p, 'w', encoding='utf-8', newline='\n').write('\n'.join(c))
     print('patch: %d suoni, %d bassi' % (len(SUONI), len(BASSI)))

@@ -271,3 +271,23 @@ const uint8_t vet_bass_patch[6][DSP_NPAR] STAME_ROM = {
         64, 0, 110, 32, 64, 90, 32, 32, 32, 0, 80, 127, 16, 16, 0,
     },
 };
+
+/* Perform di default: modo di ACC-160 e amount (ACC-162) */
+const uint8_t vet_sound_perf[16][2] STAME_ROM = {
+    { 7, 3 },   /* Glass Pollen */
+    { 0, 0 },   /* Night Greenhouse */
+    { 1, 2 },   /* Anther Keys */
+    { 0, 0 },   /* Slow Stamen */
+    { 4, 6 },   /* Fern Pluck */
+    { 1, 3 },   /* Copper Reed */
+    { 0, 0 },   /* Orbit Choir */
+    { 2, 4 },   /* Moss Strings */
+    { 6, 5 },   /* Dew Mallet */
+    { 3, 4 },   /* Tape Fern */
+    { 0, 0 },   /* Seed Organ */
+    { 6, 2 },   /* Sun Room */
+    { 5, 4 },   /* Linnaeus Lead */
+    { 1, 1 },   /* Petal Brass */
+    { 0, 0 },   /* Root Drone */
+    { 0, 0 },   /* Vetro Pad */
+};

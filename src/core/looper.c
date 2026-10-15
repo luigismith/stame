@@ -127,6 +127,7 @@ int loop_cmd(looper_t *l, int cmd, uint32_t tick, loop_ev_t *out, int max)
         }
         break;
     case LOOP_C_CLEAR:
+        if (l->state == LOOP_OVERDUB) return loop_cmd(l, LOOP_C_UNDO, tick, out, max);   /* annulla lo strato in corso */
         k = clear(l, out, max, k);
         break;
     default: break;

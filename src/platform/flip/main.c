@@ -102,10 +102,12 @@ static int prova(void)
  * frazione di un core usata (PLT-034, SND-700) e il blocco peggiore. Niente schermo né tasti. */
 #include "../vetrina/vetrina_dsp.h"
 static dsp_t dsp_prova;
+static motore_t mot_prova;
 static int prova_audio(void)
 {
     vet_init(&vet, 1000);
-    vet_snd_init(&dsp_prova, 48000.0f, 1);
+    vet_snd_init(&mot_prova, &dsp_prova, 48000u, 1);
+    vet_set_motore(&vet, &mot_prova.snap);
     float L[DSP_BLOCK], R[DSP_BLOCK];
     struct timespec a, b, c, d;
     double peggiore = 0.0;
@@ -114,10 +116,10 @@ static int prova_audio(void)
     for (uint32_t t = 0; t < 30000; t++) {
         vet_tick(&vet, 1000 + t);
         vet_snd_t e;
-        while (vet_snd_pop(&vet, &e)) vet_snd_apply(&dsp_prova, &e);
+        while (vet_snd_pop(&vet, &e)) vet_snd_apply(&mot_prova, &e);
         for (int k = 0; k < 3; k++) {
             clock_gettime(CLOCK_MONOTONIC, &c);
-            dsp_render16(&dsp_prova, L, R, NULL, NULL);
+            mot_render(&mot_prova, L, R, DSP_BLOCK);
             clock_gettime(CLOCK_MONOTONIC, &d);
             double us = (double)(d.tv_sec - c.tv_sec) * 1e6 + (double)(d.tv_nsec - c.tv_nsec) / 1e3;
             if (us > peggiore) peggiore = us;
@@ -155,6 +157,7 @@ int main(int argc, char **argv)
         const volatile float *pk;
         const int16_t *sc = audio_scope(&sl, &sw, &pk);
         vet_set_scope(&vet, sc, sl, sw, pk);
+        vet_set_motore(&vet, audio_motore());
     } else log_msg("audio: synth spento, la vetrina resta muta");
 
     int pad = pad_open();

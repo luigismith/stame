@@ -1,14 +1,16 @@
 /* flip.h — piattaforma Miyoo Flip della vetrina: video SDL, tasti evdev, MIDI grezzo, batteria.
  *
  * Sezione 50: SDL2 caricata con dlopen (PLT-059, PLT-060), tasti letti solo da evdev (PLT-052,
- * PLT-053), MIDI rawmidi senza alsa-lib (§6.1), batteria da sysfs (PLT-090). Audio: il synth
- * (specifica 20) nel thread audio di SDL, con i comandi della vetrina su una coda SPSC (audio.c).
+ * PLT-053), MIDI rawmidi senza alsa-lib (§6.1), batteria da sysfs (PLT-090). Audio: il motore
+ * (performance, Beat, looper) e il synth nel thread audio di SDL, con i comandi della vetrina su una
+ * coda SPSC (audio.c).
  */
 #ifndef STAME_FLIP_H
 #define STAME_FLIP_H
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "../../core/motore.h"
 
 /* video */
 int  video_open(void);                                        /* 0 = ok */
@@ -24,6 +26,7 @@ void audio_send(const void *cmd);                             /* un vet_snd_t, d
 void audio_logo(void);                                        /* suona il logo dell'avvio */
 void audio_close(void);
 const int16_t *audio_scope(uint16_t *len, const volatile uint32_t **wr, const volatile float **peak);
+const mot_snap_t *audio_motore(void);                        /* trasporto, Beat e looper per la plancia */
 
 /* tasti della Flip: richiama cb per ogni tasto (codice PAD_*, valore 1 giù / 0 su) */
 typedef void (*pad_cb_t)(void *ctx, uint16_t code, int32_t value);

@@ -146,8 +146,9 @@ static void render_to(const char *dir, const char *name)
     else printf("errore: %s\n", path);
 }
 
-/* ---- audio: la vetrina dall'avvio, con le note e i cambi di suono passati al synth vero ---- */
+/* ---- audio: la vetrina dall'avvio, con i comandi passati al motore vero (synth, Perform, Beat, looper) ---- */
 static dsp_t dsp;
+static motore_t mot;
 
 static void le16(uint8_t *p, uint32_t v) { p[0] = (uint8_t)v; p[1] = (uint8_t)(v >> 8); }
 static void le32(uint8_t *p, uint32_t v) { le16(p, v); le16(p + 2, v >> 16); }
@@ -172,7 +173,8 @@ static int render_wav(const char *path, uint32_t ms, bool mpk)
     vet_init(&vet, 100000);
     vet_battery(&vet, 87, false);
     if (mpk) vet_mpk(&vet, true, NULL, 100000);
-    vet_snd_init(&dsp, 48000.0f, 1);
+    vet_snd_init(&mot, &dsp, 48000u, 1);
+    vet_set_motore(&vet, &mot.snap);
     float L[DSP_BLOCK], R[DSP_BLOCK], pk = 0.0f;
     double sq = 0.0;
     int16_t out[DSP_BLOCK * 2];
@@ -180,9 +182,9 @@ static int render_wav(const char *path, uint32_t ms, bool mpk)
     for (uint32_t t = 0; t < ms; t++) {
         vet_tick(&vet, 100000 + t);
         vet_snd_t e;
-        while (vet_snd_pop(&vet, &e)) vet_snd_apply(&dsp, &e);
+        while (vet_snd_pop(&vet, &e)) vet_snd_apply(&mot, &e);
         for (int b = 0; b < 3; b++) {                     /* 1 ms = 48 frame = 3 blocchi */
-            dsp_render16(&dsp, L, R, NULL, NULL);
+            mot_render(&mot, L, R, DSP_BLOCK);
             for (int i = 0; i < DSP_BLOCK; i++) {
                 float l = L[i], r = R[i];
                 float a = fabsf(l) > fabsf(r) ? fabsf(l) : fabsf(r);
@@ -203,6 +205,24 @@ static int render_wav(const char *path, uint32_t ms, bool mpk)
            frames / 48000.0, (double)pk, 20.0 * log10((double)pk + 1e-9), 20.0 * log10(rms + 1e-12),
            (unsigned)clip, (unsigned)dsp.steals);
     return 0;
+}
+
+/* passo della demo per le PNG: i comandi al motore e 10 ms di audio, perché la plancia mostri il
+ * trasporto e il looper veri */
+static void seek_step(vet_t *v, void *ctx)
+{
+    (void)ctx;
+    static float l[480], r[480];
+    vet_snd_t e;
+    while (vet_snd_pop(v, &e)) vet_snd_apply(&mot, &e);
+    mot_render(&mot, l, r, 480);
+}
+
+static void seek(uint32_t t)
+{
+    vet_snd_init(&mot, &dsp, 48000u, 1);
+    vet_set_motore(&vet, &mot.snap);
+    vet_demo_seek(&vet, t, seek_step, NULL);
 }
 
 /* anteprima dei suoni: ogni suono della vetrina suona lo stesso accordo, ogni basso la stessa nota.
@@ -288,7 +308,7 @@ int main(int argc, char **argv)
                 vet_init(&vet, 100000);
                 vet_battery(&vet, 87, false);
                 if (mpk) vet_mpk(&vet, true, NULL, 100000);
-                vet_demo_seek(&vet, t);
+                seek(t);
                 char name[64];
                 snprintf(name, sizeof name, "demo_%05u", (unsigned)t);
                 render_to(dir, name);
@@ -304,7 +324,7 @@ int main(int argc, char **argv)
             for (uint32_t k = 0; k <= t; k += 10) vet_tick(&vet, 100000 + k);
             snprintf(name, sizeof name, "avvio_%05u", (unsigned)t);
         } else {
-            vet_demo_seek(&vet, t);
+            seek(t);
             snprintf(name, sizeof name, "demo_%05u", (unsigned)t);
         }
         render_to(dir, name);
