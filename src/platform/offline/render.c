@@ -10,6 +10,7 @@
 #include <math.h>
 #include "../vetrina/vetrina.h"
 #include "../vetrina/vetrina_dsp.h"
+#include "../vetrina/banco.h"
 #include "../../ui_flip/ui_flip.h"
 
 static uint16_t px[UI_FLIP_W * UI_FLIP_H];
@@ -149,6 +150,7 @@ static void render_to(const char *dir, const char *name)
 /* ---- audio: la vetrina dall'avvio, con i comandi passati al motore vero (synth, Perform, Beat, looper) ---- */
 static dsp_t dsp;
 static motore_t mot;
+static const smp_bank_t *bank;         /* il banco dei campioni, se c'è (20 §7b) */
 
 static void le16(uint8_t *p, uint32_t v) { p[0] = (uint8_t)v; p[1] = (uint8_t)(v >> 8); }
 static void le32(uint8_t *p, uint32_t v) { le16(p, v); le16(p + 2, v >> 16); }
@@ -237,6 +239,7 @@ static int render_suoni(const char *dir)
         if (!f) { printf("errore: %s\n", path); return 1; }
         wav_header(f, 0);
         dsp_init(&dsp, 48000.0f, 1);
+        dsp_set_bank(&dsp, bank);
         dsp_set_master_volume(&dsp, 72);
         dsp_set_bass_volume(&dsp, 70);
         dsp_load_patch(&dsp, bass ? DSP_BASS : DSP_SOUND, bass ? vet_bass_patch[n] : vet_sound_patch[n], 0);
@@ -276,6 +279,11 @@ static int render_suoni(const char *dir)
 
 int main(int argc, char **argv)
 {
+    /* il banco dei campioni, se tools/campioni.py lo ha costruito (STAME_SMP lo sposta) */
+    const char *smp = getenv("STAME_SMP");
+    bank = banco_carica(smp ? smp : "build/campioni/stame.smp");
+    if (!bank) fprintf(stderr, "banco dei campioni: %s (suoni SMP e kit muti)\n", banco_errore());
+    vet_snd_set_bank(bank);
     if (argc >= 3 && !strcmp(argv[1], "--suoni")) return render_suoni(argv[2]);
     if (argc < 2) {
         printf("uso: stame-render <cartella> [--mpk] [ms…] [--boot ms…] [--tutti passo_ms]\n"

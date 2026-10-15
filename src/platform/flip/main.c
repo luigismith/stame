@@ -16,6 +16,8 @@
 #include <unistd.h>
 #include "flip.h"
 #include "../vetrina/vetrina.h"
+#include "../vetrina/vetrina_dsp.h"
+#include "../vetrina/banco.h"
 #include "../../ui_flip/ui_flip.h"
 
 static volatile sig_atomic_t stop;
@@ -150,6 +152,14 @@ int main(int argc, char **argv)
     vet_init(&vet, t);
     midi_parser_init(&parser, MIDI_PORT_CTL);
     midi_parser_init(&parser2, MIDI_PORT_DIN);
+    /* il banco dei campioni accanto al binario (launch.sh fa cd nella cartella dell'app), prima dell'audio */
+    const smp_bank_t *bank = banco_carica("stame.smp");
+    {
+        char info[64];
+        banco_info(bank, info, sizeof info);
+        if (bank) log_msg("campioni: %s", info); else log_msg("campioni: nessun banco (%s): suoni SMP e kit muti", banco_errore());
+    }
+    vet_snd_set_bank(bank);
     const char *fr = getenv("STAME_AUDIO_FRAMES");
     if (audio_open(fr ? atoi(fr) : 512) == 0) {
         uint16_t sl;

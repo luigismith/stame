@@ -33,6 +33,7 @@ typedef struct {
 
 typedef struct {
     dsp_t   *d;
+    const smp_bank_t *bank;             /* banco dei campioni: kit dei Beat e modello SMP (20 §7b) */
     drums_t  drums;
     perf_t   perf;
     looper_t loop;
@@ -52,6 +53,8 @@ typedef struct {
 } motore_t;
 
 void mot_init(motore_t *m, dsp_t *d, uint32_t fs, uint32_t seed);
+/* il banco dei campioni, prima di suonare: va al synth (dsp_set_bank) e dà il kit al Beat scelto */
+void mot_set_bank(motore_t *m, const smp_bank_t *bank);
 /* nota del motore degli accordi: engine 0 = treble (passa dalla performance), 1 = basso; vel 0 = off */
 void mot_note(motore_t *m, int engine, uint8_t note, uint8_t vel);
 void mot_chord_start(motore_t *m);              /* KEY_DOWN di un accordo nuovo */

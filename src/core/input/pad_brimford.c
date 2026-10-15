@@ -74,6 +74,10 @@ static int mpad_on_tick(void *st, uint32_t t_us, pnl_event_t *out, int max)
         pnl_put(&o, PNL_MACRO, MACRO_PANIC, 0);                   /* una volta sola */
         s->t12 = 2;
     }
+    if (s->t12 == 2 && pnl_dt(t_us, s->t12_t0) >= (int32_t)MPAD_RESET_HOLD_US) {
+        pnl_put(&o, PNL_MACRO, MACRO_RESET, 0);                   /* tenuto ancora: tutto da capo */
+        s->t12 = 3;
+    }
     return o.n;
 }
 

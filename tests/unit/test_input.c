@@ -673,6 +673,15 @@ static void t_macro_pad(void)
     pad(MPAD_T12, 0);
     CHECK(only(PNL_MACRO, MACRO_PANIC, 0));
     CHECK_EQ(EV[0].t_us, t1 + MPAD_PANIC_HOLD_US);
+    /* tenuto 3 s: dopo il Panic anche il Reset, una volta sola (MIDI-126) */
+    clear();
+    t1 = NOW;
+    pad(MPAD_T12, 1);
+    wait_us(3500000);
+    pad(MPAD_T12, 0);
+    CHECK_EQ(NEV, 2);
+    CHECK(EV[0].type == PNL_MACRO && EV[0].a == MACRO_PANIC);
+    CHECK(EV[1].type == PNL_MACRO && EV[1].a == MACRO_RESET && EV[1].t_us == t1 + MPAD_RESET_HOLD_US);
 
     /* T-MIDI-18: m1 premuta (Bass Voicing tenuto) + tocco di T6: premere Loop col modificatore */
     clear();

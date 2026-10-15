@@ -156,10 +156,25 @@ void mot_perf(motore_t *m, uint8_t mode, uint8_t amount)
     perf_set(&m->perf, amount ? mode : PM_OFF, amount);
 }
 
+/* il kit del Beat scelto (SND-537): il set del banco con quel nome, o la sintesi se manca */
+static void apply_kit(motore_t *m)
+{
+    const char *kit = beat_kit(m->beat);
+    drums_set_kit(&m->drums, m->bank, kit ? smp_set_find(m->bank, kit) : NULL);
+}
+
+void mot_set_bank(motore_t *m, const smp_bank_t *bank)
+{
+    m->bank = bank;
+    dsp_set_bank(m->d, bank);
+    apply_kit(m);
+}
+
 void mot_beat(motore_t *m, uint8_t mode, uint8_t beat)
 {
     m->beat_sel = mode == BEAT_M_METRONOME ? BEAT_M_METRONOME : BEAT_M_PATTERN;
     m->beat = beat < BEAT_COUNT ? beat : 1;
+    apply_kit(m);
 }
 
 void mot_meter(motore_t *m, uint8_t meter)

@@ -3,7 +3,7 @@
 
 /* massimi dalla colonna "Range" di §2.2; dove non indicato 127 */
 const uint8_t snd_par_max[DSP_NPAR] STAME_ROM = {
-    2, 2, 7, 127, 127, 3, 12, 4, 127, 127,                 /* VER … HPKT */
+    2, 3, 7, 127, 127, 3, 12, 4, 127, 127,                 /* VER … HPKT; MODEL 3 = SMP di Stame (§7b) */
     3, 127, 127, 127, 127,  3, 127, 127, 127, 127,          /* O1, O2 */
     3, 127, 127, 127, 127,  3, 127, 127, 127, 127,          /* O3, O4 */
     1, 1, 127, 127, 1,                                      /* O4KT, O4SYNC, O4FB, NOISE, PINK */
@@ -60,11 +60,18 @@ static const uint8_t DEF[DSP_NPAR] STAME_ROM = {
 void snd_patch_init(uint8_t p[DSP_NPAR], int model)
 {
     memcpy(p, DEF, DSP_NPAR);
-    p[SND_P_MODEL] = (uint8_t)(model < 0 ? 0 : model > 2 ? 2 : model);
+    p[SND_P_MODEL] = (uint8_t)(model < 0 ? 0 : model > SND_MODEL_SMP ? SND_MODEL_SMP : model);
     if (model == SND_MODEL_RP) {            /* SND-110: in INIT - REED PIANO cambiano tre campi */
         p[SND_P_RPHEIGHT] = 64;
         p[SND_P_RPDISTANCE] = 64;
         p[SND_P_RPVOL] = 64;
+    } else if (model == SND_MODEL_SMP) {    /* SND-371: set 0, loop della zona, da capo, intonato, filtro spento */
+        p[SND_P_RPHEIGHT] = 0;
+        p[SND_P_RPDISTANCE] = 0;
+        p[SND_P_RPKT] = 0;
+        p[SND_P_RPDECAY] = 64;
+        p[SND_P_FTYPE] = SND_FT_OFF;
+        p[SND_P_E(2, 4)] = 50;              /* rilascio breve: la coda è nel campione */
     }
 }
 

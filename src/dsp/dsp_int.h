@@ -75,4 +75,10 @@ void rp_note_off(dsp_t *d, dsp_voice_t *v, const float *sm);
 float rp_render(dsp_t *d, dsp_voice_t *v, const uint8_t *p, const float *sm, float pitch_semi, float *out);
 bool rp_done(const dsp_voice_t *v);
 
+/* smp.c: modello SMP (§7b); la zona si sceglie alla nota, il passo di lettura a ogni blocco */
+void smp_note_on(dsp_t *d, dsp_voice_t *v, const uint8_t *p);
+float smp_ratio(const dsp_t *d, const dsp_voice_t *v, const float *sm, float pitch_semi);
+/* rende 16 campioni mono in out[]; dopo la fine di un one-shot scrive zeri e segna ended */
+void smp_render(dsp_voice_t *v, float *out);
+
 #endif

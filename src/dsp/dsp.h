@@ -8,6 +8,7 @@
 #define STAME_DSP_H
 #include "../core/stame_base.h"
 #include "patch.h"
+#include "smp.h"
 
 #define DSP_BLOCK    16
 #define DSP_VOICES   16
@@ -45,6 +46,14 @@ typedef struct {
     float silence;              /* blocchi consecutivi sotto −90 dB */
 } dsp_rp_voice_t;
 
+/* voce campionata (§7b): zona del banco, posizione intera e frazionaria */
+typedef struct {
+    const smp_zone_t *z;
+    uint32_t idx;
+    float    frac;
+    uint8_t  ended, looping;
+} dsp_smp_voice_t;
+
 typedef struct {
     uint8_t state, engine, note, vel, sustained, legato_env;
     uint32_t age;
@@ -69,6 +78,7 @@ typedef struct {
     float peak;                 /* ampiezza del blocco, per lo stealing */
     float quiet;                /* blocchi sotto −90 dBFS dopo il rilascio */
     dsp_rp_voice_t rp;
+    dsp_smp_voice_t smp;
 } dsp_voice_t;
 
 /* una coda suona con la copia della patch che aveva: in dissolvenza (step > 0) o fino alla fine del rilascio */
@@ -134,10 +144,14 @@ typedef struct dsp {
     float scope_acc;
     uint8_t scope_n;
     uint32_t steals;            /* diagnostica */
+    const smp_bank_t *bank;     /* banco dei campioni del modello SMP (§7b); NULL = nessuno */
 } dsp_t;
 
 void dsp_init(dsp_t *d, float fs, uint32_t seed);
 void dsp_reseed(dsp_t *d, uint32_t seed);
+/* Il banco dei campioni, da dare prima di suonare e da non cambiare mentre si suona (SND-372):
+ * le voci tengono puntatori dentro il banco. */
+void dsp_set_bank(dsp_t *d, const smp_bank_t *bank);
 
 void dsp_note_on(dsp_t *d, dsp_engine e, uint8_t note, uint8_t vel);
 void dsp_note_off(dsp_t *d, dsp_engine e, uint8_t note);

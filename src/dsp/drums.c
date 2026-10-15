@@ -1,6 +1,7 @@
-/* drums.c — kit di batteria sintetizzato in stile CR-78 (drums.h). Tutto a campione, float a 32 bit.
- * Inviluppi esponenziali moltiplicativi e coefficienti dei filtri calcolati una volta al colpo: nel
- * ciclo per campione niente expf né cosf, salvo il seno da tabella degli oscillatori. */
+/* drums.c — kit di batteria: campioni del kit scelto, o sintesi in stile CR-78 (drums.h). Tutto a
+ * campione, float a 32 bit. Inviluppi esponenziali moltiplicativi e coefficienti dei filtri calcolati
+ * una volta al colpo: nel ciclo per campione niente expf né cosf, salvo il seno da tabella degli
+ * oscillatori. Le voci a campione leggono con interpolazione lineare al passo rate / fs. */
 #include "drums.h"
 #include "dsp_int.h"
 
@@ -25,6 +26,12 @@ void drums_volume(drums_t *k, uint8_t v)
 {
     float x = (float)(v > 99 ? 99 : v) / 99.0f;
     k->gain = x * x;
+}
+
+void drums_set_kit(drums_t *k, const smp_bank_t *bank, const smp_set_t *kit)
+{
+    k->bank = kit ? bank : NULL;
+    k->kit = bank ? kit : NULL;
 }
 
 void drums_all_off(drums_t *k)
@@ -66,6 +73,12 @@ void drums_hit(drums_t *k, uint8_t inst, uint8_t vel)
     v->gl = cosf(th);
     v->gr = sinf(th);
     v->e1 = v->e2 = v->e3 = 1.0f;
+    v->z = k->kit ? smp_zone_for(k->bank, k->kit, inst, vel) : NULL;
+    if (v->z) {                                                    /* campione: l'inviluppo è nel file */
+        v->d1 = v->d2 = v->d3 = 1.0f;                              /* d1 scende solo se lo strozza il chiuso */
+        v->inc = (float)v->z->rate * k->inv_fs;
+        return;
+    }
     switch (inst) {
     case DRUM_KICK: v->d1 = decay(k, 0.32f); v->d2 = decay(k, 0.03f); v->d3 = decay(k, 0.002f); break;
     case DRUM_SNARE: v->d1 = decay(k, 0.06f); v->d2 = decay(k, 0.12f); bp_set(k, v, 3000.0f, 0.9f); break;
@@ -94,6 +107,19 @@ static inline float bp(drum_voice_t *v, float x)
 /* un campione dello strumento */
 static float sample(drums_t *k, drum_voice_t *v)
 {
+    if (v->z) {                                                    /* dal kit: lettura lineare */
+        const smp_zone_t *z = v->z;
+        uint32_t i = v->idx;
+        if (i + 1 >= z->len) { v->on = 0; return 0.0f; }
+        float y = ((float)z->data[i] + v->frac * ((float)z->data[i + 1] - (float)z->data[i]))
+                * z->gain * (1.0f / 32768.0f) * v->e1;
+        v->frac += v->inc;
+        uint32_t a = (uint32_t)v->frac;
+        v->idx = i + a;
+        v->frac -= (float)a;
+        v->e1 *= v->d1;
+        return y;
+    }
     float inv = k->inv_fs, n = rnd_bi(&k->rng), y = 0.0f;
     switch (v->inst) {
     case DRUM_KICK:
@@ -157,6 +183,7 @@ void drums_render16(drums_t *k, float *L, float *R)
         v->bp1 = undenorm(v->bp1);
         v->bp2 = undenorm(v->bp2);
         v->hp = undenorm(v->hp);
-        if (v->t >= DUR[v->inst] || (v->e1 < 1e-4f && v->e2 < 1e-4f && v->inst != DRUM_CLAP)) v->on = 0;
+        if (v->z) { if (v->e1 < 1e-4f) v->on = 0; }                /* la fine del campione la segna sample() */
+        else if (v->t >= DUR[v->inst] || (v->e1 < 1e-4f && v->e2 < 1e-4f && v->inst != DRUM_CLAP)) v->on = 0;
     }
 }

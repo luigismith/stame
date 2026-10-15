@@ -23,7 +23,8 @@ typedef enum {
     MACRO_LOOP_STOP, MACRO_LOOP_CLEAR, MACRO_PANIC, MACRO_SYSTEM_MENU, MACRO_LOOP_UNDO, MACRO_LOOP_OVERDUB,
     MACRO_KNOB_LOCK,                /* b = 1 acceso, 0 spento: Lock delle manopole del macro pad (MIDI-131) */
     MACRO_VIEW_TOGGLE,              /* Geek Out <-> la vista di prima (T14 del macro pad, MIDI-132) */
-    MACRO_CONTROLS_PAGE             /* apre o chiude la pagina dei comandi della Flip (T15, MIDI-132) */
+    MACRO_CONTROLS_PAGE,            /* apre o chiude la pagina dei comandi della Flip (T15, MIDI-132) */
+    MACRO_RESET                     /* Panic più looper, Beat, transpose e Perform da capo (T12 tenuto 3 s, MIDI-126) */
 } macro_t;
 
 typedef enum {

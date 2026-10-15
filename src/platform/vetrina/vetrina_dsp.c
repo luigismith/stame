@@ -41,10 +41,15 @@ void vet_snd_render(motore_t *m, vet_t *v, float *L, float *R, uint32_t n)
     }
 }
 
+static const smp_bank_t *bank;
+
+void vet_snd_set_bank(const smp_bank_t *b) { bank = b; }
+
 void vet_snd_init(motore_t *m, dsp_t *d, uint32_t fs, uint32_t seed)
 {
     dsp_init(d, (float)fs, seed);
     dsp_load_patch(d, DSP_SOUND, vet_sound_patch[2], 0);
     dsp_load_patch(d, DSP_BASS, vet_bass_patch[0], 0);
     mot_init(m, d, fs, seed);
+    mot_set_bank(m, bank);
 }

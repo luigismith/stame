@@ -47,6 +47,8 @@ void dsp_init(dsp_t *d, float fs, uint32_t seed)
 
 void dsp_reseed(dsp_t *d, uint32_t seed) { d->rng = seed ? seed : 1u; }
 
+void dsp_set_bank(dsp_t *d, const smp_bank_t *bank) { d->bank = bank; }
+
 /* ---------------------------------------------------------------- inviluppi (§8.1) ---- */
 
 static float env_run(dsp_env_t *e, const uint8_t *patch, int n, float tscale, float s_mod, float dt)
@@ -212,6 +214,8 @@ static void voice_control(dsp_t *d, dsp_voice_t *v, const uint8_t *p, const floa
 
     if (model == SND_MODEL_RP) {                         /* SND-360: in RP solo PITCH, VOLUME, PAN */
         v->inc[0] = pitch;                               /* rp_render legge l'altezza da qui */
+    } else if (model == SND_MODEL_SMP) {                 /* SND-373: passo di lettura del campione */
+        v->inc[0] = smp_ratio(d, v, sm, pitch);
     } else {
         for (int o = 0; o < 4; o++) {
             float semi = sm[SND_P_O(o + 1, 1)] - 64.0f;
@@ -388,6 +392,8 @@ static float voice_render(dsp_t *d, dsp_voice_t *v, const uint8_t *p, const floa
                 ng += dng;
                 src[i] = 1.5f * tanh_f(x * (1.0f / 1.5f));          /* SND-265 */
             }
+        } else if (model == SND_MODEL_SMP) {                         /* campionatore (§7b) */
+            smp_render(v, src);
         } else {                                                     /* FM (§6) */
             int alg = p[SND_P_FMALG] & 7;
             const uint8_t *mods = FM_MODS[alg];
@@ -576,6 +582,7 @@ static void voice_start(dsp_t *d, dsp_voice_t *v, int e, uint8_t note, uint8_t v
         if (mode == SND_LFOM_RESET || mode == SND_LFOM_ONESHOT) lfo_start(&v->lfo[n], &d->rng);
     }
     if (model == SND_MODEL_RP) rp_note_on(d, v, E->sm);
+    else if (model == SND_MODEL_SMP) smp_note_on(d, v, E->p);
 }
 
 static void voice_release(dsp_t *d, dsp_voice_t *v)
@@ -864,6 +871,7 @@ void dsp_render16(dsp_t *d, float *L, float *R, const float *drum_L, const float
             done = v->env[1].stage == DSP_ENV_IDLE;
             if (v->state == DSP_V_RELEASED && v->peak < 3.2e-5f) done = true;   /* −90 dBFS (SND-021) */
         }
+        if (model == SND_MODEL_SMP && v->smp.ended) { done = true; v->state = DSP_V_RELEASED; }   /* one-shot finito */
         if (done && v->state != DSP_V_HELD) v->state = DSP_V_FREE;
     }
     for (int i = 0; i < DSP_TAILS; i++) {
@@ -876,7 +884,7 @@ void dsp_render16(dsp_t *d, float *L, float *R, const float *drum_L, const float
             if (t->fade <= 0.0f) t->on = 0;
         } else {                                          /* coda naturale: fino alla fine del rilascio */
             bool done = t->p[SND_P_MODEL] == SND_MODEL_RP ? rp_done(&t->v)
-                      : t->v.env[1].stage == DSP_ENV_IDLE || pk < 3.2e-5f;
+                      : t->v.env[1].stage == DSP_ENV_IDLE || pk < 3.2e-5f || t->v.smp.ended;
             if (done) t->on = 0;
         }
     }

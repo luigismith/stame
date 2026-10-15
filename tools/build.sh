@@ -74,7 +74,7 @@ do_ciao() {
 }
 
 SDL_INCLUDE="${SDL_INCLUDE:-/d/dev/toolchain/sdl2/SDL2-2.32.10/include}"
-VETRINA="src/platform/vetrina/vetrina.c src/platform/vetrina/patch_vetrina.c src/platform/vetrina/vetrina_dsp.c src/platform/vetrina/demo_song.c"
+VETRINA="src/platform/vetrina/vetrina.c src/platform/vetrina/patch_vetrina.c src/platform/vetrina/vetrina_dsp.c src/platform/vetrina/demo_song.c src/platform/vetrina/banco.c"
 
 # render: stame-render per il PC, scrive i fotogrammi della plancia in PNG (PLT-076, solo immagini)
 do_render() {
@@ -105,6 +105,8 @@ do_pacchetto() {
     cp app/Stame/config.json app/Stame/launch.sh "$P/"
     cp build/flip/stame "$P/stame"
     cp assets/suoni/stame_avvio.wav "$P/stame_avvio.wav"
+    # il banco dei campioni (20 §7b), se tools/campioni.py lo ha costruito
+    if [ -f build/campioni/stame.smp ]; then cp build/campioni/stame.smp "$P/stame.smp"; else echo "attenzione: manca build/campioni/stame.smp (python -I tools/campioni.py)"; fi
     ./build/pc/stame-render.exe build/pacchetto --icona "$P/icon.png" > /dev/null
     cp third_party/spleen/LICENSE "$P/LICENSE-spleen"
     echo "pacchetto: ok — $P"

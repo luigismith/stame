@@ -14,14 +14,15 @@
 
 #include "profile.h"
 
-#define MPAD_PANIC_HOLD_US 1000000u   /* MIDI-126: T12 tenuto 1 s */
+#define MPAD_PANIC_HOLD_US 1000000u   /* MIDI-126: T12 tenuto 1 s = Panic */
+#define MPAD_RESET_HOLD_US 3000000u   /* MIDI-126: T12 tenuto 3 s = Reset */
 
 typedef struct {
     uint16_t t_down;        /* bit i: tasto T(i+1) tenuto */
     uint8_t  knob_down;     /* bit 0 M, 1 m1, 2 m2: pressione tenuta */
     uint8_t  knob_enc[3];   /* encoder di ogni manopola al momento della pressione: il rilascio va lì */
     uint8_t  lock;          /* Lock acceso (MIDI-131) */
-    uint8_t  t12;           /* 0 su, 1 giù in attesa di 1 s, 2 giù dopo il Panic */
+    uint8_t  t12;           /* 0 su, 1 giù in attesa di 1 s, 2 giù dopo il Panic, 3 giù dopo il Reset */
     uint32_t t12_t0;
     uint32_t dropped;       /* eventi che non stavano in out[] */
 } mpad_state_t;

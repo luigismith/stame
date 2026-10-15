@@ -7,6 +7,8 @@
 
 /* synth e motore pronti con le patch iniziali della vetrina */
 void vet_snd_init(motore_t *m, dsp_t *d, uint32_t fs, uint32_t seed);
+/* il banco dei campioni (NULL = nessuno) che ogni vet_snd_init dà al motore; da chiamare prima */
+void vet_snd_set_bank(const smp_bank_t *bank);
 /* applica un comando della vetrina al motore (dal thread che lo possiede) */
 void vet_snd_apply(motore_t *m, const vet_snd_t *e);
 /* true se il comando va applicato prima del prossimo blocco: subito, o al suo tick (mot_due) */

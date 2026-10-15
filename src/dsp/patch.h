@@ -32,8 +32,9 @@ enum {
 #define SND_P_L(n, campo) (SND_P_L1SHAPE + 3 * ((n) - 1) + (campo))   /* campo 0 SHAPE, 1 RATE, 2 MODE */
 #define SND_P_M(n, campo) (SND_P_M1S + 3 * ((n) - 1) + (campo))       /* campo 0 S, 1 D, 2 A */
 
-/* modelli, forme, modi (§2.2) */
-enum { SND_MODEL_VA, SND_MODEL_RP, SND_MODEL_FM };
+/* modelli, forme, modi (§2.2). SMP è il campionatore di Stame (§7b): nei byte 118…122 legge
+ * SMPSET (= RPHEIGHT), SMPLOOP (= RPDISTANCE), SMPSTART (= RPKT) e SMPTUNE (= RPDECAY). */
+enum { SND_MODEL_VA, SND_MODEL_RP, SND_MODEL_FM, SND_MODEL_SMP };
 enum { SND_SHAPE_OFF, SND_SHAPE_SAW, SND_SHAPE_PULSE, SND_SHAPE_TRI };
 enum { SND_GLIDE_POLY, SND_GLIDE_POLY_LEGATO, SND_GLIDE_MONO, SND_GLIDE_MONO_LEGATO };
 enum { SND_LFO_SINE, SND_LFO_TRI, SND_LFO_SQU, SND_LFO_SAW, SND_LFO_SAWN, SND_LFO_RAND, SND_LFO_SH };

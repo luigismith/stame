@@ -25,11 +25,12 @@ static const snd_t SOUNDS[] = {
     { "Root Drone", ENGINE_FM, "drone" },      { "Vetro Pad", ENGINE_VA, "pad" },
 };
 static const char *const BASSES[] = { "Round Root", "Sub Floor", "Pluck Bass", "Reed Bass", "Velvet Sub", "Wood Bass" };
-static const char *const BEATS[] = { "Funk", "Bossa", "Motorik", "Lounge", "Shuffle", "Halftime" };
+/* i Beat della vetrina sono quelli di core/beat.c dall'indice 1 (lo 0 è il provvisorio di ACC-210) */
+#define BEATS_NAME(i) beat_name((i) + 1)
 
 #define N_SOUNDS ((int)STAME_COUNT(SOUNDS))
 #define N_BASSES ((int)STAME_COUNT(BASSES))
-#define N_BEATS  ((int)STAME_COUNT(BEATS))
+#define N_BEATS  (BEAT_COUNT - 1)
 
 /* stato dei controlli. perf_amount è l'amount di ACC-160: 1…6 per Arpeggiate (tipo di ACC-171),
  * 1…13 per Pattern, 1…10 per gli altri modi; 0 = spento. beat_mode è la selezione del menu dei Beat
@@ -180,7 +181,7 @@ static void list_item(const vet_t *v, int kind, int i, ui_item_t *it)
         if (i < 5) ui_fmt_copy(it->label, sizeof it->label, M[i]);
         else {
             ui_fmt_int(it->num, sizeof it->num, i - 4, 2);
-            ui_fmt_copy(it->label, sizeof it->label, BEATS[i - 5]);
+            ui_fmt_copy(it->label, sizeof it->label, BEATS_NAME(i - 5));
         }
         if (i && i == beat_item()) it->mark = MK_CHECK;
         break;
@@ -412,6 +413,8 @@ static void press(vet_t *v, int enc)
     }
 }
 
+static void demo_release(vet_t *v);                 /* definita con la demo, più sotto */
+
 static void handle(vet_t *v, const pnl_event_t *e)
 {
     switch (e->type) {
@@ -441,6 +444,20 @@ static void handle(vet_t *v, const pnl_event_t *e)
         else if (e->a == MACRO_LOOP_OVERDUB) loop_send(v, LOOP_C_OVERDUB);   /* ⊕ della MK4: entra ed esce dall'overdub */
         else if (e->a == MACRO_LOOP_UNDO) loop_send(v, LOOP_C_UNDO);         /* con lo strato 0 vale Clear (ACC-222) */
         else if (e->a == MACRO_PANIC) { msg(v, MSG_INFO, "Panic: all notes off", 2000); snd_push(v, VS_ALL_OFF, 0, 0, 0); }
+        else if (e->a == MACRO_RESET) {                                           /* T12 tenuto 3 s (MIDI-126) */
+            demo_release(v);
+            if (v->list_kind) list_close(v);
+            v->m.layer.ov.kind = OV_NONE;
+            loop_send(v, LOOP_C_CLEAR);
+            S.beat_on = 0;
+            ain(v, ACC_IN_OPTION_SET, ACC_OPT_TRANSPOSE, 0);
+            S.perf_mode = PERF_OFF; S.perf_amount = 0; S.lock_perf = 0;
+            S.view = VIEW_CHORD;
+            v->page_until = v->now_ms;
+            v->page_pinned = 0;
+            snd_push(v, VS_ALL_OFF, 0, 0, 0);
+            msg(v, MSG_INFO, "Reset: loop, beat, transpose, perform", 3000);
+        }
         else if (e->a == MACRO_KNOB_LOCK) v->m.ctl.knob_lock = (uint8_t)e->b;   /* T13 del pad (MIDI-131) */
         else if (e->a == MACRO_VIEW_TOGGLE) {                                    /* T14: Geek Out e ritorno (MIDI-132) */
             if (S.view == VIEW_GEEK) S.view = v->view_back;
@@ -1017,7 +1034,7 @@ static void fill_tempo_looper(vet_t *v, ui_model_t *m)
     t->beat_unit = (uint8_t)unit;
     t->beat_mode = (uint8_t)S.beat_mode;
     t->beat_index = (uint8_t)(S.beat + 1);
-    ui_fmt_copy(t->beat_name, sizeof t->beat_name, BEATS[S.beat % N_BEATS]);
+    ui_fmt_copy(t->beat_name, sizeof t->beat_name, BEATS_NAME(S.beat % N_BEATS));
     t->beat_volume = (uint8_t)S.beat_volume;
     t->drums_on = (uint8_t)(S.beat_on && S.beat_mode == BEAT_PATTERN);
     const mot_snap_t *sn = v->snap;
