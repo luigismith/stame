@@ -110,6 +110,14 @@ static void overlay(vet_t *v, uint8_t kind, uint8_t enc, int value)
     if (!v->list_kind) gest_set_owner(&v->inp.gest, enc < ENC_COUNT ? enc : ENC_COUNT, false);
 }
 
+/* l'overlay sparisce e restituisce la manopola del fuoco (MIDI-104): nasconderlo senza restituirla
+ * lasciava m2, la manopola della MK4 e la croce legate a un encoder che non si vedeva più */
+static void ov_hide(vet_t *v)
+{
+    v->m.layer.ov.kind = OV_NONE;
+    if (!v->list_kind) gest_set_owner(&v->inp.gest, ENC_COUNT, false);
+}
+
 static void msg(vet_t *v, uint8_t level, const char *text, uint32_t ms)
 {
     ui_msg_t *mm = &v->m.msg_plat;
@@ -400,7 +408,7 @@ static void press(vet_t *v, int enc)
         overlay(v, OV_BASS_TOGGLE, ENC_BASS, v->acc.bass_on);
         break;
     case ENC_LOOP:
-        if (gest_held(&v->inp.gest, ENC_BASS_VOICING)) loop_send(v, LOOP_C_CLEAR);   /* Mod + Loop: uscita forzata (ACC-222) */
+        if (gest_held(&v->inp.gest, ENC_BASS_VOICING)) loop_send(v, LOOP_C_RESET);   /* Mod + Loop: uscita forzata (ACC-222), anche in overdub */
         else looper_press(v);
         break;
     case ENC_BPM:
@@ -425,6 +433,10 @@ static void drums_toggle(vet_t *v)
 {
     S.drums = (uint8_t)!S.drums;
     for (int k = 0; k < 12; k++) ain(v, ACC_IN_KEY_UP, (uint8_t)k, 0);   /* niente accordi appesi */
+    for (int i = 0; i < 4; i++) {                       /* né tipi ed estensioni: il loro rilascio in modalità batteria si perde */
+        ain(v, ACC_IN_TYPE_UP, (uint8_t)i, 0);
+        ain(v, ACC_IN_EXT_UP, (uint8_t)i, 0);
+    }
     overlay(v, OV_DRUMS, ENC_BPM, S.drums);
 }
 
@@ -450,8 +462,7 @@ static void handle(vet_t *v, const pnl_event_t *e)
     case PNL_BACK:
         if (v->list_kind) list_close(v);
         else {
-            v->m.layer.ov.kind = OV_NONE;
-            gest_set_owner(&v->inp.gest, ENC_COUNT, false);
+            ov_hide(v);
             v->page_until = v->now_ms;                  /* B chiude anche la pagina dei comandi */
             v->page_pinned = 0;
         }
@@ -468,8 +479,9 @@ static void handle(vet_t *v, const pnl_event_t *e)
         else if (e->a == MACRO_RESET) {                                           /* T12 tenuto 3 s (MIDI-126) */
             demo_release(v);
             if (v->list_kind) list_close(v);
-            v->m.layer.ov.kind = OV_NONE;
-            loop_send(v, LOOP_C_CLEAR);
+            ov_hide(v);
+            loop_send(v, LOOP_C_RESET);                 /* anche in overdub, dove Clear è l'Undo dello strato */
+            memset(S.sec, 0, sizeof S.sec);
             S.beat_on = 0;
             ain(v, ACC_IN_OPTION_SET, ACC_OPT_TRANSPOSE, 0);
             S.perf_mode = PERF_OFF; S.perf_amount = 0; S.lock_perf = 0;
@@ -519,6 +531,7 @@ static void feed(vet_t *v, const pnl_event_t *ev, int n)
 #define DEMO_AHEAD 12u      /* tick di anticipo dei comandi della demo: circa 80 ms a 96 BPM */
 
 static void snd_sync(vet_t *v);
+static int fx_main(const uint8_t *p, int *ui_type);   /* definita con il synth, più sotto */
 
 static const dsong_t *song_of(const vet_t *v) { return &vet_demo_songs[v->demo_song % vet_demo_songs_n]; }
 
@@ -537,8 +550,12 @@ static uint8_t demo_types, demo_exts;
 static int8_t demo_key = -1;
 
 /* opzioni degli accordi che il brano cambia: tornano come erano quando la demo si ferma */
-static const uint8_t DEMO_OPTS[6] = { ACC_OPT_KEY_INDEX, ACC_OPT_KEY_ON, ACC_OPT_BASS_ON, ACC_OPT_VOICING,
-                                      ACC_OPT_BASS_VOICING, ACC_OPT_SINGLE_NOTES };
+static const uint8_t DEMO_OPTS[VET_DEMO_OPTS] = { ACC_OPT_KEY_INDEX, ACC_OPT_KEY_ON, ACC_OPT_BASS_ON, ACC_OPT_VOICING,
+                                                  ACC_OPT_BASS_VOICING, ACC_OPT_SINGLE_NOTES, ACC_OPT_TRANSPOSE,
+                                                  ACC_OPT_PLAY_STYLE, ACC_OPT_SECRET };
+/* i controlli di chi suonava (suono, Perform, effetto, basso, volumi, tempo, Beat, vista, Lock):
+ * fotografati quando la demo parte da ferma, rimessi quando si ferma */
+static sim_t demo_S;
 
 static void demo_release(vet_t *v)
 {
@@ -564,7 +581,10 @@ static void demo_do(vet_t *v, const dstep_t *s)
         break;
     case D_OFF: demo_release(v); break;
     case D_TURN: turn(v, s->a, s->b, false); break;
-    case D_PTURN: turn(v, s->a, s->b, true); break;
+    case D_PTURN:                                       /* premi, gira e lascia: la funzione secondaria non resta */
+        turn(v, s->a, s->b, true);
+        if (s->a >= 0 && s->a < ENC_COUNT) S.sec[s->a] = 0;
+        break;
     case D_PRESS: press(v, s->a); break;
     case D_HOLD: { pnl_event_t e = { G_HOLD, SRC_FLIP, (uint8_t)s->a, 0, 0 }; handle(v, &e); break; }
     case D_BACK: { pnl_event_t e = { PNL_BACK, SRC_FLIP, 0, 0, 0 }; handle(v, &e); break; }
@@ -604,8 +624,8 @@ static void demo_reset(vet_t *v)
 {
     demo_release(v);
     if (v->list_kind) list_close(v);
-    v->m.layer.ov.kind = OV_NONE;
-    loop_send(v, LOOP_C_CLEAR);
+    ov_hide(v);
+    loop_send(v, LOOP_C_RESET);
     ain(v, ACC_IN_OPTION_SET, ACC_OPT_TRANSPOSE, 0);
     S.lock_perf = S.lock_fx = 0;
     S.drums = 0;
@@ -621,8 +641,12 @@ static void demo_start(vet_t *v)
 {
     if (!v->demo_running)
     {
-        for (int i = 0; i < 6; i++) v->demo_saved[i] = (int16_t)acc_option_get(&v->acc, DEMO_OPTS[i]);
+        for (int i = 0; i < VET_DEMO_OPTS; i++) v->demo_saved[i] = (int16_t)acc_option_get(&v->acc, DEMO_OPTS[i]);
         v->demo_theme = v->m.prefs.theme;               /* la demo cambia tema: alla fine torna il suo */
+        demo_S = S;
+        v->demo_focus = v->inp.gest.focus;
+        v->demo_view_back = v->view_back;
+        v->demo_pinned = v->page_pinned;
     }
     v->demo_tick0 = now_tick(v) + DEMO_AHEAD;
     v->snd_timed = 1;
@@ -635,21 +659,37 @@ static void demo_start(vet_t *v)
     v->demo_step = 0;
 }
 
-/* chi tocca un controllo suona da solo: loop, Beat, transpose e opzioni del brano si tolgono */
+/* chi tocca un controllo ritrova lo strumento come lo aveva lasciato: il loop e il Beat della demo si
+ * fermano; suono, Perform, effetto, basso, volumi, tempo, Beat, vista, Lock, opzioni, transpose,
+ * tema, fuoco e pagina tornano quelli di prima; liste, menu e overlay della demo si chiudono */
 static void demo_stop(vet_t *v)
 {
     if (!v->demo_running) return;
     v->demo_running = 0;
     demo_release(v);
-    loop_send(v, LOOP_C_CLEAR);
+    loop_send(v, LOOP_C_RESET);                         /* anche se la demo era in overdub */
+    for (int i = 0; i < VET_DEMO_OPTS; i++) ain(v, ACC_IN_OPTION_SET, DEMO_OPTS[i], v->demo_saved[i]);
+    uint8_t lock = S.knob_lock;                         /* il Lock del pad è del pad, non della demo */
+    S = demo_S;
+    S.knob_lock = lock;
     S.beat_on = 0;
-    if (v->acc.transpose) ain(v, ACC_IN_OPTION_SET, ACC_OPT_TRANSPOSE, 0);
-    for (int i = 0; i < 6; i++) ain(v, ACC_IN_OPTION_SET, DEMO_OPTS[i], v->demo_saved[i]);
-    S.lock_perf = S.lock_fx = 0;
-    S.perf_mode = vet_sound_perf[S.sound % VET_N_SOUNDS][0];      /* il Perform del suono (ACC-162) */
-    S.perf_amount = vet_sound_perf[S.sound % VET_N_SOUNDS][1];
+    S.drums = 0;
+    memset(S.sec, 0, sizeof S.sec);
+    if (S.sound != v->snd_sound) {                      /* il suono di prima, con il suo Perform e il suo effetto */
+        int t;
+        snd_push(v, VS_PATCH, 0, (uint8_t)S.sound, 0);
+        v->snd_fx_idx = (uint8_t)fx_main(vet_sound_patch[S.sound % VET_N_SOUNDS], &t);
+        S.fx_type = t;
+        v->snd_sound = (int16_t)S.sound;
+        v->snd_fx = -1;
+    }
     v->m.prefs.theme = v->demo_theme;                   /* il tema scelto da chi suona, non quello della demo */
-    if (S.drums) drums_toggle(v);                       /* la batteria a tastiera della demo non resta a chi suona */
+    v->inp.gest.focus = v->demo_focus;
+    v->view_back = v->demo_view_back;
+    v->page_pinned = v->demo_pinned;
+    if (!v->page_pinned) v->page_until = v->now_ms;
+    if (v->list_kind) list_close(v);                    /* il menu che la demo apre a fine Acacia */
+    ov_hide(v);
     v->m.msg_plat.level = MSG_NONE;
 }
 
@@ -746,6 +786,16 @@ void vet_mpk(vet_t *v, bool connected, const char *fw, uint32_t now_ms)
     v->m.plat.mpk_link = connected ? MPK_OPEN : MPK_ABSENT;
     if (fw) ui_fmt_copy(v->m.plat.mpk_fw, sizeof v->m.plat.mpk_fw, fw);
     msg(v, connected ? MSG_INFO : MSG_WARN, connected ? "MPK connected" : "MPK disconnected", 2000);
+}
+
+void vet_flip_lost(vet_t *v, uint32_t now_ms)
+{
+    pnl_event_t ev[INP_MAX_OUT];
+    v->now_ms = now_ms;
+    int n = inp_lost(&v->inp, SRC_FLIP, now_ms * 1000u, ev, INP_MAX_OUT);
+    feed(v, ev, n);
+    n = inp_connected(&v->inp, SRC_FLIP, now_ms * 1000u, ev, INP_MAX_OUT);   /* il profilo riparte da capo */
+    feed(v, ev, n);
 }
 
 /* macro pad collegato (link = PADL_*) o perso: avvisi, stato «PAD» e rilasci sintetici (MIDI-127) */
@@ -914,6 +964,12 @@ void vet_tick(vet_t *v, uint32_t now_ms)
     uint32_t dt = now_ms - v->last_ms;
     v->now_ms = now_ms;
     v->last_ms = now_ms;
+    if (dt > 1000u) {
+        /* una pausa lunga (Flip sospesa): l'orologio dei gesti in µs gira ogni 71,6 min e, oltre
+         * mezz'ora, sembrava andato indietro e si fermava. Si riparte da adesso */
+        v->tick_us = now_ms * 1000u;
+        gest_resync(&v->inp.gest, v->tick_us);
+    }
     if (menu_down && now_ms - menu_down_ms >= 2000) v->quit = 1;
     if (!v->snap) {                                     /* senza motore la demo conta i tick dall'orologio */
         v->vt_acc += (dt > 1000u ? 1000u : dt) * (uint32_t)S.bpm * 96u;
@@ -949,11 +1005,12 @@ void vet_tick(vet_t *v, uint32_t now_ms)
         v->ov_until = now_ms + 100u;
         v->m.layer.ov.until_ms = v->ov_until;
     }
-    /* overlay e liste che scadono */
-    if (v->m.layer.ov.kind != OV_NONE && (int32_t)(now_ms - v->ov_until) >= 0) {
+    /* overlay e liste che scadono; un overlay a cui la pressione di un altro encoder ha tolto la
+     * manopola (gest, MIDI-104) sparisce subito */
+    if (v->m.layer.ov.kind != OV_NONE && (int32_t)(now_ms - v->ov_until) >= 0) ov_hide(v);
+    if (v->m.layer.ov.kind != OV_NONE && v->m.layer.ov.kind != OV_COUNT_IN && !v->list_kind &&
+        v->inp.gest.owner != v->m.layer.ov.enc)
         v->m.layer.ov.kind = OV_NONE;
-        if (!v->list_kind) gest_set_owner(&v->inp.gest, ENC_COUNT, false);
-    }
     if ((v->list_kind == L_SOUND || v->list_kind == L_PERFORM || v->list_kind == L_BEATS) && now_ms - v->list_ms > LIST_IDLE_MS)
         list_close(v);
     if (v->m.msg_plat.level && (int32_t)(now_ms - v->m.msg_plat.until_ms) >= 0) v->m.msg_plat.level = MSG_NONE;
@@ -1023,23 +1080,18 @@ static void fill_music(vet_t *v, ui_music_t *mu)
         v->last_n = (uint8_t)n;
         for (int i = 0; i < s->treble.n; i++) { set_bit(mu->live_treble, s->treble.note[i]); mu->pc_sounding |= (uint16_t)(1u << (s->treble.note[i] % 12)); }
         if (s->bass_note >= 0) set_bit(mu->live_bass, s->bass_note);
-        if (S.drums)                                       /* il tasto colpito si accende per un attimo */
-            for (int k = 0; k < 12; k++)
-                if (S.drum_ms[k] && v->now_ms - S.drum_ms[k] < 150u) set_bit(mu->live_treble, 60 + k);
     }
+    if (S.drums)                                           /* il tasto colpito si accende per un attimo (UI-150b) */
+        for (int k = 0; k < 12; k++)
+            if (S.drum_ms[k] && v->now_ms - S.drum_ms[k] < 150u) set_bit(mu->live_treble, 60 + k);
     if (v->have_last) {
         uint32_t since = v->now_ms - v->released_ms;
         mu->chord_state = sounding ? CH_SOUNDING : since < LINGER_MS ? CH_LINGER : v->m.prefs.ghost_chord ? CH_GHOST : CH_NONE;
         mu->chord = v->last_chord;
         mu->single_note = v->last_single;
         mu->single_midi = v->last_single_midi;
-        if (mu->chord_state == CH_SOUNDING || mu->chord_state == CH_LINGER) {
-            mu->n_notes = v->last_n;
-            memcpy(mu->notes, v->last_notes, sizeof mu->notes);
-        } else {
-            mu->n_notes = v->last_n;
-            memcpy(mu->notes, v->last_notes, sizeof mu->notes);
-        }
+        mu->n_notes = v->last_n;                           /* le note dell'ultimo accordo in ogni stato: le viste le colorano */
+        memcpy(mu->notes, v->last_notes, sizeof mu->notes);
     }
     mu->key_on = s->key_on;
     mu->key_index = s->key_index;
@@ -1148,12 +1200,16 @@ const ui_model_t *vet_model(vet_t *v)
     ui_controls_t *c = &m->ctl;
     c->focus = v->inp.gest.focus;
     c->turn_target = gest_target(&v->inp.gest);
+    if (S.view != VIEW_GEEK) v->view_back = (uint8_t)S.view;   /* T14 torna all'ultima vista prima di Geek Out, comunque ci si arrivi */
     c->push = v->inp.mpk.push;
     c->knob_lock = S.knob_lock;
     for (int k = 0; k < ENC_COUNT; k++) {
         if (gest_held(&v->inp.gest, (uint8_t)k)) {
+            /* dal tempo trascorso, non da t_down/1000: i µs girano ogni 2³² (71,6 min) e la barra del
+             * tenuto partiva piena a ogni pressione */
+            int32_t held_us = pnl_dt(v->inp.gest.now, v->inp.gest.t_down[k]);
             c->st[k].flags |= CF_PRESSED;
-            c->st[k].pressed_since_ms = v->inp.gest.t_down[k] / 1000u;
+            c->st[k].pressed_since_ms = v->now_ms - (uint32_t)(held_us > 0 ? held_us / 1000 : 0);
         }
         c->st[k].t_hold_ms = 1000;
         if (S.sec[k]) c->st[k].flags |= CF_SECONDARY;

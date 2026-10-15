@@ -545,6 +545,11 @@ static void voice_start(dsp_t *d, dsp_voice_t *v, int e, uint8_t note, uint8_t v
 {
     dsp_eng_t *E = &d->eng[e];
     int model = E->p[SND_P_MODEL];
+    if (reuse && model == SND_MODEL_SMP && v->state != DSP_V_FREE) {
+        /* il campione riparte da capo: la voce vecchia sfuma in coda in 2 ms invece di saltare (clic) */
+        to_tail(d, v, 0.002f);
+        reuse = false;
+    }
     if (!reuse) {
         memset(v, 0, sizeof *v);
         for (int o = 0; o < 4; o++)                       /* SND-252, SND-305 */
@@ -674,6 +679,12 @@ void dsp_note_off(dsp_t *d, dsp_engine e, uint8_t note)
     int mode = E->p[SND_P_GLIDEMODE];
     if (mode == SND_GLIDE_MONO || mode == SND_GLIDE_MONO_LEGATO) {
         dsp_voice_t *v = mono_voice(d, e);
+        /* voci tenute rimaste da un cambio di modo con un accordo tenuto: si rilasciano con la loro nota */
+        for (int i = 0; i < DSP_VOICES; i++) {
+            dsp_voice_t *w = &d->voice[i];
+            if (w == v || w->state != DSP_V_HELD || w->engine != e || w->note != note) continue;
+            if (E->sustain) w->sustained = 1; else voice_release(d, w);
+        }
         if (!v || v->note != note || v->state != DSP_V_HELD) return;
         if (E->n_held > 0 && !E->sustain) {               /* torna all'ultima nota ancora tenuta */
             uint8_t back = E->held[E->n_held - 1];
@@ -762,13 +773,13 @@ void dsp_load_patch(dsp_t *d, dsp_engine e, const uint8_t p[DSP_NPAR], uint32_t 
     dsp_eng_t *E = &d->eng[e];
     /* SND-112: le voci in suono passano in coda con la patch vecchia. Le tenute si dissolvono in
      * 10 ms e ripartono con la patch nuova; quelle in rilascio finiscono il loro rilascio. */
-    struct { uint8_t note, vel, sus; } held[DSP_VOICES];
+    struct { uint8_t note, vel, sus; uint32_t age; } held[DSP_VOICES];
     int nh = 0;
     for (int i = 0; i < DSP_VOICES; i++) {
         dsp_voice_t *v = &d->voice[i];
         if (v->state == DSP_V_FREE || v->engine != e) continue;
         if (v->state == DSP_V_HELD) {
-            held[nh].note = v->note; held[nh].vel = v->vel; held[nh].sus = v->sustained; nh++;
+            held[nh].note = v->note; held[nh].vel = v->vel; held[nh].sus = v->sustained; held[nh].age = v->age; nh++;
             to_tail(d, v, 0.010f);
         } else to_tail(d, v, 0.0f);
         v->state = DSP_V_FREE;
@@ -778,6 +789,17 @@ void dsp_load_patch(dsp_t *d, dsp_engine e, const uint8_t p[DSP_NPAR], uint32_t 
         uint8_t v = p[i] > snd_par_max[i] ? snd_par_max[i] : p[i];
         E->p[i] = v;
         E->sm[i] = (float)v;                              /* un cambio di suono vale subito */
+    }
+    int mode = E->p[SND_P_GLIDEMODE];
+    if ((mode == SND_GLIDE_MONO || mode == SND_GLIDE_MONO_LEGATO) && nh > 1) {
+        /* patch mono con un accordo tenuto (SND-026): riparte una voce sola, sull'ultima nota tenuta.
+         * Ripartire tutte lasciava note bloccate, perché il note-off mono guarda una voce sola. */
+        int keep = 0;
+        for (int k = 1; k < nh; k++) if (held[k].age > held[keep].age) keep = k;
+        if (E->n_held > 0)
+            for (int k = 0; k < nh; k++) if (held[k].note == E->held[E->n_held - 1]) keep = k;
+        held[0] = held[keep];
+        nh = 1;
     }
     for (int k = 0; k < nh; k++) {
         bool reuse;

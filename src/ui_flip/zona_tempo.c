@@ -34,7 +34,9 @@ uint64_t uf_sig_z3(const ui_model_t *m)
     t.beat_phase = 0;                                  /* la fase conta solo per il lampo */
     if (m->ctl.view != VIEW_GEEK) t.bar = 0;           /* la battuta si scrive solo in Geek Out */
     h = uf_h(h, &t, sizeof t);
-    h = uf_h(h, &m->looper, sizeof m->looper);
+    ui_looper_t lp = m->looper;
+    lp.progress = 0;                                   /* la testina conta per pixel, qui sotto: non a ogni fotogramma */
+    h = uf_h(h, &lp, sizeof lp);
     uint8_t v[5] = { m->ctl.turn_target, (uint8_t)beat_flash(m), m->prefs.theme, 0, (uint8_t)(m->ctl.view == VIEW_GEEK) };
     if (m->looper.state == LP_REC && m->looper.free_mode && m->looper.bars == 0) v[3] = (uint8_t)(m->now_ms / 100u);
     h = uf_h(h, v, sizeof v);

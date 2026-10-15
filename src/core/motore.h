@@ -38,7 +38,10 @@ typedef struct {
     perf_t   perf;
     looper_t loop;
     uint32_t fs;
-    uint64_t s, next_fp, spt_fp;        /* campioni resi, campione del prossimo tick e campioni per tick (32.32) */
+    /* campioni resi; campioni dall'inizio del blocco corrente al prossimo tick e campioni per tick
+     * (32.32). next_fp è relativo al blocco: una posizione assoluta in 32.32 traboccava dopo 2³²
+     * campioni (24,85 h a 48 kHz) e il ciclo dei tick non usciva più */
+    uint64_t s, next_fp, spt_fp;
     uint32_t tick;
     uint16_t bpm;
     uint8_t  beat_sel, beat, meter;     /* Beat o metronomo selezionato (BEAT_M_*), indice, metrica */
@@ -49,6 +52,7 @@ typedef struct {
     int8_t   transpose;
     uint8_t  pre[2][128];               /* nota in uscita → nota registrata (prima del transpose) */
     uint8_t  lp_out[2][128];            /* nota del loop → nota suonata, per il note-off */
+    uint8_t  ref[2][128];               /* sorgenti che tengono la nota (dal vivo, loop): ACC-253 */
     mot_snap_t snap;
 } motore_t;
 
@@ -59,7 +63,8 @@ void mot_set_bank(motore_t *m, const smp_bank_t *bank);
 void mot_note(motore_t *m, int engine, uint8_t note, uint8_t vel);
 void mot_chord_start(motore_t *m);              /* KEY_DOWN di un accordo nuovo */
 /* batteria a tastiera (ACC-211): il tasto k (0 = Do … 11 = Si) colpisce lo strumento k del kit del
- * Beat (ACC-212) e, se il looper registra, entra nel loop quantizzato al sedicesimo più vicino */
+ * Beat (ACC-212) e, se il looper registra, entra nel loop quantizzato al sedicesimo più vicino della
+ * griglia del loop (da t0, l'inizio del giro) */
 void mot_drum(motore_t *m, uint8_t k, uint8_t vel);
 void mot_bpm(motore_t *m, uint16_t bpm);        /* 60…200 (ACC-202) */
 void mot_perf(motore_t *m, uint8_t mode, uint8_t amount);

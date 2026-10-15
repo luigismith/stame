@@ -9,6 +9,10 @@
  */
 #include "uf_int.h"
 
+/* note del modello, mai oltre UI_NOTES_MAX anche se n_notes lo supera */
+static int uf_nn(const ui_music_t *mu) { return mu->n_notes < UI_NOTES_MAX ? mu->n_notes : UI_NOTES_MAX; }
+
+
 #define ZW        416
 #define NAME_X    12
 #define NAME_MAXW 392
@@ -105,8 +109,8 @@ static void octave_kb(gfx_fb16_t *fb, const uf_pal_t *p, const ui_music_t *mu, i
     static const int8_t BLACK_PC[5] = { 1, 3, 6, 8, 10 };
     int kw = w / 7;
     uint16_t treb = mu->pc_sounding, bass = 0;
-    for (int i = 0; i < mu->n_notes; i++)
-        if (mu->notes[i].role == ROLE_BASS) bass |= (uint16_t)(1u << (mu->notes[i].midi % 12));
+    for (int n = 0; n < 128; n++)                       /* il basso che suona, come il treble: notes[] resta dopo il rilascio */
+        if (mu->live_bass[n >> 5] >> (n & 31) & 1u) bass |= (uint16_t)(1u << (n % 12));
     for (int i = 0; i < 7; i++) {
         int pc = WHITE_PC[i];
         int kx = x + i * kw;
@@ -142,9 +146,9 @@ static int note_row(gfx_fb16_t *fb, const uf_pal_t *p, const ui_music_t *mu, con
     int cw = f->f->w;
     int x0 = x;
     bool any_bass = false, sep = false;
-    for (int i = 0; i < mu->n_notes; i++) if (mu->notes[i].role == ROLE_BASS) any_bass = true;
+    for (int i = 0; i < uf_nn(mu); i++) if (mu->notes[i].role == ROLE_BASS) any_bass = true;
     for (int pass = 0; pass < 2; pass++) {
-        for (int i = 0; i < mu->n_notes; i++) {
+        for (int i = 0; i < uf_nn(mu); i++) {
             const ui_note_t *n = &mu->notes[i];
             if ((pass == 0) != (n->role == ROLE_BASS)) continue;
             if (pass == 1 && any_bass && !sep) {
@@ -199,6 +203,7 @@ static int acc_delta(const char *a)
 {
     if (!a[0]) return 0;
     if (a[0] == 'x' && a[1] == 0) return 2;
+    if ((unsigned char)a[0] == 0xE2 && (unsigned char)a[2] == 0xAD && (unsigned char)a[3] == 0xE2) return -2;   /* ♭♭ */
     if ((unsigned char)a[0] == 0xE2 && (unsigned char)a[2] == 0xAF) return 1;   /* ♯ */
     if ((unsigned char)a[0] == 0xE2 && (unsigned char)a[2] == 0xAD) return -1;  /* ♭ */
     return 0;
@@ -224,7 +229,7 @@ static void geek_lines(gfx_fb16_t *fb, const uf_pal_t *p, const ui_music_t *mu, 
     char buf[64];
     buf[0] = 0;
     uint16_t seen = 0;
-    for (int i = 0; i < mu->n_notes; i++) {
+    for (int i = 0; i < uf_nn(mu); i++) {
         if (mu->notes[i].role == ROLE_BASS) continue;
         int iv = (mu->notes[i].midi % 12 - root + 12) % 12;
         if (seen >> iv & 1) continue;
@@ -322,8 +327,11 @@ uint64_t uf_sig_z2(const ui_model_t *m)
     h = UF_HV(h, m->prefs.pocket);
     h = UF_HV(h, m->prefs.linnaeus);
     h = UF_HV(h, m->tempo.drums_on);
-    if ((m->ctl.view == VIEW_REACT || m->ctl.view == VIEW_CHORD) && m->meters.scope) {
-        uint32_t t = m->now_ms / 33u;                    /* 30 fotogrammi al secondo */
+    /* l'oscilloscopio si muove a 30 fotogrammi al secondo solo se c'è suono: a riposo la zona sta
+     * ferma (UI-115, PLT-014); prima ridisegnava per sempre */
+    if ((m->ctl.view == VIEW_REACT || m->ctl.view == VIEW_CHORD) && m->meters.scope &&
+        (m->meters.peak[0] > 16 || m->meters.peak[1] > 16)) {
+        uint32_t t = m->now_ms / 33u;
         h = UF_HV(h, t);
     }
     return h;
@@ -338,14 +346,16 @@ void uf_draw_z2(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
     /* testata: tonalità e transpose (UI-145); con la Key mode spenta non si scrive nulla */
     if (m->ctl.view != VIEW_REACT) {
         if (mu->key_on) gfx_text(fb, &GFX_L, NAME_X, 30, mu->key_name, p->c[T_TEXT]);
-        if (mu->transpose) {
+        if (m->tempo.drums_on) {                             /* batteria a tastiera: lo stato vince sul transpose */
+            gfx_text_right(fb, &GFX_L, 404, 30, "DRUMS", p->c[T_ACTIVE], 0);
+        } else if (mu->transpose) {
             char t[8], buf[16];
             ui_fmt_signed(t, sizeof t, mu->transpose);
             ui_fmt_cat(buf, sizeof buf, "Trans ", t);
             gfx_text_right(fb, &GFX_L, 404, 30, buf, p->c[T_ACTIVE], 0);
-        } else if (m->tempo.drums_on) {                      /* batteria a tastiera: lo stato, dove sta il transpose */
-            gfx_text_right(fb, &GFX_L, 404, 30, "DRUMS", p->c[T_ACTIVE], 0);
         }
+    } else if (m->tempo.drums_on) {
+        gfx_text_right(fb, &GFX_L, 404, 30, "DRUMS", p->c[T_ACTIVE], 0);   /* anche in React */
     }
 
     if (m->layer.prompt == PROMPT_SELECT_KEY) {
@@ -366,13 +376,13 @@ void uf_draw_z2(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
     case VIEW_NOTES: {
         draw_name(fb, p, mu, NAME_X, 116, NAME_MAXW, 3);
         int w = 0;
-        for (int i = 0; i < mu->n_notes; i++) w += gfx_text_w(&GFX_XXL, mu->notes[i].name, 0) + 32;
+        for (int i = 0; i < uf_nn(mu); i++) w += gfx_text_w(&GFX_XXL, mu->notes[i].name, 0) + 32;
         const gfx_face_t *f = w - 32 <= NAME_MAXW ? &GFX_XXL : &GFX_L;
         int y = f == &GFX_XXL ? 140 : 160;
         w = 0;
-        for (int i = 0; i < mu->n_notes; i++) w += gfx_text_w(f, mu->notes[i].name, 0) + f->f->w;
+        for (int i = 0; i < uf_nn(mu); i++) w += gfx_text_w(f, mu->notes[i].name, 0) + f->f->w;
         int x = ZW / 2 - (w - f->f->w) / 2;
-        for (int i = 0; i < mu->n_notes; i++)
+        for (int i = 0; i < uf_nn(mu); i++)
             x = gfx_text(fb, f, x, y, mu->notes[i].name, p->c[mu->notes[i].role == ROLE_BASS ? T_BASS : T_TREBLE]) + f->f->w;
         break;
     }
@@ -388,7 +398,8 @@ void uf_draw_z2(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
         if (has_name(mu)) {
             chord_label_t c = mu->single_note ? single_label(mu) : mu->chord;
             int w = uf_name_w(&c, &SCALE[3]);
-            uf_name_draw(fb, p, 404 - w, 74, &c, &SCALE[3], T_TREBLE, T_BASS, false);
+            bool ghost = mu->chord_state == CH_GHOST;          /* UI-145: l'accordo fantasma tutto in ghost */
+            uf_name_draw(fb, p, 404 - w, 74, &c, &SCALE[3], ghost ? T_GHOST : T_TREBLE, ghost ? T_GHOST : T_BASS, false);
         }
         break;
     }

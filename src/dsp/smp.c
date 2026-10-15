@@ -21,7 +21,7 @@ bool smp_bank_parse(smp_bank_t *b, const void *blob, size_t n)
     uint32_t data_off = rd32(p + 12), data_n = rd32(p + 16);
     if (ns > SMP_SETS_MAX || nz > SMP_ZONES_MAX) return false;
     size_t hdr = SMP_HEADER + (size_t)ns * SMP_SET_REC + (size_t)nz * SMP_ZONE_REC;
-    if (data_off < hdr || (data_off & 1u) || (size_t)data_off + (size_t)data_n * 2u > n) return false;
+    if (data_off < hdr || (data_off & 1u) || (uint64_t)data_off + (uint64_t)data_n * 2u > (uint64_t)n) return false;
     const int16_t *data = (const int16_t *)(const void *)(p + data_off);
 
     const uint8_t *r = p + SMP_HEADER;
@@ -44,7 +44,10 @@ bool smp_bank_parse(smp_bank_t *b, const void *blob, size_t n)
         z->gain = rdf(r + 20);
         z->root = r[24]; z->lo = r[25]; z->hi = r[26]; z->vel_lo = r[27];
         if (z->len < 4 || off > data_n || z->len > data_n - off) return false;
-        if (z->loop_end && (z->loop_end > z->len || z->loop_start + 4 > z->loop_end)) return false;
+        /* un loop lungo almeno quanto il passo massimo di lettura (16, smp_ratio): un salto indietro
+         * per campione basta a restare dentro il loop; scritto senza somme che girano in uint32 */
+        if (z->loop_end && (z->loop_end > z->len || z->loop_start >= z->loop_end ||
+                            z->loop_end - z->loop_start < SMP_LOOP_MIN)) return false;
         if (z->rate < 8000u || z->rate > 96000u || !(z->gain >= 0.0f && z->gain <= 16.0f)) return false;
         z->data = data + off;
     }
@@ -127,7 +130,7 @@ void smp_render(dsp_voice_t *v, float *out)
     float f = s->frac;
     int k = 0;
     for (; k < DSP_BLOCK; k++) {
-        if (le) { if (i >= le) i -= le - ls; }                            /* il loop viene prima della fine */
+        if (le) { while (i >= le) i -= le - ls; }                         /* il loop viene prima della fine */
         else if (i + 2 >= len) { s->ended = 1; break; }
         uint32_t i1 = i + 1 < len ? i + 1 : len - 1, i2 = i + 2 < len ? i + 2 : len - 1;
         float xm = (float)x[i ? i - 1 : 0], x0 = (float)x[i], x1 = (float)x[i1], x2 = (float)x[i2];

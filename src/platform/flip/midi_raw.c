@@ -87,10 +87,18 @@ bool midi_scan(midi_dev_t *d)
     snprintf(d->name, sizeof d->name, "%s", best_name);
     if (mk4) {
         d->fd2 = open_sub(best, 1);
-        if (d->fd2 < 0) log_msg("MIDI: porta 2 della MK4 non aperta: manopole e trasporto non arriveranno");
+        if (d->fd2 < 0) log_msg("MIDI: porta 2 della MK4 non aperta: si riprova ogni secondo");
     }
     log_msg("MIDI: scheda %d «%s»%s", best, d->name, mk4 ? ", MPK mini IV: porte 1 e 2" : ", porta 1");
     return true;
+}
+
+bool midi_retry_port2(midi_dev_t *d)
+{
+    if (d->fd < 0 || !d->model || d->fd2 >= 0) return false;
+    d->fd2 = open_sub(d->card, 1);
+    if (d->fd2 >= 0) log_msg("MIDI: porta 2 della MK4 aperta");
+    return d->fd2 >= 0;
 }
 
 int midi_read(midi_dev_t *d, int port, uint8_t *buf, int max)

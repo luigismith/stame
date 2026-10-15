@@ -27,13 +27,30 @@ void mot_init(motore_t *m, dsp_t *d, uint32_t fs, uint32_t seed)
 
 uint64_t mot_tick_sample(const motore_t *m, uint32_t t)
 {
-    return (m->spt_fp * t) >> 32;
+    return (m->spt_fp >> 32) * t + (((m->spt_fp & 0xFFFFFFFFu) * t) >> 32);   /* senza traboccare in 64 bit */
 }
 
 uint32_t mot_bar(const motore_t *m) { return m->beat_sel == BEAT_M_PATTERN ? meter_bar(METER_4_4) : meter_bar(m->meter); }
 uint32_t mot_click(const motore_t *m) { return m->beat_sel == BEAT_M_PATTERN ? meter_click(METER_4_4) : meter_click(m->meter); }
 
 /* ---------------------------------------------------------------- uscita */
+
+/* ACC-253: una nota già aperta che riceve un altro note-on (dal vivo sopra il loop) prima si spegne e
+ * riparte; la voce si spegne solo quando la rilasciano tutte le sorgenti, così il loop non taglia una
+ * nota tenuta dal vivo e viceversa */
+static void voice_on(motore_t *m, int r, uint8_t note, uint8_t vel)
+{
+    dsp_engine e = r ? DSP_BASS : DSP_SOUND;
+    if (m->ref[r][note]) dsp_note_off(m->d, e, note);
+    if (m->ref[r][note] < UINT8_MAX) m->ref[r][note]++;
+    dsp_note_on(m->d, e, note, vel);
+}
+
+static void voice_off(motore_t *m, int r, uint8_t note)
+{
+    if (!m->ref[r][note]) return;
+    if (--m->ref[r][note] == 0) dsp_note_off(m->d, r ? DSP_BASS : DSP_SOUND, note);
+}
 
 /* il looper registra prima del transpose (ACC-220); il note-off segue la nota del suo note-on */
 static void record(motore_t *m, uint8_t role, uint8_t note, uint8_t vel)
@@ -52,7 +69,7 @@ static void record(motore_t *m, uint8_t role, uint8_t note, uint8_t vel)
 static void treble(motore_t *m, uint8_t note, uint8_t vel)
 {
     if (note > 127) return;
-    if (vel) dsp_note_on(m->d, DSP_SOUND, note, vel); else dsp_note_off(m->d, DSP_SOUND, note);
+    if (vel) voice_on(m, 0, note, vel); else voice_off(m, 0, note);
     record(m, LOOP_TREBLE, note, vel);
 }
 
@@ -70,14 +87,13 @@ static void apply_loop(motore_t *m, const loop_ev_t *ev, int n)
             continue;
         }
         uint8_t r = ev[i].role == LOOP_BASS ? 1 : 0, src = ev[i].note & 127u;
-        dsp_engine e = r ? DSP_BASS : DSP_SOUND;
         if (ev[i].vel) {
             int note = (int)src + m->transpose;
             if (note < 0 || note > 127) { m->lp_out[r][src] = MOT_NONE; continue; }
             m->lp_out[r][src] = (uint8_t)note;
-            dsp_note_on(m->d, e, (uint8_t)note, ev[i].vel);
+            voice_on(m, r, (uint8_t)note, ev[i].vel);
         } else if (m->lp_out[r][src] != MOT_NONE) {
-            dsp_note_off(m->d, e, m->lp_out[r][src]);
+            voice_off(m, r, m->lp_out[r][src]);
             m->lp_out[r][src] = MOT_NONE;
         }
     }
@@ -110,15 +126,18 @@ void mot_drum(motore_t *m, uint8_t k, uint8_t vel)
 {
     if (k >= DRUM_COUNT || vel == 0) return;
     drums_hit(&m->drums, k, vel);
-    uint32_t q = ((m->tick + STEP_TICKS / 2u) / STEP_TICKS) * STEP_TICKS;   /* il sedicesimo più vicino */
-    loop_record(&m->loop, q, LOOP_DRUM, k, vel);
+    /* il sedicesimo più vicino sulla griglia del loop, che parte da t0 e non dal tick 0: sul tick
+     * assoluto ogni colpo finiva spostato di t0 mod 24 (fino a 60 ms a 120 BPM) */
+    int32_t x = (int32_t)(m->tick - m->loop.t0) + (int32_t)(STEP_TICKS / 2u);
+    int32_t f = x >= 0 ? x / (int32_t)STEP_TICKS : -((-x + (int32_t)STEP_TICKS - 1) / (int32_t)STEP_TICKS);
+    loop_record_hit(&m->loop, m->loop.t0 + (uint32_t)(f * (int32_t)STEP_TICKS), m->tick, k, vel);
 }
 
 void mot_note(motore_t *m, int engine, uint8_t note, uint8_t vel)
 {
     if (note > 127) return;
     if (engine == 1) {                                            /* il basso non passa dalla performance (ACC-142) */
-        if (vel) dsp_note_on(m->d, DSP_BASS, note, vel); else dsp_note_off(m->d, DSP_BASS, note);
+        if (vel) voice_on(m, 1, note, vel); else voice_off(m, 1, note);
         record(m, LOOP_BASS, note, vel);
         return;
     }
@@ -143,14 +162,16 @@ void mot_chord_start(motore_t *m)
 static void commit(motore_t *m)
 {
     perf_ev_t ev[48];
-    int n;
-    if (!held_any(m)) n = perf_release(&m->perf, m->tick, ev, 48);
-    else {
-        uint8_t notes[8], k = 0;
-        for (int i = 0; i < 128 && k < 8; i++) if (m->held[i >> 3] >> (i & 7) & 1u) notes[k++] = (uint8_t)i;
-        n = perf_chord(&m->perf, m->tick, notes, k, m->held_vel, m->key_down, m->legato, ev, 48);
+    if (!held_any(m)) {
+        /* nessuna nota treble (per esempio un tasto che suona solo il basso): il KEY_DOWN resta in
+         * attesa delle note del gesto, così il modo e il passo 0 valgono quando arrivano (ACC-173, ACC-182) */
+        apply_perf(m, ev, perf_release(&m->perf, m->tick, ev, 48));
+        m->dirty = m->legato = m->went_empty = 0;
+        return;
     }
-    apply_perf(m, ev, n);
+    uint8_t notes[8], k = 0;
+    for (int i = 0; i < 128 && k < 8; i++) if (m->held[i >> 3] >> (i & 7) & 1u) notes[k++] = (uint8_t)i;
+    apply_perf(m, ev, perf_chord(&m->perf, m->tick, notes, k, m->held_vel, m->key_down, m->legato, ev, 48));
     m->dirty = m->key_down = m->legato = m->went_empty = 0;
 }
 
@@ -207,8 +228,8 @@ void mot_loop(motore_t *m, int cmd)
 {
     uint8_t was = m->loop.state;
     if (was == LOOP_IDLE) loop_set_len(&m->loop, mot_bar(m), m->loop.bars);
-    loop_ev_t ev[64];
-    apply_loop(m, ev, loop_cmd(&m->loop, cmd, m->tick, ev, 64));
+    loop_ev_t ev[LOOP_OUT_MAX];
+    apply_loop(m, ev, loop_cmd(&m->loop, cmd, m->tick, ev, LOOP_OUT_MAX));
     uint8_t st = m->loop.state;
     /* registrazione nuova o ripresa dalla pausa: il trasporto riparte con il loop (ACC-222) */
     transport(m, st != was && (st == LOOP_COUNT_IN || (was == LOOP_PAUSE && st == LOOP_PLAY)));
@@ -222,6 +243,7 @@ void mot_all_off(motore_t *m)
     dsp_all_notes_off(m->d);
     drums_all_off(&m->drums);
     memset(m->lp_out, MOT_NONE, sizeof m->lp_out);
+    memset(m->ref, 0, sizeof m->ref);
 }
 
 /* ---------------------------------------------------------------- tempo */
@@ -230,8 +252,8 @@ static void tick_run(motore_t *m)
 {
     perf_ev_t pe[48];
     apply_perf(m, pe, perf_run(&m->perf, m->tick, pe, 48));
-    loop_ev_t le[64];
-    apply_loop(m, le, loop_run(&m->loop, m->tick, le, 64));
+    loop_ev_t le[LOOP_OUT_MAX];
+    apply_loop(m, le, loop_run(&m->loop, m->tick, le, LOOP_OUT_MAX));
     if (!m->tr_on) return;
     uint32_t pos = m->tick - m->tr_t0;
     beat_hit_t h[8];
@@ -247,14 +269,14 @@ static void tick_run(motore_t *m)
 bool mot_due(const motore_t *m, uint32_t at)
 {
     int32_t d = (int32_t)(at - m->tick);
-    return d < 0 || (d == 0 && (m->next_fp >> 32) < m->s + 16);
+    return d < 0 || (d == 0 && (m->next_fp >> 32) < 16u);
 }
 
 void mot_render(motore_t *m, float *L, float *R, uint32_t n)
 {
     if (m->dirty) commit(m);
     for (uint32_t i = 0; i + 16 <= n; i += 16) {
-        while ((m->next_fp >> 32) < m->s + 16) {                  /* i tick che cadono in questo blocco */
+        while ((m->next_fp >> 32) < 16u) {                        /* i tick che cadono in questo blocco */
             tick_run(m);
             m->tick++;
             m->next_fp += m->spt_fp;
@@ -263,6 +285,7 @@ void mot_render(motore_t *m, float *L, float *R, uint32_t n)
         drums_render16(&m->drums, dl, dr);
         dsp_render16(m->d, L + i, R + i, dl, dr);
         m->s += 16;
+        m->next_fp -= (uint64_t)16u << 32;                        /* il blocco dopo: next_fp resta relativo */
     }
     m->snap.tick = m->tick;
     m->snap.tr_t0 = m->tr_t0;

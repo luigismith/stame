@@ -21,6 +21,7 @@
 
 #define VET_SCOPE_LEN 1024
 #define VET_SND_Q     512
+#define VET_DEMO_OPTS 9         /* opzioni degli accordi che la demo rimette (DEMO_OPTS in vetrina.c) */
 #include "patch_vetrina.h"      /* VET_N_SOUNDS, VET_N_BASSES: li scrive tools/patch.py */
 
 /* Comandi per il motore audio (core/motore e synth): la vetrina li mette in coda, la piattaforma li
@@ -86,7 +87,8 @@ typedef struct {
     uint32_t    demo_tick0;           /* tick del motore a cui comincia il brano */
     int         demo_step;
     uint8_t     demo_song;            /* quale brano di vet_demo_songs; alla fine passa al successivo */
-    int16_t     demo_saved[6];        /* opzioni degli accordi da rimettere quando la demo si ferma */
+    int16_t     demo_saved[VET_DEMO_OPTS];   /* opzioni degli accordi da rimettere quando la demo si ferma */
+    uint8_t     demo_focus, demo_view_back, demo_pinned;   /* fuoco, vista di T14 e pagina di chi suonava */
     uint32_t    vtick, vt_acc;        /* senza motore: tick contati dall'orologio, al BPM corrente */
 
     /* meter finti */
@@ -132,6 +134,8 @@ void vet_mpk_model(vet_t *v, uint8_t model);
 void vet_mpk(vet_t *v, bool connected, const char *fw, uint32_t now_ms);
 /* Macro pad: link = PADL_OPEN, PADL_UNMAPPED, PADL_ERROR o PADL_ABSENT (ui_model.h). */
 void vet_macropad(vet_t *v, uint8_t link, uint32_t now_ms);
+/* i tasti della Flip spariti (il nodo evdev si è chiuso): rilasci sintetici di ciò che era tenuto */
+void vet_flip_lost(vet_t *v, uint32_t now_ms);
 /* Da chiamare spesso (almeno ogni 10 ms): gesti a tempo, trasporto, demo, meter. */
 void vet_tick(vet_t *v, uint32_t now_ms);
 /* Batteria della Flip: 255 = sconosciuta. */

@@ -129,8 +129,6 @@ int perf_chord(perf_t *p, uint32_t tick, const uint8_t *notes, uint8_t n, uint8_
     if (n > 8) n = 8;
     bool was_seq = p->active && (p->mode == PM_ARP || p->mode == PM_ARP2 || p->mode == PM_PATTERN);
     if (key_down) { p->mode = p->next_mode; p->amount = p->next_amount ? p->next_amount : 1; }
-    uint8_t old[8], on_old = p->n;
-    memcpy(old, p->notes, sizeof old);
     p->n = n;
     memcpy(p->notes, notes, n);
     if (key_down || vel) p->vel = vel ? vel : p->vel;
@@ -151,7 +149,9 @@ int perf_chord(perf_t *p, uint32_t tick, const uint8_t *notes, uint8_t n, uint8_
         break;
     }
     case PM_ARP: case PM_ARP2: case PM_PATTERN:
-        if (key_down && !(legato && was_seq)) {                   /* passo 0 al tasto (ACC-173) */
+        /* passo 0 al tasto (ACC-173), e anche quando non c'era una sequenza da continuare: passo e
+         * tempo vecchi facevano recuperare in un colpo tutti i passi persi */
+        if ((key_down && !(legato && was_seq)) || !was_seq) {
             k = all_off(p, tick, out, max, k);
             p->step = 0;
             p->next = tick;
@@ -167,10 +167,14 @@ int perf_chord(perf_t *p, uint32_t tick, const uint8_t *notes, uint8_t n, uint8_
         p->active = n > 0;
         break;
     default: {                                                    /* OFF: accordo a blocco */
-        for (int i = 0; i < on_old; i++) {
+        /* niente in coda dal modo di prima (strum, arpeggio): si spegne ora tutto ciò che suona e non
+         * è nell'accordo, comprese le note di un arpeggio o di uno strum su due ottave */
+        p->qn = 0;
+        for (int nn = 0; nn < 128; nn++) {
+            if (!is_on(p, (uint8_t)nn)) continue;
             bool keep = false;
-            for (int j = 0; j < n; j++) if (notes[j] == old[i]) keep = true;
-            if (!keep) k = emit(p, out, max, k, tick, old[i], 0, false);
+            for (int j = 0; j < n; j++) if (notes[j] == nn) keep = true;
+            if (!keep) k = emit(p, out, max, k, tick, (uint8_t)nn, 0, false);
         }
         for (int j = 0; j < n; j++)
             if (!is_on(p, notes[j]) || key_down) k = emit(p, out, max, k, tick, notes[j], p->vel, true);
@@ -198,6 +202,7 @@ int perf_run(perf_t *p, uint32_t tick, perf_ev_t *out, int max)
         k = emit(p, out, max, k, e.tick, e.note, e.vel, e.on);
     }
     if (!p->active || p->n == 0) return k;
+    if ((int32_t)(tick - p->next) > 48) p->next = tick;          /* mai più di un passo da recuperare */
     while ((int32_t)(tick - p->next) >= 0) {
         if (p->mode == PM_PATTERN) {                              /* ACC-175…177 */
             uint8_t vs = 100, mask = pattern_step((p->amount - 1) % 13, (int)(p->step % 16u), &vs);

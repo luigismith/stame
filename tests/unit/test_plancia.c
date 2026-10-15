@@ -88,9 +88,28 @@ static void chord(void)
     m.music.pc_sounding = (1u << 6) | (1u << 9) | (1u << 1) | (1u << 4);
 }
 
+/* revisione del 15/10/2026: il taglio non lascia mai un carattere UTF-8 a metà, neanche quando cade
+ * subito dopo il suo primo byte; il doppio bemolle sta nel campo dell'alterazione */
+static void test_utf8(void)
+{
+    char b[8];
+    ui_fmt_copy(b, 4, "ab\xE2\x99\xAF");
+    CHECK(strcmp(b, "ab") == 0);
+    ui_fmt_copy(b, 5, "ab\xE2\x99\xAF");
+    CHECK(strcmp(b, "ab") == 0);
+    ui_fmt_copy(b, 6, "ab\xE2\x99\xAF");
+    CHECK(strcmp(b, "ab\xE2\x99\xAF") == 0);
+    ui_fmt_cat(b, 6, "F", "\xE2\x99\xAF\xE2\x99\xAF");
+    CHECK(strcmp(b, "F\xE2\x99\xAF") == 0);
+    chord_label_t c;
+    ui_fmt_copy(c.acc, sizeof c.acc, "\xE2\x99\xAD\xE2\x99\xAD");
+    CHECK(strlen(c.acc) == 6);
+}
+
 void test_plancia(void)
 {
     test_tema();
+    test_utf8();
 
     static ui_flip_state_t sa, sb;
     gfx_fb16_t fa, fbb;

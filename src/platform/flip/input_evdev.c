@@ -5,6 +5,7 @@
  * sotto bloccano la compilazione se un nome si confonde con le macro BTN_* (PLT-054).
  */
 #define _GNU_SOURCE
+#include <errno.h>
 #include <fcntl.h>
 #include <linux/input.h>
 #include <stdio.h>
@@ -49,14 +50,28 @@ static void hat(pad_cb_t cb, void *ctx, int *state, int v, uint16_t neg, uint16_
     if (v > 0) cb(ctx, pos, 1);
 }
 
-void pad_read(int fd, pad_cb_t cb, void *ctx)
+/* il kernel ha perso eventi (SYN_DROPPED): un rilascio può mancare, quindi si rilascia tutto; i tasti
+ * ancora tenuti tornano alla prossima pressione */
+static void release_all(pad_cb_t cb, void *ctx)
+{
+    static const uint16_t K[] = { PAD_B, PAD_A, PAD_Y, PAD_X, PAD_L1, PAD_R1, PAD_SELECT, PAD_START, PAD_MENU,
+                                  PAD_L3, PAD_R3 };
+    for (unsigned i = 0; i < sizeof K / sizeof K[0]; i++) cb(ctx, K[i], 0);
+    hat(cb, ctx, &hat_x, 0, PAD_LEFT, PAD_RIGHT);
+    hat(cb, ctx, &hat_y, 0, PAD_UP, PAD_DOWN);
+}
+
+int pad_read(int fd, pad_cb_t cb, void *ctx)
 {
     struct input_event ev[32];
     for (;;) {
         ssize_t n = read(fd, ev, sizeof ev);
-        if (n <= 0) return;
+        if (n == 0) return 0;
+        if (n < 0) return errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR ? 0 : -1;   /* ENODEV: sparito */
         for (int i = 0; i < (int)(n / (ssize_t)sizeof ev[0]); i++) {
-            if (ev[i].type == EV_KEY) {
+            if (ev[i].type == EV_SYN && ev[i].code == SYN_DROPPED) {
+                release_all(cb, ctx);
+            } else if (ev[i].type == EV_KEY) {
                 cb(ctx, ev[i].code, ev[i].value);
             } else if (ev[i].type == EV_ABS) {
                 if (ev[i].code == ABS_HAT0X) hat(cb, ctx, &hat_x, ev[i].value, PAD_LEFT, PAD_RIGHT);

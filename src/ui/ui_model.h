@@ -14,15 +14,15 @@
 #define UI_NOTES_MAX 16
 typedef enum { ROLE_TREBLE, ROLE_BASS } ui_role_t;
 typedef enum { CH_NONE, CH_SOUNDING, CH_LINGER, CH_GHOST } ui_chord_state_t;
-typedef struct { uint8_t midi, role; char name[8]; } ui_note_t;      /* name UTF-8: "F♯3" */
+typedef struct { uint8_t midi, role; char name[12]; } ui_note_t;     /* name UTF-8: "F♯3", "B♭♭3" */
 
 typedef struct {
     char root[2];           /* "C".."B" */
-    char acc[4];            /* "", "♯", "♭", "x" */
+    char acc[8];            /* "", "♯", "♭", "x", "♭♭" (6 byte: in Fa♭ maggiore o Re♭ minore) */
     char quality[8];        /* in linea: "", "m", "dim", "sus", "+", "m(add4)" */
     char sup[8];            /* apice: "", "7", "M7", "6", "9", "M79", "m6", "5", "JAZZ", "WTF" */
     char slash_root[2];     /* basso diverso dalla fondamentale, oppure "" */
-    char slash_acc[4];
+    char slash_acc[8];
 } chord_label_t;
 
 typedef struct {

@@ -893,6 +893,8 @@ PNL_ENC_UP(e):
 
   Lo schermo DEVE mostrare quale encoder ha il fuoco (resa in `30`).
 
+  Revisione del 15/10/2026 `[D]`: la pressione di un altro encoder toglie la manopola del fuoco all'**overlay** di valore (punto 1), che sparisce; liste e menu restano padroni finché non si chiudono. Prima, dopo aver girato K1 e premuto un altro tasto, m2 continuava a girare Sound per 3,4 s mentre la cornice del fuoco stava altrove. Un overlay nascosto da Reset, B o dalla demo restituisce sempre la manopola.
+
 - **MIDI-105** — **Verso dei comandi verticali** [D, 13/10/2026]. Croce ▲▼ della Flip e joystick ▲▼ della MPK emettono `PNL_ENC_TURN(ENC_FOCUS | PNL_F_VERTICAL, ±1)` con su = +1. Il nucleo DEVE:
   - con una lista o un menu aperto, invertire il segno: su = voce precedente, cioè più in alto sullo schermo (`30` UI-157);
   - senza lista, usare il segno così com'è: su = valore più alto.

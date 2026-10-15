@@ -379,6 +379,38 @@ static void test_steal_click(void)
     CHECKM(jump <= lim, "T-SND-32: salto %.4f oltre %.4f", (double)jump, (double)lim);
 }
 
+/* revisione del 15/10/2026, SND-026: accordo tenuto e cambio a una patch mono. Riparte una voce sola,
+ * sull'ultima nota tenuta, e al rilascio non resta niente acceso; anche con GLIDEMODE cambiato a mano */
+static int held_voices(const dsp_t *d)
+{
+    int h = 0;
+    for (int i = 0; i < DSP_VOICES; i++) if (d->voice[i].state == DSP_V_HELD) h++;
+    return h;
+}
+
+static void test_mono_switch(void)
+{
+    static const uint8_t ACC[3] = { 60, 64, 67 };
+    fresh(&D, SND_MODEL_VA);
+    for (int i = 0; i < 3; i++) dsp_note_on(&D, DSP_SOUND, ACC[i], 100);
+    skip(&D, 480);
+    uint8_t p[DSP_NPAR];
+    snd_patch_init(p, SND_MODEL_VA);
+    p[SND_P_GLIDEMODE] = SND_GLIDE_MONO;
+    dsp_load_patch(&D, DSP_SOUND, p, 0);
+    int note = -1;
+    for (int i = 0; i < DSP_VOICES; i++) if (D.voice[i].state == DSP_V_HELD) note = D.voice[i].note;
+    CHECKM(held_voices(&D) == 1 && note == 67, "una voce sola, sull'ultima nota: %d voci, nota %d", held_voices(&D), note);
+    for (int i = 0; i < 3; i++) dsp_note_off(&D, DSP_SOUND, ACC[i]);
+    CHECKM(held_voices(&D) == 0, "note bloccate: %d", held_voices(&D));
+
+    fresh(&D, SND_MODEL_VA);
+    for (int i = 0; i < 3; i++) dsp_note_on(&D, DSP_SOUND, ACC[i], 100);
+    dsp_setpar(&D, DSP_SOUND, SND_P_GLIDEMODE, SND_GLIDE_MONO);
+    for (int i = 0; i < 3; i++) dsp_note_off(&D, DSP_SOUND, ACC[i]);
+    CHECKM(held_voices(&D) == 0, "GLIDEMODE cambiato con l'accordo tenuto: %d note bloccate", held_voices(&D));
+}
+
 /* T-SND-14: Reed Piano, T60 della nota singola */
 static void test_rp(void)
 {
@@ -474,6 +506,7 @@ void test_dsp(void)
     test_fxlock();
     test_pool();
     test_steal_click();
+    test_mono_switch();
     test_rp();
     test_determinism();
 }

@@ -118,6 +118,38 @@ static void test_parse(void)
     CHECK(!smp_bank_parse(&b2, bad, sizeof bad) && b2.n_sets == 0);
     CHECK(!smp_bank_parse(&b2, blob, blob_n - 100));
     CHECK(!smp_bank_parse(&b2, NULL, 0));
+    /* revisione del 15/10/2026: loop più corto di SMP_LOOP_MIN, e loop_start che gira in 32 bit */
+    static uint8_t copia[sizeof blob];
+    uint8_t *z0 = copia + SMP_HEADER + 2 * SMP_SET_REC;
+    memcpy(copia, blob, blob_n);
+    w32(z0 + 8, 4000 - SMP_LOOP_MIN + 1);
+    CHECK(!smp_bank_parse(&b2, copia, blob_n));
+    w32(z0 + 8, 0xFFFFFFFDu);
+    CHECK(!smp_bank_parse(&b2, copia, blob_n));
+    w32(z0 + 8, 4000 - SMP_LOOP_MIN);
+    CHECK(smp_bank_parse(&b2, copia, blob_n));
+}
+
+/* revisione del 15/10/2026: una nota campionata ribattuta mentre suona riparte in una voce nuova e la
+ * vecchia sfuma in coda in 2 ms; prima il campione ripartiva da capo con il VCA aperto (clic) */
+static void test_restrike(void)
+{
+    uint8_t p[DSP_NPAR];
+    dsp_init(&D, FS, 7);
+    dsp_set_bank(&D, &B);
+    dsp_set_master_volume(&D, 99);
+    smp_patch(p, 0);
+    dsp_load_patch(&D, DSP_SOUND, p, 0);
+    dsp_note_on(&D, DSP_SOUND, 69, 100);
+    render(FS / 10 + 37 * DSP_BLOCK);                   /* una fase qualunque del seno */
+    float steady = 0.0f;
+    for (int i = FS / 20; i < FS / 10; i++) { float j = fabsf(L[i] - L[i - 1]); if (j > steady) steady = j; }
+    float last = L[FS / 10 + 37 * DSP_BLOCK - 1];
+    dsp_note_on(&D, DSP_SOUND, 69, 100);
+    render(960);
+    float jump = fabsf(L[0] - last);
+    for (int i = 1; i < 960; i++) { float j = fabsf(L[i] - L[i - 1]); if (j > jump) jump = j; }
+    CHECKM(jump <= 2.0f * steady + 0.002f, "ribattuta: salto %.4f, a regime %.4f", (double)jump, (double)steady);
 }
 
 /* T-SND-51: una voce SMP suona il campione alla sua nota e trasposto, in loop finché è tenuta */
@@ -228,6 +260,7 @@ static void test_beat_kits(void)
 void test_smp(void)
 {
     test_parse();
+    test_restrike();
     test_pitch();
     test_oneshot();
     test_kit();

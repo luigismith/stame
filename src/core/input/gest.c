@@ -156,6 +156,10 @@ int gest_feed(gest_t *g, const pnl_event_t *e, pnl_event_t *out, int max)
             enc_down(g, g->fdown[s], s);
         } else if (e->a < ENC_COUNT) {
             g->focus = e->a;                                      /* MIDI-104: la pressione porta il fuoco */
+            /* e lo toglie all'overlay di un altro encoder: dopo aver girato Sound e premuto un altro
+             * tasto, m2 girava ancora Sound per 3,4 s mentre la cornice del fuoco stava altrove. Le
+             * liste e i menu restano padroni finché non si chiudono */
+            if (g->owner < ENC_COUNT && !g->owner_list && g->owner != e->a) g->owner = ENC_COUNT;
             enc_down(g, e->a, s);
         }
         break;
@@ -190,6 +194,13 @@ int gest_feed(gest_t *g, const pnl_event_t *e, pnl_event_t *out, int max)
         break;
     }
     return o.n;
+}
+
+void gest_resync(gest_t *g, uint32_t t_us)
+{
+    g->now = t_us;
+    g->started = 1;
+    for (uint8_t e = 0; e < ENC_COUNT; e++) if (g->st[e] != GS_IDLE) g->t_down[e] = t_us;
 }
 
 int gest_tick(gest_t *g, uint32_t t_us, pnl_event_t *out, int max)

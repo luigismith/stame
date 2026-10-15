@@ -700,7 +700,7 @@ def alga():
     S.lock_toggle(at(42, 1.25))
     S.add(at(42), 'D_VIEW', 'VIEW_CHORD')
     S.add(at(42), 'D_FOCUS', 'ENC_BPM')
-    for bar, bpm in {42: 66, 43: 60, 44: 54}.items():
+    for bar, bpm in {42: 68, 43: 64, 44: 60}.items():          # 60 è il minimo (ACC-202)
         S.add(at(bar), 'D_BPM', c=bpm, note=f'ritardando: {bpm} BPM')
     S.loop_cmd(at(44), 'CLEAR', 'Clear')
     S.chords(42, '1:Emaj7:12@52')

@@ -57,6 +57,10 @@ int  gest_feed(gest_t *g, const pnl_event_t *e, pnl_event_t *out, int max);
 /* Da chiamare ogni 10 ms: soglie di G_HOLD e G_HOLD_LONG. */
 int  gest_tick(gest_t *g, uint32_t t_us, pnl_event_t *out, int max);
 
+/* Dopo una pausa lunga dell'orologio (sospensione): il tempo riparte da t_us anche se, letto in 32
+ * bit, sembra indietro. Le pressioni in corso ripartono da adesso per le soglie del tenuto. */
+void gest_resync(gest_t *g, uint32_t t_us);
+
 /* Encoder che ENC_FOCUS ruota adesso: l'owner, altrimenti il fuoco (ui_controls_t.turn_target). */
 uint8_t gest_target(const gest_t *g);
 

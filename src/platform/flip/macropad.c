@@ -90,7 +90,13 @@ int macropad_open(void)
         log_msg("pad: %s «%s»", path, name);
         fds[nfd++] = fd;
     }
-    if (grab_failed && nfd == 0) return -2;
+    if (grab_failed) {
+        /* MIDI-124: tutti i nodi in esclusiva o nessuno. Se uno resta a spruce (per esempio la
+         * collezione multimediale), la manopola grande dello strato 1 cambierebbe il volume di
+         * sistema: si chiude tutto, la plancia scrive PAD e si riprova al giro dopo */
+        macropad_close();
+        return -2;
+    }
     return nfd;
 }
 
@@ -120,6 +126,13 @@ int macropad_read(pad_cb_t cb, void *ctx)
             }
             if (n == 0) break;
             for (int i = 0; i < (int)(n / (ssize_t)sizeof ev[0]); i++) {
+                if (ev[i].type == EV_SYN && ev[i].code == SYN_DROPPED) {
+                    /* eventi persi dal kernel: un rilascio può mancare. Si rilascia ciò che risulta
+                     * premuto e si azzerano i modificatori: un Ctrl appeso zittiva il pad */
+                    for (int c = 0; c <= KEY_MAX; c++) if (down_as[c]) { cb(ctx, down_as[c], 0); down_as[c] = 0; }
+                    mods = 0;
+                    continue;
+                }
                 if (ev[i].type != EV_KEY || ev[i].code > KEY_MAX) continue;
                 uint16_t code = ev[i].code;
                 int value = ev[i].value;

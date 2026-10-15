@@ -72,8 +72,11 @@ int snd_inc_read(const char *txt, size_t n, uint8_t p[DSP_NPAR])
         if (k + 2 > end || txt[k] != '/' || txt[k + 1] != '/') return -1;
         k += 2;
         int idx = 0, digits = 0;
-        while (k < end && txt[k] >= '0' && txt[k] <= '9') { idx = idx * 10 + (txt[k] - '0'); k++; digits++; }
-        if (!digits || idx != line) return -2;                    /* indice incoerente: rifiutato */
+        while (k < end && txt[k] >= '0' && txt[k] <= '9') {
+            if (digits < 3) idx = idx * 10 + (txt[k] - '0');      /* al massimo 3 cifre: niente overflow */
+            k++; digits++;
+        }
+        if (!digits || digits > 3 || idx != line) return -2;      /* indice incoerente: rifiutato */
         while (k < end && space(txt[k])) k++;
         static const char T[] = "TREBLE_", B[] = "BASS_";
         bool ok = false;

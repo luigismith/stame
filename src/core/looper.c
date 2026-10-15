@@ -28,29 +28,34 @@ uint32_t loop_pos(const looper_t *l, uint32_t tick)
     return l->state == LOOP_REC ? d : d % l->len;
 }
 
-/* note-off di tutto ciò che la riproduzione ha aperto */
+/* note-off di tutto ciò che la riproduzione ha aperto; una nota il cui note-off non sta in out[] resta
+ * aperta e la chiude la chiusura successiva */
 static int close_open(looper_t *l, loop_ev_t *out, int max, int k)
 {
     for (int r = 0; r < 2; r++)
-        for (int n = 0; n < 128; n++)
+        for (int n = 0; n < 128 && k < max; n++)
             if (bit_get(l->open[r], (uint8_t)n)) {
-                if (k < max) { out[k].t = 0; out[k].role = (uint8_t)r; out[k].note = (uint8_t)n; out[k].vel = 0; out[k].layer = 0; k++; }
+                out[k].t = 0; out[k].role = (uint8_t)r; out[k].note = (uint8_t)n; out[k].vel = 0;
+                out[k].layer = 0; out[k].skip = 0; k++;
                 bit_set(l->open[r], (uint8_t)n, false);
             }
     return k;
 }
 
-static void insert(looper_t *l, uint32_t t, uint8_t role, uint8_t note, uint8_t vel)
+/* evento in ordine di t. I note-on e i colpi lasciano LOOP_OFF_RESERVE posti ai note-off, così ogni
+ * nota registrata si chiude anche a loop pieno (ACC-231). Un evento dietro la testina non si risuona
+ * in questo giro; uno davanti con skip lo salta il primo passaggio. */
+static void insert(looper_t *l, uint32_t t, uint8_t role, uint8_t note, uint8_t vel, bool skip)
 {
-    if (l->n >= LOOP_EVENTS) { l->full = 1; return; }            /* ACC-231 */
+    int cap = (role != LOOP_DRUM && vel == 0) ? LOOP_EVENTS : LOOP_EVENTS - LOOP_OFF_RESERVE;
+    if (l->n >= cap) { l->full = 1; return; }
     int i = l->n;
     while (i > 0 && l->ev[i - 1].t > t) { l->ev[i] = l->ev[i - 1]; i--; }
     l->ev[i].t = t; l->ev[i].role = role; l->ev[i].note = note; l->ev[i].vel = vel;
     l->ev[i].layer = (uint8_t)(l->layers ? l->layers - 1 : 0);
-    l->ev[i].skip = 0;
+    l->ev[i].skip = skip;
     l->n++;
-    if (i < l->pi) l->pi++;                                       /* non si risuona nello stesso giro */
-    else if (role == LOOP_DRUM && l->state == LOOP_OVERDUB) l->ev[i].skip = 1;   /* quantizzato avanti: già sentito dal vivo */
+    if (i < l->pi) l->pi++;
 }
 
 /* chiude lo strato: le note ancora tenute ricevono il note-off alla fine del loop (ACC-225) */
@@ -59,7 +64,7 @@ static void close_layer(looper_t *l)
     for (int r = 0; r < 2; r++)
         for (int n = 0; n < 128; n++)
             if (bit_get(l->rec_open[r], (uint8_t)n)) {
-                insert(l, l->len - 1, (uint8_t)r, (uint8_t)n, 0);
+                insert(l, l->len - 1, (uint8_t)r, (uint8_t)n, 0, false);
                 bit_set(l->rec_open[r], (uint8_t)n, false);
             }
 }
@@ -122,15 +127,20 @@ int loop_cmd(looper_t *l, int cmd, uint32_t tick, loop_ev_t *out, int max)
             for (int i = 0; i < l->n; i++) if (l->ev[i].layer != last) l->ev[j++] = l->ev[i];
             l->n = (uint16_t)j;
             l->layers--;
-            l->pi = 0;
+            if (l->n < LOOP_EVENTS - LOOP_OFF_RESERVE) l->full = 0;   /* c'è di nuovo posto (ACC-231) */
+            /* il tick del comando non è ancora suonato: la testina si ferma prima dei suoi eventi */
             uint32_t pos = loop_pos(l, tick);
-            while (l->pi < l->n && l->ev[l->pi].t <= pos) l->pi++;
+            l->pi = 0;
+            while (l->pi < l->n && l->ev[l->pi].t < pos) l->pi++;
             memset(l->rec_open, 0, sizeof l->rec_open);
         }
         break;
     case LOOP_C_CLEAR:
         if (l->state == LOOP_OVERDUB) return loop_cmd(l, LOOP_C_UNDO, tick, out, max);   /* annulla lo strato in corso */
         k = clear(l, out, max, k);
+        break;
+    case LOOP_C_RESET:
+        k = clear(l, out, max, k);                                /* in ogni stato, anche in overdub */
         break;
     default: break;
     }
@@ -139,22 +149,52 @@ int loop_cmd(looper_t *l, int cmd, uint32_t tick, loop_ev_t *out, int max)
 
 void loop_record(looper_t *l, uint32_t tick, uint8_t role, uint8_t note, uint8_t vel)
 {
-    if (role > LOOP_DRUM || note > 127) return;
-    if (role == LOOP_DRUM && vel == 0) return;                    /* i colpi non hanno note-off */
+    if (role == LOOP_DRUM) { loop_record_hit(l, tick, tick, note, vel); return; }
+    if (role > LOOP_BASS || note > 127) return;
     uint32_t t;
+    bool skip = false;
     if (l->state == LOOP_COUNT_IN) {                              /* anticipo sulla battuta: entra a t = 0 */
         int32_t d = (int32_t)(tick - l->t0);
         if (d < -(int32_t)LOOP_EARLY) return;
         t = d > 0 ? (uint32_t)d : 0u;
-    } else if (l->state == LOOP_REC || l->state == LOOP_OVERDUB) {
+    } else if (l->state == LOOP_REC) {
+        /* al tick t0 + len la registrazione è finita anche se loop_run non è ancora passato: una nota sul
+         * primo battere del giro non entra (diventava un bordone lungo tutto il loop) */
+        if (tick - l->t0 >= l->len) return;
+        t = tick - l->t0;
+    } else if (l->state == LOOP_OVERDUB) {
         t = loop_pos(l, tick) % l->len;
+        skip = true;                                              /* suona già dal vivo: il giro corrente non la ripete */
     } else {
         return;
     }
-    if (role == LOOP_DRUM) { insert(l, t, role, note, vel); return; }
     if (vel == 0 && !bit_get(l->rec_open[role], note)) return;   /* note-off di una nota non registrata */
     bit_set(l->rec_open[role], note, vel != 0);
-    insert(l, t, role, note, vel);
+    insert(l, t, role, note, vel, skip);
+}
+
+void loop_record_hit(looper_t *l, uint32_t at, uint32_t now, uint8_t inst, uint8_t vel)
+{
+    if (inst > 127 || vel == 0) return;                           /* i colpi non hanno note-off */
+    uint32_t t;
+    bool skip = false;
+    if (l->state == LOOP_COUNT_IN) {
+        int32_t d = (int32_t)(at - l->t0);
+        if (d < -(int32_t)LOOP_EARLY) return;
+        t = d > 0 ? (uint32_t)d : 0u;
+    } else if (l->state == LOOP_REC) {
+        if (now - l->t0 >= l->len) return;
+        int32_t d = (int32_t)(at - l->t0);
+        if (d < 0) d = 0;
+        t = (uint32_t)d % l->len;
+        skip = (uint32_t)d >= l->len;       /* oltre la fine: il primo giro lo suonerebbe subito dopo il colpo dal vivo */
+    } else if (l->state == LOOP_OVERDUB) {
+        t = loop_pos(l, at) % l->len;
+        skip = (int32_t)(at - now) >= 0;    /* adesso o in avanti: la testina lo raggiunge dopo il colpo dal vivo */
+    } else {
+        return;
+    }
+    insert(l, t, LOOP_DRUM, inst, vel, skip);
 }
 
 int loop_run(looper_t *l, uint32_t tick, loop_ev_t *out, int max)
@@ -171,16 +211,16 @@ int loop_run(looper_t *l, uint32_t tick, loop_ev_t *out, int max)
     }
     if (l->state != LOOP_PLAY && l->state != LOOP_OVERDUB) return 0;
     uint32_t pos = loop_pos(l, tick);
-    if (pos < l->last || (pos == 0 && l->pi > 0)) {              /* giro nuovo: si chiudono le note rimaste (ACC-226) */
-        k = close_open(l, out, max, k);
-        l->pi = 0;
-    }
+    /* giro nuovo: la testina torna all'inizio. Le note tenute oltre il punto di giro continuano fino al
+     * loro note-off a t mod L (ACC-225); una nota rimasta aperta si chiude prima del suo prossimo
+     * note-on (ACC-226) */
+    if (pos < l->last || (pos == 0 && l->pi > 0)) l->pi = 0;
     l->last = pos;
     while (l->pi < l->n && l->ev[l->pi].t <= pos) {
-        loop_ev_t e = l->ev[l->pi++];
-        if (e.t != pos) continue;                                 /* saltato: non si recupera */
+        loop_ev_t e = l->ev[l->pi];
+        l->ev[l->pi++].skip = 0;                                  /* il salto vale per un passaggio */
+        if (e.t != pos || e.skip) continue;                       /* passato senza suonarlo, o già sentito dal vivo */
         if (e.role == LOOP_DRUM) {                                /* colpo: niente note aperte */
-            if (e.skip) { l->ev[l->pi - 1].skip = 0; continue; }
             if (k < max) out[k++] = e;
             continue;
         }
@@ -188,8 +228,10 @@ int loop_run(looper_t *l, uint32_t tick, loop_ev_t *out, int max)
         if (e.vel && bit_get(l->open[e.role], e.note) && k < max) {   /* stessa nota: prima il note-off */
             out[k] = e; out[k].vel = 0; k++;
         }
-        bit_set(l->open[e.role], e.note, e.vel != 0);
-        if (k < max) out[k++] = e;
+        if (k < max) {
+            bit_set(l->open[e.role], e.note, e.vel != 0);
+            out[k++] = e;
+        }
     }
     return k;
 }

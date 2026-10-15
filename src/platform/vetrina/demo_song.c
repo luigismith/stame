@@ -1037,7 +1037,7 @@ static const dstep_t SONG_2[] = {
     {  20544, D_END, 0, 0, 0, 0 },
 };
 
-/* Demo song: Alga: 72 BPM, 45 battute, 192 passi, 2:34 */
+/* Demo song: Alga: 72 BPM, 45 battute, 192 passi, 2:33 */
 static const dstep_t SONG_3[] = {
     {      0, D_TITLE, 0, 0, 0, 0 },
     {      0, D_THEME, THEME_DARK, 0, 0, 0 },
@@ -1222,11 +1222,11 @@ static const dstep_t SONG_3[] = {
     {  15936, D_BEATON, 0, 0, 0, 0 },
     {  15936, D_VIEW, VIEW_CHORD, 0, 0, 0 },
     {  15936, D_FOCUS, ENC_BPM, 0, 0, 0 },
-    {  15936, D_BPM, 0, 0, 66, 0 },                           /* ritardando: 66 BPM */
+    {  15936, D_BPM, 0, 0, 68, 0 },                           /* ritardando: 68 BPM */
     {  15936, D_CHORD, 0x4, 0x4, 4, 52 },                     /* Emaj7: D#4 E4 G#4 B4 */
     {  15960, D_HOLD, ENC_PERFORM, 0, 0, 0 },                 /* Lock del Perform acceso */
-    {  16320, D_BPM, 0, 0, 60, 0 },                           /* ritardando: 60 BPM */
-    {  16704, D_BPM, 0, 0, 54, 0 },                           /* ritardando: 54 BPM */
+    {  16320, D_BPM, 0, 0, 64, 0 },                           /* ritardando: 64 BPM */
+    {  16704, D_BPM, 0, 0, 60, 0 },                           /* ritardando: 60 BPM */
     {  16704, D_LOOP, LOOP_C_CLEAR, 0, 0, 0 },                /* Clear */
     {  17088, D_OFF, 0, 0, 0, 0 },
     {  17280, D_THEME, THEME_DARK, 0, 0, 0 },
@@ -1237,7 +1237,7 @@ const dsong_t vet_demo_songs[] = {
     { "Demo song: Acacia", SONG_0, (uint16_t)(sizeof SONG_0 / sizeof SONG_0[0]), 230992u },
     { "Demo song: Felce", SONG_1, (uint16_t)(sizeof SONG_1 / sizeof SONG_1[0]), 108943u },
     { "Demo song: Pistillo", SONG_2, (uint16_t)(sizeof SONG_2 / sizeof SONG_2[0]), 106203u },
-    { "Demo song: Alga", SONG_3, (uint16_t)(sizeof SONG_3 / sizeof SONG_3[0]), 154859u },
+    { "Demo song: Alga", SONG_3, (uint16_t)(sizeof SONG_3 / sizeof SONG_3[0]), 153613u },
 };
 
 const uint8_t vet_demo_songs_n = 4;

@@ -15,6 +15,7 @@
 #define SMP_SET_REC   32
 #define SMP_ZONE_REC  32
 #define SMP_VERSION   1
+#define SMP_LOOP_MIN  16            /* loop più corti si rifiutano: il passo di lettura arriva a 16 (SND-374) */
 
 typedef struct {
     const int16_t *data;            /* campioni mono */

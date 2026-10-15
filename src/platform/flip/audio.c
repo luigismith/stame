@@ -29,9 +29,21 @@ static volatile float peak[2];
 static float pk_hold[2];
 static int opened;
 
+/* SND-703, PLT-013: denormali a zero nel thread audio (FPCR.FZ su aarch64), altrimenti le code dei
+ * filtri, dei riverberi e dei delay rallentano la FPU quando il suono si spegne */
+static void flush_to_zero(void)
+{
+#if defined(__aarch64__)
+    uint64_t r;
+    __asm__ volatile("mrs %0, fpcr" : "=r"(r));
+    if (!(r & (1u << 24))) { r |= 1u << 24; __asm__ volatile("msr fpcr, %0" : : "r"(r)); }
+#endif
+}
+
 static void cb(void *ud, uint8_t *stream, int len)
 {
     (void)ud;
+    flush_to_zero();
     float *out = (float *)stream;
     int frames = len / (int)(2 * sizeof(float));
     vet_snd_t e;
@@ -86,7 +98,7 @@ static void load_logo(const char *path)
     while (ok && pos + 8 <= n) {
         uint32_t sz = (uint32_t)buf[pos + 4] | (uint32_t)buf[pos + 5] << 8 | (uint32_t)buf[pos + 6] << 16 |
                       (uint32_t)buf[pos + 7] << 24;
-        if (!memcmp(buf + pos, "fmt ", 4) && sz >= 16) {
+        if (!memcmp(buf + pos, "fmt ", 4) && sz >= 16 && pos + 24 <= n) {
             fmt = (uint16_t)(buf[pos + 8] | buf[pos + 9] << 8);
             ch = (uint16_t)(buf[pos + 10] | buf[pos + 11] << 8);
             bits = (uint16_t)(buf[pos + 22] | buf[pos + 23] << 8);

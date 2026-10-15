@@ -188,7 +188,8 @@ static void overlay(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
         e.label = "Saved"; e.text = t;
         break;
     case OV_BATTERY: case OV_LOW_BATTERY:
-        ui_fmt_int(d, sizeof d, m->plat.battery_pct, 2);
+        if (m->plat.battery_pct == 255) ui_fmt_copy(d, sizeof d, "--");   /* sconosciuta, come nella testata */
+        else ui_fmt_int(d, sizeof d, m->plat.battery_pct, 2);
         e.label = ov->kind == OV_LOW_BATTERY ? "Low Battery" : "Battery"; e.digits = d; e.text = "%";
         e.detail = m->plat.charging ? "Charging" : "No cable detected";
         break;

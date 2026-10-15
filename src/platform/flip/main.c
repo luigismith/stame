@@ -178,17 +178,26 @@ int main(int argc, char **argv)
     int suonato = 0;
 
     while (!stop && !vet_quit(&vet)) {
-        struct pollfd pf[8];
+        struct pollfd pf[1 + 2 + 8];                    /* tasti, due porte MIDI, i nodi del macro pad */
         int n = 0;
         if (pad >= 0) { pf[n].fd = pad; pf[n].events = POLLIN; n++; }
         if (midi.fd >= 0) { pf[n].fd = midi.fd; pf[n].events = POLLIN; n++; }
         if (midi.fd2 >= 0) { pf[n].fd = midi.fd2; pf[n].events = POLLIN; n++; }
-        int mfd[6], nm = macropad_fds(mfd, 6);
+        int mfd[8], nm = macropad_fds(mfd, 8);
         for (int i = 0; i < nm; i++) { pf[n].fd = mfd[i]; pf[n].events = POLLIN; n++; }
         poll(pf, (nfds_t)n, 5);
         t = now_ms();
 
-        if (pad >= 0) pad_read(pad, on_pad, NULL);
+        if (pad >= 0 && pad_read(pad, on_pad, NULL) < 0) {
+            /* i tasti della Flip spariti (demone dell'input riavviato, ripresa dalla sospensione): si
+             * chiude il nodo, che altrimenti fa tornare poll subito e fa girare il ciclo a vuoto, e lo si
+             * riapre per nome al giro dopo (PLT-087) */
+            log_msg("tasti: «MIYOO Player1» perso, lo riapro");
+            pad_close(pad);
+            pad = -1;
+            vet_flip_lost(&vet, t);
+            pump();
+        }
         if (mpad > 0) {                                  /* macro pad (MIDI-122…127) */
             int r = macropad_read(on_pad, NULL);
             if (r < 0) {
@@ -199,6 +208,8 @@ int main(int argc, char **argv)
                 pump();
             } else if (r >= 5 && vet.m.plat.pad_link == PADL_OPEN) {
                 vet_macropad(&vet, PADL_UNMAPPED, t);    /* cinque codici sconosciuti di fila (MIDI-123) */
+            } else if (r == 0 && vet.m.plat.pad_link == PADL_UNMAPPED) {
+                vet_macropad(&vet, PADL_OPEN, t);        /* un codice conosciuto: l'avviso si spegne */
             }
         }
         if (midi.fd >= 0) {
@@ -229,12 +240,16 @@ int main(int argc, char **argv)
             if (midi.fd < 0 && midi_scan(&midi)) {
                 vet_mpk_model(&vet, midi.model ? MPK_MODEL_MK4 : MPK_MODEL_PLUS);
                 vet_mpk(&vet, true, NULL, t);
+            } else if (midi.fd >= 0) {
+                midi_retry_port2(&midi);                 /* MK4 senza porta 2: manopole e trasporto */
             }
             if (mpad <= 0) {
                 int r = macropad_open();
                 if (r > 0) { mpad = r; vet_macropad(&vet, PADL_OPEN, t); }
                 else if (r == -2 && vet.m.plat.pad_link != PADL_ERROR) vet_macropad(&vet, PADL_ERROR, t);
+                else if (r == 0 && vet.m.plat.pad_link == PADL_ERROR) vet_macropad(&vet, PADL_ABSENT, t);   /* scollegato */
             }
+            if (pad < 0) pad = pad_open();               /* i tasti della Flip, riaperti per nome */
         }
         if ((int32_t)(t - next_batt) >= 0) {             /* batteria ogni 5 s (PLT-090) */
             next_batt = t + 5000;

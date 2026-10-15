@@ -114,12 +114,15 @@ static void meters_update(ui_flip_state_t *st, const ui_model_t *m)
     for (int ch = 0; ch < 2; ch++) {
         int v = peak_db10(m->meters.peak[ch]);
         int shown = st->peak_db10[ch];
-        int held = (int)(now - st->peak_ms[ch]);
-        if (v >= shown) { st->peak_db10[ch] = (uint16_t)v; st->peak_ms[ch] = now; continue; }
-        if (held > 1000) {
-            int fall = (int)(now - st->meter_ms) * 200 / 1000;   /* 20 dB/s in decimi */
-            shown -= fall;
-            st->peak_db10[ch] = (uint16_t)(shown < v ? v : shown);
+        if (v >= shown) { st->peak_db10[ch] = st->peak_top[ch] = (uint16_t)v; st->peak_ms[ch] = now; continue; }
+        uint32_t held = now - st->peak_ms[ch];
+        if (held > 1000u) {
+            /* 20 dB/s in decimi dalla fine della tenuta, calcolati dal tempo e non sommati a ogni
+             * fotogramma: a passi di pochi ms la caduta si arrotondava a zero */
+            uint32_t h = held - 1000u;
+            if (h > 60000u) h = 60000u;
+            int fallen = (int)st->peak_top[ch] - (int)(h * 200u / 1000u);
+            st->peak_db10[ch] = (uint16_t)(fallen < v ? v : fallen);
         }
     }
     st->meter_ms = now;
@@ -154,7 +157,9 @@ int ui_flip_render(ui_flip_state_t *st, const ui_model_t *m, gfx_fb16_t *fb, gfx
         uint64_t h = UF_H0;
         uint16_t t = (uint16_t)(m->boot.t_ms / 33u);
         h = UF_HV(h, t);
-        h = uf_h(h, &m->boot, sizeof m->boot);
+        ui_boot_t b = m->boot;                              /* il tempo conta a 30 fotogrammi al secondo, non al ms */
+        b.t_ms = 0;
+        h = uf_h(h, &b, sizeof b);
         if (h != st->sig_boot || !st->boot_shown) {
             gfx_clip_all(fb);
             uf_draw_boot(fb, p, m);
@@ -245,7 +250,7 @@ uint32_t ui_flip_next_visual_ms(const ui_flip_state_t *st, const ui_model_t *m)
     UF_SOON(st->xrun_until);
     if (st->peak_db10[0] || st->peak_db10[1]) UF_SOON(now + 33);
     /* lampeggi a 1 Hz (MPK assente, batteria sotto il 10%) e a 500/250 ms (voce in modifica) */
-    if (m->plat.mpk_link == MPK_ABSENT || (m->plat.battery_pct != 255 && m->plat.battery_pct < 10))
+    if (m->plat.mpk_link == MPK_ABSENT || m->plat.battery_pct < 10)          /* 255 = sconosciuta: già ≥ 10 */
         UF_SOON(now - now % 500 + 500);
     if (m->layer.list.open && m->layer.list.editing) UF_SOON(now - now % 250 + 250);
     /* barra del tenuto (UI-153) */

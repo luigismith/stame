@@ -31,7 +31,7 @@ const mot_snap_t *audio_motore(void);                        /* trasporto, Beat 
 /* tasti della Flip: richiama cb per ogni tasto (codice PAD_*, valore 1 giù / 0 su) */
 typedef void (*pad_cb_t)(void *ctx, uint16_t code, int32_t value);
 int  pad_open(void);                                          /* fd o -1 */
-void pad_read(int fd, pad_cb_t cb, void *ctx);
+int  pad_read(int fd, pad_cb_t cb, void *ctx);                 /* 0, oppure −1 se il dispositivo è sparito */
 void pad_close(int fd);
 
 /* macro pad BRIMFORD (macropad.c): numero di nodi aperti, 0 assente, −2 grab fallito */
@@ -48,6 +48,7 @@ typedef struct {
     char    name[48];
 } midi_dev_t;
 bool midi_scan(midi_dev_t *d);                                /* cerca e apre; true se aperto */
+bool midi_retry_port2(midi_dev_t *d);                         /* MK4 aperta senza la porta 2: riprova; true se ora c'è */
 int  midi_read(midi_dev_t *d, int port, uint8_t *buf, int max);   /* port 0 o 1; byte letti, 0 nessuno, -1 perso */
 void midi_close(midi_dev_t *d);
 

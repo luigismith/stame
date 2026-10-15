@@ -1014,8 +1014,38 @@ static void t_mk4(void)
     connected(SRC_MPK);
 }
 
+/* revisione del 15/10/2026 */
+static void t_revisione(void)
+{
+    /* MIDI-104: un overlay perde la manopola del fuoco quando si preme un altro encoder; una lista no */
+    reset();
+    gest_set_owner(&H.gest, ENC_SOUND, false);                /* l'overlay di Sound, appena girato K1 */
+    tap(MPAD_T6);                                             /* premuto Loop: il fuoco passa a Loop */
+    clear();
+    tap(MPAD_M2_CW);
+    CHECKM(only(G_TURN, ENC_LOOP, 1), "m2 gira il fuoco, non più Sound");
+    gest_set_owner(&H.gest, ENC_SOUND, true);                 /* la lista dei suoni aperta */
+    tap(MPAD_T6);
+    clear();
+    tap(MPAD_M2_CW);
+    CHECKM(only(G_TURN, ENC_SOUND, 1), "la lista resta padrona finché non si chiude");
+    gest_set_owner(&H.gest, ENC_COUNT, false);
+
+    /* dopo una sospensione di 40 minuti l'orologio a 32 bit sembra indietro: gest_resync lo rimette
+     * e il tenuto funziona (prima T1 tenuto 1,5 s dava G_PRESS) */
+    reset();
+    pad(MPAD_T1, 1);
+    NOW += 0x90000000u;
+    gest_resync(&H.gest, NOW);
+    clear();
+    wait_us(1100000);
+    pad(MPAD_T1, 0);
+    CHECKM(count(G_HOLD, ENC_SOUND) == 1 && count(G_PRESS, ENC_SOUND) == 0, "tenuto dopo la sospensione");
+}
+
 void test_input(void)
 {
+    t_revisione();
     t_esempio();
     t_tastiera();
     t_pad_accordi();

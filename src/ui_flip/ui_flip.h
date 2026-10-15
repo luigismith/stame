@@ -33,6 +33,7 @@ typedef struct ui_flip_state {
     int16_t  kb_lo;                    /* prima nota della tastiera; si sposta solo se serve (UI-150) */
     /* meter (UI-126): picco mostrato con caduta di 20 dB/s e tenuta di 1 s */
     uint16_t peak_db10[2];             /* decimi di dB sopra -48 dBFS: 0..480 */
+    uint16_t peak_top[2];              /* il picco da cui cade, dopo la tenuta di 1 s */
     uint32_t peak_ms[2];
     uint32_t meter_ms;
     uint32_t clip_seen, clip_until;

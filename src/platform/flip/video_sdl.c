@@ -130,6 +130,6 @@ void video_close(void)
     if (tex) p_SDL_DestroyTexture(tex);
     if (ren) p_SDL_DestroyRenderer(ren);
     if (win) p_SDL_DestroyWindow(win);
-    if (lib) p_SDL_Quit();
+    if (lib && p_SDL_Quit) p_SDL_Quit();                /* SDL_Quit può mancare se load() si è fermata prima */
     tex = NULL; ren = NULL; win = NULL;
 }

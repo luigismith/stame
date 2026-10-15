@@ -6,13 +6,14 @@ char *ui_fmt_copy(char *buf, int n, const char *s)
     if (n <= 0) return buf;
     int i = 0;
     for (; s && s[i] && i < n - 1; i++) buf[i] = s[i];
-    /* non spezzare un carattere UTF-8 a metà */
-    while (i > 0 && (buf[i - 1] & 0xC0) == 0x80) {
-        int k = i - 1;
-        while (k > 0 && (buf[k] & 0xC0) == 0x80) k--;
-        int need = (buf[k] & 0xE0) == 0xC0 ? 2 : (buf[k] & 0xF0) == 0xE0 ? 3 : 4;
-        if (i - k >= need) break;
-        i = k;
+    /* non spezzare un carattere UTF-8 a metà: l'ultimo si tiene solo se è completo (anche quando il
+     * taglio cade subito dopo il suo primo byte) */
+    int j = i;
+    while (j > 0 && ((unsigned char)buf[j - 1] & 0xC0) == 0x80) j--;
+    if (j > 0 && (unsigned char)buf[j - 1] >= 0xC0) {
+        unsigned char c = (unsigned char)buf[j - 1];
+        int need = c >= 0xF0 ? 4 : c >= 0xE0 ? 3 : 2;
+        if (i - (j - 1) < need) i = j - 1;
     }
     buf[i] = 0;
     return buf;
