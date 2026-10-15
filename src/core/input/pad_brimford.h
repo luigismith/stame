@@ -2,7 +2,8 @@
  *
  * Riceve i codici MPAD_* già tradotti dalla piattaforma (MIDI-124). T1–T9 sono i pulsanti degli
  * encoder, T10 Back, T11 menu della piattaforma, T12 Panic tenuto 1 s; M, m1 e m2 le manopole di
- * Chord Voicing, Bass Voicing e liste.
+ * Chord Voicing, Bass Voicing e liste. T13 è il Lock (MIDI-131), a scatto come il Caps Lock: acceso,
+ * le tre manopole diventano Sound, Perform e Key, che hanno bisogno degli scatti.
  *
  * Il ripiego per le pressioni istantanee (MIDI-125, ultimo punto) dipende dalla verifica VP-3 e
  * non c'è ancora.
@@ -18,6 +19,8 @@
 typedef struct {
     uint16_t t_down;        /* bit i: tasto T(i+1) tenuto */
     uint8_t  knob_down;     /* bit 0 M, 1 m1, 2 m2: pressione tenuta */
+    uint8_t  knob_enc[3];   /* encoder di ogni manopola al momento della pressione: il rilascio va lì */
+    uint8_t  lock;          /* Lock acceso (MIDI-131) */
     uint8_t  t12;           /* 0 su, 1 giù in attesa di 1 s, 2 giù dopo il Panic */
     uint32_t t12_t0;
     uint8_t  t14;           /* Stop: 0 su, 1 giù in attesa di 1 s, 2 giù dopo il Clear */

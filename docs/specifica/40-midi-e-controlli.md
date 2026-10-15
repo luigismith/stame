@@ -559,18 +559,18 @@ Gli encoder dell'Orchid si premono, le manopole della MPK no. Luigi ha aggiunto 
 
 ```
   MPK mini Plus: manopole               Macro pad BRIMFORD, tenuto con le manopole a destra
-  K1 Sound  K2 Perform  K3 FX  K4 Key    T1 Sound    T2 Perform  T3 FX   T4 Key    T13 Mod     m1   m2
+  K1 Sound  K2 Perform  K3 FX  K4 Key    T1 Sound    T2 Perform  T3 FX   T4 Key    T13 Lock    m1   m2
   K5 Bass   K6 Loop     K7 BPM K8 Vol    T5 Bass     T6 Loop     T7 BPM  T8 Volume T14 Stop
                                          T9 Options  T10 Back    T11 Menu T12 Panic T15 Undo      M
 ```
 
 | Fila del pad | col. 1 | col. 2 | col. 3 | col. 4 | col. 5 | Manopole |
 |---|---|---|---|---|---|---|
-| in alto | T1 Sound | T2 Perform | T3 FX | T4 Key | **T13 Mod** | m1 Bass Voicing (piccola vicina ai tasti), m2 liste e fuoco (piccola sul bordo) |
+| in alto | T1 Sound | T2 Perform | T3 FX | T4 Key | **T13 Lock** | m1 Bass Voicing (piccola vicina ai tasti), m2 liste e fuoco (piccola sul bordo); con il Lock acceso Perform e Key (MIDI-131) |
 | in mezzo | T5 Bass | T6 Loop | T7 BPM | T8 Volume | **T14 Stop** | |
-| in basso | T9 Options | T10 Back | T11 Menu | T12 Panic | **T15 Undo** | M Chord Voicing (la grande) |
+| in basso | T9 Options | T10 Back | T11 Menu | T12 Panic | **T15 Undo** | M Chord Voicing (la grande); con il Lock acceso Sound |
 
-Le prime 4 colonne restano le gemelle delle manopole della MPK decise il 13/10. La quinta colonna, accanto alle manopole, è del 15/10/2026 [D, proposta di Claude in attesa del sì di Luigi]: **Mod** è il Bass Voicing tenuto (più comodo da tenere di m1 premuta), **Stop** e **Undo** sono i comandi del looper (ACC-222).
+Le prime 4 colonne restano le gemelle delle manopole della MPK decise il 13/10. La quinta colonna, accanto alle manopole, è del 15/10/2026: **T13 Lock** è deciso da Luigi (MIDI-131); **Stop** e **Undo**, i comandi del looper (ACC-222), sono una proposta di Claude in attesa del sì. Con la MK4 il trasporto sta a destra sotto K4 e K8, a pochi centimetri dal pad (foto del 15/10/2026), quindi T14 e T15 sarebbero doppioni: l'alternativa proposta è vista (Chord ↔ Geek Out) e pagina dei comandi della Flip.
 
 - **MIDI-120** — Il profilo `pad_brimford` DEVE applicare questa mappa [D, **13/10/2026**]. I codici sono quelli programmati sul macro pad (MIDI-122) o imparati con Learn Pad (MIDI-123); al profilo arrivano già tradotti nei codici portabili `MPAD_*` (MIDI-124):
 
@@ -588,7 +588,7 @@ Le prime 4 colonne restano le gemelle delle manopole della MPK decise il 13/10. 
 | **T10** | J | `PNL_BACK` alla pressione | Indietro: chiude l'overlay o risale di un livello |
 | **T11** | K | `PNL_MACRO(MACRO_SYSTEM_MENU)` alla pressione | Menu della piattaforma (`30` UI-129) |
 | **T12** | L | `PNL_MACRO(MACRO_PANIC)` **solo dopo 1 s tenuto** (MIDI-126) | Panic (§7) |
-| **T13** | M | `PNL_ENC_DOWN/UP(ENC_BASS_VOICING)` | **Mod**: Bass Voicing tenuto, il modificatore delle combinazioni [D, 15/10/2026] |
+| **T13** | M | `PNL_MACRO(MACRO_KNOB_LOCK, 1/0)` alla pressione, a scatto | **Lock** delle manopole, come il Caps Lock (MIDI-131): acceso, M, m1 e m2 sono Sound, Perform e Key [D, **deciso da Luigi il 15/10/2026**] |
 | **T14** | N | `PNL_MACRO(MACRO_LOOP_STOP)`; tenuto 1 s anche `MACRO_LOOP_CLEAR` (`MPAD_CLEAR_HOLD_US`) | **Stop** del looper; tenuto: Clear [D, 15/10/2026] |
 | **T15** | O | `PNL_MACRO(MACRO_LOOP_UNDO)` | **Undo** del looper: toglie l'ultimo strato; con il solo strato 0 diventa Clear [D, 15/10/2026] |
 | **M** antioraria / oraria | 9 / 7 (strato 1: volume giù / su) | `PNL_ENC_TURN(ENC_CHORD_VOICING, −1/+1)`, uno scatto per evento | Chord Voicing Dial |
@@ -686,6 +686,12 @@ layers:
   - il banco B della MPK e il PUSH (B8 o X) restano attivi come riserva;
   - funziona anche senza MPK: in quel caso le note arrivano solo dal modo tascabile (§9.2);
   - quando il macro pad è collegato, le legende delle celle e la legenda viva mostrano i suoi nomi (`30` UI-152, UI-155) e la barra di stato mostra «PAD» (`30` UI-126).
+
+- **MIDI-131** — **Lock delle manopole** [D, **deciso da Luigi il 15/10/2026**: «un tasto che funzioni tipo Caps Lock per i knob»]. Le manopole della MK4 non hanno scatti (§8.9b), le tre del macro pad sì, e le scelte a lista vogliono gli scatti: uno scatto, una voce. **T13** è un interruttore **a scatto, come il Caps Lock**: un tocco accende il Lock, un altro lo spegne; non si tiene. Con il Lock acceso **M, m1 e m2 sono gli encoder Sound, Perform e Key**, con tutti i gesti dell'encoder che rappresentano (M tenuta 1 s = Save, m1 premuta = lista dei modi, m2 premuta e ruotata = transpose); spento, tornano Chord Voicing, Bass Voicing e liste. Regole:
+  - il profilo emette `PNL_MACRO(MACRO_KNOB_LOCK, b)` con `b` = 1 acceso, 0 spento, a ogni cambio; la UI tiene lo stato in `ctl.knob_lock` e mostra «LOCK» in testata finché è acceso (`30` UI-126), come il LED del Caps Lock;
+  - una pressione di manopola cominciata prima del cambio finisce sull'encoder con cui è cominciata;
+  - allo scollegamento del macro pad il Lock si spegne (`MACRO_KNOB_LOCK` 0 prima di `PNL_SRC_LOST`); all'avvio è spento e non si ricorda;
+  - il Lock non tocca K1–K8 della MPK, T1–T12, il PUSH né i tasti della Flip. Premere una manopola con il Lock acceso porta il fuoco sul suo encoder, come MIDI-104.
 
 ---
 

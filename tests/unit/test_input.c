@@ -697,14 +697,42 @@ static void t_macro_pad(void)
     CHECK(raw[0].type == PNL_ENC_TURN && raw[0].a == ENC_FOCUS && raw[0].b == 1);   /* senza PNL_F_VERTICAL */
     CHECK_EQ(PAD_BRIMFORD.on_pad(&s, MPAD_M2_CW, 0, T0, raw, PNL_MAX_OUT), 0);      /* il rilascio non conta */
 
-    /* T13 Mod = Bass Voicing tenuto; T14 Stop, tenuto 1 s = Clear; T15 Undo (15/10/2026) */
+    /* MIDI-131: T13 = Lock delle manopole, a scatto come il Caps Lock. Acceso, M, m1 e m2 sono Sound,
+     * Perform e Key, con premere e ruotare; una pressione cominciata prima del cambio finisce sul suo encoder */
     clear();
-    pad(MPAD_T13, 1);
-    CHECK(gest_held(&H.gest, ENC_BASS_VOICING));
-    tap(MPAD_T6);
-    CHECK_EQ(count(G_PRESS, ENC_LOOP), 1);
-    pad(MPAD_T13, 0);
-    CHECK(!gest_held(&H.gest, ENC_BASS_VOICING));
+    tap(MPAD_T13);
+    CHECK(only(PNL_MACRO, MACRO_KNOB_LOCK, 1));
+    clear();
+    tap(MPAD_M_CW);
+    tap(MPAD_M1_CCW);
+    CHECK_EQ(NEV, 2);
+    CHECK(EV[0].type == G_TURN && EV[0].a == ENC_SOUND && EV[0].b == 1);
+    CHECK(EV[1].type == G_TURN && EV[1].a == ENC_PERFORM && EV[1].b == -1);
+    clear();
+    pad(MPAD_M2_PUSH, 1);                                     /* m2 premuta e girata = transpose */
+    tap(MPAD_M2_CW);
+    pad(MPAD_M2_PUSH, 0);
+    CHECK_EQ(count(G_PRESS_TURN, ENC_KEY), 1);
+    CHECK_EQ(count(G_PRESS, ENC_KEY), 0);
+    clear();
+    pad(MPAD_M_PUSH, 1);
+    tap(MPAD_T13);                                            /* spento con M premuta: il rilascio resta a Sound */
+    pad(MPAD_M_PUSH, 0);
+    CHECK_EQ(count(PNL_MACRO, MACRO_KNOB_LOCK), 1);
+    CHECK_EQ(sum_b(PNL_MACRO, MACRO_KNOB_LOCK), 0);
+    CHECK_EQ(count(G_PRESS, ENC_SOUND), 1);
+    CHECK_EQ(count(G_PRESS, ENC_CHORD_VOICING), 0);
+    clear();
+    tap(MPAD_M_CW);
+    CHECK(only(G_TURN, ENC_CHORD_VOICING, 1));
+    PAD_BRIMFORD.reset(&s);                                   /* scollegato con il Lock acceso: si spegne prima di SRC_LOST */
+    PAD_BRIMFORD.on_pad(&s, MPAD_T13, 1, T0, raw, PNL_MAX_OUT);
+    PAD_BRIMFORD.on_pad(&s, MPAD_T13, 0, T0, raw, PNL_MAX_OUT);
+    CHECK_EQ(PAD_BRIMFORD.on_lost(&s, T0, raw, PNL_MAX_OUT), 2);
+    CHECK(raw[0].type == PNL_MACRO && raw[0].a == MACRO_KNOB_LOCK && raw[0].b == 0);
+    CHECK(raw[1].type == PNL_SRC_LOST);
+
+    /* T14 Stop, tenuto 1 s = Clear; T15 Undo (15/10/2026, proposta) */
     clear();
     tap(MPAD_T14);
     CHECK(only(PNL_MACRO, MACRO_LOOP_STOP, 0));

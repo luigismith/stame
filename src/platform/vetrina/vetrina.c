@@ -440,6 +440,7 @@ static void handle(vet_t *v, const pnl_event_t *e)
         else if (e->a == MACRO_LOOP_OVERDUB) loop_send(v, LOOP_C_OVERDUB);   /* ⊕ della MK4: entra ed esce dall'overdub */
         else if (e->a == MACRO_LOOP_UNDO) loop_send(v, LOOP_C_UNDO);         /* con lo strato 0 vale Clear (ACC-222) */
         else if (e->a == MACRO_PANIC) { msg(v, MSG_INFO, "Panic: all notes off", 2000); snd_push(v, VS_ALL_OFF, 0, 0, 0); }
+        else if (e->a == MACRO_KNOB_LOCK) v->m.ctl.knob_lock = (uint8_t)e->b;   /* T13 del pad (MIDI-131) */
         break;
     case PNL_SRC_CONNECTED:
         if (e->a == SRC_MACROPAD) msg(v, MSG_INFO, "Pad connected", 2000);

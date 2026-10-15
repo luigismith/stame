@@ -20,7 +20,8 @@ typedef enum {                      /* gli 8 tasti accordo */
 } chord_btn_t;
 
 typedef enum {
-    MACRO_LOOP_STOP, MACRO_LOOP_CLEAR, MACRO_PANIC, MACRO_SYSTEM_MENU, MACRO_LOOP_UNDO, MACRO_LOOP_OVERDUB
+    MACRO_LOOP_STOP, MACRO_LOOP_CLEAR, MACRO_PANIC, MACRO_SYSTEM_MENU, MACRO_LOOP_UNDO, MACRO_LOOP_OVERDUB,
+    MACRO_KNOB_LOCK                 /* b = 1 acceso, 0 spento: Lock delle manopole del macro pad (MIDI-131) */
 } macro_t;
 
 typedef enum {

@@ -88,6 +88,7 @@ enum { ARP_UP, ARP_DOWN, ARP_UPDOWN };
 typedef struct {
     ui_ctl_state_t st[ENC_COUNT];
     uint8_t  focus, turn_target, push;
+    uint8_t  knob_lock;                 /* Lock del macro pad (40, MIDI-131): M, m1, m2 = Sound, Perform, Key */
     uint8_t  sound_user, sound_num;
     char     sound_name[17];
     uint8_t  sound_engine;

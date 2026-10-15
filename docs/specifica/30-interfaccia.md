@@ -119,7 +119,7 @@ typedef struct {
 |---|---|---|
 | `music`, `tempo`, `looper` | `core` (motore della sezione 10, ACC-012, ACC-232) | a ogni pubblicazione dello snapshot (al massimo 120 Hz, PLT-017) |
 | `ctl`, `layer`, `prefs`, `msg_core` | `core/ui`, con i valori presi da `core` e `dsp` | idem |
-| `ctl.push`, `music.pocket_pc` | `core/input` (profili `mpk_stame` e `flip_tasti`, sezione 40) | idem |
+| `ctl.push`, `ctl.knob_lock`, `music.pocket_pc` | `core/input` (profili `mpk_stame`, `pad_brimford` e `flip_tasti`, sezione 40) | idem |
 | `meters` (voci, picco, clip, oscilloscopio) | `dsp`, attraverso `core` | idem |
 | `meters.dsp_load_pct`, `meters.xrun_count` | piattaforma, nel thread audio (PLT-021) | idem |
 | `now_ms`, `plat`, `msg_plat` | piattaforma, nel thread UI (contatori atomici dei thread MIDI, batteria da PLT-090) | a ogni frame |
@@ -237,6 +237,7 @@ typedef struct {
     uint8_t  focus;               /* fuoco del pannello, condiviso (40, MIDI-104)            */
     uint8_t  turn_target;         /* encoder che ENC_FOCUS ruota adesso: proprietario della lista o fuoco */
     uint8_t  push;                /* PUSH (40, MIDI-084): 0 IDLE, 1 ARMED, 2 + k = TARGET(manopola k) */
+    uint8_t  knob_lock;           /* Lock del macro pad (40, MIDI-131): M, m1, m2 = Sound, Perform, Key */
     /* Sound */
     uint8_t  sound_user, sound_num;           /* fabbrica 1..70, utente 1..30             */
     char     sound_name[17];
@@ -811,7 +812,7 @@ I font dell'OLED sono diversi e propri (§7.2).
 
 ### 4.4 Testata
 
-**UI-126** [D] Z1 (0, 0, 640, 24), testo in classe S alle righe 4..19. **Fuori da Geek Out lo stato tace**: la testata mostra a destra la batteria e, da x = 8 verso destra e solo finché servono, «NO MPK» (lampeggia), «MPK BUSY», «MPK ERROR», «MPK FACTORY», «PAD» (macro pad in errore o senza mappa), «POCKET», «CLIP» (1500 ms) e «XRUN» (2 s), con 16 px tra l'uno e l'altro; «NO MPK» tiene il suo posto anche quando è spento, così il resto non si sposta. Attività MIDI, voci, carico e livelli non si disegnano e non ridisegnano la zona. Nella vista **Geek Out** la testata è la barra completa:
+**UI-126** [D] Z1 (0, 0, 640, 24), testo in classe S alle righe 4..19. **Fuori da Geek Out lo stato tace**: la testata mostra a destra la batteria e, da x = 8 verso destra e solo finché servono, «NO MPK» (lampeggia), «MPK BUSY», «MPK ERROR», «MPK FACTORY», «PAD» (macro pad in errore o senza mappa), «POCKET», «LOCK» seguito da «SOUND PERFORM KEY» in `dim` (Lock delle manopole del macro pad acceso, 40 MIDI-131: è uno stato che cambia cosa fanno le mani, come il LED del Caps Lock), «CLIP» (1500 ms) e «XRUN» (2 s), con 16 px tra l'uno e l'altro; «NO MPK» tiene il suo posto anche quando è spento, così il resto non si sposta. Attività MIDI, voci, carico e livelli non si disegnano e non ridisegnano la zona. Nella vista **Geek Out** la testata è la barra completa:
 
 | Elemento | x | Contenuto |
 |---|---|---|
@@ -821,8 +822,8 @@ I font dell'OLED sono diversi e propri (§7.2).
 | carico | 292..347 | «CPU 23%»: carico del thread audio (`dsp_load_pct`); sopra il 70% in `active`, sopra il 90% in `warn`; per 2 s dopo un underrun la scritta diventa «XRUN» in `warn` |
 | livello | 360..447 | due barre (L e R) di 88×4 px alle righe 7..10 e 13..16, scala −48..0 dBFS, picco con caduta di 20 dB/s e tenuta di 1 s; in `text` fino a −6 dBFS, in `active` sopra |
 | clip | 452..487 | «clip» in `dim`; in negativo su `warn` per **1500 ms** dopo ogni aumento di `clip_count` |
-| macro pad | 492..515 | contrassegno «PAD» (40, §8.10): in `focus` se collegato e aperto in esclusiva (`PADL_OPEN`); in `warn` se non si apre in esclusiva (`PADL_ERROR`) o manda codici che nessuna mappa conosce (`PADL_UNMAPPED`); nascosto se assente |
-| modo tascabile | 520..567 | contrassegno «POCKET» in `active`, solo se acceso |
+| macro pad | 492..523 | contrassegno «PAD» (40, §8.10): in `focus` se collegato e aperto in esclusiva (`PADL_OPEN`); in `warn` se non si apre in esclusiva (`PADL_ERROR`) o manda codici che nessuna mappa conosce (`PADL_UNMAPPED`); nascosto se assente. Con il Lock delle manopole acceso (MIDI-131) diventa «LOCK» in `active` |
+| modo tascabile | 528..575 | contrassegno «POCKET» in `active`, solo se acceso |
 | batteria | 576..635 | «87%» e un'icona da 28×12 px con il riempimento proporzionale e il lampo durante la carica; sotto il 15% in `warn` (PLT-090), sotto il 10% lampeggia a 1 Hz |
 
 - In Geek Out, con `prefs.meters` spento si nascondono voci, carico, livello e clip.
@@ -1249,6 +1250,7 @@ Gli eventi musicali (`PNL_KEY_*`, `PNL_CHORD_*`, `PNL_BEND`, `PNL_MOD`, `PNL_SUS
 | **Tn tenuto + Kn** | premere e ruotare: T4 + K4 = transpose, T8 + K8 = volume del basso, T7 + K7 = volume del beat |
 | **T9 / T10 / T11** | Options / indietro / menu della piattaforma (UI-129) |
 | **T12** tenuto 1 s | Panic |
+| **T13** | **Lock** delle manopole, a scatto come il Caps Lock (40 MIDI-131): acceso, M, m1 e m2 sono Sound, Perform e Key con tutti i loro gesti; la testata mostra «LOCK» (UI-126) |
 | manopola grande **M** | Chord Voicing: rotazione; pressione = Split ↔ Octave |
 | manopola piccola **m1** | Bass Voicing: rotazione; pressione o tenuta = il modificatore |
 | manopola piccola **m2** | liste e fuoco: rotazione (orario = voce successiva, UI-074); pressione = conferma |
