@@ -701,7 +701,7 @@ La disposizione dei thread è della sezione 50.
 1. **Niente clone dell'OLED** (decisione di Luigi, in testa alla sezione): si disegna una plancia nativa a colori, che mostra in tempo reale ciò che serve per suonare.
 2. **Mentre si suona, solo ciò che si legge a un braccio.** La Flip sta accanto alla MPK, a circa 50–70 cm. A quella distanza una maiuscola deve essere alta almeno 16 minuti d'arco, cioè circa 3 mm (27 px a 9 px/mm). La pagina di gioco mostra quattro cose: **accordo**, **tempo**, **tastiera** e la **banda** con il controllo appena toccato. Il resto non scompare: arriva quando serve (punti 3 e 4).
 3. **Il case porta i nomi, lo schermo i valori.** La mascherina incide accanto a ogni comando della MPK la sua funzione (sezione 60): sullo schermo niente legende fisse e niente sigle dei controlli. Toccando un controllo, la banda ne mostra nome e valore in grande per la durata dell'overlay (UI-069), come fa l'Orchid.
-4. **Il dettaglio a richiesta.** Le 11 celle dei comandi e la legenda dei tasti della Flip compaiono solo nella pagina dei comandi (UI-142a), che si apre con i tasti del fuoco e si chiude da sola. Note scritte, intervalli, finestre, Play Style, cartellino di Linneo, attività MIDI, voci, carico e livelli stanno nella vista **Geek Out** (UI-051).
+4. **Il dettaglio a richiesta.** Le 11 celle dei comandi compaiono solo nella pagina dei comandi (UI-142a), che si apre con i tasti del fuoco della Flip o con T15 del macro pad e si chiude da sola, con B o con un altro T15. Note scritte, intervalli, finestre, Play Style, cartellino di Linneo, attività MIDI, voci, carico e livelli stanno nella vista **Geek Out** (UI-051).
 5. **Lo stato tace.** Quando tutto va bene la testata mostra solo la batteria; un problema (MPK assente, clip, xrun, batteria scarica) compare solo finché dura.
 6. **Posti fissi**: ogni informazione ha un posto che non cambia e nulla compare sopra un'altra. Tastiera e comandi condividono lo stesso rettangolo e se ne vede uno alla volta.
 7. **Le zone critiche non si coprono mai**: accordo, tempo e loop restano visibili anche con una lista aperta, la pagina dei comandi o un avviso.
@@ -732,7 +732,7 @@ Le classi M, S e XS si leggono solo da vicino: NON DEVONO portare informazioni c
 | Z3 tempo e loop | 416, 24, 224, 216 | **BPM** e movimenti; il looper quando lavora; in Geek Out metrica, ritmo e battuta | UI-148, UI-149 |
 | Z4 tastiera | 0, 240, 640, 144 | 4 ottave che seguono le finestre, con treble, basso e loop, marcatori della tonalità; le finestre del voicing mentre lo si gira e in Geek Out | UI-150 |
 | Z5 zona comandi | 0, 240, 640, 144 | gli **11 controlli** con valore, fuoco e legenda; oppure la lista o il menu aperto. Solo nella pagina dei comandi | UI-151..UI-153, UI-157 |
-| Z6 banda | 0, 384, 640, 96 | **il controllo appena toccato** in grande (overlay), avvisi, richiesta della tonalità; a riposo il suono; nella pagina dei comandi la legenda dei tasti della Flip | UI-154..UI-156 |
+| Z6 banda | 0, 384, 640, 96 | **il controllo appena toccato** in grande (overlay), avvisi, richiesta della tonalità; a riposo il suono, anche nella pagina dei comandi | UI-154..UI-156 |
 
 - Separatori di 1 px nel colore `line` a y = 24, 240, 384 e a x = 416 tra Z2 e Z3.
 - **Perché quest'ordine**: in alto, dove l'occhio arriva per primo, ci sono il nome dell'accordo (cosa suona) e il tempo (dove sono nella battuta e nel loop). Subito sotto la tastiera, che mostra le stesse note in forma spaziale: voicing, rivolti, basso e loop. In fondo la banda, che risponde a ciò che la mano ha appena toccato. La testata in cima è sottile e quasi sempre vuota: se la MPK cade o l'audio va in clip, lì lo si vede subito.
@@ -762,12 +762,12 @@ Pagina di gioco, a riposo (la banda mostra il suono):
 | C D E F G L B C D T F G L T C D L F G A B C D E F G A B                      |
 | C2            C3            C4            C5                                 |
 +------------------------------------------------------------------------------+
-| SOUND                                                             VA  pluck  |
+| SOUND                                                                        |
 | 03 Analog Flower                                                             |
 +------------------------------------------------------------------------------+
 ```
 
-Pagina dei comandi (dopo L1 o R1, fuoco su FX; la banda mostra la legenda della Flip):
+Pagina dei comandi (dopo L1 o R1 della Flip, o T15 del macro pad; fuoco su FX; la banda mostra il suono come a riposo):
 
 ```
 +----------------------------------------------------+-------------------------+
@@ -783,8 +783,8 @@ Pagina dei comandi (dopo L1 o R1, fuoco su FX; la banda mostra la legenda della 
 |Fifth Organ Bass |bar 2/4  |Beat 03   |Bass 70  |Simple |C#3 Oct   |C#2       |
 |K5 B2            |K6 B5 Rec|K7 B6 Play|K8       |B7 SEL |B4        |Y         |
 +-----------------+---------+----------+---------+-------+----------+----------+
-|                                                                              |
-|   L1 R1 focus  + turn  A press  B back  X push  Y bs.voic  SEL opt  START bpm |
+| SOUND                                                                        |
+| 06 Copper Reed                                                               |
 |                                                                              |
 +------------------------------------------------------------------------------+
 ```
@@ -959,15 +959,16 @@ Un testo che non sta nella cella si tronca con «…».
 | FX | FX | effetto principale e valore: «Reverb 04», «Chorus OFF» | slot con intensità diversa da zero: «REV4 CHO3 DLY5» | K3 | K3 T3 |
 | Key | KEY | «F♯ Minor» o «Off» | «Trans +3» (in `active`) o «Trans 0» (in `dim`) | K4 B1 | K4 T4 |
 | Bass | BASS | «On  03» o «Off  03» | nome del basso | K5 B2 | K5 T5 |
-| Loop | LOOP | «Rec», «Dub», «Play», «Pause», «Wait», «Count», «—» | «bar 2/4», «Free», «Loop 03» | K6 B5 Rec | K6 T6 Rec |
-| BPM | BPM | «120» | «Beat 03», «Metro», «Off» | K7 B6 Play | K7 T7 Play |
+| Loop | LOOP | «Rec», «Dub», «Play», «Pause», «Wait», «Count», «—» | «bar 2/4», «Free», «Loop 03» | K6 B5 REC | K6 T6 REC |
+| BPM | BPM | «120» | «Beat 03», «Metro», «Off» | K7 B6 PLAY | K7 T7 PLAY |
 | Volume | VOLUME | «72» | «Bass 70» | K8 | K8 T8 |
-| Options | OPTIONS | vista breve: «React», «Chord», «Keybd», «Ch+Kb», «Notes», «Geek» | Play Style | B7 SEL | m2 T9 SEL |
+| Options | OPTIONS | vista breve: «React», «Chord», «Keybd», «Ch+Kb», «Notes», «Geek» | Play Style | B7 SEL | T9 |
 | Chord Voicing | CH.VOICING | «032» (3 cifre, come l'overlay) | nota d'inizio e modo: «C♯3 Oct», «C♯3 Split» | B4 | M |
-| Bass Voicing | BS.VOICING | «23» | nota d'inizio: «C♯2» | Y | m1 Y |
+| Bass Voicing | BS.VOICING | «23» | nota d'inizio: «C♯2» | Y | m1 |
 
 - Le legende riprendono la mappa di 40 (§8.5, §8.10, §9.1): sono la **legenda viva** della MPK e del macro pad. Restano nelle celle anche con la plancia calma: la pagina dei comandi si guarda da vicino e, finché il case non c'è, è l'unico promemoria della mappa. Con il macro pad collegato (`pad_link` = `PADL_OPEN`) si usa l'ultima colonna: manopola della MPK, tasto o manopola del macro pad e, dove c'è, la scorciatoia sempre a portata (trasporto o tasto della Flip). I pad del banco B, che con il macro pad sono una riserva, non compaiono. Ogni legenda sta nella sua cella con le misure di UI-151 (XS = 6 px per carattere).
 - Options non ha una manopola sulla MPK: si ruota con m2, « », joystick o croce dopo averlo premuto, perché la pressione porta lì il fuoco (MIDI-104). Senza macro pad lo stesso vale per Chord Voicing e Bass Voicing, che dal 13/10/2026 non hanno più una manopola sulla MPK: si raggiungono con L1/R1 o premendo B4 o Y.
+- Con il macro pad le riserve (banco B, X e Y della Flip) non si scrivono: restano nel codice e nella legenda senza macro pad (15/10/2026, dalla pagina «Mappa dei comandi»). Con il **Lock acceso** (40 MIDI-131) le legende dicono quale manopola del pad fa cosa: Sound «M K1 T1», Perform «m1 K2 T2», Key «m2 K4 T4»; Chord Voicing e Bass Voicing mostrano «LOCK», perché in quel momento non hanno manopola. REC e PLAY sono i tasti del trasporto (sulla MK4: REC e STOP/PLAY).
 
 **UI-153** [D] Stati di una cella, cumulabili:
 
@@ -988,8 +989,8 @@ Un testo che non sta nella cella si tronca con «…».
 3. richiesta della tonalità (UI-096): «Select Key» in classe L in `active` e, sotto, «press a key (hold Min for minor)» in classe S;
 4. avviso `MSG_INFO`, in classe L;
 5. riga di debug, se `prefs.debug` è acceso (UI-155);
-6. un aiuto di contesto (UI-155): pagina dei comandi, lista aperta, PUSH armato, Bass Voicing tenuto, modo tascabile, nessuna MPK, Learn Pad;
-7. **a riposo, il suono**: «SOUND», il numero e il nome.
+6. un aiuto di contesto (UI-155): PUSH armato, Bass Voicing tenuto, modo tascabile, nessuna MPK, Learn Pad;
+7. **a riposo, il suono**: «SOUND», il numero e il nome, anche nella pagina dei comandi e sotto una lista. Motore e famiglia («RP keys») compaiono a destra solo in Geek Out: a un braccio non si leggono e non servono per suonare (15/10/2026).
 
 Resa dell'evidenza, la stessa per tutti gli overlay (UI-065):
 - **etichetta** dell'overlay in classe S maiuscola, con un pixel di spaziatura, in `dim`, a x = 16, riga 394; il **dettaglio** in classe S in `dim`, allineato a destra a x = 624;
@@ -1020,8 +1021,6 @@ L'evidenza dura quanto l'overlay (UI-069) e la chiude `PNL_BACK` (UI-070).
 
 | Contesto | Riga |
 |---|---|
-| pagina dei comandi | «L1 R1 focus  ✚ turn  A press  B back  X push  Y bs.voic  SEL opt  START bpm» |
-| lista o menu aperto | «✚ ▲▼ scroll  A select  B back  MENU menu» |
 | PUSH armato (B8 o X tenuto) | «PUSH: touch or turn a knob to press it» |
 | Bass Voicing tenuto (m1 o Y) | «BASS VOICING held: Loop = hard exit  BPM = drums  Bass = bass on/off» |
 | modo tascabile | due righe: «L-stick note  A play  L2 L1 R1 R2 Dim Min Maj Sus  ✚ 6 m7 M7 9» e «R-stick X voicing, Y turn  R3 press  X Y focus  L3 bs.voicing  B back» |
@@ -1029,7 +1028,7 @@ L'evidenza dura quanto l'overlay (UI-069) e la chiude `PNL_BACK` (UI-070).
 | Learn Pad in corso (UI-175) | due righe: «LEARN PAD 05/21: press T5 (Bass)» e «B = previous step  MENU = cancel  a code already used must be repeated» |
 | debug | «frame 2.1 ms  dsp 23/31%  period 256x2  xrun 0  ALSA  snap 6 ms» |
 
-Con `prefs.legend` spento non compaiono le righe della pagina dei comandi e delle liste; avvisi, evidenze, richieste e gli altri aiuti si vedono comunque.
+Dal 15/10/2026 la pagina dei comandi e le liste **non hanno una riga di aiuto**: i tasti della Flip sono sei e sempre gli stessi (L1/R1, croce, A, B, MENU), e la riga ripeteva quello che le dita sanno. `prefs.legend` governa solo le legende delle celle (UI-151, UI-152); avvisi, evidenze, richieste e gli altri aiuti si vedono comunque.
 
 **UI-156** [D] Avvisi:
 

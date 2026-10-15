@@ -9,12 +9,16 @@ static const char *const TITLE[ENC_COUNT] = {
     "SOUND", "PERFORM", "FX", "KEY", "BASS", "LOOP", "BPM", "VOLUME", "OPTIONS", "CH.VOICING", "BS.VOICING"
 };
 
-/* legende: senza e con il macro pad (UI-152) */
+/* legende (UI-152): senza macro pad (banco B e tasti della Flip sono l'unica strada), con il macro
+ * pad (le riserve B e Y non si mostrano) e con il macro pad e il Lock acceso (MIDI-131) */
 static const char *const LEG_NOPAD[ENC_COUNT] = {
-    "K1", "K2 B3", "K3", "K4 B1", "K5 B2", "K6 B5 Rec", "K7 B6 Play", "K8", "B7 SEL", "B4", "Y"
+    "K1", "K2 B3", "K3", "K4 B1", "K5 B2", "K6 B5 REC", "K7 B6 PLAY", "K8", "B7 SEL", "B4", "Y"
 };
 static const char *const LEG_PAD[ENC_COUNT] = {
-    "K1 T1", "K2 T2", "K3 T3", "K4 T4", "K5 T5", "K6 T6 Rec", "K7 T7 Play", "K8 T8", "m2 T9", "M", "m1 Y"
+    "K1 T1", "K2 T2", "K3 T3", "K4 T4", "K5 T5", "K6 T6 REC", "K7 T7 PLAY", "K8 T8", "T9", "M", "m1"
+};
+static const char *const LEG_LOCK[ENC_COUNT] = {
+    "M K1 T1", "m1 K2 T2", "K3 T3", "m2 K4 T4", "K5 T5", "K6 T6 REC", "K7 T7 PLAY", "K8 T8", "T9", "LOCK", "LOCK"
 };
 
 static const char *pc_name(int pc)
@@ -36,8 +40,8 @@ uint64_t uf_sig_cell(const ui_model_t *m, int k)
     uint64_t h = UF_H0;
     const ui_controls_t *c = &m->ctl;
     h = uf_h(h, &c->st[k].flags, 1);
-    uint8_t f[6] = { (uint8_t)(c->focus == k), (uint8_t)(c->turn_target == k), (uint8_t)(c->push == 2 + k),
-                     m->plat.pad_link, m->prefs.legend, m->prefs.theme };
+    uint8_t f[7] = { (uint8_t)(c->focus == k), (uint8_t)(c->turn_target == k), (uint8_t)(c->push == 2 + k),
+                     m->plat.pad_link, m->prefs.legend, m->prefs.theme, c->knob_lock };
     h = uf_h(h, f, sizeof f);
     if (c->st[k].flags & CF_PRESSED) {
         uint32_t held = m->core_ms - c->st[k].pressed_since_ms;
@@ -266,7 +270,7 @@ void uf_draw_cell(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, int k)
     }
     gfx_text_fit(fb, &GFX_S, x + 5, y + 44, t.detail, p->c[t.detail_tok], w - 10);
     if (m->prefs.legend) {
-        const char *leg = m->plat.pad_link == PADL_OPEN ? LEG_PAD[k] : LEG_NOPAD[k];
+        const char *leg = m->plat.pad_link != PADL_OPEN ? LEG_NOPAD[k] : c->knob_lock ? LEG_LOCK[k] : LEG_PAD[k];
         gfx_text_fit(fb, &GFX_XS, x + 5, y + 59, leg, p->c[T_GHOST], w - 10);
     }
     /* fuoco: cornice di 2 pixel */

@@ -2,37 +2,14 @@
  *
  * Il case porta i nomi dei controlli, lo schermo i valori. La banda mostra in grande il controllo
  * appena toccato, con l'etichetta del suo overlay (UI-065): è l'overlay dell'Orchid, che qui non
- * copre l'accordo. A riposo mostra il suono. Gli avvisi passano davanti a tutto. La legenda dei
- * tasti della Flip compare solo nella pagina dei comandi, l'unica che si usa con quei tasti.
+ * copre l'accordo. A riposo mostra il suono, anche nella pagina dei comandi: i tasti della Flip
+ * sono sei e sempre gli stessi, e la riga che li elencava ripeteva quello che le dita sanno
+ * (15/10/2026). Gli avvisi passano davanti a tutto.
  */
 #include "uf_int.h"
 
 #define BY 384          /* cima della banda */
 #define VY 420          /* cima delle cifre e delle maiuscole del valore */
-
-typedef struct { const char *key, *fn; } leg_t;
-
-static const leg_t ROW_FLIP_PLAY[] = {
-    { "L1 R1", "focus" }, { "\xE2\x9C\x9A", "turn" }, { "A", "press" }, { "B", "back" }, { "X", "push" },
-    { "Y", "bs.voic" }, { "SEL", "opt" }, { "START", "bpm" }, { NULL, NULL }
-};
-static const leg_t ROW_FLIP_LIST[] = {
-    { "\xE2\x9C\x9A\xE2\x96\xB2\xE2\x96\xBC", "scroll" }, { "A", "select" }, { "B", "back" }, { "MENU", "menu" },
-    { NULL, NULL }
-};
-
-static void legend_row(gfx_fb16_t *fb, const uf_pal_t *p, int y, const leg_t *row)
-{
-    int w = 0;
-    for (int i = 0; row[i].key; i++)
-        w += gfx_text_w(&GFX_S, row[i].key, 0) + 4 + 4 + gfx_text_w(&GFX_S, row[i].fn, 0) + (row[i + 1].key ? 14 : 0);
-    int x = 320 - w / 2;
-    for (int i = 0; row[i].key; i++) {
-        x = uf_keycap(fb, p, x, y, row[i].key);
-        x = gfx_text(fb, &GFX_S, x + 4, y, row[i].fn, p->c[T_TEXT]);
-        x += 14;
-    }
-}
 
 static const ui_msg_t *top_msg(const ui_model_t *m, int level)
 {
@@ -48,8 +25,8 @@ uint64_t uf_sig_z6(const ui_model_t *m)
     h = uf_h(h, &m->layer.ov.value, sizeof m->layer.ov.value);
     h = uf_h(h, &m->msg_core, sizeof m->msg_core);
     h = uf_h(h, &m->msg_plat, sizeof m->msg_plat);
-    uint8_t v[8] = { m->layer.prompt, m->layer.list.open, (uint8_t)uf_controls(m), m->prefs.legend, m->prefs.theme,
-                     m->music.key_on, (uint8_t)m->plat.battery_pct, m->plat.charging };
+    uint8_t v[6] = { m->layer.prompt, m->prefs.theme, m->music.key_on, (uint8_t)m->plat.battery_pct, m->plat.charging,
+                     (uint8_t)(m->ctl.view == VIEW_GEEK) };
     h = uf_h(h, v, sizeof v);
     /* i valori dei controlli, senza lo stato dei tasti premuti (cambia a ogni pressione) */
     const size_t off = offsetof(ui_controls_t, focus);
@@ -248,13 +225,9 @@ void uf_draw_z6(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
         gfx_text_fit(fb, &GFX_L, 48, BY + 32, info->text, p->c[T_TEXT], 576);
         return;
     }
-    if (uf_controls(m)) {
-        if (m->prefs.legend) legend_row(fb, p, BY + 40, m->layer.list.open ? ROW_FLIP_LIST : ROW_FLIP_PLAY);
-        return;
-    }
-    /* a riposo: il suono che si sta suonando */
+    /* a riposo: il suono che si sta suonando; motore e famiglia sono un dettaglio da Geek Out */
     char d[16], t[48];
     sound(&m->ctl, d, sizeof d, t, sizeof t);
-    hl_t e = { "Sound", d, m->ctl.sound_name, t, -1, false, false };
+    hl_t e = { "Sound", d, m->ctl.sound_name, m->ctl.view == VIEW_GEEK ? t : NULL, -1, false, false };
     hl(fb, p, &e);
 }

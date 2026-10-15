@@ -7,7 +7,7 @@ Clone fedele dell'Orchid (ORC—1) di Telepathic Instruments. Fase 1: app nativa
 
 ## Regole
 - **Separato da OpenOrc / Cirmolo:** niente codice, cartelle o confronti in comune.
-- **Prima la fedeltà all'originale.** Le migliorie vanno dopo, come opzioni spente per default.
+- **La fedeltà all'originale è il minimo:** tutto quello che fa l'Orchid, Stame lo fa, e quel comportamento non si altera. Con più tasti, controlli e potenza Stame può fare di più: le aggiunte si implementano (Luigi, 15/10/2026), purché non tolgano niente all'originale e, se sono uno stato, si vedano sulla plancia (Lock, View e Page del macro pad sono le prime).
 - **Nucleo portabile:** `core`, `dsp` e `gfx` in C11 puro, senza SDL, ALSA, malloc o lock nel percorso audio. Tutto ciò che è specifico della piattaforma sta in `platform/`.
 - Il clone **non** deve usare l'ID SysEx `00 22 0C` né un nome di porta MIDI che inizi con "orchid".
 - I preset di fabbrica 3.92 sono dati privati: non vanno messi nel repo.

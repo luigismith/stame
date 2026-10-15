@@ -156,17 +156,18 @@ void test_plancia(void)
     CHECK_EQ(n, 5);
     CHECK(fb_a[UI_FLIP_W * 100 + 300] != fb_b[UI_FLIP_W * 100 + 300]);
 
-    /* UI-142a: la pagina dei comandi prende il posto della tastiera: 11 celle e la banda con la legenda */
+    /* UI-142a: la pagina dei comandi prende il posto della tastiera: 11 celle; la banda non cambia,
+     * perché mostra il suono anche qui (UI-155, 15/10/2026) */
     m.layer.page = PAGE_CONTROLS;
     n = ui_flip_render(&sa, &m, &fa, dirty, UI_FLIP_MAX_DIRTY);
-    CHECK_EQ(n, ENC_COUNT + 1);
+    CHECK_EQ(n, ENC_COUNT);
     bool sound = false;
     for (int i = 0; i < n; i++) if (dirty[i].x == 0 && dirty[i].y == 240 && dirty[i].w == 208) sound = true;
     CHECK(sound);
-    /* tornando a suonare si ridisegnano la tastiera e la banda, non le altre zone */
+    /* tornando a suonare si ridisegna solo la tastiera */
     m.layer.page = PAGE_PLAY;
     n = ui_flip_render(&sa, &m, &fa, dirty, UI_FLIP_MAX_DIRTY);
-    CHECK_EQ(n, 2);
+    CHECK_EQ(n, 1);
 
     /* una lista aperta prende la zona comandi in un rettangolo solo, anche dalla pagina di gioco */
     m.layer.list.open = 1;

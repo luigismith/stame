@@ -691,7 +691,8 @@ layers:
   - il profilo emette `PNL_MACRO(MACRO_KNOB_LOCK, b)` con `b` = 1 acceso, 0 spento, a ogni cambio; la UI tiene lo stato in `ctl.knob_lock` e mostra «LOCK» in testata finché è acceso (`30` UI-126), come il LED del Caps Lock;
   - una pressione di manopola cominciata prima del cambio finisce sull'encoder con cui è cominciata;
   - allo scollegamento del macro pad il Lock si spegne (`MACRO_KNOB_LOCK` 0 prima di `PNL_SRC_LOST`); all'avvio è spento e non si ricorda;
-  - il Lock non tocca K1–K8 della MPK, T1–T12, il PUSH né i tasti della Flip. Premere una manopola con il Lock acceso porta il fuoco sul suo encoder, come MIDI-104.
+  - il Lock non tocca K1–K8 della MPK, T1–T12, il PUSH né i tasti della Flip. Premere una manopola con il Lock acceso porta il fuoco sul suo encoder, come MIDI-104;
+  - con il Lock acceso m2 è Key, non la manopola delle liste: liste, fuoco e conferma restano sulla **manopola di navigazione della MK4** (scatti e pressione, MIDI-130; segnalata da Luigi il 15/10/2026) e su croce e A della Flip.
 
 - **MIDI-132** — **View e Page** [D, **decisi da Luigi il 15/10/2026**]. Due tasti per guardare la Flip senza allungare la mano fino ai suoi tasti:
   - **T14 View** emette `PNL_MACRO(MACRO_VIEW_TOGGLE)` alla pressione: la UI passa a **Geek Out** e, al tocco successivo, torna alla vista in uso prima (`30` UI-051: Options → View resta la strada dell'Orchid per le sei viste);
