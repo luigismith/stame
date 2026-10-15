@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Stame, fianco_interno: strato interno dei fianchi: tagliarne 6, compensato 4.0 mm. Scala 1:1, millimetri. Rosso taglio, nero incisione, blu segno. -->
-<svg xmlns="http://www.w3.org/2000/svg" width="290.00mm" height="82.26mm" viewBox="0 0 290.000 82.259">
+<svg xmlns="http://www.w3.org/2000/svg" width="246.00mm" height="56.00mm" viewBox="0 0 246.000 56.000">
 <title>Stame — fianco_interno</title>
 <g id="incisione" fill="#000000" stroke="none">
 
@@ -9,11 +9,11 @@
 
 </g>
 <g id="taglio" fill="none" stroke="#FF0000" stroke-width="0.1">
-<path d="M289.000,81.259 L1.000,81.259 L1.000,51.259 L1.192,49.308 L1.761,47.432 L2.685,45.703 L3.929,44.188 L5.444,42.944 L7.173,42.020 L9.049,41.451 L11.000,41.259 L99.000,33.259 L191.000,27.259 L283.000,1.000 L284.171,1.115 L285.296,1.457 L286.333,2.011 L287.243,2.757 L287.989,3.667 L288.543,4.704 L288.885,5.829 L289.000,7.000 Z"/>
-<circle cx="259.000" cy="71.259" r="1.250"/>
-<circle cx="139.000" cy="71.259" r="1.250"/>
-<circle cx="29.000" cy="71.259" r="1.250"/>
-<circle cx="269.000" cy="41.259" r="1.250"/>
-<circle cx="209.000" cy="51.259" r="1.250"/>
+<path d="M245.000,55.000 L1.000,55.000 L1.000,25.000 L1.192,23.049 L1.761,21.173 L2.685,19.444 L3.929,17.929 L5.444,16.685 L7.173,15.761 L9.049,15.192 L11.000,15.000 L65.000,15.000 L105.000,1.000 L239.000,1.000 L240.171,1.115 L241.296,1.457 L242.333,2.011 L243.243,2.757 L243.989,3.667 L244.543,4.704 L244.885,5.829 L245.000,7.000 Z"/>
+<circle cx="225.000" cy="45.000" r="1.250"/>
+<circle cx="115.000" cy="45.000" r="1.250"/>
+<circle cx="15.000" cy="45.000" r="1.250"/>
+<circle cx="225.000" cy="15.000" r="1.250"/>
+<circle cx="145.000" cy="15.000" r="1.250"/>
 </g>
 </svg>
