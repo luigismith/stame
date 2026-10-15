@@ -280,6 +280,168 @@ static int render_suoni(const char *dir)
     return 0;
 }
 
+/* ---- scene: le schermate del manuale, pilotando la vetrina con gli ingressi veri (tasti del macro
+ * pad, note della MPK, tasti della Flip) e scattando a ogni stato ---- */
+static uint32_t sc_now;
+
+static void sc_run(uint32_t ms)                       /* avanza la vetrina di ms millisecondi, con l'audio */
+{
+    static float l[480], r[480];
+    for (uint32_t t = 0; t < ms; t += 10) {
+        sc_now += 10;
+        vet_tick(&vet, sc_now);
+        vet_snd_render(&mot, &vet, l, r, 480);
+        vet_model(&vet);
+    }
+}
+
+static void sc_hold(uint16_t code, uint32_t ms)
+{
+    vet_pad(&vet, code, 1, sc_now);
+    sc_run(ms);
+    vet_pad(&vet, code, 0, sc_now);
+    sc_run(40);
+}
+
+static void sc_pad(uint16_t code) { sc_hold(code, 60); }
+
+static void sc_midi(uint8_t st, uint8_t d1, uint8_t d2)
+{
+    midi_msg_t m;
+    memset(&m, 0, sizeof m);
+    m.t_us = sc_now * 1000u;
+    m.port = MIDI_PORT_CTL;
+    m.n = 3;
+    m.b[0] = st; m.b[1] = d1; m.b[2] = d2;
+    vet_midi(&vet, &m, sc_now);
+}
+
+/* Do maggiore: il pad Maj (ch10, nota 42) e il tasto Do (ch1, nota 60) della MPK */
+static void sc_chord(bool on)
+{
+    if (on) { sc_midi(0x99, 42, 100); sc_run(20); sc_midi(0x90, 60, 100); }
+    else { sc_midi(0x80, 60, 0); sc_run(20); sc_midi(0x89, 42, 0); }
+    sc_run(120);
+}
+
+static void sc_setup(void)
+{
+    vet_init(&vet, 100000);
+    sc_now = 100000;
+    vet_battery(&vet, 87, false);
+    vet_snd_init(&mot, &dsp, 48000u, 1);
+    vet_set_motore(&vet, &mot.snap);
+    vet_set_scope(&vet, dsp.scope, DSP_SCOPE_N, &dsp.scope_wr, NULL);
+    sc_run(2500);                                     /* l'avvio dura 2,6 s: un ingresso prima della fine, */
+    sc_pad(PAD_B);                                    /* così la demo non parte e lo stato resta quello di fabbrica */
+    vet_mpk(&vet, true, "1.0.0", sc_now);
+    vet_macropad(&vet, PADL_OPEN, sc_now);
+    sc_run(2500);                                     /* passano gli avvisi di collegamento */
+}
+
+/* MENU › Theme: alterna Notte e Giorno dal menu della piattaforma, come farebbe chi suona */
+static void sc_theme_toggle(void)
+{
+    sc_pad(PAD_MENU);
+    sc_pad(PAD_DOWN);
+    sc_pad(PAD_A);
+    sc_pad(PAD_B);
+    sc_run(5500);                                     /* croce e A hanno aperto la pagina dei comandi: 5 s e si chiude */
+}
+
+/* le schermate del manuale stanno nel tema Giorno (Luigi, 15/10/2026: «preferisci modalità chiara»);
+ * «notte» è la stessa pagina di gioco nel tema Notte, per confronto */
+static int render_scene(const char *dir)
+{
+    /* avvio */
+    vet_init(&vet, 100000);
+    vet.m.prefs.theme = THEME_LIGHT;
+    vet_battery(&vet, 87, false);
+    for (uint32_t k = 0; k <= 2000; k += 10) vet_tick(&vet, 100000 + k);
+    render_to(dir, "avvio");
+
+    sc_setup();
+    sc_theme_toggle();                                /* Giorno */
+    if (vet_model(&vet)->music.key_on) { sc_pad(MPAD_T4); sc_run(2000); }   /* Key mode spenta: il nome è quello dell'accordo */
+    /* pagina di gioco con un accordo */
+    sc_chord(true);
+    sc_run(400);
+    render_to(dir, "gioco");
+    /* il controllo appena toccato: FX (K3 della MPK) */
+    sc_midi(0xB0, 72, 2);
+    sc_run(150);
+    render_to(dir, "tocco");
+    sc_run(2000);
+    /* pagina dei comandi (T15), poi il Lock (T13) */
+    sc_pad(MPAD_T15);
+    sc_run(200);
+    render_to(dir, "comandi");
+    sc_pad(MPAD_T13);
+    sc_run(200);
+    render_to(dir, "lock");
+    sc_pad(MPAD_T13);
+    sc_pad(MPAD_T15);
+    /* lista dei suoni (T1) e dei Beat (T7 tenuto) */
+    sc_pad(MPAD_T1);
+    sc_run(200);
+    render_to(dir, "lista_suoni");
+    sc_pad(PAD_B);
+    sc_hold(MPAD_T7, 1200);
+    sc_run(200);
+    render_to(dir, "lista_beat");
+    sc_pad(PAD_B);
+    sc_run(300);
+    /* Geek Out (T14) */
+    sc_pad(MPAD_T14);
+    sc_run(200);
+    render_to(dir, "geek");
+    sc_pad(MPAD_T14);
+    sc_chord(false);
+    /* looper: Beat acceso (T7), REC (T6), un giro di accordi, poi il loop suona */
+    sc_pad(MPAD_T7);
+    sc_run(300);
+    sc_pad(MPAD_T6);
+    sc_run(2100);                                     /* count-in: una battuta a 120 BPM */
+    for (int bar = 0; bar < 4; bar++) {
+        sc_chord(true);
+        sc_run(1400);
+        sc_chord(false);
+        sc_run(300);
+    }
+    sc_run(1200);
+    sc_chord(true);
+    sc_run(300);
+    render_to(dir, "looper");
+    sc_chord(false);
+    /* batteria a tastiera: Mod (m1 premuta) + BPM (T7), poi i tasti colpiscono il kit */
+    vet_pad(&vet, MPAD_M1_PUSH, 1, sc_now);
+    sc_run(80);
+    sc_pad(MPAD_T7);
+    vet_pad(&vet, MPAD_M1_PUSH, 0, sc_now);
+    sc_run(200);
+    sc_midi(0x90, 60, 110); sc_run(60); sc_midi(0x80, 60, 0); sc_run(300);
+    sc_midi(0x90, 64, 90);  sc_run(60); sc_midi(0x80, 64, 0); sc_run(300);
+    sc_midi(0x90, 62, 110); sc_run(40);
+    render_to(dir, "drums");
+    sc_midi(0x80, 62, 0);
+    vet_pad(&vet, MPAD_M1_PUSH, 1, sc_now);
+    sc_run(80);
+    sc_pad(MPAD_T7);
+    vet_pad(&vet, MPAD_M1_PUSH, 0, sc_now);
+    sc_run(2200);
+    /* menu della piattaforma, poi la stessa pagina di gioco nel tema Notte */
+    sc_pad(PAD_MENU);
+    sc_run(200);
+    render_to(dir, "menu");
+    sc_pad(PAD_B);
+    sc_theme_toggle();                                /* Notte */
+    sc_chord(true);
+    sc_run(400);
+    render_to(dir, "notte");
+    sc_chord(false);
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
     /* il banco dei campioni, se tools/campioni.py lo ha costruito (STAME_SMP lo sposta) */
@@ -290,10 +452,12 @@ int main(int argc, char **argv)
     if (argc >= 3 && !strcmp(argv[1], "--suoni")) return render_suoni(argv[2]);
     if (argc < 2) {
         printf("uso: stame-render <cartella> [--mpk] [ms…] [--boot ms…] [--tutti passo_ms]\n"
-               "     stame-render --wav file.wav [ms] [--mpk]   (la vetrina con il synth, dall'avvio)\n");
+               "     stame-render --wav file.wav [ms] [--mpk] [--song N]   (la vetrina con il synth, dall'avvio)\n"
+               "     stame-render --scene <cartella>   (le schermate del manuale: avvio, gioco, comandi, lock, liste…)\n");
         return 2;
     }
     crc_init();
+    if (argc >= 3 && !strcmp(argv[1], "--scene")) return render_scene(argv[2]);
     if (!strcmp(argv[1], "--wav") && argc >= 3) {
         int song = 0;
         bool m = false;

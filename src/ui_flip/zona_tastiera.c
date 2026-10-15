@@ -152,7 +152,9 @@ void uf_draw_z4(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, int kb_l
             if (n < kb_lo || n > kb_lo + 47) continue;
             key_box(kb_lo, n, &x, &w, &bk);
             bool lit = bit128(mu->live_treble, n);
-            gfx_text(fb, &GFX_XS, x + (w - 12) / 2, bk ? WY0 + 4 : WY1 - 36, DR[k], p->c[lit ? T_BG : T_DIM]);
+            /* sui neri il colore dei bianchi (Giorno) o del testo (Notte): leggibile sul tasto scuro */
+            int tok = lit ? T_BG : !bk ? T_DIM : m->prefs.theme == THEME_LIGHT ? T_KBW : T_TEXT;
+            gfx_text(fb, &GFX_XS, x + (w - 12) / 2, bk ? WY0 + 4 : WY1 - 36, DR[k], p->c[tok]);
         }
     }
 

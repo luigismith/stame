@@ -30,6 +30,7 @@ typedef struct {
     int bpm, beat_mode, beat, meter, beat_on, beat_volume, view;
     uint8_t lock_perf, lock_fx, sec[ENC_COUNT];
     uint8_t drums;                      /* batteria a tastiera (ACC-211): i tasti colpiscono il kit */
+    uint8_t knob_lock;                  /* Lock delle manopole del macro pad (MIDI-131), per la testata */
     uint32_t drum_ms[12];               /* ultimo colpo di ogni tasto, per accendere il tasto sulla plancia */
 } sim_t;
 static sim_t S;                    /* una vetrina sola per processo */
@@ -479,7 +480,7 @@ static void handle(vet_t *v, const pnl_event_t *e)
             snd_push(v, VS_ALL_OFF, 0, 0, 0);
             msg(v, MSG_INFO, "Reset: loop, beat, transpose, perform", 3000);
         }
-        else if (e->a == MACRO_KNOB_LOCK) v->m.ctl.knob_lock = (uint8_t)e->b;   /* T13 del pad (MIDI-131) */
+        else if (e->a == MACRO_KNOB_LOCK) S.knob_lock = (uint8_t)e->b;   /* T13 del pad (MIDI-131); vet_model lo copia */
         else if (e->a == MACRO_VIEW_TOGGLE) {                                    /* T14: Geek Out e ritorno (MIDI-132) */
             if (S.view == VIEW_GEEK) S.view = v->view_back;
             else { v->view_back = (uint8_t)S.view; S.view = VIEW_GEEK; }
@@ -1125,6 +1126,7 @@ const ui_model_t *vet_model(vet_t *v)
     c->focus = v->inp.gest.focus;
     c->turn_target = gest_target(&v->inp.gest);
     c->push = v->inp.mpk.push;
+    c->knob_lock = S.knob_lock;
     for (int k = 0; k < ENC_COUNT; k++) {
         if (gest_held(&v->inp.gest, (uint8_t)k)) {
             c->st[k].flags |= CF_PRESSED;

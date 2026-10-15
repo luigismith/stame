@@ -15,13 +15,17 @@ Come nella foto del 15/10/2026:
 
 ## 2. Accendere e spegnere
 
+![L'avvio: i tre stami si accendono sul vetrino](img/avvio.png)
+
 1. Sulla Flip: **App › Altro › Stame**. Per 2,6 secondi il vetrino mostra i tre stami che si accendono, con il logo sonoro, e le righe dell'inizializzazione.
-2. Se non tocchi niente, **parte la demo** (il brano «Acacia»). Un tasto, un pad o una nota la fermano e lo strumento è tuo.
+2. Se non tocchi niente, **parte la demo** (i brani «Acacia», «Felce» e «Pistillo», a giro). Un tasto, un pad o una nota la fermano e lo strumento è tuo.
 3. Per uscire: **MENU › Quit Stame** (esce subito, senza conferma). Uscita di sicurezza: **MENU tenuto 2 secondi**. Accensione e spegnimento della Flip e il volume di sistema restano a spruceOS.
 
 Lo stato della MPK e del pad si vede nella testata, in alto: a riposo c'è solo la batteria; «NO MPK» lampeggia finché la tastiera non c'è; «PAD» in rosso vuol dire che il macro pad non si apre o manda codici sconosciuti (§10).
 
 ## 3. Suonare un accordo
+
+![La pagina di gioco: Do maggiore, con la forma d'onda dietro il nome, la tastiera con treble e basso, la banda a riposo](img/gioco.png)
 
 - **Pad = tipo ed estensione.** Fila in alto, da sinistra: **Dim, Min, Maj, Sus**. Fila in basso: **6, m7, M7, 9**. Tieni un tipo e premi un tasto: suona l'accordo con quella fondamentale. Un'estensione aggiunge sempre lo stesso intervallo (il 6 non diventa 13; la 9 è la seconda, dentro la finestra). Dim + m7 dà il semidiminuito.
 - **Tasti = fondamentale.** Conta solo il nome della nota: l'ottava del tasto e OCT−/OCT+ della MPK non cambiano nulla, perché il registro lo decide il **Chord Voicing**. La tastiera è monofonica: un tasto nuovo sostituisce il precedente. Un tasto senza tipo, con la Key mode spenta, suona una **nota singola**.
@@ -33,6 +37,12 @@ Lo stato della MPK e del pad si vede nella testata, in alto: a riposo c'è solo 
 - **Secret Chords (Options):** combinazioni di più tipi tenuti insieme che danno accordi nascosti. Con la voce spenta vale l'ultimo tipo premuto.
 
 ## 4. I controlli, uno per uno
+
+![La pagina dei comandi (T15 o i tasti del fuoco): le 11 celle con valore, fuoco e sigla del comando](img/comandi.png)
+
+![Il controllo appena toccato: girando FX la banda scrive REVERB 04 e la cella si accende](img/tocco.png)
+
+![La lista dei suoni (T1): nome, motore e famiglia](img/lista_suoni.png)
 
 L'Orchid ha nove encoder che si girano e si premono e due manopole di voicing. Su Stame il **girare** sta sulle manopole K1…K8 della MPK (senza scatti) e il **premere** sui tasti T1…T9 del macro pad (o, in riserva, sui pad del banco B della MPK e su SHIFT come PUSH). Le quattro manopole con scatti e pressione (M, m1, m2 del pad e quella di navigazione della MPK) fanno tutti i gesti con una mano sola. I gesti sono quattro:
 
@@ -47,13 +57,13 @@ Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 
 
 | Controllo | Gira | Premi | Tieni 1 s | Premi e gira |
 |---|---|---|---|---|
-| **Sound** | i 16 suoni (Glass Pollen, Night Greenhouse, Anther Keys, Slow Stamen, Fern Pluck, Copper Reed, Orbit Choir, Moss Strings, Dew Mallet, Tape Fern, Seed Organ, Sun Room, Linnaeus Lead, Petal Brass, Root Drone, Vetro Pad); ogni suono porta il suo Perform | lista dei suoni per nome | previsto: Save / Save As / Delete | — |
+| **Sound** | i 29 suoni: 16 di sintesi (Glass Pollen, Night Greenhouse, Anther Keys, Slow Stamen, Fern Pluck, Copper Reed, Orbit Choir, Moss Strings, Dew Mallet, Tape Fern, Seed Organ, Sun Room, Linnaeus Lead, Petal Brass, Root Drone, Vetro Pad) e 13 campionati (Grand Piano, Upright Piano, FM Piano, Vibraphone, Marimba, Glockenspiel, Tubular Bells, Concert Harp, Kalimba, Harpsichord, Pipe Organ, Alto Recorder, Tenor Sax); ogni suono porta il suo Perform | lista dei suoni per nome | previsto: Save / Save As / Delete | — |
 | **Perform** | la quantità del modo: Strum, Strum 2 Oct, Slop e Harp 1…10; Arpeggiate e Arp 2 Oct il tipo 1…6; Pattern il numero 1…13; 0 = spento | lista dei modi | **Lock**: il Perform non cambia più al cambio di suono (la cella mostra LOCK) | — |
 | **FX** | intensità 0…10 dell'effetto principale del suono (REVERB, CHORUS, ENSEMBLE, PHASER, FLANGER, DRIVE, TREMOLO, DELAY) | mostra l'effetto | **Lock** dell'effetto | — |
 | **Key** | la tonalità (accende la Key mode) | Key mode on/off | previsto: scelta rapida | **Transpose** ±12 |
 | **Bass** | i 6 bassi (Round Root, Sub Floor, Pluck Bass, Reed Bass, Velvet Sub, Wood Bass) | basso on/off | previsto: lista dei modi | — |
 | **Loop** | con il loop in corso sceglie fra le tre voci in Z3 (OVERDUB, PAUSE, CLEAR o UNDO; STOP, PLAY…) | da fermo **REC**; altrimenti esegue la voce scelta | previsto: 2 s = Save Loop / uscita morbida | — |
-| **BPM** | 60…200 | Beat o metronomo on/off | lista: **2/4, 3/4, 4/4, 6/8** (metronomo) e i Beat **Funk, Bossa, Motorik, Lounge, Shuffle, Halftime** | **Beat Volume** 0…99 |
+| **BPM** | 60…200 | Beat o metronomo on/off | lista: **2/4, 3/4, 4/4, 6/8** (metronomo) e i 12 Beat **Funk, Bossa, Motorik, Lounge, Shuffle, Halftime, Boom Bap, Disco, Samba, Ballad, Train, Chip**, ognuno con il suo kit (studio, jazz, 808; Chip è la sintesi) | **Beat Volume** 0…99 |
 | **Volume** | volume master 0…99 | batteria della Flip | — | **Bass Volume** 0…99 |
 | **Options** | cambia la vista (fuori dalla lista) | lista: Exit, View, Play Style, Single Notes, Secret Chords | — | — |
 | **Chord Voicing** (M) | finestra ±1 semitono per scatto | Split ↔ Octave | — | — |
@@ -62,6 +72,8 @@ Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 
 Liste: la voce in cima è Exit; la croce o la manopola di navigazione scorrono, A o la pressione scelgono, B chiude. Una lista si chiude da sola dopo 10 secondi, e si chiude anche toccando un altro controllo. Ogni controllo toccato accende la **banda** in fondo allo schermo con il suo nome e valore in grande: è l'overlay dell'Orchid, che qui non copre l'accordo.
 
 ## 5. Il looper, passo per passo
+
+![Il loop suona: PLAY, giro e battuta, le note del loop in viola sulla tastiera](img/looper.png)
 
 Il looper registra **eventi** (note), non audio: cambiando BPM cambia la velocità del loop, cambiando suono cambia il suono del loop, il transpose vale anche per il loop.
 
@@ -74,13 +86,23 @@ Il looper registra **eventi** (note), non audio: cambiando BPM cambia la velocit
 
 ## 6. Beat e metronomo
 
+![La lista di BPM tenuto: metriche del metronomo e i 12 Beat](img/lista_beat.png)
+
 - **BPM premuto** (T7, oppure **STOP/PLAY** della MPK) accende e spegne il Beat scelto; con un metronomo scelto, accende il clic. Il trasporto riparte dalla battuta 1.
 - **BPM tenuto** apre la lista: le quattro metriche (2/4, 3/4, 4/4, 6/8) scelgono il metronomo; sotto, i sei Beat. La spunta segna la scelta.
 - **BPM premuto e girato** regola il volume del Beat.
 - Con il looper in moto, spegnere il Beat lo zittisce soltanto: il tempo del loop continua.
 - In alto a destra: i battiti della battuta come celle che si accendono, il BPM a sette segmenti.
 
+### 6.1 Loop di batteria dalla tastiera
+
+Lo stesso principio degli accordi, per la batteria: **Mod + BPM** (m1 premuta e T7, oppure Y + START sulla Flip) accende la **batteria a tastiera**. I 12 tasti suonano il kit del Beat scelto: Do cassa, Do♯ rimshot, Re rullante, Re♯ battimani, Mi charleston chiuso, Fa tom basso, Fa♯ charleston aperto, Sol tom alto, Sol♯ maracas, La conga, La♯ campanaccio, Si piatto. Se il looper registra o sovraincide, ogni colpo entra nel loop **quantizzato al sedicesimo**, come le note. Pad, basso e Perform restano fermi; un altro Mod + BPM torna agli accordi. Sulla plancia: «DRUMS» nella zona accordo e le sigle sui tasti C4…B4, che si accendono al colpo.
+
+![Batteria a tastiera: DRUMS, le sigle degli strumenti sui tasti, i colpi registrati nel loop](img/drums.png)
+
 ## 7. Il macro pad
+
+![Lock acceso (T13): la testata scrive LOCK SOUND PERFORM KEY e le celle dicono quale manopola fa cosa](img/lock.png)
 
 Quindici tasti in tre file da cinque e tre manopole a scatti. Le prime quattro colonne sono la **griglia gemella** delle manopole della MPK:
 
@@ -129,6 +151,10 @@ Quindici tasti in tre file da cinque e tre manopole a scatti. Le prime quattro c
 
 ### 9.1 Lo schermo
 
+![La vista Geek Out (T14): note, intervalli, finestre, Play Style, la barra completa in testata](img/geek.png)
+
+![Lo stesso accordo nel tema Notte: vetro scuro e fosfori (MENU › Theme)](img/notte.png)
+
 Il vetrino mostra, dall'alto: la **testata** (batteria; avvisi solo quando servono; LOCK), la **zona accordo** (tonalità e transpose, il nome dell'accordo in grande), la **zona tempo e loop** (BPM, battiti, il looper quando lavora), la **tastiera** a quattro ottave (treble in acqua, basso in ambra, loop in viola, i granelli della tonalità) e in fondo la **banda**, che mostra in grande il controllo appena toccato e, a riposo, il suono.
 
 Due pagine:
@@ -155,6 +181,8 @@ Due **temi** (MENU › Theme): **Notte** (vetro scuro e fosfori, quello di fabbr
 
 ### 9.3 Il menu della piattaforma (MENU, o T11, o + della MPK)
 
+![Il menu della piattaforma](img/menu.png)
+
 | Voce | Fa |
 |---|---|
 | Exit | chiude il menu |
@@ -163,14 +191,14 @@ Due **temi** (MENU › Theme): **Notte** (vetro scuro e fosfori, quello di fabbr
 | Legend | On / Off: le sigle dei comandi nelle celle della pagina dei comandi |
 | Meters | On / Off: voci, carico e livelli nella barra di Geek Out |
 | Demo | Auto / Off: la demo dopo 20 secondi senza ingressi |
-| Play Demo Song | il brano da capo, subito |
+| Play Demo Song | il brano successivo della demo, subito |
 | Quit Stame | esce (subito) |
 
 Previsti: Panic nel menu, Pocket Mode (suonare con la sola Flip), MPK Status, Learn Pad, Note Labels, Beat Flash, Ghost Chord, Boot Sound, Debug.
 
 ## 10. La demo
 
-Si chiama **«Acacia»**, è un brano originale di Stame, dura poco meno di quattro minuti e parte da sola dopo 20 secondi senza ingressi (e subito dopo l'avvio). Mostra la plancia in ogni stato: accordi in Harp, lista dei Beat, count-in e registrazione del loop, overdub, Lock del Perform, transpose, cambi di suono e di vista, i due temi, il ritardando. Qualunque tasto, pad o nota la ferma e rimette a posto loop, Beat, transpose e opzioni. Per non farla partire: MENU › Demo › Off. Per riascoltarla: MENU › Play Demo Song.
+Sono tre brani originali di Stame, suonati a giro: **«Acacia»** (poco meno di quattro minuti: accordi in Harp, lista dei Beat, count-in e registrazione del loop, overdub, Lock del Perform, transpose, cambi di suono e di vista, i due temi, il ritardando), **«Felce»** (una bossa con piano a coda, vibrafono, kalimba in overdub, sax tenore, arpa e glockenspiel) e **«Pistillo»** (Boom Bap con la 808, poi Disco: FM piano, marimba, organo a canne nel loop, flauto dolce, campane tubolari). La demo parte da sola dopo 20 secondi senza ingressi (e subito dopo l'avvio). Qualunque tasto, pad o nota la ferma e rimette a posto loop, Beat, transpose e opzioni. Per non farla partire: MENU › Demo › Off. Per sentire il brano dopo: MENU › Play Demo Song.
 
 ## 11. Cosa fare se
 

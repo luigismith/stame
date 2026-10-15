@@ -66,7 +66,7 @@ Tn premuto porta il fuoco sul suo controllo. T14: Geek Out e ritorno. T15: pagin
 
 | | Gira | Premi | Tieni | Premi e gira |
 |---|---|---|---|---|
-| Sound | 16 suoni | lista | prev. Save | — |
+| Sound | 29 suoni (16 di sintesi, 13 campionati) | lista | prev. Save | — |
 | Perform | quantità (0 = off) | lista dei modi | Lock | — |
 | FX | 0…10 | mostra | Lock | — |
 | Key | tonalità | Key mode | prev. scelta rapida | Transpose ±12 |
@@ -79,7 +79,7 @@ Tn premuto porta il fuoco sul suo controllo. T14: Geek Out e ritorno. T15: pagin
 | Bs. Voicing | ottava del basso | Mod | — | — |
 
 Options: Exit · View (React, Chord, Keyboard, Chord+Kb, Notes, Geek Out) · Play Style (Simple, Advanced, Free) · Single Notes (Split, Octave) · Secret Chords (On, Off).
-Lista di BPM: 2/4 · 3/4 · 4/4 · 6/8 · Funk · Bossa · Motorik · Lounge · Shuffle · Halftime.
+Lista di BPM: 2/4 · 3/4 · 4/4 · 6/8 · Funk · Bossa · Motorik · Lounge · Shuffle · Halftime · Boom Bap · Disco · Samba · Ballad · Train · Chip. Batteria a tastiera: Mod + BPM, tasti C…B = cassa, rimshot, rullante, battimani, charleston chiuso, tom basso, charleston aperto, tom alto, maracas, conga, campanaccio, piatto; i colpi entrano nel loop al sedicesimo.
 Menu: Exit · Theme · Linnaeus Tag · Legend · Meters · Demo · Play Demo Song · Quit Stame.
 
 ## Looper
