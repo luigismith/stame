@@ -587,6 +587,12 @@ static void demo_do(vet_t *v, const dstep_t *s)
     case D_BPM: turn(v, ENC_BPM, (int)s->c - S.bpm, false); break;
     case D_OPT: ain(v, ACC_IN_OPTION_SET, (uint8_t)s->a, s->b); break;
     case D_TITLE: msg(v, MSG_INFO, song_of(v)->title, 6000); break;
+    case D_DRUMS: drums_toggle(v); break;
+    case D_HIT:
+        snd_push(v, VS_DRUM, 0, (uint8_t)(s->a % 12), s->d ? s->d : 100);
+        S.drum_ms[s->a % 12] = v->now_ms;
+        v->m.plat.midi_in_ms = v->now_ms;
+        break;
     default: break;
     }
 }
@@ -612,7 +618,10 @@ static void demo_reset(vet_t *v)
 static void demo_start(vet_t *v)
 {
     if (!v->demo_running)
+    {
         for (int i = 0; i < 6; i++) v->demo_saved[i] = (int16_t)acc_option_get(&v->acc, DEMO_OPTS[i]);
+        v->demo_theme = v->m.prefs.theme;               /* la demo cambia tema: alla fine torna il suo */
+    }
     v->demo_tick0 = now_tick(v) + DEMO_AHEAD;
     v->snd_timed = 1;
     v->snd_at = v->demo_tick0;
@@ -637,8 +646,17 @@ static void demo_stop(vet_t *v)
     S.lock_perf = S.lock_fx = 0;
     S.perf_mode = vet_sound_perf[S.sound % VET_N_SOUNDS][0];      /* il Perform del suono (ACC-162) */
     S.perf_amount = vet_sound_perf[S.sound % VET_N_SOUNDS][1];
-    v->m.prefs.theme = THEME_DARK;
+    v->m.prefs.theme = v->demo_theme;                   /* il tema scelto da chi suona, non quello della demo */
+    if (S.drums) drums_toggle(v);                       /* la batteria a tastiera della demo non resta a chi suona */
     v->m.msg_plat.level = MSG_NONE;
+}
+
+/* la demo non parte da sola mentre si suona: un accordo che suona, il trasporto in moto (loop o
+ * Beat), la batteria a tastiera accesa (Luigi, 15/10/2026: «è passato da solo al tema scuro») */
+static bool busy(const vet_t *v)
+{
+    if (v->acc.sounding || S.beat_on || S.drums) return true;
+    return v->snap && (v->snap->tr_on || v->snap->lp_state != LP_IDLE);
 }
 
 /* i passi fino a DEMO_AHEAD tick da ora partono subito, ognuno con il tick a cui vale */
@@ -916,7 +934,7 @@ void vet_tick(vet_t *v, uint32_t now_ms)
     /* demo */
     if (!v->booting) {
         if (v->demo_running) demo_run(v);
-        else if (v->demo_on && now_ms - v->last_input_ms > DEMO_IDLE_MS && !v->list_kind) demo_start(v);
+        else if (v->demo_on && now_ms - v->last_input_ms > DEMO_IDLE_MS && !v->list_kind && !busy(v)) demo_start(v);
     }
     /* count-in: «04» … «01» sopra la plancia (UI-089) */
     if (lp_state(v) == LP_COUNT_IN) {

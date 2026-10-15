@@ -1,4 +1,4 @@
-# demo.py — i brani della demo della vetrina: «Acacia», «Felce» e «Pistillo», brani originali di Stame.
+# demo.py — i brani della demo della vetrina: «Acacia», «Felce», «Pistillo» e «Alga», brani originali di Stame.
 #
 # Scrive src/platform/vetrina/demo_song.c (passi di demo.h) a partire dalle partiture qui sotto e
 # controlla che ogni nota singola cada nella finestra del voicing di quel momento (ACC-080).
@@ -30,13 +30,33 @@ QUAL = {
 LETTER = {'C': 0, 'D': 2, 'E': 4, 'F': 5, 'G': 7, 'A': 9, 'B': 11}
 NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
-# suoni, bassi e Beat della vetrina (ordine di tools/patch.py SUONI e BASSI, e di core/beat.c dall'1)
-GLASS_POLLEN, FERN_PLUCK, DEW_MALLET, SUN_ROOM = 0, 4, 8, 11
-(GRAND_PIANO, UPRIGHT_PIANO, FM_PIANO, VIBRAPHONE, MARIMBA, GLOCKENSPIEL, TUBULAR_BELLS, CONCERT_HARP,
- KALIMBA, HARPSICHORD, PIPE_ORGAN, ALTO_RECORDER, TENOR_SAX) = range(16, 29)
-ROUND_ROOT, SUB_FLOOR, PLUCK_BASS, REED_BASS, VELVET_SUB, WOOD_BASS = range(6)
+# suoni e bassi della vetrina: gli indici si leggono da patch_vetrina.c (generato da tools/patch.py)
+def leggi_nomi(tabella, rx):
+    s = pathlib.Path('src/platform/vetrina/patch_vetrina.c').read_text(encoding='utf-8')
+    blocco = s[s.index(tabella):]
+    blocco = blocco[:blocco.index('};')]
+    return {m[1]: i for i, m in enumerate(re.finditer(rx, blocco))}
+
+
+SOUND = leggi_nomi('vet_sound_info', r'\{\s*"([^"]+)"')     # il nome è la prima stringa di ogni riga
+BASS = leggi_nomi('vet_bass_name', r'"([^"]+)"')
+# i Beat, nell'ordine di core/beat.c dall'1
 FUNK, BOSSA, MOTORIK, LOUNGE, SHUFFLE, HALFTIME, BOOM_BAP, DISCO, SAMBA, BALLAD, TRAIN, CHIP = range(12)
 SINGLE_SPLIT, SINGLE_FULL = 0, 1
+# strumenti della batteria a tastiera (ACC-212), nell'ordine dei tasti C…B
+DRUM = {'KK': 0, 'RM': 1, 'SN': 2, 'CP': 3, 'CH': 4, 'TL': 5, 'OH': 6, 'TH': 7, 'MR': 8, 'CG': 9, 'CB': 10, 'CY': 11}
+
+
+def snd(nome):
+    if nome not in SOUND:
+        sys.exit(f'suono {nome!r} non nella vetrina: prima python -I tools/patch.py')
+    return SOUND[nome]
+
+
+def bss(nome):
+    if nome not in BASS:
+        sys.exit(f'basso {nome!r} non nella vetrina')
+    return BASS[nome]
 
 
 def midi(name):
@@ -108,12 +128,28 @@ class Song:
         self.loop.append((t, cmd))
 
     # suono con il suo Perform già scelto (la vetrina applica il Perform del suono: ACC-162)
-    def sound(self, t, snd, note='', perf=None):
+    def sound(self, t, nome, note='', perf=None):
         self.add(t, 'D_FOCUS', 'ENC_SOUND')
-        self.add(t, 'D_SOUND', c=snd, note=note)
+        self.add(t, 'D_SOUND', c=snd(nome), note=note or nome)
         if perf is not None:
             mode, amount = perf
             self.add(t, 'D_PERF', 'PERF_' + mode, amount)
+
+    def bass(self, t, nome):
+        self.add(t, 'D_FOCUS', 'ENC_BASS')
+        self.add(t, 'D_PRESS', 'ENC_BASS', note='basso acceso')
+        self.add(t + 24, 'D_BASS', c=bss(nome), note=nome)
+
+    # ---- batteria a tastiera (ACC-211): "battito:SIGLA[@vel]" per battuta, come le note ----
+    def drums_toggle(self, t):
+        self.add(t, 'D_DRUMS', note='batteria a tastiera')
+
+    def hits(self, bar0, text, vel=100):
+        for i, bar in enumerate(text.split('|')):
+            for tok in bar.split():
+                body, _, v = tok.partition('@')
+                beat, sigla = body.split(':')
+                self.add(self.at(bar0 + i, float(beat)), 'D_HIT', DRUM[sigla], 0, 0, int(v) if v else vel, sigla)
 
     # ---- accordi: "battito:Accordo:durata[@vel]" per battuta, battute separate da | ----
     def chords(self, bar0, text, vel=96, early=0):
@@ -239,7 +275,7 @@ def acacia():
 
     S.prepara(96)
     S.add(48, 'D_FOCUS', 'ENC_SOUND')
-    S.add(48, 'D_SOUND', c=GLASS_POLLEN, note='Glass Pollen, Harp 3')
+    S.add(48, 'D_SOUND', c=snd('Glass Pollen'), note='Glass Pollen, Harp 3')
     S.add(120, 'D_FOCUS', 'ENC_FX')
     S.add(120, 'D_TURN', 'ENC_FX', 2, note='più riverbero')
 
@@ -261,11 +297,11 @@ def acacia():
     # ---- 9 count-in: REC, e intanto Dew Mallet in Pattern 13, il basso Wood Bass, il voicing del loop ----
     S.loop_cmd(at(9), 'PRESS', 'REC: una battuta di count-in, poi 4 da registrare')
     S.add(at(9), 'D_FOCUS', 'ENC_SOUND')
-    S.add(at(9), 'D_SOUND', c=DEW_MALLET, note='Dew Mallet')
+    S.add(at(9), 'D_SOUND', c=snd('Dew Mallet'), note='Dew Mallet')
     S.add(at(9), 'D_PERF', 'PERF_PATTERN', 13, note='Pattern 13: gruppi di tre sedicesimi')
     S.add(at(9, 2), 'D_FOCUS', 'ENC_BASS')
     S.add(at(9, 2), 'D_PRESS', 'ENC_BASS', note='basso acceso')
-    S.add(at(9, 2.5), 'D_BASS', c=WOOD_BASS, note='Wood Bass')
+    S.add(at(9, 2.5), 'D_BASS', c=bss('Wood Bass'), note='Wood Bass')
     S.voicing(at(9, 3), 24)
 
     # ---- 10–13 registrazione: il giro del loop, IV V iii vi, con il Beat ----
@@ -299,7 +335,7 @@ def acacia():
 
     # ---- 34–41 ritornello: Sun Room, il giorno ----
     S.add(at(34), 'D_FOCUS', 'ENC_SOUND')
-    S.add(at(34), 'D_SOUND', c=SUN_ROOM, note='Sun Room: anche il loop cambia suono (ACC-221)')
+    S.add(at(34), 'D_SOUND', c=snd('Sun Room'), note='Sun Room: anche il loop cambia suono (ACC-221)')
     S.add(at(34), 'D_THEME', 'THEME_LIGHT')
     S.add(at(34), 'D_VIEW', 'VIEW_CHORD')
     S.melody(34, CHORUS)
@@ -318,7 +354,7 @@ def acacia():
     S.add(at(50), 'D_BACK')
     S.loop_cmd(at(50), 'STOP', 'pausa del loop')
     S.add(at(50), 'D_FOCUS', 'ENC_SOUND')
-    S.add(at(50), 'D_SOUND', c=FERN_PLUCK, note='Fern Pluck: Arpeggiate 6, sedicesimi su e giù')
+    S.add(at(50), 'D_SOUND', c=snd('Fern Pluck'), note='Fern Pluck: Arpeggiate 6, sedicesimi su e giù')
     S.voicing(at(50), 36)
     S.add(at(50), 'D_THEME', 'THEME_DARK')
     S.add(at(50), 'D_VIEW', 'VIEW_REACT')
@@ -330,7 +366,7 @@ def acacia():
 
     # ---- 58–65 finale: un tono sopra, il loop riprende, la kalimba torna ----
     S.add(at(57, 4.75), 'D_FOCUS', 'ENC_SOUND')
-    S.add(at(57, 4.75), 'D_SOUND', c=DEW_MALLET)
+    S.add(at(57, 4.75), 'D_SOUND', c=snd('Dew Mallet'))
     S.add(at(57, 4.75), 'D_PERF', 'PERF_OFF', 0)
     S.lock_toggle(at(57, 4.75))
     S.voicing(at(57, 4.75), 48)
@@ -346,13 +382,13 @@ def acacia():
     # ---- 66–73 ritornello finale: Sun Room e Funk ----
     S.voicing(at(66), 54)
     S.add(at(66), 'D_FOCUS', 'ENC_SOUND')
-    S.add(at(66), 'D_SOUND', c=SUN_ROOM)
+    S.add(at(66), 'D_SOUND', c=snd('Sun Room'))
     S.add(at(66), 'D_BEAT', FUNK)
     S.add(at(66), 'D_VIEW', 'VIEW_CHORD_KB')
     S.melody(66, CHORUS)
 
     # ---- 74–81 l'ultimo ritornello sulle campane ----
-    S.add(at(74), 'D_SOUND', c=GLASS_POLLEN, note='Glass Pollen: il Lock tiene il Perform spento')
+    S.add(at(74), 'D_SOUND', c=snd('Glass Pollen'), note='Glass Pollen: il Lock tiene il Perform spento')
     S.add(at(74), 'D_VIEW', 'VIEW_NOTES')
     S.melody(74, CHORUS2)
 
@@ -411,7 +447,7 @@ def felce():
     ARPA = '1:Fmaj7:4@78 | 1:G:4@80 | 1:Am7:4@78 | 1:E7:4@82 | 1:Fmaj7:4@80 | 1:G:4@82 | 1:Am7:4@84 | 1:Am7:4@80'
 
     S.prepara(112, bass_voicing=23, voicing=36)
-    S.sound(48, GRAND_PIANO, 'Grand Piano, Strum 2', perf=('STRUM', 2))
+    S.sound(48, 'Grand Piano', 'Grand Piano, Strum 2', perf=('STRUM', 2))
     S.add(120, 'D_FOCUS', 'ENC_FX')
     S.add(120, 'D_TURN', 'ENC_FX', 1, note='un po\' di riverbero')
 
@@ -423,7 +459,7 @@ def felce():
     S.add(at(5), 'D_BEATON', 1)
     S.add(at(5), 'D_FOCUS', 'ENC_BASS')
     S.add(at(5), 'D_PRESS', 'ENC_BASS', note='basso acceso')
-    S.add(at(5, 1.5), 'D_BASS', c=ROUND_ROOT, note='Round Root')
+    S.add(at(5, 1.5), 'D_BASS', c=bss('Round Root'), note='Round Root')
     S.voicing(at(5), 24)
     S.chords(5, (GIRO + ' | ' + GIRO).format(a=92, b=84), early=24)
 
@@ -433,14 +469,14 @@ def felce():
     S.chords(14, GIRO.format(a=82, b=74), early=24)
 
     # ---- 18–25 il loop suona; il vibrafono canta sopra ----
-    S.sound(at(17, 4), VIBRAPHONE, 'Vibraphone', perf=('OFF', 0))
+    S.sound(at(17, 4), 'Vibraphone', 'Vibraphone', perf=('OFF', 0))
     S.lock_toggle(at(17, 4.25))
     S.voicing(at(17, 4.5), 48)
     S.add(at(18), 'D_VIEW', 'VIEW_NOTES')
     S.melody(18, VIBES)
 
     # ---- 26–29 overdub: la kalimba entra nel loop ----
-    S.sound(at(25, 4), KALIMBA, 'Kalimba', perf=('OFF', 0))
+    S.sound(at(25, 4), 'Kalimba', 'Kalimba', perf=('OFF', 0))
     S.voicing(at(25, 4.5), 36)
     S.loop_cmd(at(26), 'OVERDUB', 'overdub')
     S.add(at(26), 'D_VIEW', 'VIEW_CHORD')
@@ -448,7 +484,7 @@ def felce():
     S.loop_cmd(at(30), 'OVERDUB', 'fine dell\'overdub')
 
     # ---- 30–37 il sax tenore ----
-    S.sound(at(30), TENOR_SAX, 'Tenor Sax', perf=('OFF', 0))
+    S.sound(at(30), 'Tenor Sax', 'Tenor Sax', perf=('OFF', 0))
     S.voicing(at(30), 41)                                   # finestra C4…B4
     S.add(at(30), 'D_THEME', 'THEME_LIGHT')
     S.add(at(30), 'D_VIEW', 'VIEW_REACT')
@@ -456,7 +492,7 @@ def felce():
 
     # ---- 38–45 l'arpa: accordi in Harp sopra il loop, poi il loop in pausa ----
     S.lock_toggle(at(37, 4.5))
-    S.sound(at(37, 4.5), CONCERT_HARP, 'Concert Harp, Harp 4', perf=('HARP', 4))
+    S.sound(at(37, 4.5), 'Concert Harp', 'Concert Harp, Harp 4', perf=('HARP', 4))
     S.voicing(at(37, 4.5), 36)
     S.add(at(38), 'D_VIEW', 'VIEW_CHORD')
     S.chords(38, ARPA, early=24)
@@ -464,7 +500,7 @@ def felce():
     S.add(at(42), 'D_BEATON', 0)
 
     # ---- 46–49 coda: glockenspiel in Harp sull'ultimo accordo, ritardando ----
-    S.sound(at(46), GLOCKENSPIEL, 'Glockenspiel, Harp 3', perf=('HARP', 3))
+    S.sound(at(46), 'Glockenspiel', 'Glockenspiel, Harp 3', perf=('HARP', 3))
     S.add(at(46), 'D_THEME', 'THEME_DARK')
     S.add(at(46), 'D_FOCUS', 'ENC_BPM')
     for bar, bpm in {46: 100, 47: 88, 48: 76}.items():
@@ -477,104 +513,207 @@ def felce():
 
 
 # ======================================================================== «Pistillo» (15/10/2026)
-# Mi minore a 124 BPM: FM piano in Pattern con la 808 (Boom Bap), marimba, organo a canne nel loop,
-# poi Disco con il flauto dolce e le campane tubolari.
+# Mi minore a 124 BPM. Apre con la batteria a tastiera: il loop di batteria si suona con i tasti
+# (il kit 808 del Beat Boom Bap), poi sopra entrano FM piano, marimba, organo a canne nel loop,
+# flauto dolce e campane tubolari.
 def pistillo():
     S = Song('Demo song: Pistillo')
     at = Song.at
     GIRO = '1:Em9:2@{a} 3:Em7:2@{b} | 1:Cmaj7:2@{a} 3:Cmaj7:2@{b} | 1:G:2@{a} 3:G6:2@{b} | 1:D7sus:2@{a} 3:D:2@{b}'
+    GROOVE = ('1:KK@124 2:SN@114 2.5:KK@92 3:KK@118 4:SN@114 |'
+              '1:KK@124 2:SN@114 3.5:KK@96 4:SN@114 4.75:KK@80 |'
+              '1:KK@124 2:SN@114 2.5:KK@92 3:KK@118 4:SN@114 |'
+              '1:KK@124 2:SN@114 3.5:KK@96 4:SN@118 4.5:SN@80')
+    HATS = ('1:CH@84 1.5:CH@60 2:CH@84 2.5:CH@60 3:CH@84 3.5:CH@60 4:CH@84 4.5:OH@76 |' * 3
+            + '1:CH@84 1.5:CH@60 2:CH@84 2.5:CP@96 3:CH@84 3.5:CH@60 4:CP@100 4.5:OH@76')
     MELODIA_MARIMBA = ('1:E5:.5@100 1.5:G5:.5@86 2:B5:1@96 3:A5:.5@90 3.5:G5:.5@84 4:E5:1@92 |'
-               '1:A5:.5@102 1.5:B5:.5@88 2:G5:1@96 3:E5:1@92 4:D5:1@86 |'
-               '1:D5:.5@98 1.5:G5:.5@86 2:B5:1@96 3:A5:1@100 4:B5:1@90 |'
-               '1:A5:1.5@98 2.5:F#5:.5@86 3:D5:2@94 |'
-               '1:E5:.5@100 1.5:G5:.5@86 2:B5:1@96 3:A5:.5@92 3.5:B5:.5@86 4:G5:1@92 |'
-               '1:B5:1@104 2:A5:.5@90 2.5:G5:.5@88 3:E5:1@94 4:D5:1@90 |'
-               '1:F#5:1@96 2:G5:1@92 3:A5:1@96 4:B5:1@100 |'
-               '1:E5:3@102')
+                       '1:A5:.5@102 1.5:B5:.5@88 2:G5:1@96 3:E5:1@92 4:D5:1@86 |'
+                       '1:D5:.5@98 1.5:G5:.5@86 2:B5:1@96 3:A5:1@100 4:B5:1@90 |'
+                       '1:A5:1.5@98 2.5:F#5:.5@86 3:D5:2@94 |'
+                       '1:E5:.5@100 1.5:G5:.5@86 2:B5:1@96 3:A5:.5@92 3.5:B5:.5@86 4:G5:1@92 |'
+                       '1:B5:1@104 2:A5:.5@90 2.5:G5:.5@88 3:E5:1@94 4:D5:1@90 |'
+                       '1:F#5:1@96 2:G5:1@92 3:A5:1@96 4:B5:1@100 |'
+                       '1:E5:3@102')
     ORGANO = '1:Em9:4@80 | 1:Cmaj7:4@80 | 1:G:4@82 | 1:D7sus:4@82'
-    FLAUTO = ('1:B4:1.5@96 2.5:A4:.5@84 3:G4:1@92 4:E4:1@88 |'
-              '1:G4:2@96 3:A4:1@90 4:B4:1@94 |'
-              '1:B4:1.5@100 2.5:A4:.5@86 3:G4:1@92 4:E4:1@88 |'
-              '1:F#4:2@94 3:D4:2@90 |'
-              '1:E4:1@92 2:G4:1@90 3:B4:1.5@98 4.5:A4:.5@86 |'
-              '1:G4:1@94 2:E4:1@88 3:D4:2@92 |'
-              '1:B4:1@98 2:A4:1@100 3:B4:.5@90 3.5:A4:.5@86 4:G4:1@92 |'
-              '1:E4:3@96')
-    CAMPANE = '1:Em9:4@96 | 3:Cmaj7:2@92 | 1:G:4@94 | 3:D7sus:2@92 | 1:Em9:4@98 | 3:Cmaj7:2@94 | 1:G:2@96 3:D:2@100 | 1:Em9:4@104'
+    FLAUTO = ('1:B5:1.5@96 2.5:A5:.5@84 3:G5:1@92 4:E5:1@88 |'
+              '1:G5:2@96 3:A5:1@90 4:B5:1@94 |'
+              '1:B5:1.5@100 2.5:A5:.5@86 3:G5:1@92 4:E5:1@88 |'
+              '1:F#5:2@94 3:D5:2@90 |'
+              '1:E5:1@92 2:G5:1@90 3:B5:1.5@98 4.5:A5:.5@86 |'
+              '1:G5:1@94 2:E5:1@88 3:D5:2@92 |'
+              '1:B5:1@98 2:A5:1@100 3:B5:.5@90 3.5:A5:.5@86 4:G5:1@92 |'
+              '1:E5:3@96')
+    CAMPANE = '1:Em9:4@84 | 3:Cmaj7:2@80 | 1:G:4@82 | 3:D7sus:2@80 | 1:Em9:4@86 | 3:Cmaj7:2@82 | 1:G:2@84 3:D:2@88 | 1:Em9:4@92'
 
     S.prepara(124, bass_voicing=23, voicing=36)
-    S.sound(48, FM_PIANO, 'FM Piano, Pattern 5', perf=('PATTERN', 5))
+    S.add(48, 'D_BEAT', BOOM_BAP, note='Beat Boom Bap scelto ma spento: il suo kit è la 808')
+    S.add(72, 'D_PTURN', 'ENC_BPM', 27, note='Beat Volume al massimo: la batteria suona da sola')
+    S.drums_toggle(96)
 
-    # ---- 1–4 intro: FM piano in Pattern, da solo ----
-    S.chords(1, GIRO.format(a=90, b=82), early=24)
+    # ---- 1 count-in, 2–5 la batteria si suona con i tasti e va nel loop; 6–9 overdub con charleston e battimani ----
+    S.loop_cmd(at(1), 'PRESS', 'REC: count-in, poi 4 battute di batteria dai tasti')
+    S.hits(2, GROOVE)
+    S.loop_cmd(at(6), 'OVERDUB', 'overdub: charleston e battimani')
+    S.hits(6, HATS)
+    S.loop_cmd(at(10), 'OVERDUB', 'fine dell\'overdub: il loop di batteria gira da solo')
 
-    # ---- 5–12 Boom Bap con la 808 e il Sub Floor ----
-    S.add(at(5), 'D_BEAT', BOOM_BAP, note='Beat: Boom Bap, kit 808')
-    S.add(at(5), 'D_BEATON', 1)
-    S.add(at(5), 'D_FOCUS', 'ENC_BASS')
-    S.add(at(5), 'D_PRESS', 'ENC_BASS', note='basso acceso')
-    S.add(at(5, 1.5), 'D_BASS', c=SUB_FLOOR, note='Sub Floor')
-    S.voicing(at(5), 24)
-    S.chords(5, (GIRO + ' | ' + GIRO).format(a=94, b=84), early=24)
+    # ---- 10–17 via la batteria a tastiera: FM piano in Pattern e Sub Floor sopra il loop ----
+    S.drums_toggle(at(10))
+    S.add(at(10, 1.25), 'D_PTURN', 'ENC_BPM', -19, note='Beat Volume giù, sotto gli strumenti')
+    S.sound(at(10), 'FM Piano', 'FM Piano, Pattern 5', perf=('PATTERN', 5))
+    S.bass(at(10, 1.5), 'Sub Floor')
+    S.voicing(at(10), 24)
+    S.chords(10, (GIRO + ' | ' + GIRO).format(a=94, b=84), early=24)
 
-    # ---- 13 count-in, 14–17 il giro del FM piano nel loop ----
-    S.loop_cmd(at(13), 'PRESS', 'REC: count-in, poi 4 battute')
-    S.add(at(13), 'D_VIEW', 'VIEW_CHORD_KB')
-    S.chords(14, GIRO.format(a=96, b=86), early=24)
+    # ---- 18–21 overdub: il giro del FM piano nel loop ----
+    S.loop_cmd(at(18), 'OVERDUB', 'overdub: il giro del FM piano')
+    S.add(at(18), 'D_VIEW', 'VIEW_CHORD_KB')
+    S.chords(18, GIRO.format(a=96, b=86), early=24)
+    S.loop_cmd(at(22), 'OVERDUB', 'fine dell\'overdub')
 
-    # ---- 18–25 marimba sopra il loop ----
-    S.sound(at(17, 4), MARIMBA, 'Marimba', perf=('OFF', 0))
-    S.lock_toggle(at(17, 4.25))
-    S.voicing(at(17, 4.5), 48)
-    S.add(at(18), 'D_VIEW', 'VIEW_NOTES')
-    S.melody(18, MELODIA_MARIMBA, gate=0.9)
+    # ---- 22–29 marimba sopra il loop ----
+    S.sound(at(21, 4), 'Marimba', perf=('OFF', 0))
+    S.lock_toggle(at(21, 4.25))
+    S.voicing(at(21, 4.5), 48)
+    S.add(at(22), 'D_VIEW', 'VIEW_NOTES')
+    S.melody(22, MELODIA_MARIMBA, gate=0.9)
 
-    # ---- 26–29 overdub: l'organo a canne tiene gli accordi nel loop ----
-    S.sound(at(25, 4), PIPE_ORGAN, 'Pipe Organ', perf=('OFF', 0))
-    S.voicing(at(25, 4.5), 36)
-    S.loop_cmd(at(26), 'OVERDUB', 'overdub')
-    S.add(at(26), 'D_VIEW', 'VIEW_CHORD')
-    S.chords(26, ORGANO, early=24)
-    S.loop_cmd(at(30), 'OVERDUB', 'fine dell\'overdub')
+    # ---- 30–33 overdub: l'organo a canne tiene gli accordi nel loop ----
+    S.sound(at(29, 4), 'Pipe Organ', perf=('OFF', 0))
+    S.voicing(at(29, 4.5), 36)
+    S.loop_cmd(at(30), 'OVERDUB', 'overdub: organo')
+    S.add(at(30), 'D_VIEW', 'VIEW_CHORD')
+    S.chords(30, ORGANO, early=24)
+    S.loop_cmd(at(34), 'OVERDUB', 'fine dell\'overdub')
 
-    # ---- 30–37 Disco con il kit studio: il flauto dolce ----
-    S.add(at(30), 'D_BEAT', DISCO, note='Beat: Disco, kit studio')
-    S.add(at(30), 'D_THEME', 'THEME_LIGHT')
-    S.sound(at(30), ALTO_RECORDER, 'Alto Recorder', perf=('OFF', 0))
-    S.voicing(at(30), 41)                                   # finestra C4…B4
-    S.add(at(30), 'D_VIEW', 'VIEW_REACT')
-    S.melody(30, FLAUTO, gate=0.9)
+    # ---- 34–41 il flauto dolce, tema Giorno ----
+    S.add(at(34), 'D_THEME', 'THEME_LIGHT')
+    S.sound(at(34), 'Alto Recorder', perf=('OFF', 0))
+    S.voicing(at(34), 53)                                   # finestra C5…B5
+    S.add(at(34), 'D_VIEW', 'VIEW_REACT')
+    S.melody(34, FLAUTO, gate=0.9)
 
-    # ---- 38–45 campane tubolari e un tono sopra ----
-    S.lock_toggle(at(37, 4.5))
-    S.sound(at(37, 4.5), TUBULAR_BELLS, 'Tubular Bells', perf=('OFF', 0))
-    S.voicing(at(37, 4.5), 36)
-    S.add(at(38), 'D_VIEW', 'VIEW_CHORD')
-    S.add(at(38), 'D_FOCUS', 'ENC_KEY')
-    S.add(at(38), 'D_PTURN', 'ENC_KEY', 2, note='transpose +2: anche il loop sale (ACC-221)')
-    S.chords(38, CAMPANE, early=24)
+    # ---- 42–49 campane tubolari e un tono sopra ----
+    S.lock_toggle(at(41, 4.5))
+    S.sound(at(41, 4.5), 'Tubular Bells', perf=('OFF', 0))
+    S.voicing(at(41, 4.5), 36)
+    S.add(at(42), 'D_VIEW', 'VIEW_CHORD')
+    S.add(at(42), 'D_FOCUS', 'ENC_KEY')
+    S.add(at(42), 'D_PTURN', 'ENC_KEY', 2, note='transpose +2: anche il loop sale (ACC-221)')
+    S.chords(42, CAMPANE, early=24)
 
-    # ---- 46–49 coda: via l'organo (Undo), poi tutto si ferma sull'ultimo accordo di arpa ----
-    S.loop_cmd(at(46), 'UNDO', 'Undo: via l\'organo')
-    S.add(at(46), 'D_BEATON', 0)
-    S.add(at(46), 'D_THEME', 'THEME_DARK')
-    S.sound(at(46), CONCERT_HARP, 'Concert Harp, Harp 4', perf=('HARP', 4))
-    S.add(at(46), 'D_FOCUS', 'ENC_BPM')
-    for bar, bpm in {46: 110, 47: 96, 48: 84}.items():
+    # ---- 50–53 coda: via l'organo (Undo), poi tutto si ferma sull'ultimo accordo di arpa ----
+    S.loop_cmd(at(50), 'UNDO', 'Undo: via l\'organo')
+    S.add(at(50), 'D_THEME', 'THEME_DARK')
+    S.sound(at(50), 'Concert Harp', 'Concert Harp, Harp 4', perf=('HARP', 4))
+    S.add(at(50), 'D_FOCUS', 'ENC_BPM')
+    for bar, bpm in {50: 110, 51: 96, 52: 84}.items():
         S.add(at(bar), 'D_BPM', c=bpm, note=f'ritardando: {bpm} BPM')
-    S.loop_cmd(at(46), 'CLEAR', 'Clear')
-    S.chords(46, '1:Em9:8@96')
-    S.voicing(at(47), 41)
-    S.voicing(at(48), 46)
-    return S, 50
+    S.loop_cmd(at(52), 'CLEAR', 'Clear')
+    S.chords(50, '1:Em9:8@96')
+    S.voicing(at(51), 41)
+    S.voicing(at(52), 46)
+    return S, 54
+
+
+# ======================================================================== «Alga» (15/10/2026)
+# Lento, sott'acqua, Mi maggiore a 72 BPM: un pad in Harp, il giro nel loop, campane a mano,
+# glockenspiel in overdub, ocarina, pad di ghiaccio e bicchieri. Brano originale nello spirito delle
+# musiche subacquee dei videogiochi anni '90 (Luigi: «quella musica bellissima di DK Country»).
+def alga():
+    S = Song('Demo song: Alga')
+    at = Song.at
+    GIRO = '1:Emaj7:4@{a} | 1:C#m7:4@{b} | 1:Amaj7:4@{a} | 1:Bsus9:2@{b} 3:B7sus:2@{b}'
+    CAMPANE = ('1:B5:2@80 3:G#5:1@70 4:E5:1@66 |'
+               '2:C#5:2@72 4:E5:1@64 |'
+               '1:A5:1.5@78 2.5:G#5:.5@66 3:E5:2@70 |'
+               '1:F#5:2@74 3:B5:2@80 |'
+               '1:G#5:2@78 3:E5:1@68 4:C#5:1@64 |'
+               '2:E5:2@72 4:F#5:1@66 |'
+               '1:A5:1.5@80 2.5:B5:.5@70 3:G#5:2@76 |'
+               '1:E5:4@74')
+    FROST = ('1:G#5:2@70 3:B5:2@66 | 1:E5:4@68 | 1:C#5:2@70 3:E5:2@66 | 1:F#5:4@68 |'
+             '1:G#5:2@70 3:A5:2@66 | 1:B5:4@72 | 1:A5:2@68 3:G#5:2@66 | 1:E5:4@70')
+    OCARINA = ('1:E5:2@84 3:F#5:1@74 4:G#5:1@78 |'
+               '1:B5:3@88 4:A5:1@72 |'
+               '1:G#5:2@84 3:E5:2@76 |'
+               '2:F#5:2@80 4:E5:1@70 |'
+               '1:C#5:2@82 3:E5:1@74 4:F#5:1@78 |'
+               '1:G#5:3@88 4:F#5:1@72 |'
+               '1:E5:2@84 3:B5:2@86 |'
+               '1:A5:2@80 3:G#5:2@78')
+
+    S.prepara(72, bass_voicing=23, voicing=36)
+    S.sound(48, 'Vetro Pad', perf=('OFF', 0))
+    S.add(120, 'D_FOCUS', 'ENC_FX')
+    S.add(120, 'D_TURN', 'ENC_FX', 2, note='riverbero su')
+
+    # ---- 1–8 il fondale: il pad, lento ----
+    S.chords(1, (GIRO + ' | ' + GIRO).format(a=72, b=68), early=48)
+
+    # ---- 9 count-in, 10–13 il giro nel loop con Moonflower e il basso Peat Sub ----
+    S.sound(at(9), 'Moonflower', perf=('OFF', 0))
+    S.bass(at(9, 2), 'Peat Sub')
+    S.voicing(at(9, 3), 24)
+    S.loop_cmd(at(9), 'PRESS', 'REC: count-in, poi 4 battute')
+    S.add(at(9), 'D_VIEW', 'VIEW_CHORD_KB')
+    S.chords(10, GIRO.format(a=66, b=62), early=48)
+
+    # ---- 14–21 le campane a mano ----
+    S.sound(at(13, 4), 'Hand Chimes', perf=('OFF', 0))
+    S.lock_toggle(at(13, 4.25))
+    S.voicing(at(13, 4.5), 48)
+    S.add(at(14), 'D_VIEW', 'VIEW_NOTES')
+    S.melody(14, CAMPANE)
+
+    # ---- 22–25 overdub: il glockenspiel in Harp sopra il giro ----
+    S.lock_toggle(at(21, 4.5))
+    S.sound(at(21, 4.5), 'Glockenspiel', 'Glockenspiel, Harp 1', perf=('HARP', 1))
+    S.voicing(at(21, 4.5), 48)
+    S.loop_cmd(at(22), 'OVERDUB', 'overdub: glockenspiel')
+    S.add(at(22), 'D_VIEW', 'VIEW_CHORD')
+    S.chords(22, GIRO.format(a=60, b=56), early=48)
+    S.loop_cmd(at(26), 'OVERDUB', 'fine dell\'overdub')
+
+    # ---- 26–33 l'ocarina ----
+    S.sound(at(26), 'Ocarina', perf=('OFF', 0))
+    S.lock_toggle(at(26, 1.25))
+    S.voicing(at(26), 53)                                   # finestra C5…B5
+    S.add(at(26), 'D_VIEW', 'VIEW_REACT')
+    S.melody(26, OCARINA, vel=80, gate=0.95)
+
+    # ---- 34–41 il Beat Ballad, piano, e il pad di ghiaccio che canta sopra il giro; il giorno ----
+    S.lock_toggle(at(33, 4.5))
+    S.sound(at(33, 4.5), 'Frost Pad', perf=('OFF', 0))
+    S.voicing(at(33, 4.5), 53)                              # finestra C5…B5
+    S.add(at(34), 'D_BEAT', BALLAD)
+    S.add(at(34), 'D_BEATON', 1, note='Beat: Ballad, kit studio')
+    S.add(at(34), 'D_THEME', 'THEME_LIGHT')
+    S.add(at(34), 'D_VIEW', 'VIEW_NOTES')
+    S.melody(34, FROST, gate=0.95)
+
+    # ---- 42–45 la risalita: via il glockenspiel, Beat spento, ritardando, i bicchieri ----
+    S.loop_cmd(at(42), 'UNDO', 'Undo: via il glockenspiel')
+    S.add(at(42), 'D_BEATON', 0)
+    S.sound(at(41, 4.5), 'Wine Glasses', perf=('OFF', 0))
+    S.voicing(at(41, 4.5), 36)
+    S.lock_toggle(at(42, 1.25))
+    S.add(at(42), 'D_VIEW', 'VIEW_CHORD')
+    S.add(at(42), 'D_FOCUS', 'ENC_BPM')
+    for bar, bpm in {42: 66, 43: 60, 44: 54}.items():
+        S.add(at(bar), 'D_BPM', c=bpm, note=f'ritardando: {bpm} BPM')
+    S.loop_cmd(at(44), 'CLEAR', 'Clear')
+    S.chords(42, '1:Emaj7:12@52')
+    S.add(at(45, 3), 'D_THEME', 'THEME_DARK')
+    return S, 46
 
 
 # ======================================================================== uscita
-BRANI = [acacia, felce, pistillo]
+BRANI = [acacia, felce, pistillo, alga]
 
 
 def main():
-    out = ['/* demo_song.c — i brani della demo (demo.h): «Acacia», «Felce» e «Pistillo», brani originali di Stame.',
+    out = ['/* demo_song.c — i brani della demo (demo.h): «Acacia», «Felce», «Pistillo» e «Alga», brani originali di Stame.',
            ' *',
            ' * Generato da tools/demo.py: non va modificato a mano. Tick a 96 PPQN dall\'inizio di ogni brano.',
            ' */',

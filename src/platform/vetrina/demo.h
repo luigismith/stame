@@ -33,6 +33,8 @@ enum {
     D_BPM,      /* c = BPM: ci arriva girando BPM */
     D_OPT,      /* a = ACC_OPT_*, b = valore: preparazione, senza overlay */
     D_TITLE,    /* il titolo del brano nel messaggio della piattaforma */
+    D_DRUMS,    /* batteria a tastiera on/off (Mod + BPM, ACC-211) */
+    D_HIT,      /* a = tasto 0…11 (strumento del kit), d = velocity: un colpo della batteria a tastiera */
     D_END       /* fine: il brano ricomincia */
 };
 

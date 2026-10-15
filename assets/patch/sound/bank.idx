@@ -27,3 +27,53 @@
 27	Pipe Organ	27_pipe_organ.inc	0	0
 28	Alto Recorder	28_alto_recorder.inc	0	0
 29	Tenor Sax	29_tenor_sax.inc	0	0
+30	TX Piano	30_tx_piano.inc	1	2
+31	Clavisynth	31_clavisynth.inc	6	5
+32	Knight Upright	32_knight_upright.inc	0	0
+33	Italian Cembalo	33_italian_cembalo.inc	1	3
+34	Lute Stop	34_lute_stop.inc	4	4
+35	Grand Organ	35_grand_organ.inc	0	0
+36	Flute Organ	36_flute_organ.inc	0	0
+37	Full Organ	37_full_organ.inc	0	0
+38	Sop. Recorder	38_sop_recorder.inc	0	0
+39	Tenor Recorder	39_tenor_recorder.inc	0	0
+40	Bass Recorder	40_bass_recorder.inc	0	0
+41	Ocarina	41_ocarina.inc	0	0
+42	Harmonica	42_harmonica.inc	0	0
+43	Chromatic Harp	43_chromatic_harp.inc	0	0
+44	Saxello	44_saxello.inc	0	0
+45	Didgeridoo	45_didgeridoo.inc	0	0
+46	Strumstick	46_strumstick.inc	1	4
+47	Dan Tranh	47_dan_tranh.inc	7	5
+48	Bowed Psaltery	48_bowed_psaltery.inc	0	0
+49	Pluck Psaltery	49_pluck_psaltery.inc	5	3
+50	Mbira	50_mbira.inc	6	9
+51	Nyunga Nyunga	51_nyunga_nyunga.inc	6	11
+52	Kenya Kalimba	52_kenya_kalimba.inc	4	5
+53	Hand Chimes	53_hand_chimes.inc	7	2
+54	Tube Glock	54_tube_glock.inc	7	3
+55	Bowed Vibes	55_bowed_vibes.inc	0	0
+56	Balafon	56_balafon.inc	4	6
+57	Xylophone	57_xylophone.inc	1	1
+58	Wine Glasses	58_wine_glasses.inc	0	0
+59	Moonflower	59_moonflower.inc	0	0
+60	Thistle Lead	60_thistle_lead.inc	5	4
+61	Lichen Organ	61_lichen_organ.inc	0	0
+62	Nectar EP	62_nectar_ep.inc	1	2
+63	Ivy Pluck	63_ivy_pluck.inc	4	6
+64	Bramble Brass	64_bramble_brass.inc	1	1
+65	Cocoon Pad	65_cocoon_pad.inc	0	0
+66	Spore Bells	66_spore_bells.inc	7	4
+67	Rootstock	67_rootstock.inc	0	0
+68	Birch Keys	68_birch_keys.inc	1	2
+69	Pollen Choir	69_pollen_choir.inc	0	0
+70	Reed Marsh	70_reed_marsh.inc	0	0
+71	Clover Strings	71_clover_strings.inc	0	0
+72	Frost Pad	72_frost_pad.inc	0	0
+73	Cactus Pluck	73_cactus_pluck.inc	6	7
+74	Heliotrope	74_heliotrope.inc	4	3
+75	Underbrush	75_underbrush.inc	0	0
+76	Dandelion	76_dandelion.inc	7	3
+77	Sundew	77_sundew.inc	3	5
+78	Lotus Flute	78_lotus_flute.inc	0	0
+79	Pine Organ	79_pine_organ.inc	0	0

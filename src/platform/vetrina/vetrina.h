@@ -82,6 +82,7 @@ typedef struct {
     uint8_t     demo_on;              /* preferenza: demo automatica permessa */
     uint8_t     demo_running;
     uint32_t    demo_t0, last_input_ms;
+    uint8_t     demo_theme;           /* il tema di chi suona, da rimettere quando la demo si ferma */
     uint32_t    demo_tick0;           /* tick del motore a cui comincia il brano */
     int         demo_step;
     uint8_t     demo_song;            /* quale brano di vet_demo_songs; alla fine passa al successivo */
