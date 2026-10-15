@@ -98,7 +98,7 @@ Ogni fase si chiude con l'ascolto di Luigi, non solo con le prove automatiche.
 | **Play Style** | come i tasti accordo e la tastiera interagiscono (Simple, Advanced, Free) |
 | **Perform** | modi di esecuzione: Strum, Slop, Arp, Pattern, Harp… |
 | **Fuoco** | il controllo rotante del pannello a cui vanno m2 del macro pad, « », joystick e croce della Flip |
-| **Macro pad** | il BRIMFORD CusKeyboard0227 (USB `1189:8840`): 15 tasti (T1–T12 assegnati, T13–T15 da decidere) e 3 manopole (M, m1, m2), profilo `pad_brimford` |
+| **Macro pad** | il BRIMFORD CusKeyboard0227 (USB `1189:8840`): 15 tasti (T1–T12 i pulsanti e i comandi di sistema; T13 Lock delle manopole, T14 View, T15 Page: 40 MIDI-131, MIDI-132) e 3 manopole (M, m1, m2), profilo `pad_brimford` |
 | **PUSH** | B8 o X della Flip tenuto: la manopola della MPK toccata viene "premuta"; riserva per quando il macro pad non c'è |
 | **Pistil** | editor ufficiale dei suoni dell'Orchid; Stame legge il suo formato `.inc` |
 | **`ui_model_t`** | lo stato completo da mostrare, prodotto dal nucleo e disegnato dai renderer |
@@ -108,4 +108,4 @@ Ogni fase si chiude con l'ascolto di Luigi, non solo con le prove automatiche.
 | **Cartellino di Linneo** | la classe dell'accordo contata in stami: TRIANDRIA per tre note, TETRANDRIA per quattro; nella vista Geek Out (UI-161) |
 | **Plancia calma** | la plancia della Flip dal 15/10/2026: quattro cose mentre si suona, i comandi e il dettaglio a richiesta (UI-140) |
 | **Banda** | la riga in fondo alla plancia: il controllo appena toccato in grande, a riposo il suono (UI-154) |
-| **Pagina dei comandi** | le 11 celle dei controlli al posto della tastiera, aperte dai tasti del fuoco della Flip e chiuse dopo 5 s (UI-142a) |
+| **Pagina dei comandi** | le 11 celle dei controlli al posto della tastiera, aperte dai tasti del fuoco della Flip e chiuse dopo 5 s, oppure aperte e tenute da T15 del macro pad (UI-142a) |

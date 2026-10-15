@@ -71,6 +71,8 @@ typedef struct {
     uint32_t    list_ms;
     uint8_t     list_owner;
     uint32_t    page_until;           /* pagina dei comandi aperta fino a qui (UI-142a) */
+    uint8_t     page_pinned;          /* aperta da T15 del macro pad, finché non lo si ripreme o B (MIDI-132) */
+    uint8_t     view_back;            /* la vista a cui T14 torna da Geek Out */
 
     /* demo automatica: il brano va a tick del motore (demo.h) */
     uint8_t     demo_on;              /* preferenza: demo automatica permessa */

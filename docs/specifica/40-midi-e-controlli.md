@@ -560,17 +560,17 @@ Gli encoder dell'Orchid si premono, le manopole della MPK no. Luigi ha aggiunto 
 ```
   MPK mini Plus: manopole               Macro pad BRIMFORD, tenuto con le manopole a destra
   K1 Sound  K2 Perform  K3 FX  K4 Key    T1 Sound    T2 Perform  T3 FX   T4 Key    T13 Lock    m1   m2
-  K5 Bass   K6 Loop     K7 BPM K8 Vol    T5 Bass     T6 Loop     T7 BPM  T8 Volume T14 Stop
-                                         T9 Options  T10 Back    T11 Menu T12 Panic T15 Undo      M
+  K5 Bass   K6 Loop     K7 BPM K8 Vol    T5 Bass     T6 Loop     T7 BPM  T8 Volume T14 View
+                                         T9 Options  T10 Back    T11 Menu T12 Panic T15 Page      M
 ```
 
 | Fila del pad | col. 1 | col. 2 | col. 3 | col. 4 | col. 5 | Manopole |
 |---|---|---|---|---|---|---|
 | in alto | T1 Sound | T2 Perform | T3 FX | T4 Key | **T13 Lock** | m1 Bass Voicing (piccola vicina ai tasti), m2 liste e fuoco (piccola sul bordo); con il Lock acceso Perform e Key (MIDI-131) |
-| in mezzo | T5 Bass | T6 Loop | T7 BPM | T8 Volume | **T14 Stop** | |
-| in basso | T9 Options | T10 Back | T11 Menu | T12 Panic | **T15 Undo** | M Chord Voicing (la grande); con il Lock acceso Sound |
+| in mezzo | T5 Bass | T6 Loop | T7 BPM | T8 Volume | **T14 View** | |
+| in basso | T9 Options | T10 Back | T11 Menu | T12 Panic | **T15 Page** | M Chord Voicing (la grande); con il Lock acceso Sound |
 
-Le prime 4 colonne restano le gemelle delle manopole della MPK decise il 13/10. La quinta colonna, accanto alle manopole, è del 15/10/2026: **T13 Lock** è deciso da Luigi (MIDI-131); **Stop** e **Undo**, i comandi del looper (ACC-222), sono una proposta di Claude in attesa del sì. Con la MK4 il trasporto sta a destra sotto K4 e K8, a pochi centimetri dal pad (foto del 15/10/2026), quindi T14 e T15 sarebbero doppioni: l'alternativa proposta è vista (Chord ↔ Geek Out) e pagina dei comandi della Flip.
+Le prime 4 colonne restano le gemelle delle manopole della MPK decise il 13/10. La quinta colonna, accanto alle manopole, è **decisa da Luigi il 15/10/2026**: **T13 Lock** (MIDI-131), **T14 View** e **T15 Page** (MIDI-132). Stop e Undo del looper, proposti al mattino, non servono sul pad: con la MK4 il trasporto sta a destra sotto K4 e K8, a pochi centimetri dal pad (foto del 15/10/2026).
 
 - **MIDI-120** — Il profilo `pad_brimford` DEVE applicare questa mappa [D, **13/10/2026**]. I codici sono quelli programmati sul macro pad (MIDI-122) o imparati con Learn Pad (MIDI-123); al profilo arrivano già tradotti nei codici portabili `MPAD_*` (MIDI-124):
 
@@ -589,8 +589,8 @@ Le prime 4 colonne restano le gemelle delle manopole della MPK decise il 13/10. 
 | **T11** | K | `PNL_MACRO(MACRO_SYSTEM_MENU)` alla pressione | Menu della piattaforma (`30` UI-129) |
 | **T12** | L | `PNL_MACRO(MACRO_PANIC)` **solo dopo 1 s tenuto** (MIDI-126) | Panic (§7) |
 | **T13** | M | `PNL_MACRO(MACRO_KNOB_LOCK, 1/0)` alla pressione, a scatto | **Lock** delle manopole, come il Caps Lock (MIDI-131): acceso, M, m1 e m2 sono Sound, Perform e Key [D, **deciso da Luigi il 15/10/2026**] |
-| **T14** | N | `PNL_MACRO(MACRO_LOOP_STOP)`; tenuto 1 s anche `MACRO_LOOP_CLEAR` (`MPAD_CLEAR_HOLD_US`) | **Stop** del looper; tenuto: Clear [D, 15/10/2026] |
-| **T15** | O | `PNL_MACRO(MACRO_LOOP_UNDO)` | **Undo** del looper: toglie l'ultimo strato; con il solo strato 0 diventa Clear [D, 15/10/2026] |
+| **T14** | N | `PNL_MACRO(MACRO_VIEW_TOGGLE)` alla pressione | **View**: Geek Out e ritorno alla vista di prima (MIDI-132) [D, **deciso da Luigi il 15/10/2026**] |
+| **T15** | O | `PNL_MACRO(MACRO_CONTROLS_PAGE)` alla pressione | **Page**: apre la pagina dei comandi della Flip e la tiene aperta; un altro tocco o B la chiude (MIDI-132) [D, **deciso da Luigi il 15/10/2026**] |
 | **M** antioraria / oraria | 9 / 7 (strato 1: volume giù / su) | `PNL_ENC_TURN(ENC_CHORD_VOICING, −1/+1)`, uno scatto per evento | Chord Voicing Dial |
 | **M** pressione | 8 (strato 1: muto) | `PNL_ENC_DOWN/UP(ENC_CHORD_VOICING)` | Pulsante del Chord Voicing: Split ↔ Octave |
 | **m1** antioraria / oraria | 1 / 3 | `PNL_ENC_TURN(ENC_BASS_VOICING, −1/+1)` | Bass Voicing Dial: registro (ottava) del basso |
@@ -693,6 +693,11 @@ layers:
   - allo scollegamento del macro pad il Lock si spegne (`MACRO_KNOB_LOCK` 0 prima di `PNL_SRC_LOST`); all'avvio è spento e non si ricorda;
   - il Lock non tocca K1–K8 della MPK, T1–T12, il PUSH né i tasti della Flip. Premere una manopola con il Lock acceso porta il fuoco sul suo encoder, come MIDI-104.
 
+- **MIDI-132** — **View e Page** [D, **decisi da Luigi il 15/10/2026**]. Due tasti per guardare la Flip senza allungare la mano fino ai suoi tasti:
+  - **T14 View** emette `PNL_MACRO(MACRO_VIEW_TOGGLE)` alla pressione: la UI passa a **Geek Out** e, al tocco successivo, torna alla vista in uso prima (`30` UI-051: Options → View resta la strada dell'Orchid per le sei viste);
+  - **T15 Page** emette `PNL_MACRO(MACRO_CONTROLS_PAGE)` alla pressione: la UI apre la **pagina dei comandi** (`30` UI-142a) e la tiene aperta finché non arriva un altro `MACRO_CONTROLS_PAGE` o un `PNL_BACK`; i 5 s dei tasti della Flip non la chiudono;
+  - tutti e due agiscono solo alla pressione: tenerli non ripete nulla. Non cambiano suono, trasporto né looper.
+
 ---
 
 ## 9. Tasti fisici della Flip
@@ -778,7 +783,10 @@ typedef enum {                      /* gli 8 tasti accordo */
 } chord_btn_t;
 
 typedef enum {
-    MACRO_LOOP_STOP, MACRO_LOOP_CLEAR, MACRO_PANIC, MACRO_SYSTEM_MENU
+    MACRO_LOOP_STOP, MACRO_LOOP_CLEAR, MACRO_PANIC, MACRO_SYSTEM_MENU, MACRO_LOOP_UNDO, MACRO_LOOP_OVERDUB,
+    MACRO_KNOB_LOCK,                /* b = 1 acceso, 0 spento (MIDI-131) */
+    MACRO_VIEW_TOGGLE,              /* Geek Out <-> la vista di prima (MIDI-132) */
+    MACRO_CONTROLS_PAGE             /* apre o chiude la pagina dei comandi della Flip (MIDI-132) */
 } macro_t;
 
 typedef enum {
@@ -1045,7 +1053,7 @@ Per il principio di fedeltà queste opzioni esistono ma partono spente [D].
 | VP-2 | Il software sikaicase o `ch57x-keyboard-tool` ammettono F13–F24 e KP1–KP9? Nomi esatti nel file YAML; la configurazione resta dopo lo scollegamento? | Sì; altrimenti Learn Pad | MIDI-122, MIDI-123 |
 | VP-3 | Pressione dei tasti e delle manopole: arrivano «giù» alla pressione e «su» al rilascio, o un tocco istantaneo? Ripetizione automatica? | **Chiusa il 15/10/2026: giù e su separati** [O]; ripetizione automatica solo quella del sistema | MIDI-121, MIDI-125, MIDI-126 |
 | VP-4 | Rotazioni: un evento per scatto? Scatti veloci persi o accorpati (girare 20 scatti in fretta e contarli)? Le manopole hanno davvero gli scatti? | Un `KEY_DOWN` per scatto, nessuno perso | MIDI-125 |
-| VP-5 | Posizione delle tre manopole rispetto ai tasti; quale è M, m1, m2; ordine delle manopole nella configurazione | Manopole a destra dei tasti, piccole in alto e grande in basso; indici 16–24 noti [O 15/10/2026]. Quale piccola è m1 e quale m2, e i tasti T13–T15, sono da decidere con Luigi | MIDI-120, MIDI-122 |
+| VP-5 | Posizione delle tre manopole rispetto ai tasti; quale è M, m1, m2; ordine delle manopole nella configurazione | Manopole a destra dei tasti, piccole in alto e grande in basso; indici 16–24 noti [O 15/10/2026]. Quale piccola è m1 e quale m2 resta da confermare sul pezzo; T13–T15 decisi il 15/10/2026 (Lock, View, Page: MIDI-131, MIDI-132) | MIDI-120, MIDI-122 |
 | VP-6 | Assorbimento dalla porta OTG, con la batteria interna in carica e con l'RGB acceso e spento; MPK e macro pad insieme sull'hub senza PD | Regge con l'hub; altrimenti hub alimentato | MIDI-128 |
 | VP-7 | L'RGB si può spegnere dalla configurazione e resta spento? | Spento | MIDI-122, MIDI-128 |
 

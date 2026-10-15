@@ -732,19 +732,15 @@ static void t_macro_pad(void)
     CHECK(raw[0].type == PNL_MACRO && raw[0].a == MACRO_KNOB_LOCK && raw[0].b == 0);
     CHECK(raw[1].type == PNL_SRC_LOST);
 
-    /* T14 Stop, tenuto 1 s = Clear; T15 Undo (15/10/2026, proposta) */
+    /* MIDI-132: T14 vista (Geek Out e ritorno), T15 pagina dei comandi; solo alla pressione, anche tenuti */
     clear();
     tap(MPAD_T14);
-    CHECK(only(PNL_MACRO, MACRO_LOOP_STOP, 0));
+    CHECK(only(PNL_MACRO, MACRO_VIEW_TOGGLE, 0));
     clear();
-    pad(MPAD_T14, 1);
+    pad(MPAD_T15, 1);
     wait_us(1200000);
-    pad(MPAD_T14, 0);
-    CHECK_EQ(count(PNL_MACRO, MACRO_LOOP_STOP), 1);
-    CHECK_EQ(count(PNL_MACRO, MACRO_LOOP_CLEAR), 1);
-    clear();
-    tap(MPAD_T15);
-    CHECK(only(PNL_MACRO, MACRO_LOOP_UNDO, 0));
+    pad(MPAD_T15, 0);
+    CHECK(only(PNL_MACRO, MACRO_CONTROLS_PAGE, 0));
 
     /* T-MIDI-20: scollegato con T1 tenuto: rilascio sintetico, poi SRC_LOST; niente G_HOLD dopo */
     PAD_BRIMFORD.reset(&s);

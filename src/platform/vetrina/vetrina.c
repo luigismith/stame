@@ -429,6 +429,7 @@ static void handle(vet_t *v, const pnl_event_t *e)
             v->m.layer.ov.kind = OV_NONE;
             gest_set_owner(&v->inp.gest, ENC_COUNT, false);
             v->page_until = v->now_ms;                  /* B chiude anche la pagina dei comandi */
+            v->page_pinned = 0;
         }
         break;
     case PNL_MACRO:
@@ -441,6 +442,13 @@ static void handle(vet_t *v, const pnl_event_t *e)
         else if (e->a == MACRO_LOOP_UNDO) loop_send(v, LOOP_C_UNDO);         /* con lo strato 0 vale Clear (ACC-222) */
         else if (e->a == MACRO_PANIC) { msg(v, MSG_INFO, "Panic: all notes off", 2000); snd_push(v, VS_ALL_OFF, 0, 0, 0); }
         else if (e->a == MACRO_KNOB_LOCK) v->m.ctl.knob_lock = (uint8_t)e->b;   /* T13 del pad (MIDI-131) */
+        else if (e->a == MACRO_VIEW_TOGGLE) {                                    /* T14: Geek Out e ritorno (MIDI-132) */
+            if (S.view == VIEW_GEEK) S.view = v->view_back;
+            else { v->view_back = (uint8_t)S.view; S.view = VIEW_GEEK; }
+        } else if (e->a == MACRO_CONTROLS_PAGE) {                                /* T15: la pagina resta aperta */
+            v->page_pinned = (uint8_t)!v->page_pinned;
+            if (!v->page_pinned) v->page_until = v->now_ms;
+        }
         break;
     case PNL_SRC_CONNECTED:
         if (e->a == SRC_MACROPAD) msg(v, MSG_INFO, "Pad connected", 2000);
@@ -550,6 +558,7 @@ static void demo_reset(vet_t *v)
     v->snd_sound = -1;                          /* suono, Perform ed effetto da capo (ACC-162) */
     v->inp.gest.focus = ENC_SOUND;
     v->page_until = v->now_ms;
+    v->page_pinned = 0;
 }
 
 static void demo_start(vet_t *v)
@@ -1113,7 +1122,7 @@ const ui_model_t *vet_model(vet_t *v)
         for (int i = 0; i < UI_LIST_WIN && first + i < l->n; i++) list_item(v, v->list_kind, first + i, &l->win[i]);
     }
     m->layer.platform_menu = v->list_kind == L_PLATFORM;
-    m->layer.page = (v->list_kind || (int32_t)(v->page_until - v->now_ms) > 0) ? PAGE_CONTROLS : PAGE_PLAY;
+    m->layer.page = (v->list_kind || v->page_pinned || (int32_t)(v->page_until - v->now_ms) > 0) ? PAGE_CONTROLS : PAGE_PLAY;
 
     /* meter finti */
     int voices = m->music.chord_state == CH_SOUNDING ? m->music.n_notes : 0;

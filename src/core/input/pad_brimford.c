@@ -10,7 +10,7 @@ static const uint8_t KNOB_ENC[2][3] STAME_ROM = {
     { ENC_CHORD_VOICING, ENC_BASS_VOICING, ENC_FOCUS }, { ENC_SOUND, ENC_PERFORM, ENC_KEY }
 };
 
-enum { T_BACK = 9, T_MENU = 10, T_PANIC = 11, T_LOCK = 12, T_STOP = 13, T_UNDO = 14 };   /* T13–T15: 15/10/2026 */
+enum { T_BACK = 9, T_MENU = 10, T_PANIC = 11, T_LOCK = 12, T_VIEW = 13, T_PAGE = 14 };   /* T13–T15: 15/10/2026 */
 enum { ACT_CCW, ACT_PUSH, ACT_CW };
 
 static void mpad_reset(void *st)
@@ -40,10 +40,8 @@ static int mpad_on_pad(void *st, uint16_t code, int32_t value, uint32_t t_us, pn
         else if (i == T_LOCK) {                                   /* a scatto, come il Caps Lock (MIDI-131) */
             if (down) { s->lock = (uint8_t)!s->lock; pnl_put(&o, PNL_MACRO, MACRO_KNOB_LOCK, s->lock); }
         }
-        else if (i == T_STOP) {                                   /* Stop del loop; tenuto 1 s = Clear */
-            if (down) { pnl_put(&o, PNL_MACRO, MACRO_LOOP_STOP, 0); s->t14 = 1; s->t14_t0 = t_us; }
-            else s->t14 = 0;
-        } else if (down) pnl_put(&o, PNL_MACRO, MACRO_LOOP_UNDO, 0);   /* T15 Undo del loop */
+        else if (i == T_VIEW) { if (down) pnl_put(&o, PNL_MACRO, MACRO_VIEW_TOGGLE, 0); }     /* MIDI-132 */
+        else if (down) pnl_put(&o, PNL_MACRO, MACRO_CONTROLS_PAGE, 0);                       /* T15 */
         return o.n;
     }
 
@@ -75,10 +73,6 @@ static int mpad_on_tick(void *st, uint32_t t_us, pnl_event_t *out, int max)
     if (s->t12 == 1 && pnl_dt(t_us, s->t12_t0) >= (int32_t)MPAD_PANIC_HOLD_US) {
         pnl_put(&o, PNL_MACRO, MACRO_PANIC, 0);                   /* una volta sola */
         s->t12 = 2;
-    }
-    if (s->t14 == 1 && pnl_dt(t_us, s->t14_t0) >= (int32_t)MPAD_CLEAR_HOLD_US) {
-        pnl_put(&o, PNL_MACRO, MACRO_LOOP_CLEAR, 0);
-        s->t14 = 2;
     }
     return o.n;
 }

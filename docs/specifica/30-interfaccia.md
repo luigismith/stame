@@ -738,7 +738,7 @@ Le classi M, S e XS si leggono solo da vicino: NON DEVONO portare informazioni c
 - **Perché quest'ordine**: in alto, dove l'occhio arriva per primo, ci sono il nome dell'accordo (cosa suona) e il tempo (dove sono nella battuta e nel loop). Subito sotto la tastiera, che mostra le stesse note in forma spaziale: voicing, rivolti, basso e loop. In fondo la banda, che risponde a ciò che la mano ha appena toccato. La testata in cima è sottile e quasi sempre vuota: se la MPK cade o l'audio va in clip, lì lo si vede subito.
 - La zona comandi riprende l'ordine del fuoco (MIDI-092): da sinistra a destra e dall'alto in basso, così L1/R1 spostano il fuoco in un percorso di lettura naturale.
 
-**UI-142a** [D] **Pagina dei comandi.** `core/ui` porta `layer.page` a `PAGE_CONTROLS` quando arriva dalla Flip un tasto del fuoco: L1, R1, croce, A o X (anche ripetuti). La pagina resta aperta finché arrivano quei tasti e si chiude **5000 ms** dopo l'ultimo, oppure subito con B quando non c'è una lista da chiudere. Una lista o un menu aperti tengono la pagina aperta finché non si chiudono. I comandi che arrivano dalla MPK, dal macro pad o dalle scorciatoie dirette della Flip (Y, SELECT, START) **non** aprono la pagina: accendono solo la banda (UI-154), perché chi li usa ha già i nomi sotto le dita. Il valore di 5000 ms è da provare.
+**UI-142a** [D] **Pagina dei comandi.** `core/ui` porta `layer.page` a `PAGE_CONTROLS` quando arriva dalla Flip un tasto del fuoco: L1, R1, croce, A o X (anche ripetuti). La pagina resta aperta finché arrivano quei tasti e si chiude **5000 ms** dopo l'ultimo, oppure subito con B quando non c'è una lista da chiudere. Una lista o un menu aperti tengono la pagina aperta finché non si chiudono. I comandi che arrivano dalla MPK, dal macro pad o dalle scorciatoie dirette della Flip (Y, SELECT, START) **non** aprono la pagina: accendono solo la banda (UI-154), perché chi li usa ha già i nomi sotto le dita. Il valore di 5000 ms è da provare. Fa eccezione **T15 Page** del macro pad (40 MIDI-132, deciso da Luigi il 15/10/2026): `MACRO_CONTROLS_PAGE` apre la pagina e la **tiene aperta**, senza i 5 s, finché non arriva un altro `MACRO_CONTROLS_PAGE` o `PNL_BACK`. **T14 View** (`MACRO_VIEW_TOGGLE`) porta in Geek Out e, al tocco dopo, alla vista di prima.
 
 **UI-143** [D] Mockup delle due pagine (1 carattere ≈ 8×16 px; nella tastiera 2 caratteri = 1 tasto bianco, 4 ottave da C2 a B5; `#` = pieno, `T` treble, `B` basso, `L` loop). Stato: Do♯ minore settima con il basso, looper in riproduzione, MPK collegata.
 
@@ -1223,7 +1223,10 @@ Questa è la mappa **logica**. Il riferimento normativo è la sezione 40: numeri
 | `PNL_ENC_DOWN(e)` da qualunque sorgente | porta anche il fuoco su `e` (MIDI-104) |
 | `PNL_MACRO(MACRO_SYSTEM_MENU)` | apre o chiude il menu della piattaforma (UI-129) |
 | `PNL_MACRO(MACRO_PANIC)` | va a `core`; la UI mostra l'avviso «Panic» |
-| `PNL_MACRO(MACRO_LOOP_STOP)`, `(MACRO_LOOP_CLEAR)` | vanno al looper; la UI mostra lo stato che ne risulta |
+| `PNL_MACRO(MACRO_LOOP_STOP)`, `(MACRO_LOOP_CLEAR)`, `(MACRO_LOOP_UNDO)`, `(MACRO_LOOP_OVERDUB)` | vanno al looper; la UI mostra lo stato che ne risulta |
+| `PNL_MACRO(MACRO_KNOB_LOCK, b)` | `ctl.knob_lock = b`; la testata mostra «LOCK» (UI-126) |
+| `PNL_MACRO(MACRO_VIEW_TOGGLE)` | Geek Out, oppure la vista in uso prima di entrarci (T14 del macro pad, 40 MIDI-132) |
+| `PNL_MACRO(MACRO_CONTROLS_PAGE)` | apre la pagina dei comandi e la tiene aperta; un altro `MACRO_CONTROLS_PAGE` o `PNL_BACK` la chiude (UI-142a) |
 | `PNL_SRC_CONNECTED`, `PNL_SRC_LOST` | stato della MPK o del macro pad (UI-126), legende (UI-152, UI-155) e avviso (UI-156) |
 
 Gli eventi musicali (`PNL_KEY_*`, `PNL_CHORD_*`, `PNL_BEND`, `PNL_MOD`, `PNL_SUSTAIN`) non passano dalla UI (UI-110).
@@ -1251,6 +1254,8 @@ Gli eventi musicali (`PNL_KEY_*`, `PNL_CHORD_*`, `PNL_BEND`, `PNL_MOD`, `PNL_SUS
 | **T9 / T10 / T11** | Options / indietro / menu della piattaforma (UI-129) |
 | **T12** tenuto 1 s | Panic |
 | **T13** | **Lock** delle manopole, a scatto come il Caps Lock (40 MIDI-131): acceso, M, m1 e m2 sono Sound, Perform e Key con tutti i loro gesti; la testata mostra «LOCK» (UI-126) |
+| **T14** | **View**: Geek Out e ritorno alla vista di prima (40 MIDI-132) |
+| **T15** | **Page**: apre la pagina dei comandi e la tiene aperta; un altro tocco o B la chiude (UI-142a, 40 MIDI-132) |
 | manopola grande **M** | Chord Voicing: rotazione; pressione = Split ↔ Octave |
 | manopola piccola **m1** | Bass Voicing: rotazione; pressione o tenuta = il modificatore |
 | manopola piccola **m2** | liste e fuoco: rotazione (orario = voce successiva, UI-074); pressione = conferma |
