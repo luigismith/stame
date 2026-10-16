@@ -50,7 +50,15 @@ static void insert(looper_t *l, uint32_t t, uint8_t role, uint8_t note, uint8_t 
     int cap = (role != LOOP_DRUM && vel == 0) ? LOOP_EVENTS : LOOP_EVENTS - LOOP_OFF_RESERVE;
     if (l->n >= cap) { l->full = 1; return; }
     int i = l->n;
-    while (i > 0 && l->ev[i - 1].t > t) { l->ev[i] = l->ev[i - 1]; i--; }
+    if (i > 0 && l->ev[i - 1].t > t) {
+        /* in overdub l'evento cade in mezzo: la posizione con una ricerca binaria (dopo tutti quelli
+         * con lo stesso t) e lo spostamento con memmove. Spostare le struct una a una costava fino a
+         * 3 ms in un callback con il loop quasi pieno (revisione del 16/10/2026) */
+        int lo = 0, hi = i;
+        while (lo < hi) { int mid = (lo + hi) >> 1; if (l->ev[mid].t > t) hi = mid; else lo = mid + 1; }
+        memmove(&l->ev[lo + 1], &l->ev[lo], (size_t)(i - lo) * sizeof l->ev[0]);
+        i = lo;
+    }
     l->ev[i].t = t; l->ev[i].role = role; l->ev[i].note = note; l->ev[i].vel = vel;
     l->ev[i].layer = (uint8_t)(l->layers ? l->layers - 1 : 0);
     l->ev[i].skip = skip;

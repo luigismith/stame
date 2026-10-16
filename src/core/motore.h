@@ -14,6 +14,7 @@
 #ifndef STAME_MOTORE_H
 #define STAME_MOTORE_H
 #include "stame_base.h"
+#include <stdatomic.h>
 #include "perf.h"
 #include "beat.h"
 #include "looper.h"
@@ -23,13 +24,18 @@
 #define MOT_NONE 0xFFu
 
 /* stato per l'interfaccia, scritto dal thread audio a ogni periodo e letto senza lock dal thread
- * della UI: una lettura a cavallo di una scrittura sbaglia al più un fotogramma */
+ * della UI con un seqlock (PLT-017): seq è dispari mentre l'audio scrive; la UI copia i campi con
+ * mot_snap_read e ritenta se seq è cambiato, così non vede mai lp_len di un giro e lp_t0 di un altro */
 typedef struct {
-    volatile uint32_t tick, tr_t0, lp_t0, lp_len;
-    volatile uint16_t bpm;
-    volatile uint8_t  tr_on, lp_state, lp_layers, lp_full;
-    volatile uint8_t  lp_notes[2][16];  /* note che il loop sta suonando (treble, basso), già trasposte */
+    _Atomic uint32_t seq;
+    uint32_t tick, tr_t0, lp_t0, lp_len;
+    uint16_t bpm;
+    uint8_t  tr_on, lp_state, lp_layers, lp_full;
+    uint8_t  lp_notes[2][16];           /* note che il loop sta suonando (treble, basso), già trasposte */
 } mot_snap_t;
+
+/* copia coerente dello snapshot per il thread della UI (al più tre tentativi) */
+void mot_snap_read(const mot_snap_t *src, mot_snap_t *dst);
 
 typedef struct {
     dsp_t   *d;

@@ -27,6 +27,9 @@ void audio_logo(void);                                        /* suona il logo d
 void audio_close(void);
 const int16_t *audio_scope(uint16_t *len, const volatile uint32_t **wr, const volatile float **peak);
 const mot_snap_t *audio_motore(void);                        /* trasporto, Beat e looper per la plancia */
+struct vet_audio_stats;
+const struct vet_audio_stats *audio_stats(void);           /* carico, massimo, underrun, scheduling (PLT-021) */
+uint32_t audio_dropped(void);                                 /* comandi scartati a coda piena (PLT-016) */
 
 /* tasti della Flip: richiama cb per ogni tasto (codice PAD_*, valore 1 giù / 0 su) */
 typedef void (*pad_cb_t)(void *ctx, uint16_t code, int32_t value);

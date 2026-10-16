@@ -75,7 +75,14 @@ void vet_set_scope(vet_t *v, const int16_t *buf, uint16_t len, const volatile ui
     v->ext_peak = peak;
 }
 
-void vet_set_motore(vet_t *v, const mot_snap_t *snap) { v->snap = snap; }
+void vet_set_motore(vet_t *v, const mot_snap_t *snap)
+{
+    v->snap_src = snap;
+    v->snap = snap ? &v->snap_copy : NULL;
+    if (snap) mot_snap_read(snap, &v->snap_copy);
+}
+
+void vet_set_audio_stats(vet_t *v, const vet_audio_stats_t *stats) { v->stats = stats; }
 
 static uint8_t lp_state(const vet_t *v) { return v->snap ? v->snap->lp_state : (uint8_t)LP_IDLE; }
 static int count_in_left(const vet_t *v);
@@ -965,6 +972,7 @@ void vet_tick(vet_t *v, uint32_t now_ms)
     uint32_t dt = now_ms - v->last_ms;
     v->now_ms = now_ms;
     v->last_ms = now_ms;
+    if (v->snap_src) mot_snap_read(v->snap_src, &v->snap_copy);   /* lo stato del motore, coerente */
     if (dt > 1000u) {
         /* una pausa lunga (Flip sospesa): l'orologio dei gesti in µs gira ogni 71,6 min e, oltre
          * mezz'ora, sembrava andato indietro e si fermava. Si riparte da adesso */
@@ -1180,6 +1188,7 @@ static void fill_tempo_looper(vet_t *v, ui_model_t *m)
 const ui_model_t *vet_model(vet_t *v)
 {
     ui_model_t *m = &v->m;
+    if (v->snap_src) mot_snap_read(v->snap_src, &v->snap_copy);
     /* azzera le parti calcolate, tiene preferenze, piattaforma, avvisi e stato delle liste */
     memset(&m->music, 0, sizeof m->music);
     uint8_t menu_sel = m->looper.menu_sel;
@@ -1285,6 +1294,13 @@ const ui_model_t *vet_model(vet_t *v)
     if (v->ext_peak) {
         m->meters.peak[0] = (uint16_t)(clampf(v->ext_peak[0], 0.0f, 1.0f) * 32767.0f);
         m->meters.peak[1] = (uint16_t)(clampf(v->ext_peak[1], 0.0f, 1.0f) * 32767.0f);
+    }
+    if (v->stats) {                                       /* misure vere del thread audio (PLT-021) */
+        uint32_t l = atomic_load_explicit(&v->stats->load_pct, memory_order_relaxed);
+        uint32_t lm = atomic_load_explicit(&v->stats->load_max_pct, memory_order_relaxed);
+        m->meters.dsp_load_pct = (uint8_t)(l > 100u ? 100u : l);
+        m->meters.dsp_load_max_pct = (uint8_t)(lm > 100u ? 100u : lm);
+        m->meters.xrun_count = atomic_load_explicit(&v->stats->xruns, memory_order_relaxed);
     }
     return m;
 }

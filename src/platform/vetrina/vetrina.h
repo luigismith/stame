@@ -18,6 +18,7 @@
 #include "../../core/motore.h"
 #include "../../ui/ui_model.h"
 #include "../../dsp/patch.h"
+#include <stdatomic.h>
 
 #define VET_SCOPE_LEN 1024
 #define VET_SND_Q     512
@@ -34,6 +35,11 @@ enum { VS_NOTE_ON, VS_NOTE_OFF, VS_CHORD_START, VS_PATCH, VS_PARAM, VS_MASTER, V
        VS_BPM, VS_PERF, VS_BEAT, VS_METER, VS_BEAT_ON, VS_BEAT_VOL, VS_TRANSPOSE, VS_LOOP,
        VS_DRUM };                       /* a = tasto 0…11, b = velocity: batteria a tastiera (ACC-211) */
 typedef struct { uint8_t type, engine, a, b, timed; uint32_t at; } vet_snd_t;   /* engine: 0 Sound, 1 Bass */
+
+/* statistiche del thread audio della piattaforma (PLT-021), scritte dal callback e lette dalla UI:
+ * underrun stimati, carico medio dell'ultimo secondo e massimo in percento del periodo, callback
+ * più lungo in µs, scheduling ottenuto (0 normale, 1 nice −10, 2 SCHED_FIFO) con l'errno di SCHED_FIFO */
+typedef struct vet_audio_stats { _Atomic uint32_t xruns, load_pct, load_max_pct, cb_max_us, sched, sched_err; } vet_audio_stats_t;
 
 /* patch di Stame per i suoni e i bassi della vetrina (patch_vetrina.c, da tools/patch.py) */
 extern const uint8_t vet_sound_patch[VET_N_SOUNDS][DSP_NPAR];
@@ -65,8 +71,11 @@ typedef struct {
     ui_note_t   last_notes[UI_NOTES_MAX];
     uint8_t     last_n;
 
-    /* trasporto e looper veri: lo stato che pubblica il motore audio (vet_set_motore) */
-    const mot_snap_t *snap;
+    /* trasporto e looper veri: lo stato che pubblica il motore audio (vet_set_motore). snap punta alla
+     * copia coerente fatta a ogni tick con mot_snap_read; NULL senza motore */
+    const mot_snap_t *snap, *snap_src;
+    mot_snap_t  snap_copy;
+    const vet_audio_stats_t *stats;   /* statistiche del thread audio, se la piattaforma le ha */
     uint8_t     lp_seen;              /* ultimo stato del looper visto, per il menu a tre voci */
 
     /* overlay e liste */
@@ -123,6 +132,8 @@ void vet_set_scope(vet_t *v, const int16_t *buf, uint16_t len, const volatile ui
                    const volatile float *peak);
 /* Stato del motore audio (trasporto, Beat, looper) per la plancia; senza, tempo e looper restano fermi. */
 void vet_set_motore(vet_t *v, const mot_snap_t *snap);
+/* Statistiche del thread audio per i meter (carico, massimo, underrun). */
+void vet_set_audio_stats(vet_t *v, const vet_audio_stats_t *stats);
 
 void vet_init(vet_t *v, uint32_t now_ms);
 /* Messaggio MIDI completo dalla porta 1 della MPK. */

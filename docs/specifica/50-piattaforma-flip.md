@@ -129,8 +129,8 @@ int  ui_flip_render(ui_flip_state_t *st, const ui_model_t *v, uint16_t fb[640 * 
 | **ui** (thread principale) | evdev dei tasti della Flip, `gfx_render`, presentazione SDL, salvataggi su file, registro | normale (`SCHED_OTHER`) | al massimo 60 Hz, e solo se qualcosa è cambiato |
 
 - **PLT-009** `[D]` L'app **DEVE** usare esattamente questi quattro thread (più eventuali thread interni di SDL). Nessun lavoro audio nel thread UI, nessun I/O su file fuori dal thread UI.
-- **PLT-010** `[D]` Il thread audio **DEVE** chiedere `SCHED_FIFO` con `pthread_setschedparam`. Se fallisce, **DEVE** continuare in `SCHED_OTHER` con `nice` −10 e scriverlo nel registro.
-- **PLT-011** `[D]` All'avvio l'app **DOVREBBE** chiamare `mlockall(MCL_CURRENT | MCL_FUTURE)` e toccare in anticipo lo stack del thread audio (64 KB), per evitare page fault durante il suono.
+- **PLT-010** `[D]` Il thread audio **DEVE** chiedere `SCHED_FIFO` con `pthread_setschedparam`. Se fallisce, **DEVE** continuare in `SCHED_OTHER` con `nice` −10 e scriverlo nel registro. *Fatto il 16/10/2026 nel backend SDL:* il thread lo crea SDL, quindi la richiesta la fa il callback stesso al primo giro (una syscall, una volta, come il flush-to-zero): `SCHED_FIFO` 70, altrimenti `setpriority` −10 sul solo thread; l'esito lo scrive nel registro il thread principale.
+- **PLT-011** `[D]` All'avvio l'app **DOVREBBE** chiamare `mlockall(MCL_CURRENT | MCL_FUTURE)` e toccare in anticipo lo stack del thread audio (64 KB), per evitare page fault durante il suono. *Fatto il 16/10/2026* con il solo `MCL_CURRENT`, dopo il caricamento di SDL e prima del banco dei campioni: senza swap la memoria anonima non si scarica comunque, quindi `MCL_FUTURE` non serve e il banco resta fuori dal conto bloccato; restano bloccati codice, tabelle e lo stato statico del synth.
 - **PLT-012** `[D]` L'app **PUÒ** fissare il thread audio sul core 3 (`pthread_setaffinity_np`) e gli altri sui core 0–2. Default: disattivato `[V]` T-PLT-03 (si attiva solo se riduce gli underrun).
 - **PLT-013** `[D]` Ogni thread **DEVE** attivare il flush-to-zero dei denormali (bit FZ di FPCR su aarch64, FTZ/DAZ di MXCSR sul PC). Il `dsp` **NON DEVE** dipendere da questa impostazione per la correttezza, solo per le prestazioni.
 - **PLT-014** `[D]` Il thread UI **DEVE** ridisegnare solo quando cambia qualcosa: `ui_flip_render` confronta per ogni zona una firma dei campi che usa e restituisce i rettangoli da aggiornare (`30-interfaccia.md` UI-160); la piattaforma carica solo quelli nella texture. Da fermo l'app **DOVREBBE** restare sotto il 5% di un core `[O]`: ridisegnare solo quando serve ha portato un'app nativa della Flip dal 17% al 2,5%.
@@ -152,15 +152,15 @@ int  ui_flip_render(ui_flip_state_t *st, const ui_model_t *v, uint16_t fb[640 * 
 | snapshot | audio → ui | `ui_model_t` in **triple buffer** | — |
 
 - **PLT-015** `[D]` Ogni coda **DEVE** essere una coda **SPSC lock-free** (un solo produttore, un solo consumatore) con capienza potenza di 2, elementi di dimensione fissa e indici `_Atomic uint32_t` con ordinamento acquire/release (`<stdatomic.h>`). La coda vive in `src/core/spsc.h`, in C11 puro, ed è riusata sul Teensy tra interrupt audio e `loop()`.
-- **PLT-016** `[D]` Se una coda è piena, il produttore **DEVE** scartare l'elemento nuovo e incrementare un contatore atomico di scarti, mostrato nel registro. **NON DEVE** mai bloccarsi o aspettare.
-- **PLT-017** `[D]` Lo snapshot per la UI **DEVE** passare in un triple buffer: l'audio scrive sempre in un buffer libero e lo pubblica con uno scambio atomico; la UI legge l'ultimo pubblicato. L'audio **DOVREBBE** pubblicare al massimo a 120 Hz (non a ogni periodo, se lo snapshot supera 1 KB).
+- **PLT-016** `[D]` Se una coda è piena, il produttore **DEVE** scartare l'elemento nuovo e incrementare un contatore atomico di scarti, mostrato nel registro. **NON DEVE** mai bloccarsi o aspettare. *Dal 16/10/2026* il thread principale legge il contatore una volta al secondo, lo scrive nel registro e rimanda un All Sound Off, perché fra i comandi persi può esserci un note-off.
+- **PLT-017** `[D]` Lo snapshot per la UI **DEVE** passare in un triple buffer: l'audio scrive sempre in un buffer libero e lo pubblica con uno scambio atomico; la UI legge l'ultimo pubblicato. L'audio **DOVREBBE** pubblicare al massimo a 120 Hz (non a ogni periodo, se lo snapshot supera 1 KB). *Dal 16/10/2026* lo snapshot del motore (`mot_snap_t`, 60 byte) passa con un **seqlock**: contatore dispari mentre l'audio scrive, la UI copia e ritenta se è cambiato (`mot_snap_read`). Prima i campi erano `volatile` senza barriere e la UI poteva leggere `lp_state` di un giro e `lp_len` di un altro. Per uno snapshot grande resta il triple buffer.
 - **PLT-018** `[D]` Salvataggi e caricamenti **DEVONO** passare per un **pool statico di blob** (proposta: 4 blob da 4 KB per preset e impostazioni, 2 da 32 KB per i loop `[V]` dimensione reale da `10-accordi-e-performance.md`). La proprietà di un blob passa da un thread all'altro inviandone l'indice in coda. Nel thread audio, `stame_save` e `stame_load` lavorano solo in memoria e in tempo limitato.
 
 ### 4.2 Regole del callback audio
 
 - **PLT-019** `[D]` Nel thread audio, tra un'attesa del PCM e la successiva, **NON DEVONO** comparire: `malloc`/`free`, mutex, variabili di condizione, semafori, I/O su file, `printf` o altro testo formattato, chiamate a SDL (tranne il callback SDL stesso nel backend di riserva), `sleep`, syscall diverse dalla scrittura e dall'attesa del PCM.
 - **PLT-020** `[D]` Il registro dal thread audio **DEVE** passare da `q_log` con codici numerici; il thread UI li traduce in testo e li scrive su file al massimo una volta al secondo.
-- **PLT-021** `[D]` Il thread audio **DEVE** misurare a ogni periodo il tempo di rendering (`clock_gettime(CLOCK_MONOTONIC)`) e tenere massimo, media e numero di underrun, pubblicati nello snapshot per un overlay di debug (attivabile da `piattaforma.txt`, §9).
+- **PLT-021** `[D]` Il thread audio **DEVE** misurare a ogni periodo il tempo di rendering (`clock_gettime(CLOCK_MONOTONIC)`) e tenere massimo, media e numero di underrun, pubblicati nello snapshot per un overlay di debug (attivabile da `piattaforma.txt`, §9). *Fatto il 16/10/2026 nel backend SDL:* tempo di ogni callback, carico medio sull'ultimo secondo e massimo, callback più lungo, underrun stimati da un intervallo fra due callback oltre due periodi (SDL non li conta). Vanno nei meter (`dsp_load_pct`, `dsp_load_max_pct`, `xrun_count`: CPU e XRUN della plancia) e nel registro a ogni cambiamento.
 
 ---
 
@@ -217,7 +217,7 @@ loop:
 ```
 
 - **PLT-029** `[D]` Con la configurazione di default, **10 minuti** di esecuzione con 16 voci attive, tutti gli effetti accesi e la UI che ridisegna a 60 Hz **DEVONO** dare **0 underrun** `[V]` T-PLT-03. Se non succede, si passa a 3 periodi, poi a 512 frame, e si aggiorna questo requisito.
-- **PLT-030** `[D]` Il backend SDL di riserva **DEVE** aprire 48 kHz, `AUDIO_F32`, stereo, `samples` = 1024 `[O]` (512 dava underrun). Il callback SDL **DEVE** rispettare le stesse regole del §4.2.
+- **PLT-030** `[D]` Il backend SDL di riserva **DEVE** aprire 48 kHz, `AUDIO_F32`, stereo, `samples` = 1024 `[O]` (512 dava underrun). Il callback SDL **DEVE** rispettare le stesse regole del §4.2. Dal 15/10/2026 il `launch.sh` usa 512 (`STAME_AUDIO_FRAMES`); dal 16/10/2026 il registro riporta formato e canali ottenuti e gli underrun contati (PLT-021): la scelta fra 512 e 1024 si fa su quei numeri (T-PLT-03), non a orecchio.
 
 ### 5.3 Budget di latenza: tasto della MPK → suono
 

@@ -297,6 +297,9 @@ void mot_render(motore_t *m, float *L, float *R, uint32_t n)
         m->s += 16;
         m->next_fp -= (uint64_t)16u << 32;                        /* il blocco dopo: next_fp resta relativo */
     }
+    uint32_t sq = atomic_load_explicit(&m->snap.seq, memory_order_relaxed);
+    atomic_store_explicit(&m->snap.seq, sq + 1u, memory_order_relaxed);     /* dispari: si scrive */
+    atomic_thread_fence(memory_order_seq_cst);
     m->snap.tick = m->tick;
     m->snap.tr_t0 = m->tr_t0;
     m->snap.tr_on = m->tr_on;
@@ -315,4 +318,18 @@ void mot_render(motore_t *m, float *L, float *R, uint32_t n)
         }
     for (int r = 0; r < 2; r++)
         for (int i = 0; i < 16; i++) m->snap.lp_notes[r][i] = bits[r][i];
+    atomic_store_explicit(&m->snap.seq, sq + 2u, memory_order_release);     /* pari: pubblicato */
+}
+
+void mot_snap_read(const mot_snap_t *src, mot_snap_t *dst)
+{
+    const size_t off = offsetof(mot_snap_t, tick), len = sizeof *src - off;
+    for (int k = 0; k < 3; k++) {
+        uint32_t s0 = atomic_load_explicit(&src->seq, memory_order_acquire);
+        if (s0 & 1u) continue;
+        memcpy((uint8_t *)dst + off, (const uint8_t *)src + off, len);
+        atomic_thread_fence(memory_order_acquire);
+        if (atomic_load_explicit(&src->seq, memory_order_relaxed) == s0) return;
+    }
+    memcpy((uint8_t *)dst + off, (const uint8_t *)src + off, len);        /* scrive di continuo: l'ultima */
 }

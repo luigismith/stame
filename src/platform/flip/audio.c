@@ -6,12 +6,23 @@
  * prima di ogni blocco, quelli senza tempo subito e quelli della demo al loro tick. Nel callback niente
  * lock, niente heap, niente I/O (PLT-019). Il logo sonoro dell'avvio si somma all'uscita.
  * Il backend ALSA diretto (PLT-022, periodo 256 × 2) arriverà dopo: qui il periodo lo decide SDL.
+ *
+ * Dalla revisione del 16/10/2026: al primo callback il thread chiede SCHED_FIFO 70, o nice −10 se
+ * negato (PLT-010: una syscall sola, una volta, come il flush-to-zero); ogni callback misura il suo
+ * tempo e conta gli underrun (un intervallo fra due callback oltre due periodi: SDL non li dice),
+ * pubblicati nei meter (PLT-021). Gli scarti della coda li legge il thread principale (PLT-016).
  */
 #define _GNU_SOURCE
 #include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <pthread.h>
+#include <sched.h>
+#include <unistd.h>
+#include <sys/syscall.h>
+#include <sys/resource.h>
 #include "flip.h"
 #include "../vetrina/vetrina_dsp.h"
 #include "../../core/spsc.h"
@@ -28,6 +39,32 @@ static _Atomic uint32_t logo_pos = UINT32_MAX;
 static volatile float peak[2];
 static float pk_hold[2];
 static int opened;
+static vet_audio_stats_t stats;
+static int sched_done;
+static uint64_t cb_last_ns;            /* inizio del callback precedente */
+static int cb_last_frames;
+static uint32_t win_us, win_frames, cb_max_us;   /* finestra di un secondo per il carico */
+
+static inline uint64_t ns_now(void)
+{
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint64_t)ts.tv_sec * 1000000000ull + (uint64_t)ts.tv_nsec;
+}
+
+/* PLT-010, dal thread audio stesso, una volta: SCHED_FIFO 70, altrimenti nice −10 sul solo thread */
+static void audio_sched(void)
+{
+    struct sched_param sp;
+    memset(&sp, 0, sizeof sp);
+    sp.sched_priority = 70;
+    int r = pthread_setschedparam(pthread_self(), SCHED_FIFO, &sp);
+    if (r == 0) { atomic_store_explicit(&stats.sched, 2u, memory_order_release); return; }
+    atomic_store_explicit(&stats.sched_err, (uint32_t)r, memory_order_relaxed);
+    pid_t tid = (pid_t)syscall(SYS_gettid);
+    int r2 = setpriority(PRIO_PROCESS, (id_t)tid, -10);
+    atomic_store_explicit(&stats.sched, r2 == 0 ? 1u : 3u, memory_order_release);   /* 3 = nessuno dei due */
+}
 
 /* SND-703, PLT-013: denormali a zero nel thread audio (FPCR.FZ su aarch64), altrimenti le code dei
  * filtri, dei riverberi e dei delay rallentano la FPU quando il suono si spegne */
@@ -43,6 +80,8 @@ static void flush_to_zero(void)
 static void cb(void *ud, uint8_t *stream, int len)
 {
     (void)ud;
+    uint64_t t0 = ns_now();
+    if (!sched_done) { sched_done = 1; audio_sched(); }
     flush_to_zero();
     float *out = (float *)stream;
     int frames = len / (int)(2 * sizeof(float));
@@ -77,7 +116,25 @@ static void cb(void *ud, uint8_t *stream, int len)
     for (int c = 0; c < 2; c++) {
         float p = c ? p1 : p0;
         pk_hold[c] = p > pk_hold[c] ? p : pk_hold[c] * 0.92f;
+        if (pk_hold[c] < 1e-6f) pk_hold[c] = 0.0f;           /* chiude, senza coda denormale */
         peak[c] = pk_hold[c];
+    }
+    /* misure (PLT-021): tempo di questo callback, carico sull'ultimo secondo, massimo, underrun */
+    uint64_t t1 = ns_now();
+    uint32_t us = (uint32_t)((t1 - t0) / 1000u);
+    if (us > cb_max_us) { cb_max_us = us; atomic_store_explicit(&stats.cb_max_us, us, memory_order_relaxed); }
+    if (cb_last_ns && cb_last_frames > 0 && t0 - cb_last_ns > (uint64_t)cb_last_frames * 2u * 1000000000ull / 48000u)
+        atomic_fetch_add_explicit(&stats.xruns, 1u, memory_order_relaxed);
+    cb_last_ns = t0;
+    cb_last_frames = frames;
+    win_us += us;
+    win_frames += (uint32_t)frames;
+    if (win_frames >= 48000u) {
+        uint32_t load = (uint32_t)((uint64_t)win_us * 48u / ((uint64_t)win_frames * 10u));   /* % del periodo */
+        atomic_store_explicit(&stats.load_pct, load, memory_order_relaxed);
+        if (load > atomic_load_explicit(&stats.load_max_pct, memory_order_relaxed))
+            atomic_store_explicit(&stats.load_max_pct, load, memory_order_relaxed);
+        win_us = win_frames = 0;
     }
 }
 
@@ -158,4 +215,14 @@ const int16_t *audio_scope(uint16_t *len, const volatile uint32_t **wr, const vo
 const mot_snap_t *audio_motore(void)
 {
     return &mot.snap;
+}
+
+const vet_audio_stats_t *audio_stats(void)
+{
+    return &stats;
+}
+
+uint32_t audio_dropped(void)
+{
+    return spsc_dropped(&q);
 }

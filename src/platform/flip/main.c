@@ -14,6 +14,8 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <errno.h>
+#include <sys/mman.h>
 #include "flip.h"
 #include "../vetrina/vetrina.h"
 #include "../vetrina/vetrina_dsp.h"
@@ -145,6 +147,10 @@ int main(int argc, char **argv)
     signal(SIGPIPE, SIG_IGN);
     log_msg("vetrina di Stame: avvio");
     if (video_open() != 0) { video_close(); return 1; }
+    /* PLT-011: codice, tabelle e stato statico del synth restano in RAM (la SD non li rilegge sotto
+     * pressione). Solo MCL_CURRENT, dopo SDL e prima del banco dei campioni: senza swap la memoria
+     * anonima non si scarica comunque, e il banco può restare fuori dal conto bloccato */
+    if (mlockall(MCL_CURRENT) != 0) log_msg("memoria: mlockall negata (%s)", strerror(errno));
 
     gfx_fb16_t fb;
     gfx_fb_init(&fb, px, UI_FLIP_W, UI_FLIP_H, UI_FLIP_W);
@@ -168,7 +174,9 @@ int main(int argc, char **argv)
         const int16_t *sc = audio_scope(&sl, &sw, &pk);
         vet_set_scope(&vet, sc, sl, sw, pk);
         vet_set_motore(&vet, audio_motore());
+        vet_set_audio_stats(&vet, audio_stats());
     } else log_msg("audio: synth spento, la vetrina resta muta");
+    uint32_t dropped_seen = 0, xruns_seen = 0, sched_seen = 0;
 
     int pad = pad_open();
     int mpad = 0;                                       /* nodi aperti del macro pad */
@@ -257,6 +265,33 @@ int main(int argc, char **argv)
                 else if (r == 0 && vet.m.plat.pad_link == PADL_ERROR) vet_macropad(&vet, PADL_ABSENT, t);   /* scollegato */
             }
             if (pad < 0) pad = pad_open();               /* i tasti della Flip, riaperti per nome */
+            if (vet.stats) {                             /* registro del thread audio (PLT-016, PLT-021) */
+                uint32_t dr = audio_dropped();
+                if (dr != dropped_seen) {
+                    log_msg("audio: %u comandi scartati a coda piena: All Sound Off", dr - dropped_seen);
+                    dropped_seen = dr;
+                    vet_snd_t off;
+                    memset(&off, 0, sizeof off);
+                    off.type = VS_ALL_OFF;
+                    audio_send(&off);
+                }
+                uint32_t sc = atomic_load_explicit(&vet.stats->sched, memory_order_acquire);
+                if (sc && sc != sched_seen) {
+                    sched_seen = sc;
+                    if (sc == 2) log_msg("audio: thread in SCHED_FIFO 70");
+                    else log_msg("audio: SCHED_FIFO negato (%s), %s",
+                                 strerror((int)atomic_load_explicit(&vet.stats->sched_err, memory_order_relaxed)),
+                                 sc == 1 ? "thread a nice -10" : "anche nice -10 negato");
+                }
+                uint32_t xr = atomic_load_explicit(&vet.stats->xruns, memory_order_relaxed);
+                if (xr != xruns_seen) {
+                    xruns_seen = xr;
+                    log_msg("audio: %u underrun; carico %u %% (max %u %%), callback più lungo %u us", xr,
+                            atomic_load_explicit(&vet.stats->load_pct, memory_order_relaxed),
+                            atomic_load_explicit(&vet.stats->load_max_pct, memory_order_relaxed),
+                            atomic_load_explicit(&vet.stats->cb_max_us, memory_order_relaxed));
+                }
+            }
         }
         if ((int32_t)(t - next_batt) >= 0) {             /* batteria ogni 5 s (PLT-090) */
             next_batt = t + 5000;

@@ -81,6 +81,9 @@ int sdl_audio_open(int rate, int frames, void (*cb)(void *, uint8_t *, int), int
     if (!adev) { log_msg("audio: %s", p_SDL_GetError()); return -1; }
     *got_rate = have.freq;
     *got_frames = have.samples;
+    log_msg("audio: SDL formato 0x%04x (chiesto 0x%04x), %d canali, %d Hz, %d frame%s", (unsigned)have.format,
+            (unsigned)want.format, have.channels, have.freq, have.samples,
+            have.format != want.format || have.channels != 2 ? ": converte SDL nel thread audio" : "");
     p_SDL_PauseAudioDevice(adev, 0);
     return 0;
 }
