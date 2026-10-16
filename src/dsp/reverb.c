@@ -46,10 +46,15 @@ void rev_process(dsp_t *d, const float *inL, const float *inR, float *outL, floa
     float rt60 = curve(CURVE_T_REV, r->size);
     float alp = onepole_a(curve(CURVE_F_REVLP, r->lpr), d->inv_fs);
     float ahp = onepole_a(curve(CURVE_F_REVHP, r->hpr), d->inv_fs);
-    float g[DSP_REV_LINES];
+    float g[DSP_REV_LINES], l0[DSP_REV_LINES], dl[DSP_REV_LINES];
     for (int i = 0; i < DSP_REV_LINES; i++) {
-        r->len[i] += (target_len(d, i, r->size) - r->len[i]) * 0.002f;      /* scorrono, niente clic */
-        g[i] = expf(-DSP_LN60 * r->len[i] * d->inv_fs / rt60);               /* −60 dB in RT60 */
+        /* scorrono verso l'obiettivo e dentro il blocco si interpolano per campione: un gradino
+         * per blocco (fino a 4 campioni girando REVSIZE) modulava la coda a 3 kHz */
+        float l1 = r->len[i] + (target_len(d, i, r->size) - r->len[i]) * 0.002f;
+        l0[i] = r->len[i];
+        dl[i] = (l1 - r->len[i]) * (1.0f / (float)DSP_BLOCK);
+        r->len[i] = l1;
+        g[i] = expf(-DSP_LN60 * l1 * d->inv_fs / rt60);                       /* −60 dB in RT60 */
     }
     float modinc = 0.37f * d->inv_fs;
 
@@ -72,7 +77,7 @@ void rev_process(dsp_t *d, const float *inL, const float *inR, float *outL, floa
         float o[DSP_REV_LINES];
         float m = sin_cyc(r->mod) * 6.0f;
         for (int i = 0; i < DSP_REV_LINES; i++) {
-            float dly = r->len[i] + (i == 0 ? m : i == 5 ? -m : 0.0f);
+            float dly = l0[i] + dl[i] * (float)(n + 1) + (i == 0 ? m : i == 5 ? -m : 0.0f);
             float y = rd(r->line[i], r->w, dly);
             r->lp[i] += alp * (y - r->lp[i]);
             o[i] = r->lp[i] * g[i];

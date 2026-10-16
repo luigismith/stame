@@ -236,7 +236,7 @@ static void voice_control(dsp_t *d, dsp_voice_t *v, const uint8_t *p, const floa
             v->og_t[o] = shape == SND_SHAPE_OFF ? 0.0f
                        : curve(CURVE_G_OSC, sm[SND_P_O(o + 1, 4)] + dst[SND_MD_GAIN1 + 3 * o] * 127.0f);
             float pwmod = dst[o == 3 ? SND_MD_PW4FB : SND_MD_PW1 + 3 * o];
-            v->duty[o] = clampf((sm[SND_P_O(o + 1, 3)] + pwmod * 127.0f) / 127.0f, 0.0f, 1.0f);
+            v->duty_t[o] = clampf((sm[SND_P_O(o + 1, 3)] + pwmod * 127.0f) / 127.0f, 0.0f, 1.0f);
         }
     } else if (model == SND_MODEL_FM) {                  /* SND-302, SND-315 */
         for (int o = 0; o < 4; o++) {
@@ -246,7 +246,7 @@ static void voice_control(dsp_t *d, dsp_voice_t *v, const uint8_t *p, const floa
             float s = sm[SND_P_O(o + 1, 4)] / 127.0f;
             v->og_t[o] = lv * lv * ((1.0f - s) + s * v->v);
         }
-        v->duty[3] = clampf(sm[SND_P_O4FB] + dst[SND_MD_PW4FB] * 127.0f, 0.0f, 127.0f);   /* feedback raw */
+        v->duty_t[3] = clampf(sm[SND_P_O4FB] + dst[SND_MD_PW4FB] * 127.0f, 0.0f, 127.0f);   /* feedback raw */
     }
     v->noise_t = model == SND_MODEL_RP ? 0.0f
                : clampf((sm[SND_P_NOISE] + dst[SND_MD_NOISE] * 127.0f) / 127.0f, 0.0f, 1.0f);
@@ -369,13 +369,18 @@ static float voice_render(dsp_t *d, dsp_voice_t *v, const uint8_t *p, const floa
         bool pink = p[SND_P_PINK] != 0;
         if (model == SND_MODEL_VA) {
             int shape[4];
-            for (int o = 0; o < 4; o++) shape[o] = p[SND_P_O(o + 1, 0)];
+            float duty[4], dduty[4];                                  /* PWM interpolata come og: a gradini ronzava */
+            for (int o = 0; o < 4; o++) {
+                shape[o] = p[SND_P_O(o + 1, 0)];
+                duty[o] = v->duty[o];
+                dduty[o] = (v->duty_t[o] - duty[o]) * k16;
+            }
             bool sync = p[SND_P_O4SYNC] != 0;
             for (int i = 0; i < DSP_BLOCK; i++) {
                 float x = 0.0f;
                 for (int o = 0; o < 4; o++) {
                     if (shape[o] == SND_SHAPE_OFF) continue;
-                    x += og[o] * osc_va(shape[o], v->ph[o], v->inc[o], v->duty[o]);
+                    x += og[o] * osc_va(shape[o], v->ph[o], v->inc[o], duty[o]);
                     v->ph[o] += v->inc[o];
                     if (v->ph[o] >= 1.0f) {
                         v->ph[o] -= 1.0f;
@@ -384,6 +389,7 @@ static float voice_render(dsp_t *d, dsp_voice_t *v, const uint8_t *p, const floa
                         if (o == 2 && sync) v->ph[3] = v->ph[2] / v->inc[2] * v->inc[3];
                     }
                     og[o] += dog[o];
+                    duty[o] += dduty[o];
                 }
                 if (ng > 0.0f || dng > 0.0f) {
                     float w = rnd_bi(&d->rng);
@@ -392,13 +398,14 @@ static float voice_render(dsp_t *d, dsp_voice_t *v, const uint8_t *p, const floa
                 ng += dng;
                 src[i] = 1.5f * tanh_f(x * (1.0f / 1.5f));          /* SND-265 */
             }
+            for (int o = 0; o < 4; o++) v->duty[o] = v->duty_t[o];
         } else if (model == SND_MODEL_SMP) {                         /* campionatore (§7b) */
             smp_render(v, src);
         } else {                                                     /* FM (§6) */
             int alg = p[SND_P_FMALG] & 7;
             const uint8_t *mods = FM_MODS[alg];
             uint8_t car = FM_CARRIERS[alg];
-            float beta = 0.75f * v->duty[3] / 127.0f;                /* SND-304, in cicli */
+            float beta = 0.75f * v->duty_t[3] / 127.0f;              /* SND-304, in cicli */
             for (int i = 0; i < DSP_BLOCK; i++) {
                 float o[4];
                 o[3] = og[3] * sin_cyc(v->ph[3] + beta * (v->fb1 + v->fb2) * 0.5f);
@@ -788,7 +795,10 @@ void dsp_load_patch(dsp_t *d, dsp_engine e, const uint8_t p[DSP_NPAR], uint32_t 
         if ((flags & DSP_LOAD_FXLOCK) && fx_locked(i)) continue;
         uint8_t v = p[i] > snd_par_max[i] ? snd_par_max[i] : p[i];
         E->p[i] = v;
-        E->sm[i] = (float)v;                              /* un cambio di suono vale subito */
+        /* un cambio di suono vale subito per le voci, che ripartono con la patch nuova; i parametri
+         * degli effetti e del riverbero scorrono in 5 ms, perché un salto del tap o del guadagno fa clic */
+        bool fx_par = i > SND_P_FX1TYPE && i <= SND_P_REVHP && i != SND_P_FX2TYPE;
+        if (!fx_par) E->sm[i] = (float)v;
     }
     int mode = E->p[SND_P_GLIDEMODE];
     if ((mode == SND_GLIDE_MONO || mode == SND_GLIDE_MONO_LEGATO) && nh > 1) {
@@ -848,7 +858,8 @@ static void engine_smooth(const dsp_t *d, dsp_eng_t *E)
 {
     for (int i = 0; i < DSP_NPAR; i++) {
         float k = i >= SND_P_RPHEIGHT ? d->k_sm20 : d->k_sm5;
-        E->sm[i] += ((float)E->p[i] - E->sm[i]) * k;
+        float t = (float)E->p[i], dl = t - E->sm[i];
+        E->sm[i] = (dl > -1e-3f && dl < 1e-3f) ? t : E->sm[i] + dl * k;    /* chiude, senza coda denormale */
     }
 }
 

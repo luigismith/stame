@@ -3,6 +3,11 @@
  * Lamella: tre risonatori a 2 poli (modi di una trave a sbalzo) eccitati da un impulso.
  * Pickup non lineare, clank, rumori del martelletto e dello smorzatore, tono. Il tremolo è
  * dell'oggetto RP del motore (dsp.c). Lo schema è di Stame [V → QA-SND-15].
+ *
+ * L'ampiezza A del colpo (SND-351) sta sull'impulso, non sull'uscita: i risonatori sono lineari,
+ * quindi per un colpo solo è lo stesso, ma una ribattuta più piano non scala la coda che suona
+ * ancora (era un clic). Il pickup Φ(A·x + d) − Φ(d) con d ≠ 0 lascia una componente continua
+ * proporzionale all'energia della lamella: un blocco DC a un polo la toglie dentro la voce.
  */
 #include "dsp_int.h"
 
@@ -63,7 +68,8 @@ void rp_note_on(dsp_t *d, dsp_voice_t *v, const float *sm)
         if (f < 0.45f * d->fs) res_set(&rp->clank[k], f, 0.060f, ca, d);
         else rp->clank[k].gain = 0.0f;
     }
-    rp->x = 1.0f;                                                         /* impulso al primo campione */
+    rp->x = rp->amp;                                                      /* impulso al primo campione, con A */
+    rp->xc = 1.0f;                                                        /* il clank ha la sua curva (ca) */
     /* martelletto (SND-355) */
     rp->hammer = 1.0f;
     rp->hp_amp = 0.3f * sm[SND_P_RPHAMMER] / 127.0f * v->v;
@@ -107,6 +113,7 @@ float rp_render(dsp_t *d, dsp_voice_t *v, const uint8_t *p, const float *sm, flo
     float dd = 0.8f * sm[SND_P_RPDISTANCE] / 127.0f;
     float phi_d = type == SND_PICKUP_ODD ? 0.6f * sinf(2.5f * dd / hp) : phi(dd, hp);
     float a_mel = onepole_a(1200.0f, d->inv_fs), a_sh = onepole_a(2000.0f, d->inv_fs), a_tone = onepole_a(800.0f, d->inv_fs);
+    float a_dc = onepole_a(12.0f, d->inv_fs);                           /* blocco DC: −0,2 dB a 65 Hz */
     float tone = expf(((sm[SND_P_RPTONE] - 64.0f) / 64.0f) * 12.0f * 0.115129f) - 1.0f;   /* ±12 dB sugli acuti */
     float vol = curve(CURVE_G_VOL, sm[SND_P_RPVOL]);
     float k_h = expf(-d->inv_fs / 0.008f), k_k = expf(-d->inv_fs / 0.025f);
@@ -117,15 +124,17 @@ float rp_render(dsp_t *d, dsp_voice_t *v, const uint8_t *p, const float *sm, flo
 
     float pk = 0.0f;
     for (int i = 0; i < DSP_BLOCK; i++) {
-        float ex = rp->x;
-        rp->x = 0.0f;
+        float ex = rp->x, exc = rp->xc;
+        rp->x = rp->xc = 0.0f;
         float x = res_tick(&rp->mode[0], ex) + res_tick(&rp->mode[1], ex) + res_tick(&rp->mode[2], ex);
-        float u = rp->amp * x + dd;
+        float u = x + dd;
         float y = type == SND_PICKUP_ODD ? 0.6f * sinf(2.5f * u / hp) - phi_d : phi(u, hp) - phi_d;
         y *= norm;
         if (type == SND_PICKUP_MELLOW) { rp->mel_z += a_mel * (y - rp->mel_z); y = rp->mel_z; }
         else if (type == SND_PICKUP_SHARP) { rp->mel_z += a_sh * (y - rp->mel_z); y += (y - rp->mel_z); }   /* +6 dB sopra 2 kHz */
-        y += res_tick(&rp->clank[0], ex) + res_tick(&rp->clank[1], ex);
+        rp->dc += a_dc * (y - rp->dc);                                      /* via la continua del pickup */
+        y -= rp->dc;
+        y += res_tick(&rp->clank[0], exc) + res_tick(&rp->clank[1], exc);
         if (rp->hammer > 1e-4f) {
             float n = rnd_bi(&d->rng) * rp->hammer * rp->hp_amp;
             float b = rp->hb1 * rp->hy1 - rp->hb2 * rp->hy2 + n * 0.3f;
@@ -148,6 +157,9 @@ float rp_render(dsp_t *d, dsp_voice_t *v, const uint8_t *p, const float *sm, flo
         if (a > pk) pk = a;
     }
     for (int m = 0; m < 3; m++) { rp->mode[m].y1 = undenorm(rp->mode[m].y1); rp->mode[m].y2 = undenorm(rp->mode[m].y2); }
+    rp->dc = undenorm(rp->dc);
+    rp->mel_z = undenorm(rp->mel_z);
+    rp->tone_z = undenorm(rp->tone_z);
     rp->silence = pk < 3.2e-5f ? rp->silence + 1.0f : 0.0f;
     return pk;
 }

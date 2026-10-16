@@ -103,7 +103,7 @@ size_t dsp_scope_read(dsp_t *d, float *dst, size_t max); /* copia dell'uscita pe
 ### 1.5 Frequenza di controllo e smoothing
 
 - **SND-040** Inviluppi, LFO, matrice di modulazione e conversioni dei parametri **DEVONO** essere calcolati una volta per blocco e per voce (3 kHz di frequenza di controllo a 48 kHz) `[D]`. Ampiezza del VCA, cutoff e guadagni degli oscillatori **DEVONO** essere interpolati linearmente dentro il blocco.
-- **SND-041** I parametri continui modificati da `dsp_setpar` (cutoff, risonanza, guadagni, pan, mandate, parametri degli FX) **DEVONO** essere filtrati con un passa-basso a un polo con costante di tempo di 5 ms `[V → QA-SND-28]`. I parametri RP lo sono con 20 ms `[O: Pistil 0.1.12 ha introdotto lo smoothing di HEIGHT]`. Gli enum cambiano al confine di blocco, senza smoothing.
+- **SND-041** I parametri continui modificati da `dsp_setpar` (cutoff, risonanza, guadagni, pan, mandate, parametri degli FX) **DEVONO** essere filtrati con un passa-basso a un polo con costante di tempo di 5 ms `[V → QA-SND-28]`. I parametri RP lo sono con 20 ms `[O: Pistil 0.1.12 ha introdotto lo smoothing di HEIGHT]`. Gli enum cambiano al confine di blocco, senza smoothing. Al caricamento di una patch i parametri delle voci valgono subito (le voci passano in coda e ripartono con la patch nuova, SND-112), mentre quelli di FX, delay e riverbero scorrono con i 5 ms: un salto del tap o del guadagno di un effetto in suono faceva clic (16/10/2026).
 
 ### 1.6 Livelli
 
@@ -343,7 +343,7 @@ Valida per VA e FM; per RP vedi §7.3.
 ### 5.2 Oscillatori
 
 - **SND-250** Ogni oscillatore **DEVE** generare SAW, PULSE o TRI limitati in banda: PolyBLEP per SAW e PULSE, PolyBLAMP (o equivalente) per TRI. SHAPE = OFF = uscita nulla e calcolo saltato `[M]`.
-- **SND-251** SAW è una rampa crescente da −1 a +1. PULSE ha duty `d = (PW + mod_pw·127) / 127`, limitato a [0, 1], ed è privo di componente continua (si sottrae la media `2d − 1`): così PW 0 e 127 danno silenzio, PW 64 un'onda quadra `[M]`. PW non agisce su SAW e TRI `[V → QA-SND-27]`.
+- **SND-251** SAW è una rampa crescente da −1 a +1. PULSE ha duty `d = (PW + mod_pw·127) / 127`, limitato a [0, 1], ed è privo di componente continua (si sottrae la media `2d − 1`): così PW 0 e 127 danno silenzio, PW 64 un'onda quadra `[M]`. PW non agisce su SAW e TRI `[V → QA-SND-27]`. Il duty si interpola per campione dentro il blocco, come i guadagni: a gradini di 16 campioni una modulazione di PW ronzava a 3 kHz (16/10/2026).
 - **SND-252** Fase iniziale alla nota: casuale per gli oscillatori VA (comportamento "analogico") `[V → QA-SND-27]`, salvo O4 con sync attivo che riparte con l'OSC3.
 - **SND-253** Hard sync (`O4SYNC = 1`, solo VA): a ogni ciclo dell'OSC3 la fase dell'OSC4 **DEVE** ripartire da 0, con correzione BLEP alla posizione frazionaria del reset `[M]`.
 - **SND-254** L'accumulatore di fase è `float` in [0, 1); niente `double` nel percorso audio.
@@ -447,9 +447,10 @@ Modello fisico di piano elettrico a lamelle anni '60, con campioni dei rumori me
   - modo 2: `17.55 * f0`, ampiezza `0.02 * h`, T60 / 20;
   - un modo sopra `0.45 fs` non si calcola. `h` è la brillantezza del colpo: `h = (1 − s) + s * v`, con `s = RPVELCURVE / 127`.
   I rapporti sono quelli di una trave a sbalzo `[D]`.
-- **SND-351** **Ampiezza del colpo**: `A = (1 − s) + s * v^1.5`, con `s = RPVELCURVE / 127` (il manuale consiglia 60–90 %) `[M]` per il significato, `[V]` per la formula.
+- **SND-351** **Ampiezza del colpo**: `A = (1 − s) + s * v^1.5`, con `s = RPVELCURVE / 127` (il manuale consiglia 60–90 %) `[M]` per il significato, `[V]` per la formula. Nel codice A sta sull'impulso che eccita i risonatori, non sull'uscita: per un colpo è lo stesso (i risonatori sono lineari), ma una ribattuta più piano della stessa nota non scala la coda ancora in suono, che era un clic (revisione del 16/10/2026) `[D]`.
 - **SND-352** **Pickup**: `y = Φ(A·x + d) − Φ(d)` con `Φ(u) = u / sqrt(u² + h_p²)`:
   - `h_p = (1.5 − 1.3 * HEIGHT / 127) * 2^((RPKT / 127) * (nota − 60) / 24)`: HEIGHT più alto = pickup più vicino = più forte e brillante `[M]`;
+  - la voce toglie la **componente continua** del pickup con un blocco DC a un polo a 12 Hz (−0,2 dB a 65 Hz): con `d ≠ 0` la curva è asimmetrica e ogni nota lasciava una continua fino al 60 % del valore medio, che dimezzava l'headroom, faceva un tonfo sulle dissolvenze e girava nel delay (revisione del 16/10/2026) `[D]`;
   - `d = 0.8 * RPDISTANCE / 127`: l'asimmetria aggiunge armoniche, come chiede il manuale per i valori alti `[M]`;
   - tipi: **NORMAL** come sopra; **MELLOW** con `h_p × 1,3` e passa-basso a 1 polo a 1,2 kHz; **SHARP** con `h_p × 0,7` e shelving +6 dB sopra 2 kHz; **ODD** con `Φ(u) = 0.6 * sin(2.5 * u / h_p)` (wavefolder, armoniche "strane", lo-fi) `[M]` per il carattere, `[V]` per le formule.
 - **SND-353** **Rilascio**: al note-off (o al rilascio del sustain) i T60 di tutti i modi diventano `min(T60, t_rp_release(RPRELEASE))`.
@@ -601,7 +602,7 @@ Aggiunta di Stame, decisa il 15/10/2026 (Luigi: «se possibile scarica e aggiung
 
 ### 10.2 Regole comuni degli slot
 
-- **SND-505** Gli effetti leggono i parametri direttamente dalla patch del motore (come `mfx::update` di Pistil `[O]`): un `dsp_setpar` su un parametro FX ha effetto dal blocco successivo, con lo smoothing di SND-041.
+- **SND-505** Gli effetti leggono i parametri direttamente dalla patch del motore (come `mfx::update` di Pistil `[O]`): un `dsp_setpar` su un parametro FX ha effetto dal blocco successivo, con lo smoothing di SND-041. Gli LFO di chorus, ensemble, flanger e tremolo avanzano **per campione** (fase del blocco più rate·i), come il coefficiente del phaser: fermi per 16 campioni facevano saltare il ritardo di lettura fino a 5 campioni per blocco, cioè bande laterali a ±3 kHz a −44 dB (misura del 16/10/2026).
 - **SND-506** Con intensità 0 (P2, oppure P1 per il TREMOLO) ogni effetto **DEVE** essere inudibile: sull'Orchid il display mostra "Off" e i preset usano slot parcheggiati con intensità 0 `[O]`.
 - **SND-507** Un cambio di tipo **DEVE** fare una dissolvenza incrociata di 10 ms tra il vecchio e il nuovo effetto. I buffer del nuovo effetto si azzerano a pezzi (al massimo 4096 campioni per blocco) prima di essere usati, per non sforare il tempo di un blocco.
 
@@ -632,7 +633,7 @@ Etichette dei parametri `[O: frontend di Pistil 1.0.2]`; descrizioni `[M]`; algo
 
 ### 10.5 Riverbero
 
-- **SND-530** Riverbero stereo a **rete di ritardi con feedback (FDN) a 8 linee** con matrice di Hadamard, due diffusori all-pass in ingresso e una leggera modulazione delle linee `[V → QA-SND-09]`.
+- **SND-530** Riverbero stereo a **rete di ritardi con feedback (FDN) a 8 linee** con matrice di Hadamard, due diffusori all-pass in ingresso e una leggera modulazione delle linee `[V → QA-SND-09]`. Le lunghezze delle linee scorrono verso REVSIZE con interpolazione per campione dentro il blocco (16/10/2026).
   - REVSIZE: RT60 `0.3 * (10 / 0.3)^x` s e lunghezze delle linee scalate tra 0,5× e 1× `[V]`;
   - REVLP: passa-basso a 1 polo in ogni linea, `1000 * 20^x` Hz (127 = 20 kHz) `[M: toglie gli alti dalla coda]`;
   - REVHP: passa-alto a 1 polo all'ingresso, `20 * 50^x` Hz `[M: toglie i bassi dalla coda]`;

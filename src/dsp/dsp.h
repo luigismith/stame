@@ -36,12 +36,13 @@ typedef struct { float y1, y2, b1, b2, gain; } dsp_res_t;
 typedef struct {
     dsp_res_t mode[3], clank[2];
     float t60[3];               /* T60 correnti dei modi */
-    float x;                    /* impulso del colpo, campione successivo */
+    float x, xc;                /* impulso del colpo per la lamella (già con A) e per il clank, campione successivo */
     float hammer, keyoff;       /* inviluppi dei rumori */
     float hb1, hb2, hy1, hy2;   /* passa-banda del martelletto */
     float kb1, kb2, ky1, ky2;   /* passa-banda dello smorzatore */
     float hp_amp, kof_amp;
     float tone_z, mel_z;        /* tilt e passa-basso del pickup MELLOW */
+    float dc;                   /* blocco della continua del pickup (un polo a 12 Hz) */
     float amp;                  /* A del colpo (SND-351) */
     float silence;              /* blocchi consecutivi sotto −90 dB */
 } dsp_rp_voice_t;
@@ -65,7 +66,7 @@ typedef struct {
     /* oscillatori e operatori */
     float ph[4], inc[4];
     float og[4], og_t[4];       /* guadagni (VA) o livelli (FM): corrente e obiettivo */
-    float duty[4];
+    float duty[4], duty_t[4];   /* larghezza d'impulso (VA) o feedback dell'OP4 (FM): corrente e obiettivo */
     float noise_g, noise_t;
     float fb1, fb2;             /* feedback dell'OP4 */
     float pink[3];

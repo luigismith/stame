@@ -4,6 +4,9 @@
  * così al cambio di tipo non c'è niente di vecchio da svuotare. Anche il delay registra sempre
  * l'ingresso (con il feedback solo quando è attivo). Al cambio di tipo i due effetti suonano
  * insieme per 10 ms in dissolvenza incrociata (SND-507).
+ * Gli LFO avanzano per campione: la fase del blocco più rate·i. Tenerli fermi per 16 campioni
+ * faceva saltare il ritardo di lettura fino a 5 campioni per blocco, cioè bande laterali a ±3 kHz
+ * a −44 dB (misurate il 16/10/2026); il phaser interpola già il coefficiente nello stesso modo.
  */
 #include "dsp_int.h"
 
@@ -30,7 +33,7 @@ static inline float tap(const float *buf, uint32_t mask, uint32_t w, float dly)
 /* parametri dello slot per il blocco: P1…P6 smussati in raw, rate già in Hz */
 typedef struct {
     float p[6];
-    float rate, d2;
+    float rate, rate2, d2;      /* rate2: LFO veloce dell'ensemble, in Hz */
 } fxpar_t;
 
 /* stato per campione del phaser: coefficiente dell'all-pass interpolato nel blocco */
@@ -47,11 +50,12 @@ static inline float fx_one(dsp_t *d, dsp_fx_t *fx, int type, const fxpar_t *q, i
                            const phz_t *phz, float *fl_wet)
 {
     float ms = d->fs * 0.001f;
+    float lph = q->rate * d->inv_fs * (float)i;                              /* fase dell'LFO al campione i */
     switch (type) {
     case SND_FX_CHORUS: {
         float off = ch ? 0.5f * q->p[2] / 127.0f : 0.0f;                    /* PHASE 0–180° */
         float m = (0.5f + 4.5f * q->d2) * ms;
-        float dly = 7.0f * ms + m * sin_cyc(fx->lfo[SND_FX_CHORUS] + off);
+        float dly = 7.0f * ms + m * sin_cyc(fx->lfo[SND_FX_CHORUS] + lph + off);
         float wet = tap(fx->line[ch], LMASK, fx->lw, dly);
         return x * (1.0f - 0.5f * q->d2) + wet * 0.5f * q->d2;
     }
@@ -60,7 +64,8 @@ static inline float fx_one(dsp_t *d, dsp_fx_t *fx, int type, const fxpar_t *q, i
         float base = ch ? 1.0f / 6.0f : 0.0f, wet = 0.0f;
         for (int j = 0; j < 3; j++) {
             float o = base + (float)j / 3.0f;
-            float dly = 10.0f * ms + slow * sin_cyc(fx->lfo[SND_FX_ENSEMBLE] + o) + fast * sin_cyc(fx->lfo2 + o);
+            float dly = 10.0f * ms + slow * sin_cyc(fx->lfo[SND_FX_ENSEMBLE] + lph + o)
+                      + fast * sin_cyc(fx->lfo2 + q->rate2 * d->inv_fs * (float)i + o);
             wet += tap(fx->line[ch], LMASK, fx->lw, dly);
         }
         return x * (1.0f - 0.5f * q->d2) + wet * (1.0f / 3.0f) * 0.5f * q->d2;
@@ -81,7 +86,7 @@ static inline float fx_one(dsp_t *d, dsp_fx_t *fx, int type, const fxpar_t *q, i
     }
     case SND_FX_FLANGER: {
         float off = ch ? 0.5f * q->p[3] / 127.0f : 0.0f;
-        float lfo = 0.5f + 0.5f * sin_cyc(fx->lfo[SND_FX_FLANGER] + off);
+        float lfo = 0.5f + 0.5f * sin_cyc(fx->lfo[SND_FX_FLANGER] + lph + off);
         float dly = (0.3f + 7.7f * q->d2 * lfo) * ms;
         if (dly < 1.0f) dly = 1.0f;
         float wet = tap(fx->line[ch], LMASK, fx->lw, dly);
@@ -99,7 +104,7 @@ static inline float fx_one(dsp_t *d, dsp_fx_t *fx, int type, const fxpar_t *q, i
     case SND_FX_TREMOLO: {
         if (q->rate <= 0.0f) return x;                                       /* RATE 0: inudibile (SND-510) */
         float off = ch ? 0.5f * q->p[2] / 127.0f : 0.0f;
-        float c = sin_cyc(fx->lfo[SND_FX_TREMOLO] + off + 0.25f);                          /* cos φ, fase iniziale 0 */
+        float c = sin_cyc(fx->lfo[SND_FX_TREMOLO] + lph + off + 0.25f);                    /* cos φ, fase iniziale 0 */
         return x * (1.0f - q->d2 * (1.0f - c) * 0.5f);
     }
     default: return x;
@@ -111,6 +116,7 @@ static void fxpar(const dsp_eng_t *E, int base, int type, fxpar_t *q)
     for (int k = 0; k < 6; k++) q->p[k] = E->sm[base + 1 + k];
     q->rate = curve(CURVE_F_FX_RATE, q->p[0]);
     q->d2 = q->p[1] / 127.0f;
+    q->rate2 = type == SND_FX_ENSEMBLE ? curve(CURVE_F_FX_RATE, q->p[2]) * 4.0f : 0.0f;
     if (type == SND_FX_TREMOLO && q->p[0] < 0.5f) q->rate = 0.0f;           /* RATE 0: guadagno 1 (SND-510) */
 }
 
@@ -126,7 +132,7 @@ static void lfo_step(dsp_t *d, dsp_fx_t *fx, int type, const fxpar_t *q)
     fx->lfo[type] += inc;
     fx->lfo[type] -= floorf(fx->lfo[type]);
     if (type == SND_FX_ENSEMBLE) {
-        fx->lfo2 += curve(CURVE_F_FX_RATE, q->p[2]) * 4.0f * d->inv_fs * (float)DSP_BLOCK;
+        fx->lfo2 += q->rate2 * d->inv_fs * (float)DSP_BLOCK;
         fx->lfo2 -= floorf(fx->lfo2);
     }
 }

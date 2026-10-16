@@ -440,6 +440,65 @@ static void test_rp(void)
     }
 }
 
+/* Revisione del 16/10/2026: il pickup del Reed Piano non lascia componente continua (con DISTANCE alto
+ * Φ(A·x+d) − Φ(d) ne produceva fino al 60 % del valore medio), e una ribattuta più piano della
+ * stessa nota non scala la coda che suona ancora: A sta sul colpo (SND-351) */
+static void test_rp_dc(void)
+{
+    fresh(&D, SND_MODEL_RP);
+    uint8_t p[DSP_NPAR];
+    dsp_get_patch(&D, DSP_SOUND, p);
+    p[SND_P_RPHEIGHT] = 64; p[SND_P_RPDISTANCE] = 127; p[SND_P_RPDECAY] = 127;
+    p[SND_P_RPCLANK] = 0; p[SND_P_RPHAMMER] = 0;
+    dsp_load_patch(&D, DSP_SOUND, p, 0);
+    dsp_note_on(&D, DSP_SOUND, 48, 100);
+    render(&D, L1, R1, FS / 2);
+    double mean = 0, mabs = 0;
+    for (int i = FS / 4; i < FS / 2; i++) { mean += (double)L1[i]; mabs += fabs((double)L1[i]); }
+    mean /= FS / 4; mabs /= FS / 4;
+    CHECKM(mabs > 0.01 && fabs(mean) < 0.05 * mabs, "RP: continua %.4f su |x| medio %.4f", mean, mabs);
+
+    fresh(&D, SND_MODEL_RP);
+    dsp_get_patch(&D, DSP_SOUND, p);
+    p[SND_P_RPVELCURVE] = 127; p[SND_P_RPCLANK] = 0; p[SND_P_RPHAMMER] = 0;
+    dsp_load_patch(&D, DSP_SOUND, p, 0);
+    dsp_note_on(&D, DSP_SOUND, 48, 127);
+    render(&D, L1, R1, FS / 10);
+    float before = 0, last = L1[FS / 10 - 1];
+    for (int i = FS / 10 - 2000; i < FS / 10; i++) { float j = fabsf(L1[i] - L1[i - 1]); if (j > before) before = j; }
+    dsp_note_on(&D, DSP_SOUND, 48, 10);                     /* ribattuta piano: la coda non deve saltare */
+    render(&D, L1, R1, 256);
+    float after = fabsf(L1[0] - last);
+    for (int i = 1; i < 256; i++) { float j = fabsf(L1[i] - L1[i - 1]); if (j > after) after = j; }
+    CHECKM(after < 1.5f * before + 1e-3f, "RP ribattuta: salto %.4f contro %.4f in regime", (double)after, (double)before);
+}
+
+/* Revisione del 16/10/2026: chorus, ensemble e flanger con RATE e DEPTH al massimo su un seno. L'LFO
+ * scorre per campione, quindi l'uscita è un seno con un Doppler di ±35 % al più: la derivata seconda
+ * resta quella di un seno. Con l'LFO fermo per blocco il ritardo saltava fino a 5 campioni ogni 16. */
+static void test_fx_smooth(void)
+{
+    const int types[3] = { SND_FX_CHORUS, SND_FX_ENSEMBLE, SND_FX_FLANGER };
+    for (int k = 0; k < 3; k++) {
+        fresh(&D, SND_MODEL_FM);
+        uint8_t p[DSP_NPAR];
+        sine_patch(p);
+        p[SND_P_FX1TYPE] = (uint8_t)types[k];
+        for (int j = 1; j <= 6; j++) p[SND_P_FX1TYPE + j] = 127;
+        if (types[k] == SND_FX_FLANGER) p[SND_P_FX1TYPE + 3] = 0;   /* senza feedback: un seno pulito */
+        dsp_load_patch(&D, DSP_SOUND, p, 0);
+        dsp_note_on(&D, DSP_SOUND, 81, 100);
+        skip(&D, FS);
+        int n = FS / 4;
+        render(&D, L1, R1, n);
+        float d2 = 0;
+        for (int i = 2; i < n; i++) { float s = fabsf(L1[i] - 2.0f * L1[i - 1] + L1[i - 2]); if (s > d2) d2 = s; }
+        float a = peak(L1, n), w = 6.2831853f * 880.0f * 1.4f / (float)FS;
+        CHECKM(a > 0.05f && d2 < 1.5f * a * w * w, "FX %d: derivata seconda %.4f su ampiezza %.3f (limite %.4f)",
+               types[k], (double)d2, (double)a, (double)(1.5f * a * w * w));
+    }
+}
+
 /* SND-005, SND-801: stessi ingressi, stessa uscita bit per bit; e uscita sempre finita e entro ±1 */
 static void test_determinism(void)
 {
@@ -508,5 +567,7 @@ void test_dsp(void)
     test_steal_click();
     test_mono_switch();
     test_rp();
+    test_rp_dc();
+    test_fx_smooth();
     test_determinism();
 }
