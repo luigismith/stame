@@ -185,6 +185,25 @@ int perf_chord(perf_t *p, uint32_t tick, const uint8_t *notes, uint8_t n, uint8_
     return k;
 }
 
+int perf_add(perf_t *p, uint32_t tick, const uint8_t *notes, uint8_t n, perf_ev_t *out, int max)
+{
+    int k = 0;
+    if (n > 8) n = 8;
+    uint8_t old[8], on = p->n;
+    memcpy(old, p->notes, on);
+    p->n = n;
+    memcpy(p->notes, notes, n);
+    if (p->mode == PM_ARP || p->mode == PM_ARP2 || p->mode == PM_PATTERN) return 0;   /* dal passo successivo */
+    int oct = p->mode == PM_STRUM2 ? 2 : p->mode == PM_HARP ? 3 : 1;
+    for (int i = 0; i < n; i++) {
+        bool had = false;
+        for (int j = 0; j < on; j++) if (old[j] == notes[i]) had = true;
+        if (had) continue;
+        for (int o = 0; o < oct; o++) k = emit(p, out, max, k, tick, (uint8_t)(notes[i] + 12 * o), p->vel, true);
+    }
+    return k;
+}
+
 int perf_release(perf_t *p, uint32_t tick, perf_ev_t *out, int max)
 {
     p->n = 0;

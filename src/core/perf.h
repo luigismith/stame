@@ -37,6 +37,11 @@ void perf_set(perf_t *p, uint8_t mode, uint8_t amount);
  * rilasciare il precedente (ACC-173); altrimenti è un ri-attacco dello stesso tasto (ACC-179). */
 int  perf_chord(perf_t *p, uint32_t tick, const uint8_t *notes, uint8_t n, uint8_t vel, bool key_down,
                 bool legato, perf_ev_t *out, int max);
+/* ADD_NOTE (ACC-180): la voicing nuova contiene quella in corso e il tasto non è cambiato. In strum,
+ * slop e harp le note nuove partono subito, con le ottave di STRUM2 e HARP, senza toccare quelle che
+ * suonano o aspettano in coda; in arp e pattern entrano nella sequenza dal passo successivo; senza
+ * performance si accendono a blocco. Velocity dell'attacco originale. */
+int  perf_add(perf_t *p, uint32_t tick, const uint8_t *notes, uint8_t n, perf_ev_t *out, int max);
 /* KEY_UP del tasto attivo: tutto spento, eventi futuri cancellati (ACC-181) */
 int  perf_release(perf_t *p, uint32_t tick, perf_ev_t *out, int max);
 /* eventi con tick ≤ tick: chiamata a ogni tick */

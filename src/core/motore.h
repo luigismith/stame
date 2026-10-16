@@ -49,6 +49,7 @@ typedef struct {
     uint32_t tr_t0;                     /* tick della battuta 1 */
     uint8_t  held[16], held_vel;        /* voicing treble che arriva dal motore degli accordi */
     uint8_t  dirty, key_down, legato, went_empty;
+    uint8_t  removed;                   /* una nota treble è stata spenta dall'ultimo gesto: non è un ADD_NOTE */
     int8_t   transpose;
     uint8_t  pre[2][128];               /* nota in uscita → nota registrata (prima del transpose) */
     uint8_t  lp_out[2][128];            /* nota del loop → nota suonata, per il note-off */

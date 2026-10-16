@@ -541,6 +541,52 @@ static void test_perf_revisione(void)
     bool c52 = false;
     for (int i = k; i < NE; i++) if (E[i].on && E[i].note == 52) c52 = true;
     CHECK(!c52);
+
+    /* ACC-180 (16/10/2026): un'estensione aggiunta (ADD_NOTE) non fa ripartire lo strum: la nota nuova
+     * parte subito, le note in coda arrivano al loro tempo */
+    start(PM_STRUM, 10, C_MAJ, 3, 100);                           /* 48 a 0, 52 a 20, 55 a 40 */
+    run_to(0, 25);
+    int before = NE;
+    NE += perf_add(&P, 26, C_MAJ7, 4, E + NE, 256 - NE);
+    CHECKM(NE == before + 1 && ev_is(before, 26, 59, true), "ACC-180: la settima parte subito");
+    run_to(27, 60);
+    CHECKM(NE == before + 2 && ev_is(before + 1, 40, 55, true), "ACC-180: il 55 in coda al suo tempo, niente ripartenza");
+    /* STRUM2: la nota nuova parte con la sua ottava */
+    start(PM_STRUM2, 1, C_MAJ, 3, 100);
+    run_to(0, 20);
+    before = NE;
+    NE += perf_add(&P, 21, C_MAJ7, 4, E + NE, 256 - NE);
+    CHECK(NE == before + 2 && ev_is(before, 21, 59, true) && ev_is(before + 1, 21, 71, true));
+    /* ARP: la nota nuova entra dal passo successivo, senza ripartire dal passo 0 */
+    start(PM_ARP, 1, C_MAJ, 3, 100);                              /* Up, un passo ogni 48 tick */
+    run_to(0, 50);                                                /* 48 e 52 suonate */
+    before = NE;
+    uint32_t step = P.step;
+    NE += perf_add(&P, 51, C_MAJ7, 4, E + NE, 256 - NE);
+    CHECK(NE == before && P.step == step);
+    run_to(51, 144);
+    CHECKM(ev_is(before, 72, 52, false) && ev_is(before + 1, 96, 55, true) && ev_is(before + 3, 144, 59, true),
+           "ACC-180: l'arpeggio continua e la settima entra al suo passo");
+
+    /* nel motore: Do maggiore in strum, poi la settima aggiunta senza KEY_DOWN né spegnimenti */
+    static dsp_t D;
+    static motore_t M;
+    static float l[16], r[16];
+    dsp_init(&D, 48000.0f, 1);
+    mot_init(&M, &D, 48000, 1);
+    mot_perf(&M, PM_STRUM, 10);
+    mot_chord_start(&M);
+    for (int i = 0; i < 3; i++) mot_note(&M, 0, C_MAJ[i], 100);
+    mot_render(&M, l, r, 16);
+    uint32_t qn = M.perf.qn;
+    mot_note(&M, 0, 59, 100);
+    mot_render(&M, l, r, 16);
+    CHECKM(M.perf.n == 4 && M.perf.qn == qn && M.ref[0][59] == 1, "ACC-180 nel motore: coda intatta, settima accesa");
+    /* un ri-attacco (nota spenta e riaccesa) riparte da capo come prima (ACC-179) */
+    mot_note(&M, 0, 52, 0);
+    mot_note(&M, 0, 51, 100);
+    mot_render(&M, l, r, 16);
+    CHECK(M.perf.n == 4 && M.ref[0][48] == 1 && M.ref[0][52] == 0);
 }
 
 void test_motore(void)

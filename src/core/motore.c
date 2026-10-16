@@ -145,6 +145,7 @@ void mot_note(motore_t *m, int engine, uint8_t note, uint8_t vel)
     if (vel) { m->held[note >> 3] |= bit; m->held_vel = vel; }
     else {
         m->held[note >> 3] &= (uint8_t)~bit;
+        m->removed = 1;
         if (!held_any(m)) m->went_empty = 1;
     }
     m->dirty = 1;
@@ -166,13 +167,22 @@ static void commit(motore_t *m)
         /* nessuna nota treble (per esempio un tasto che suona solo il basso): il KEY_DOWN resta in
          * attesa delle note del gesto, così il modo e il passo 0 valgono quando arrivano (ACC-173, ACC-182) */
         apply_perf(m, ev, perf_release(&m->perf, m->tick, ev, 48));
-        m->dirty = m->legato = m->went_empty = 0;
+        m->dirty = m->legato = m->went_empty = m->removed = 0;
         return;
     }
     uint8_t notes[8], k = 0;
     for (int i = 0; i < 128 && k < 8; i++) if (m->held[i >> 3] >> (i & 7) & 1u) notes[k++] = (uint8_t)i;
-    apply_perf(m, ev, perf_chord(&m->perf, m->tick, notes, k, m->held_vel, m->key_down, m->legato, ev, 48));
-    m->dirty = m->key_down = m->legato = m->went_empty = 0;
+    /* ADD_NOTE (ACC-180): solo note nuove sopra la voicing in corso, senza KEY_DOWN né spegnimenti.
+     * Prima passava per perf_chord come un ri-attacco e lo strum ripartiva da capo a ogni estensione */
+    bool add = !m->key_down && !m->removed && m->perf.n > 0 && k > m->perf.n;
+    for (int j = 0; add && j < m->perf.n; j++) {
+        bool found = false;
+        for (int i = 0; i < k; i++) if (notes[i] == m->perf.notes[j]) found = true;
+        if (!found) add = false;
+    }
+    if (add) apply_perf(m, ev, perf_add(&m->perf, m->tick, notes, k, ev, 48));
+    else apply_perf(m, ev, perf_chord(&m->perf, m->tick, notes, k, m->held_vel, m->key_down, m->legato, ev, 48));
+    m->dirty = m->key_down = m->legato = m->went_empty = m->removed = 0;
 }
 
 void mot_bpm(motore_t *m, uint16_t bpm)
