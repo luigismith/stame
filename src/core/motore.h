@@ -52,6 +52,7 @@ typedef struct {
     uint16_t bpm;
     uint8_t  beat_sel, beat, meter;     /* Beat o metronomo selezionato (BEAT_M_*), indice, metrica */
     uint8_t  beat_on, tr_on;            /* Beat acceso; trasporto in moto (ACC-204) */
+    uint8_t  metro_on, fill;            /* metronomo indipendente dal Beat e Fill tenuto (MIDI-133) */
     uint32_t tr_t0;                     /* tick della battuta 1 */
     uint8_t  held[16], held_vel;        /* voicing treble che arriva dal motore degli accordi */
     uint8_t  dirty, key_down, legato, went_empty;
@@ -81,6 +82,10 @@ void mot_meter(motore_t *m, uint8_t meter);     /* METER_*: vale per il metronom
 /* TRANSPORT_TOGGLE (ACC-205): accende o spegne il Beat o il metronomo selezionato */
 void mot_beat_on(motore_t *m, bool on);
 void mot_beat_volume(motore_t *m, uint8_t v);
+/* metronomo on/off indipendente dal Beat (T3 del pad, MIDI-133): mette in moto il trasporto come il Beat */
+void mot_metronome(motore_t *m, bool on);
+/* Fill del Beat finché on (T4 tenuto, MIDI-133): il pattern di riempimento al posto di quello normale */
+void mot_fill(motore_t *m, bool on);
 void mot_transpose(motore_t *m, int8_t t);
 void mot_loop(motore_t *m, int cmd);            /* LOOP_C_* */
 void mot_all_off(motore_t *m);

@@ -26,6 +26,8 @@ void vet_snd_apply(motore_t *m, const vet_snd_t *e)
     case VS_TRANSPOSE:   mot_transpose(m, (int8_t)e->a); break;
     case VS_LOOP:        mot_loop(m, e->a); break;
     case VS_DRUM:        mot_drum(m, e->a, e->b); break;
+    case VS_METRO:       mot_metronome(m, e->a != 0); break;
+    case VS_FILL:        mot_fill(m, e->a != 0); break;
     default: break;
     }
 }

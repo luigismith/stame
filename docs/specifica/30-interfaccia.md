@@ -660,7 +660,7 @@ Il comportamento del looper (stati, battute, overdub, undo, salvataggio) è nell
 
 **UI-096** [M] Tenendo premuto Key compare la richiesta «select key»; si preme la tonica sulla tastiera, tenendo il tipo **Min** per la minore (dal 3.84; dal 3.90 senza ottava nel prompt) [M MAN, FW]. La richiesta resta finché non si preme un tasto, finché non scade la durata di un overlay o finché non si tocca un altro encoder; dopo la scelta compare `OV_KEY` [V V-UI-15].
 
-**UI-097** [O] Bass Voicing tenuto + BPM attiva la batteria da suonare sulla tastiera [O, guida corretta il 13/10/2026; comportamento nella sezione 10]. Si mostra `OV_DRUMS` con «On» / «Off» [V V-UI-09].
+**UI-097** [O] Bass Voicing tenuto + BPM attiva la batteria da suonare sulla tastiera [O, guida corretta il 13/10/2026; comportamento nella sezione 10]. Si mostra `OV_DRUMS` con «On» / «Off» [V V-UI-09]. Dal 16/10/2026 la strada di tutti i giorni è **T11** del macro pad (`MACRO_DRUMS_TOGGLE`, 40 MIDI-133); Bass Voicing tenuto + BPM resta quella dell'Orchid.
 
 **UI-098** [D] System > Version mostra «Stame» e la versione («1.0.0»), finché non si preme o gira Options o non arriva `PNL_BACK`.
 
@@ -738,7 +738,7 @@ Le classi M, S e XS si leggono solo da vicino: NON DEVONO portare informazioni c
 - **Perché quest'ordine**: in alto, dove l'occhio arriva per primo, ci sono il nome dell'accordo (cosa suona) e il tempo (dove sono nella battuta e nel loop). Subito sotto la tastiera, che mostra le stesse note in forma spaziale: voicing, rivolti, basso e loop. In fondo la banda, che risponde a ciò che la mano ha appena toccato. La testata in cima è sottile e quasi sempre vuota: se la MPK cade o l'audio va in clip, lì lo si vede subito.
 - La zona comandi riprende l'ordine del fuoco (MIDI-092): da sinistra a destra e dall'alto in basso, così L1/R1 spostano il fuoco in un percorso di lettura naturale.
 
-**UI-142a** [D] **Pagina dei comandi.** `core/ui` porta `layer.page` a `PAGE_CONTROLS` quando arriva dalla Flip un tasto del fuoco: L1, R1, croce, A o X (anche ripetuti). La pagina resta aperta finché arrivano quei tasti e si chiude **5000 ms** dopo l'ultimo, oppure subito con B quando non c'è una lista da chiudere. Una lista o un menu aperti tengono la pagina aperta finché non si chiudono. I comandi che arrivano dalla MPK, dal macro pad o dalle scorciatoie dirette della Flip (Y, SELECT, START) **non** aprono la pagina: accendono solo la banda (UI-154), perché chi li usa ha già i nomi sotto le dita. Il valore di 5000 ms è da provare. Fa eccezione **T15 Page** del macro pad (40 MIDI-132, deciso da Luigi il 15/10/2026): `MACRO_CONTROLS_PAGE` apre la pagina e la **tiene aperta**, senza i 5 s, finché non arriva un altro `MACRO_CONTROLS_PAGE` o `PNL_BACK`. **T14 View** (`MACRO_VIEW_TOGGLE`) porta in Geek Out e, al tocco dopo, alla vista di prima.
+**UI-142a** [D] **Pagina dei comandi.** `core/ui` porta `layer.page` a `PAGE_CONTROLS` quando arriva dalla Flip un tasto del fuoco: L1, R1, croce, A o X (anche ripetuti). La pagina resta aperta finché arrivano quei tasti e si chiude **5000 ms** dopo l'ultimo, oppure subito con B quando non c'è una lista da chiudere. Una lista o un menu aperti tengono la pagina aperta finché non si chiudono. I comandi che arrivano dalla MPK, dal macro pad o dalle scorciatoie dirette della Flip (Y, SELECT, START) **non** aprono la pagina: accendono solo la banda (UI-154), perché chi li usa ha già i nomi sotto le dita. Il valore di 5000 ms è da provare. Fa eccezione **T15 Page** del macro pad (40 MIDI-132, deciso da Luigi il 15/10/2026): `MACRO_CONTROLS_PAGE` apre la pagina e la **tiene aperta**, senza i 5 s, finché non arriva un altro `MACRO_CONTROLS_PAGE` o `PNL_BACK`. **T14 View** (`MACRO_VIEW_TOGGLE`) porta in Geek Out e, al tocco dopo, alla vista di prima. Con la MK4 collegata croce, A e X della Flip sono riserve inerti (40 MIDI-134, 16/10/2026) e non aprono la pagina.
 
 **UI-143** [D] Mockup delle due pagine (1 carattere ≈ 8×16 px; nella tastiera 2 caratteri = 1 tasto bianco, 4 ottave da C2 a B5; `#` = pieno, `T` treble, `B` basso, `L` loop). Stato: Do♯ minore settima con il basso, looper in riproduzione, MPK collegata.
 
@@ -812,7 +812,7 @@ I font dell'OLED sono diversi e propri (§7.2).
 
 ### 4.4 Testata
 
-**UI-126** [D] Z1 (0, 0, 640, 24), testo in classe S alle righe 4..19. **Fuori da Geek Out lo stato tace**: la testata mostra a destra la batteria e, da x = 8 verso destra e solo finché servono, «NO MPK» (lampeggia), «MPK BUSY», «MPK ERROR», «MPK FACTORY», «PAD» (macro pad in errore o senza mappa), «POCKET», «LOCK» seguito da «SOUND PERFORM KEY» in `dim` (Lock delle manopole del macro pad acceso, 40 MIDI-131: è uno stato che cambia cosa fanno le mani, come il LED del Caps Lock), «CLIP» (1500 ms) e «XRUN» (2 s), con 16 px tra l'uno e l'altro; «NO MPK» tiene il suo posto anche quando è spento, così il resto non si sposta. Attività MIDI, voci, carico e livelli non si disegnano e non ridisegnano la zona. Nella vista **Geek Out** la testata è la barra completa:
+**UI-126** [D] Z1 (0, 0, 640, 24), testo in classe S alle righe 4..19. **Fuori da Geek Out lo stato tace**: la testata mostra a destra la batteria e, da x = 8 verso destra e solo finché servono, «NO MPK» (lampeggia), «MPK BUSY», «MPK ERROR», «MPK FACTORY», «PAD» (macro pad in errore o senza mappa), «POCKET», «LOCK» seguito da «SOUND PERFORM KEY» in `dim` (Lock delle manopole del macro pad acceso, 40 MIDI-131: è uno stato che cambia cosa fanno le mani, come il LED del Caps Lock), «DRUMS», «HOLD», «METRO» e «FILL» (gli stati delle aggiunte del macro pad in `active`: batteria a tastiera, Hold dell'accordo, metronomo di T3, Fill tenuto; 40 MIDI-133), «CLIP» (1500 ms) e «XRUN» (2 s), con 16 px tra l'uno e l'altro; «NO MPK» tiene il suo posto anche quando è spento, così il resto non si sposta. Attività MIDI, voci, carico e livelli non si disegnano e non ridisegnano la zona. Nella vista **Geek Out** la testata è la barra completa:
 
 | Elemento | x | Contenuto |
 |---|---|---|
@@ -952,23 +952,23 @@ Un testo che non sta nella cella si tronca con «…».
 
 **UI-152** [D] Contenuto delle celle (testi composti con `ui_fmt_*`):
 
-| Controllo | Titolo | Valore (M) | Dettaglio (S) | Legenda senza macro pad (XS) | Legenda con il macro pad (XS) |
+| Controllo | Titolo | Valore (M) | Dettaglio (S) | Legenda MK4 senza macro pad (XS) | Legenda MK4 con il macro pad (XS) |
 |---|---|---|---|---|---|
-| Sound | SOUND | «03 Analog Flower», «U05 Nome» | motore e categoria («VA  pluck»), «legacy» se `CF_LEGACY` | K1 | K1 T1 |
-| Perform | PERFORM | modo breve (UI-066) o «Off» | parametro: «Amount 07», «16  UP/DOWN», «Pattern 05» | K2 B3 | K2 T2 |
-| FX | FX | effetto principale e valore: «Reverb 04», «Chorus OFF» | slot con intensità diversa da zero: «REV4 CHO3 DLY5» | K3 | K3 T3 |
-| Key | KEY | «F♯ Minor» o «Off» | «Trans +3» (in `active`) o «Trans 0» (in `dim`) | K4 B1 | K4 T4 |
-| Bass | BASS | «On  03» o «Off  03» | nome del basso | K5 B2 | K5 T5 |
-| Loop | LOOP | «Rec», «Dub», «Play», «Pause», «Wait», «Count», «—» | «bar 2/4», «Free», «Loop 03» | K6 B5 REC | K6 T6 REC |
-| BPM | BPM | «120» | «Beat 03», «Metro», «Off» | K7 B6 PLAY | K7 T7 PLAY |
-| Volume | VOLUME | «72» | «Bass 70» | K8 | K8 T8 |
-| Options | OPTIONS | vista breve: «React», «Chord», «Keybd», «Ch+Kb», «Notes», «Geek» | Play Style | B7 SEL | T9 |
-| Chord Voicing | CH.VOICING | «032» (3 cifre, come l'overlay) | nota d'inizio e modo: «C♯3 Oct», «C♯3 Split» | B4 | M |
+| Sound | SOUND | «03 Analog Flower», «U05 Nome» | motore e categoria («VA  pluck»), «legacy» se `CF_LEGACY` | K1 S+K1 | K1 S+K1 |
+| Perform | PERFORM | modo breve (UI-066) o «Off» | parametro: «Amount 07», «16  UP/DOWN», «Pattern 05» | K2 S+K2 | K2 S+K2 |
+| FX | FX | effetto principale e valore: «Reverb 04», «Chorus OFF» | slot con intensità diversa da zero: «REV4 CHO3 DLY5» | K3 S+K3 | K3 S+K3 |
+| Key | KEY | «F♯ Minor» o «Off» | «Trans +3» (in `active`) o «Trans 0» (in `dim`) | K4 S+K4 | K4 S+K4 |
+| Bass | BASS | «On  03» o «Off  03» | nome del basso | K5 S+K5 | K5 S+K5 |
+| Loop | LOOP | «Rec», «Dub», «Play», «Pause», «Wait», «Count», «—» | «bar 2/4», «Free», «Loop 03» | K6 REC | K6 REC |
+| BPM | BPM | «120» | «Beat 03», «Metro», «Off» | K7 PLAY | K7 PLAY |
+| Volume | VOLUME | «72» | «Bass 70» | K8 S+K8 | K8 S+K8 |
+| Options | OPTIONS | vista breve: «React», «Chord», «Keybd», «Ch+Kb», «Notes», «Geek» | Play Style | SEL | T9 |
+| Chord Voicing | CH.VOICING | «032» (3 cifre, come l'overlay) | nota d'inizio e modo: «C♯3 Oct», «C♯3 Split» | L1 R1 | M |
 | Bass Voicing | BS.VOICING | «23» | nota d'inizio: «C♯2» | Y | m1 |
 
-- Le legende riprendono la mappa di 40 (§8.5, §8.10, §9.1): sono la **legenda viva** della MPK e del macro pad. Restano nelle celle anche con la plancia calma: la pagina dei comandi si guarda da vicino e, finché il case non c'è, è l'unico promemoria della mappa. Con il macro pad collegato (`pad_link` = `PADL_OPEN`) si usa l'ultima colonna: manopola della MPK, tasto o manopola del macro pad e, dove c'è, la scorciatoia sempre a portata (trasporto o tasto della Flip). I pad del banco B, che con il macro pad sono una riserva, non compaiono. Ogni legenda sta nella sua cella con le misure di UI-151 (XS = 6 px per carattere).
-- Options non ha una manopola sulla MPK: si ruota con m2, « », joystick o croce dopo averlo premuto, perché la pressione porta lì il fuoco (MIDI-104). Senza macro pad lo stesso vale per Chord Voicing e Bass Voicing, che dal 13/10/2026 non hanno più una manopola sulla MPK: si raggiungono con L1/R1 o premendo B4 o Y.
-- Con il macro pad le riserve (banco B, X e Y della Flip) non si scrivono: restano nel codice e nella legenda senza macro pad (15/10/2026, dalla pagina «Mappa dei comandi»). Con il **Lock acceso** (40 MIDI-131) le legende dicono quale manopola del pad fa cosa: Sound «M K1 T1», Perform «m1 K2 T2», Key «m2 K4 T4»; Chord Voicing e Bass Voicing mostrano «LOCK», perché in quel momento non hanno manopola. REC e PLAY sono i tasti del trasporto (sulla MK4: REC e STOP/PLAY).
+- Le legende riprendono la mappa di 40 (§8.9b, §8.10, §9.1, mappa del 16/10/2026): sono la **legenda viva** della MK4 e del macro pad. Restano nelle celle anche con la plancia calma: la pagina dei comandi si guarda da vicino e, finché il case non c'è, è l'unico promemoria della mappa. «S+K1» è SHIFT + K1 della MK4, il PUSH (40 MIDI-130). Con il macro pad collegato (`pad_link` = `PADL_OPEN`) si usa l'ultima colonna: Options, Chord Voicing e Bass Voicing passano a T9, M e m1.
+- Options non ha una manopola sulla MPK: si ruota con la manopola di navigazione della MK4 dopo averlo premuto, perché la pressione porta lì il fuoco (MIDI-104). Senza macro pad lo stesso vale per Chord Voicing e Bass Voicing, che non hanno una manopola sulla MPK: si raggiungono con L1/R1 e premendo Y (riserve del pad, 40 MIDI-134).
+- Con la **Plus** (`plat.mpk_model` = 0) valgono le legende di prima: banco B («K2 B3», «K6 B5 REC», «B7 SEL», «B4»), X e Y; con il pad T9, M e m1. Con il **Lock acceso** (40 MIDI-131) le legende dicono quale manopola del pad fa cosa: Sound «M K1», Perform «m1 K2», Key «m2 K4»; Chord Voicing e Bass Voicing mostrano «LOCK», perché in quel momento non hanno manopola. REC e PLAY sono i tasti del trasporto (sulla MK4: REC e STOP/PLAY).
 
 **UI-153** [D] Stati di una cella, cumulabili:
 
@@ -1235,7 +1235,7 @@ Gli eventi musicali (`PNL_KEY_*`, `PNL_CHORD_*`, `PNL_BEND`, `PNL_MOD`, `PNL_SUS
 | Controllo della MPK | Funzione |
 |---|---|
 | pad del **banco A** | gli 8 tasti accordo dell'Orchid, nella stessa disposizione: fila alta **Dim, Min, Maj, Sus**; fila bassa **6, m7, M7, 9** |
-| **K1 … K8** | rotazione di **Sound, Perform, FX, Key** (fila alta) e **Bass, Loop, BPM, Volume** (fila bassa), nella stessa posizione dei tasti T1–T8 del macro pad |
+| **K1 … K8** | rotazione di **Sound, Perform, FX, Key** (fila alta) e **Bass, Loop, BPM, Volume** (fila bassa); con SHIFT tenuto, la pressione (40 MIDI-130; dal 16/10/2026 l'unica strada) |
 | pad del **banco B** (riserva senza macro pad) | pulsanti funzione: **B1 Key, B2 Bass, B3 Perform, B4 Chord Voicing, B5 Loop, B6 BPM, B7 Options, B8 PUSH** |
 | **B8 tenuto, oppure X della Flip tenuto**, + tocco o rotazione di Kn (riserva) | pressione dell'encoder di Kn: premere, tenere, premere e ruotare (MIDI-084) |
 | **Rec** | Loop (doppione di T6 e di B5) |

@@ -59,6 +59,7 @@ typedef struct {
     char     beat_name[24];
     uint8_t  beat_volume;
     uint8_t  drums_on;
+    uint8_t  metro_on;                  /* metronomo indipendente dal Beat (T3 del pad, MIDI-133) */
 } ui_tempo_t;
 
 /* ---- 2.3 looper (UI-023) ---- */
@@ -89,6 +90,7 @@ typedef struct {
     ui_ctl_state_t st[ENC_COUNT];
     uint8_t  focus, turn_target, push;
     uint8_t  knob_lock;                 /* Lock del macro pad (40, MIDI-131): M, m1, m2 = Sound, Perform, Key */
+    uint8_t  hold, fill;                /* Hold dell'accordo e Fill del Beat tenuto (T1, T4 del pad: MIDI-133) */
     uint8_t  sound_user, sound_num;
     char     sound_name[17];
     uint8_t  sound_engine;
@@ -172,6 +174,7 @@ typedef struct {
     uint8_t  mpk_link, pad_link, pad_learn_step;
     uint32_t pad_learned;
     uint8_t  mpk_profile, mpk_bank;
+    uint8_t  mpk_model;                 /* 0 Plus, 1 MK4: decide le legende delle celle (UI-152) */
     char     mpk_fw[8];
     char     mpk_last[24];
     uint32_t midi_in_ms, midi_out_ms;

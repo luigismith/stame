@@ -14,8 +14,9 @@
 
 enum { LOOP_IDLE, LOOP_WAITING, LOOP_COUNT_IN, LOOP_REC, LOOP_PLAY, LOOP_OVERDUB, LOOP_PAUSE };
 /* LOOP_C_CLEAR in overdub annulla lo strato in corso; LOOP_C_RESET svuota sempre tutto (Reset, uscita
- * forzata, fine della demo) */
-enum { LOOP_C_PRESS, LOOP_C_STOP, LOOP_C_UNDO, LOOP_C_CLEAR, LOOP_C_OVERDUB, LOOP_C_RESET };
+ * forzata, fine della demo); LOOP_C_EXIT è l'uscita morbida di ACC-222: ferma, il loop resta in RAM e
+ * il LOOP_C_PRESS successivo lo riprende da capo invece di registrarne uno nuovo (Save Loop, MIDI-133) */
+enum { LOOP_C_PRESS, LOOP_C_STOP, LOOP_C_UNDO, LOOP_C_CLEAR, LOOP_C_OVERDUB, LOOP_C_RESET, LOOP_C_EXIT };
 enum { LOOP_TREBLE, LOOP_BASS, LOOP_DRUM };   /* LOOP_DRUM: colpi del kit, senza note-off (ACC-211) */
 
 #define LOOP_EVENTS 8192        /* ACC-231 */

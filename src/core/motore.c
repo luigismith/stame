@@ -109,7 +109,7 @@ static bool loop_moving(const looper_t *l)
 /* in moto se suona il Beat o lavora il looper; si mette in moto da battuta 1 (ACC-204) */
 static void transport(motore_t *m, bool restart)
 {
-    bool on = m->beat_on || loop_moving(&m->loop);
+    bool on = m->beat_on || m->metro_on || loop_moving(&m->loop);
     if (on && (!m->tr_on || restart)) m->tr_t0 = m->tick;
     m->tr_on = on;
 }
@@ -232,6 +232,14 @@ void mot_beat_on(motore_t *m, bool on)
 }
 
 void mot_beat_volume(motore_t *m, uint8_t v) { drums_volume(&m->drums, v); }
+
+void mot_metronome(motore_t *m, bool on)
+{
+    m->metro_on = on;
+    transport(m, false);
+}
+
+void mot_fill(motore_t *m, bool on) { m->fill = on; }
 void mot_transpose(motore_t *m, int8_t t) { m->transpose = t; }
 
 void mot_loop(motore_t *m, int cmd)
@@ -269,9 +277,9 @@ static void tick_run(motore_t *m)
     beat_hit_t h[8];
     int n = 0;
     if (m->beat_on && m->beat_sel == BEAT_M_PATTERN && pos % STEP_TICKS == 0)
-        n = beat_hits(m->beat, (int)((pos / STEP_TICKS) % 16u), h, 6);
-    /* il metronomo, e il count-in del looper con qualunque Beat (ACC-223) */
-    if ((m->beat_on && m->beat_sel == BEAT_M_METRONOME) || m->loop.state == LOOP_COUNT_IN)
+        n = (m->fill ? beat_fill_hits : beat_hits)(m->beat, (int)((pos / STEP_TICKS) % 16u), h, 6);
+    /* il metronomo (dal Beat o da T3), e il count-in del looper con qualunque Beat (ACC-223) */
+    if ((m->beat_on && m->beat_sel == BEAT_M_METRONOME) || m->metro_on || m->loop.state == LOOP_COUNT_IN)
         n += metro_hits(m->beat_sel == BEAT_M_PATTERN ? METER_4_4 : m->meter, pos, h + n, 8 - n);
     for (int i = 0; i < n; i++) drums_hit(&m->drums, h[i].inst, h[i].vel);
 }

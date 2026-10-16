@@ -29,7 +29,7 @@ The name comes from the flower: the Orchid's editor is called *Pistil*; the stam
 ## Playing it, in three lines
 
 1. **Hold a pad, press a key.** Top row Dim, Min, Maj, Sus; bottom row the extensions 6, m7, M7, 9. The key gives the root; the big knob of the macro pad moves the voicing window.
-2. **Turn a knob, the band answers.** K1 Sound, K2 Perform, K3 FX, K4 Key, K5 Bass, K6 Loop, K7 BPM, K8 Volume; press the twin key on the pad (T1–T8) to «push» it. T13 is a Lock, like Caps Lock: the pad's three detented knobs become Sound, Perform and Key.
+2. **Turn a knob, the band answers.** K1 Sound, K2 Perform, K3 FX, K4 Key, K5 Bass, K6 Loop, K7 BPM, K8 Volume; hold SHIFT and touch the knob to «push» it (since 16/10/2026 every command has one home: knobs and SHIFT on the MPK, lists on its nav knob). The macro pad adds what the Orchid lacks: Hold, tap tempo, metronome, fill, four scenes, Save Loop, keyboard drums; T13 is a Lock, like Caps Lock: the pad's three detented knobs become Sound, Perform and Key.
 3. **REC, play four bars, ⊕ to overdub.** The MPK's transport buttons are the looper; STOP/PLAY starts the beat. T12 held for one second is Panic, three seconds is Reset.
 
 The Italian [manual](docs/manuale/manuale.md) and the one-page [quick reference](docs/manuale/prontuario.md) have everything else.

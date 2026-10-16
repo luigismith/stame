@@ -94,7 +94,12 @@ int loop_cmd(looper_t *l, int cmd, uint32_t tick, loop_ev_t *out, int max)
     int k = 0;
     switch (cmd) {
     case LOOP_C_PRESS:
-        if (l->state == LOOP_IDLE) {                              /* una battuta di count-in, poi 4 da registrare */
+        if (l->state == LOOP_IDLE && l->len && l->n) {             /* loop in RAM dopo l'uscita morbida: riprende (ACC-222) */
+            l->state = LOOP_PLAY;
+            l->t0 = tick;
+            l->pi = 0;
+            l->last = 0;
+        } else if (l->state == LOOP_IDLE) {                       /* una battuta di count-in, poi 4 da registrare */
             l->state = LOOP_COUNT_IN;
             l->t0 = tick + l->bar;
             l->len = (uint32_t)l->bars * l->bar;
@@ -149,6 +154,14 @@ int loop_cmd(looper_t *l, int cmd, uint32_t tick, loop_ev_t *out, int max)
         break;
     case LOOP_C_RESET:
         k = clear(l, out, max, k);                                /* in ogni stato, anche in overdub */
+        break;
+    case LOOP_C_EXIT:                                             /* uscita morbida: ferma, il loop resta in RAM */
+        if (l->state == LOOP_IDLE) break;
+        if (l->state == LOOP_COUNT_IN) { k = clear(l, out, max, k); break; }   /* niente ancora da tenere */
+        if (l->state == LOOP_REC || l->state == LOOP_OVERDUB) close_layer(l);
+        k = close_open(l, out, max, k);
+        l->state = LOOP_IDLE;
+        memset(l->rec_open, 0, sizeof l->rec_open);
         break;
     default: break;
     }

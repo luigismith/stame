@@ -52,6 +52,58 @@ static const beat_def_t BEATS[BEAT_COUNT] STAME_ROM = {
                            { DRUM_OPEN_HAT, "..x...x...x...x." }, { DRUM_MARACAS, "x.xxx.xxx.xxx.xx" } } },
 };
 
+/* i fill (MIDI-133, 16/10/2026): una battuta di riempimento per Beat, nello stesso kit, che suona finché
+ * T4 è tenuto; rullate di rullante o rimshot nella seconda metà e i tom dove il kit li ha */
+typedef struct { beat_line_t line[6]; } beat_fill_t;
+static const beat_fill_t FILLS[BEAT_COUNT] STAME_ROM = {
+    { { { DRUM_KICK, "X...X...X...X..." }, { DRUM_SNARE, "....X...X.X.XxXx" }, { DRUM_CLOSED_HAT, "X.x.X.x.X.x.X.x." } } },
+    { { { DRUM_KICK, "X.....X.X.....X." }, { DRUM_SNARE, "..X..X..XxXxXXXX" }, { DRUM_CLOSED_HAT, "XxxxXxxxXxxx...." },
+        { DRUM_OPEN_HAT, "..............X." } } },
+    { { { DRUM_KICK, "X..xX..xX..xX..x" }, { DRUM_RIMSHOT, "X..X..X.xxxxxxxx" }, { DRUM_MARACAS, "..x...x...x...x." },
+        { DRUM_CONGA, "........x.x.xx.x" } } },
+    { { { DRUM_KICK, "X...X...X...X..." }, { DRUM_SNARE, "....X.......XXXX" }, { DRUM_TOM_LO, "........x.x....." },
+        { DRUM_CLOSED_HAT, "X.x.X.x.X.x.X.x." } } },
+    { { { DRUM_KICK, "X.......X.x....." }, { DRUM_RIMSHOT, "....X.....x.x.X." }, { DRUM_CLOSED_HAT, "x.xxx.xxx.xx...." },
+        { DRUM_TOM_HI, "............x.x." } } },
+    { { { DRUM_KICK, "X.......X..x...." }, { DRUM_SNARE, "....X.....X..X.X" }, { DRUM_TOM_LO, "..............x." },
+        { DRUM_CLOSED_HAT, "X..xX..xX..x...." } } },
+    { { { DRUM_KICK, "X.........X.X..." }, { DRUM_SNARE, "........X...XXXX" }, { DRUM_CLOSED_HAT, "x.x.x.x.x.x....." },
+        { DRUM_CLAP, "........X......." } } },
+    { { { DRUM_KICK, "X..x......X.x..." }, { DRUM_SNARE, "....X....x.xX.xX" }, { DRUM_CLOSED_HAT, "x.x.x.x.x.x.x..." },
+        { DRUM_OPEN_HAT, "..............x." } } },
+    { { { DRUM_KICK, "X...X...X...X..." }, { DRUM_SNARE, "....X...XxXxXXXX" }, { DRUM_CLOSED_HAT, "x...x...x...x..." },
+        { DRUM_OPEN_HAT, "..X...X...X...X." }, { DRUM_CLAP, "....x.......x..." } } },
+    { { { DRUM_KICK, "X..xX..xX..xX..x" }, { DRUM_RIMSHOT, "..x..x..xxxxxxxx" }, { DRUM_MARACAS, "xxxxxxxxxxxxxxxx" },
+        { DRUM_CONGA, ".x.x..x.x.xx.xxx" }, { DRUM_COWBELL, "X...X...X.X.X.X." } } },
+    { { { DRUM_KICK, "X.......x.X....." }, { DRUM_SNARE, "....X.......X.xX" }, { DRUM_TOM_HI, "..........x.x..." },
+        { DRUM_TOM_LO, "............x..." }, { DRUM_CLOSED_HAT, "x.x.x.x.x.x.x.x." }, { DRUM_CYMBAL, "X..............." } } },
+    { { { DRUM_KICK, "X...X...X...X..." }, { DRUM_SNARE, "x.xXx.xXXXXXXXXX" }, { DRUM_CLOSED_HAT, "X.x.X.x.X.x.X.x." } } },
+    { { { DRUM_KICK, "X...X..xX...X..." }, { DRUM_SNARE, "....X...x.x.xXXX" }, { DRUM_CLOSED_HAT, "x.x.x.x.x.x.x.x." },
+        { DRUM_TOM_HI, "..........x.x.x." }, { DRUM_COWBELL, "..x...x........." } } },
+    { { { DRUM_KICK, "X...X...X...X..." }, { DRUM_CLAP, "....X.......XXXX" }, { DRUM_CLOSED_HAT, "xx.xxx.xxx.xxxxx" },
+        { DRUM_OPEN_HAT, "..X...X...X...X." }, { DRUM_RIMSHOT, "...x..x.xxxxxxxx" } } },
+    { { { DRUM_KICK, "X...X...X...X.X." }, { DRUM_RIMSHOT, "....x.......xxxx" }, { DRUM_OPEN_HAT, "..x...x...x...x." },
+        { DRUM_MARACAS, "x.xxx.xxx.xxxxxx" }, { DRUM_TOM_LO, "..........x.x..." } } },
+};
+
+static int line_hits(const beat_line_t *lines, int s, beat_hit_t *out, int max)
+{
+    int k = 0;
+    for (int i = 0; i < 6 && k < max; i++) {
+        const beat_line_t *l = &lines[i];
+        if (!l->steps) continue;
+        char c = l->steps[s];
+        if (c == 'X' || c == 'x') { out[k].inst = l->inst; out[k].vel = c == 'X' ? 110 : 80; k++; }
+    }
+    return k;
+}
+
+int beat_fill_hits(int b, int s, beat_hit_t *out, int max)
+{
+    if (b < 0 || b >= BEAT_COUNT || s < 0 || s > 15) return 0;
+    return line_hits(FILLS[b].line, s, out, max);
+}
+
 int beat_hits(int b, int s, beat_hit_t *out, int max)
 {
     if (b < 0 || b >= BEAT_COUNT || s < 0 || s > 15) return 0;

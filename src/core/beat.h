@@ -18,6 +18,8 @@ typedef struct { uint8_t inst, vel; } beat_hit_t;
 
 /* colpi del passo s (0…15) del Beat b; restituisce quanti (al massimo max) */
 int beat_hits(int b, int s, beat_hit_t *out, int max);
+/* lo stesso per il fill del Beat b (MIDI-133, T4 tenuto): una battuta di riempimento nello stesso kit */
+int beat_fill_hits(int b, int s, beat_hit_t *out, int max);
 /* tick della battuta (192, 288, 384, 288) e fra due clic (la semiminima; la croma in 6/8) */
 uint32_t meter_bar(int meter);
 uint32_t meter_click(int meter);

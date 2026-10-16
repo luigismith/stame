@@ -24,7 +24,18 @@ typedef enum {
     MACRO_KNOB_LOCK,                /* b = 1 acceso, 0 spento: Lock delle manopole del macro pad (MIDI-131) */
     MACRO_VIEW_TOGGLE,              /* Geek Out <-> la vista di prima (T14 del macro pad, MIDI-132) */
     MACRO_CONTROLS_PAGE,            /* apre o chiude la pagina dei comandi della Flip (T15, MIDI-132) */
-    MACRO_RESET                     /* Panic più looper, Beat, transpose e Perform da capo (T12 tenuto 3 s, MIDI-126) */
+    MACRO_RESET,                    /* Panic più looper, Beat, transpose e Perform da capo (T12 tenuto 3 s, MIDI-126) */
+    /* le funzioni che l'Orchid non ha, sui tasti liberi del macro pad (MIDI-133, 16/10/2026) */
+    MACRO_HOLD_TOGGLE,              /* T1: l'accordo resta a suonare dopo il rilascio, fino al tasto dopo */
+    MACRO_TAP_TEMPO,                /* T2: un tocco del tap tempo */
+    MACRO_METRO_TOGGLE,             /* T3: metronomo on/off, indipendente dal Beat */
+    MACRO_FILL,                     /* T4: b = 1 tenuto (fill del Beat), 0 rilasciato */
+    MACRO_SCENE,                    /* T5–T8 toccati: b = scena 0…3 da richiamare */
+    MACRO_SCENE_SAVE,               /* T5–T8 tenuti 1 s: b = scena 0…3 da salvare */
+    MACRO_LOOP_EXIT,                /* T10: Save Loop, l'uscita morbida (ACC-222 EXIT) */
+    MACRO_DRUMS_TOGGLE,             /* T11: batteria a tastiera on/off (ACC-211) */
+    MACRO_BEAT_VOL,                 /* m2 girata: b = scatti con segno sul volume del Beat */
+    MACRO_BASS_VOL                  /* m2 premuta e girata: b = scatti sul volume del basso */
 } macro_t;
 
 typedef enum {

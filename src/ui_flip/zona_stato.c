@@ -16,14 +16,14 @@ uint64_t uf_sig_z1(const ui_model_t *m, const ui_flip_state_t *st)
     uint64_t h = UF_H0;
     const ui_platform_t *pl = &m->plat;
     bool g = geek(m);
-    uint8_t v[19] = {
+    uint8_t v[22] = {
         pl->mpk_link, pl->mpk_profile, pl->mpk_bank, pl->pad_link, m->prefs.pocket, m->prefs.meters, m->ctl.knob_lock,
         (uint8_t)(g && m->now_ms - pl->midi_in_ms < 50), (uint8_t)(g && m->now_ms - pl->midi_out_ms < 50),
         g ? m->meters.voices_used : 0, g ? m->meters.dsp_load_pct : 0, pl->battery_pct, pl->charging,
         (uint8_t)((int32_t)(st->xrun_until - m->now_ms) > 0), (uint8_t)((int32_t)(st->clip_until - m->now_ms) > 0),
         (uint8_t)(pl->mpk_link == MPK_ABSENT && mpk_blink(m)),
         (uint8_t)(pl->battery_pct < 10 && uf_blink(m->now_ms, 500, 500)),
-        (uint8_t)g, m->tempo.drums_on,
+        (uint8_t)g, m->tempo.drums_on, m->tempo.metro_on, m->ctl.hold, m->ctl.fill,
     };
     h = uf_h(h, v, sizeof v);
     if (g) h = uf_h(h, st->peak_db10, sizeof st->peak_db10);
@@ -129,6 +129,10 @@ void uf_draw_z1(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, const ui
         }
         /* batteria a tastiera: uno stato, quindi sempre in vista (anche con il transpose o la pagina dei comandi) */
         if (m->tempo.drums_on) x = gfx_text(fb, &GFX_S, x, y, "DRUMS", p->c[T_ACTIVE]) + 16;
+        /* le aggiunte del pad sono stati (MIDI-133): Hold dell'accordo, metronomo, Fill tenuto */
+        if (m->ctl.hold) x = gfx_text(fb, &GFX_S, x, y, "HOLD", p->c[T_ACTIVE]) + 16;
+        if (m->tempo.metro_on) x = gfx_text(fb, &GFX_S, x, y, "METRO", p->c[T_ACTIVE]) + 16;
+        if (m->ctl.fill) x = gfx_text(fb, &GFX_S, x, y, "FILL", p->c[T_ACTIVE]) + 16;
         clip_xrun(fb, p, m, st, x, false, true);
         battery(fb, p, m);
         return;

@@ -33,13 +33,17 @@
  * mot_due non dice che è il momento (vet_snd_due). timed = 0: subito. */
 enum { VS_NOTE_ON, VS_NOTE_OFF, VS_CHORD_START, VS_PATCH, VS_PARAM, VS_MASTER, VS_BASS_VOL, VS_ALL_OFF,
        VS_BPM, VS_PERF, VS_BEAT, VS_METER, VS_BEAT_ON, VS_BEAT_VOL, VS_TRANSPOSE, VS_LOOP,
-       VS_DRUM };                       /* a = tasto 0…11, b = velocity: batteria a tastiera (ACC-211) */
+       VS_DRUM,                         /* a = tasto 0…11, b = velocity: batteria a tastiera (ACC-211) */
+       VS_METRO, VS_FILL };             /* a = on: metronomo indipendente e Fill del Beat (MIDI-133) */
 typedef struct { uint8_t type, engine, a, b, timed; uint32_t at; } vet_snd_t;   /* engine: 0 Sound, 1 Bass */
 
 /* statistiche del thread audio della piattaforma (PLT-021), scritte dal callback e lette dalla UI:
  * underrun stimati, carico medio dell'ultimo secondo e massimo in percento del periodo, callback
  * più lungo in µs, scheduling ottenuto (0 normale, 1 nice −10, 2 SCHED_FIFO) con l'errno di SCHED_FIFO */
 typedef struct vet_audio_stats { _Atomic uint32_t xruns, load_pct, load_max_pct, cb_max_us, sched, sched_err; } vet_audio_stats_t;
+
+/* una scena del macro pad (MIDI-133, T5–T8): suono, basso, Perform, effetto, tonalità e basso acceso */
+typedef struct { uint8_t used, sound, bass, perf_mode, perf_amount, fx_amount, key_index, key_on, bass_on; } vet_scene_t;
 
 /* patch di Stame per i suoni e i bassi della vetrina (patch_vetrina.c, da tools/patch.py) */
 extern const uint8_t vet_sound_patch[VET_N_SOUNDS][DSP_NPAR];
@@ -91,6 +95,8 @@ typedef struct {
     /* demo automatica: il brano va a tick del motore (demo.h) */
     uint8_t     demo_on;              /* preferenza: demo automatica permessa */
     uint8_t     factory_warned;       /* avviso «STAME program not active» già dato per questo collegamento (MIDI-119) */
+    vet_scene_t scenes[4];            /* scene del macro pad (MIDI-133) */
+    uint8_t     scenes_dirty;         /* una scena salvata: la piattaforma scrive il file e lo azzera */
     uint8_t     demo_running;
     uint32_t    demo_t0, last_input_ms;
     uint8_t     demo_theme;           /* il tema di chi suona, da rimettere quando la demo si ferma */
@@ -163,5 +169,9 @@ void vet_demo_seek(vet_t *v, uint32_t t_ms, void (*step)(vet_t *v, void *ctx), v
 uint32_t vet_demo_len(int i);
 /* Sceglie il brano che la demo suonerà alla prossima partenza (il render lo usa per --song). */
 void vet_demo_select(vet_t *v, int i);
+/* Scene (MIDI-133) come testo chiave=valore (sezione 50 §9.1): la piattaforma le tiene in Saves/stame/scene.txt.
+ * vet_scenes_write ritorna i byte scritti (0 se non stanno in max). */
+size_t vet_scenes_write(const vet_t *v, char *buf, size_t max);
+void vet_scenes_read(vet_t *v, const char *txt, size_t n);
 
 #endif

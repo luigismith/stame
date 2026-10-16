@@ -10,7 +10,7 @@ Come nella foto del 15/10/2026:
 
 - **MPK mini IV a sinistra**, nel preset **DAW** (è di fabbrica, non va programmato). La sinistra sta sugli 8 pad, la destra sui tasti; le 8 manopole K1…K8 sono sopra i tasti, a destra; sotto le manopole, il trasporto (UNDO, LOOP, STOP/PLAY, REC, ⊕).
 - **Macro pad a destra**, in linea con i tasti, con le manopole verso destra: le due piccole in alto (**m1** vicina ai tasti, **m2** sul bordo), la grande **M** in basso. Si usa solo via cavo, sullo strato di fabbrica 3 (o sull'1, reso uguale al 3).
-- **Flip sopra il pad**, aperta, con lo schermo verso chi suona: è un display a portata di sguardo, fuori dalle mani. I suoi tasti servono alle liste e alla pagina dei comandi.
+- **Flip sopra il pad**, aperta, con lo schermo verso chi suona: è un display a portata di sguardo, fuori dalle mani. Con MPK e pad collegati dei suoi tasti serve solo MENU: gli altri sono riserve, vive quando manca l'apparecchio che sostituiscono (§9.2).
 - MPK e pad entrano in un **hub USB 2.0 semplice, senza Power Delivery**, sulla porta USB-C **di sopra** della Flip. Mai forzare la porta in modalità host dal sistema: Stame non lo fa e non va fatto a mano.
 
 ## 2. Accendere e spegnere
@@ -32,28 +32,28 @@ Lo stato della MPK e del pad si vede nella testata, in alto: a riposo c'è solo 
 - **Chord Voicing (manopola grande M del pad).** Tutte le note dell'accordo cadono in una finestra di un'ottava che parte dalla nota d'inizio: girando in su la nota più bassa sale di un'ottava, in giù la più alta scende; dodici scatti = la stessa voicing un'ottava sopra. Il valore va da 1 a 60 (la banda mostra «VOICING 032 C♯3»). Mentre giri, se l'accordo sta suonando si riattacca.
 - **Bass Voicing (m1).** L'ottava del basso, 0…48. Il basso è sempre la fondamentale.
 - **Premere M: Split ↔ Octave** per le note singole. In **Octave** i 12 tasti suonano l'ottava che contiene la nota d'inizio; in **Split** la finestra vale anche per le note singole, e il punto di divisione si sposta con il voicing.
-- **Key mode (K4 / T4).** Premere Key accende o spegne la tonalità: con la Key mode accesa un tasto senza tipo suona l'accordo del suo grado (Do in Fa♯ minore dà il suo accordo) e la testata della zona accordo scrive la tonalità. Girare Key sceglie la tonalità fra le 42 (e accende la Key mode se era spenta). **Premere e girare Key = Transpose**, ±12 semitoni, su tutta l'uscita, loop compreso. Previsto: Key tenuto + tasto per la scelta rapida (con Min tenuto per la minore).
+- **Key mode (K4 / SHIFT + K4).** Premere Key accende o spegne la tonalità: con la Key mode accesa un tasto senza tipo suona l'accordo del suo grado (Do in Fa♯ minore dà il suo accordo) e la testata della zona accordo scrive la tonalità. Girare Key sceglie la tonalità fra le 42 (e accende la Key mode se era spenta). **Premere e girare Key = Transpose**, ±12 semitoni, su tutta l'uscita, loop compreso. Previsto: Key tenuto + tasto per la scelta rapida (con Min tenuto per la minore).
 - **Play Style (Options).** **Simple**: suona ciò che tieni. **Advanced**: l'accordo resta anche se lasci il tipo; le estensioni si aggiungono a quello che suona. **Free**: come Advanced, e l'accordo si può cambiare o riattaccare più volte con il tasto tenuto.
 - **Secret Chords (Options):** combinazioni di più tipi tenuti insieme che danno accordi nascosti. Con la voce spenta vale l'ultimo tipo premuto.
 
 ## 4. I controlli, uno per uno
 
-![La pagina dei comandi (T15 o i tasti del fuoco): le 11 celle con valore, fuoco e sigla del comando](img/comandi.png)
+![La pagina dei comandi (T15): le 11 celle con valore, fuoco e sigla del comando; «S+K1» è SHIFT + K1](img/comandi.png)
 
 ![Il controllo appena toccato: girando FX la banda scrive REVERB 04 e la cella si accende](img/tocco.png)
 
-![La lista dei suoni (T1): nome, motore e famiglia](img/lista_suoni.png)
+![La lista dei suoni (SHIFT + K1): nome, motore e famiglia](img/lista_suoni.png)
 
-L'Orchid ha nove encoder che si girano e si premono e due manopole di voicing. Su Stame il **girare** sta sulle manopole K1…K8 della MPK (senza scatti) e il **premere** sui tasti T1…T9 del macro pad (o, in riserva, sui pad del banco B della MPK e su SHIFT come PUSH). Le quattro manopole con scatti e pressione (M, m1, m2 del pad e quella di navigazione della MPK) fanno tutti i gesti con una mano sola. I gesti sono quattro:
+L'Orchid ha nove encoder che si girano e si premono e due manopole di voicing. Su Stame ogni comando ha **una casa sola** (16/10/2026): il **girare** sta sulle manopole K1…K8 della MPK (senza scatti), il **premere** su **SHIFT + K** della stessa MPK (tieni SHIFT e tocchi la manopola: è «premuta»), le **liste** sulla manopola di navigazione con − (Back) e + (Menu) accanto. Il macro pad tiene Options (T9), i due voicing (M, m1) e le cose che l'Orchid non ha (§7). I gesti sono quattro:
 
 | Gesto | Come si fa |
 |---|---|
-| **premi** | un tocco (vale al rilascio, così si distingue dal premi-e-gira) |
-| **tieni** | premuto per 1 secondo; scatta alla soglia |
-| **premi e gira** | tieni Tn e giri Kn (stessa posizione nella griglia), oppure premi e giri una manopola del pad |
+| **premi** | SHIFT + K toccata e lasciata (vale al rilascio di SHIFT, così si distingue dal premi-e-gira); T9 e M un tocco |
+| **tieni** | SHIFT + K toccata, SHIFT tenuto 1 secondo; scatta alla soglia |
+| **premi e gira** | SHIFT + K girata; oppure premi e giri una manopola del pad |
 | **gira** | la manopola |
 
-Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 Volume sulla MPK; T1…T8 gli stessi, in griglia gemella, sul pad; T9 Options; M Chord Voicing; m1 Bass Voicing; m2 liste e fuoco (vedi §7 per il Lock, che cambia il mestiere di M, m1, m2). Premere un tasto Tn porta anche il **fuoco** su quel controllo: da lì la croce e A della Flip, o la manopola di navigazione della MPK, lo girano e lo premono.
+Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 Volume sulla MPK; T9 Options; M Chord Voicing; m1 Bass Voicing (vedi §7 per il Lock, che cambia il mestiere di M, m1, m2). Premere un controllo porta anche il **fuoco** su di lui: da lì la manopola di navigazione della MPK lo gira e lo preme.
 
 | Controllo | Gira | Premi | Tieni 1 s | Premi e gira |
 |---|---|---|---|---|
@@ -62,14 +62,14 @@ Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 
 | **FX** | intensità 0…10 dell'effetto principale del suono (REVERB, CHORUS, ENSEMBLE, PHASER, FLANGER, DRIVE, TREMOLO, DELAY) | mostra l'effetto | **Lock** dell'effetto | — |
 | **Key** | la tonalità (accende la Key mode) | Key mode on/off | previsto: scelta rapida | **Transpose** ±12 |
 | **Bass** | i 18 bassi (Round Root, Sub Floor, Pluck Bass, Reed Bass, Velvet Sub, Wood Bass, Taproot, Peat Sub, Bark Bass, Pod Bass, Thorn Bass, Moss Sub, Reese Root, Acid Sedge, Henbane Sub, Fen Rumble, Spore Bass, Ironroot) | basso on/off | previsto: lista dei modi | — |
-| **Loop** | con il loop in corso sceglie fra le tre voci in Z3 (OVERDUB, PAUSE, CLEAR o UNDO; STOP, PLAY…) | da fermo **REC**; altrimenti esegue la voce scelta | previsto: 2 s = Save Loop / uscita morbida | — |
-| **BPM** | 60…200 | Beat o metronomo on/off | lista: **2/4, 3/4, 4/4, 6/8** (metronomo) e i 14 Beat **Funk, Bossa, Motorik, Lounge, Shuffle, Halftime, Boom Bap, Disco, Samba, Ballad, Train, Chip, Techno, Dub**, ognuno con il suo kit (studio, jazz, 808, techno; Chip è la sintesi) | **Beat Volume** 0…99 |
+| **Loop** | con il loop in corso sceglie fra le tre voci in Z3 (OVERDUB, PAUSE, CLEAR o UNDO; STOP, PLAY…) | da fermo **REC** (con un loop messo da parte con T10, lo riprende); altrimenti esegue la voce scelta | previsto: 2 s = Save Loop / uscita morbida (oggi T10 del pad) | — |
+| **BPM** | 60…200 (o il **tap tempo** su T2) | Beat o metronomo on/off (anche STOP/PLAY della MPK) | lista: **2/4, 3/4, 4/4, 6/8** (metronomo) e i 14 Beat **Funk, Bossa, Motorik, Lounge, Shuffle, Halftime, Boom Bap, Disco, Samba, Ballad, Train, Chip, Techno, Dub**, ognuno con il suo kit (studio, jazz, 808, techno; Chip è la sintesi) | **Beat Volume** 0…99 |
 | **Volume** | volume master 0…99 | batteria della Flip | — | **Bass Volume** 0…99 |
 | **Options** | cambia la vista (fuori dalla lista) | lista: Exit, View, Play Style, Single Notes, Secret Chords | — | — |
 | **Chord Voicing** (M) | finestra ±1 semitono per scatto | Split ↔ Octave | — | — |
-| **Bass Voicing** (m1) | ottava del basso | il modificatore **Mod**: Mod + BPM = batteria a tastiera (i 12 tasti suonano il kit del Beat e i colpi entrano nel loop quantizzati al sedicesimo; sulla plancia «DRUMS» e le sigle sui tasti C4…B4), Mod + Loop = uscita forzata dal loop (Clear); Mod + Bass = basso on/off, come Bass da solo | — | — |
+| **Bass Voicing** (m1) | ottava del basso | il modificatore **Mod**: Mod + Loop (REC) = uscita forzata dal loop (Clear); Mod + Bass = basso on/off, come Bass da solo; Mod + BPM = batteria a tastiera, che oggi ha il suo tasto T11 | — | — |
 
-Liste: la voce in cima è Exit; la croce o la manopola di navigazione scorrono, A o la pressione scelgono, B chiude. Una lista si chiude da sola dopo 10 secondi, e si chiude anche toccando un altro controllo. Ogni controllo toccato accende la **banda** in fondo allo schermo con il suo nome e valore in grande: è l'overlay dell'Orchid, che qui non copre l'accordo.
+Liste: la voce in cima è Exit; la manopola di navigazione scorre, premuta sceglie, − chiude (senza MPK: croce, A e B della Flip). Una lista si chiude da sola dopo 10 secondi, e si chiude anche toccando un altro controllo. Ogni controllo toccato accende la **banda** in fondo allo schermo con il suo nome e valore in grande: è l'overlay dell'Orchid, che qui non copre l'accordo.
 
 ## 5. Il looper, passo per passo
 
@@ -77,18 +77,22 @@ Liste: la voce in cima è Exit; la croce o la manopola di navigazione scorrono, 
 
 Il looper registra **eventi** (note), non audio: cambiando BPM cambia la velocità del loop, cambiando suono cambia il suono del loop, il transpose vale anche per il loop.
 
-1. **Registrare.** Premi Loop (T6, oppure **REC** della MPK). Il metronomo conta **una battuta** («04» … «01» sulla banda) e poi registra **4 battute**; le note suonate un attimo prima del via entrano a tempo. Finite le 4 battute il loop suona da solo e il pannello in alto a destra mostra ▶ PLAY, la battuta («2/4») e il giro. Durante il count-in e la registrazione la cornice del pannello è rossa.
+1. **Registrare.** Premi **REC** della MPK (è il pulsante di Loop). Il metronomo conta **una battuta** («04» … «01» sulla banda) e poi registra **4 battute**; le note suonate un attimo prima del via entrano a tempo. Finite le 4 battute il loop suona da solo e il pannello in alto a destra mostra ▶ PLAY, la battuta («2/4») e il giro. Durante il count-in e la registrazione la cornice del pannello è rossa.
 2. **Sovraincidere.** Con il loop che suona: Loop girato fino a OVERDUB e premuto, oppure **⊕** della MPK. Suona sopra: tutto quello che fai entra in un nuovo strato, giro dopo giro. Per chiudere lo strato: ancora ⊕ (o la voce STOP).
 3. **Pausa e ripresa.** **LOOP** della MPK mette in pausa (le note si spengono); di nuovo LOOP riparte da capo, con il trasporto, così Beat e loop restano allineati.
 4. **Undo.** **UNDO** della MPK, o la voce UNDO, toglie l'ultimo strato; con il solo primo strato diventa Clear.
 5. **Cancellare.** La voce CLEAR, oppure **SHIFT + UNDO** sulla MPK: via tutto, il looper torna fermo.
-6. Previsti: Waiting Room con la scelta delle battute (Free, 1, 2, 4, 8, 16), salvataggio in 10 slot, uscita morbida (Loop tenuto 2 s) e uscita forzata (Mod + Loop).
+6. **Mettere da parte.** **T10 Save Loop** del pad ferma il loop e lo tiene in memoria: REC lo riprende da capo invece di registrarne uno nuovo; CLEAR da fermo lo butta. Mod + REC (m1 premuta) è l'uscita forzata: cancella subito.
+7. Previsti: Waiting Room con la scelta delle battute (Free, 1, 2, 4, 8, 16), salvataggio in 10 slot.
 
 ## 6. Beat e metronomo
 
 ![La lista di BPM tenuto: metriche del metronomo e i 14 Beat](img/lista_beat.png)
 
-- **BPM premuto** (T7, oppure **STOP/PLAY** della MPK) accende e spegne il Beat scelto; con un metronomo scelto, accende il clic. Il trasporto riparte dalla battuta 1.
+- **BPM premuto** (SHIFT + K7, oppure **STOP/PLAY** della MPK) accende e spegne il Beat scelto; con un metronomo scelto, accende il clic. Il trasporto riparte dalla battuta 1.
+- **T3 METRO** del pad accende un metronomo indipendente dal Beat: clicca sui battiti anche sopra un Beat, e da solo mette in moto il trasporto. In testata «METRO».
+- **T2 TAP**: batti il tempo sul tasto; dal secondo tocco il BPM segue la media degli ultimi quattro.
+- **T4 FILL**: finché lo tieni il Beat suona la sua battuta di riempimento (rullate, tom), poi torna al pattern. In testata «FILL».
 - **BPM tenuto** apre la lista: le quattro metriche (2/4, 3/4, 4/4, 6/8) scelgono il metronomo; sotto, i sei Beat. La spunta segna la scelta.
 - **BPM premuto e girato** regola il volume del Beat.
 - Con il looper in moto, spegnere il Beat lo zittisce soltanto: il tempo del loop continua.
@@ -96,7 +100,7 @@ Il looper registra **eventi** (note), non audio: cambiando BPM cambia la velocit
 
 ### 6.1 Loop di batteria dalla tastiera
 
-Lo stesso principio degli accordi, per la batteria: **Mod + BPM** (m1 premuta e T7, oppure Y + START sulla Flip) accende la **batteria a tastiera**. I 12 tasti suonano il kit del Beat scelto: Do cassa, Do♯ rimshot, Re rullante, Re♯ battimani, Mi charleston chiuso, Fa tom basso, Fa♯ charleston aperto, Sol tom alto, Sol♯ maracas, La conga, La♯ campanaccio, Si piatto. Se il looper registra o sovraincide, ogni colpo entra nel loop **quantizzato al sedicesimo**, come le note. Pad, basso e Perform restano fermi; un altro Mod + BPM torna agli accordi. Sulla plancia: «DRUMS» nella zona accordo e le sigle sui tasti C4…B4, che si accendono al colpo.
+Lo stesso principio degli accordi, per la batteria: **T11 DRUMS** del pad (oppure Mod + BPM, come sull'Orchid) accende la **batteria a tastiera**. I 12 tasti suonano il kit del Beat scelto: Do cassa, Do♯ rimshot, Re rullante, Re♯ battimani, Mi charleston chiuso, Fa tom basso, Fa♯ charleston aperto, Sol tom alto, Sol♯ maracas, La conga, La♯ campanaccio, Si piatto. Se il looper registra o sovraincide, ogni colpo entra nel loop **quantizzato al sedicesimo**, come le note. Pad, basso e Perform restano fermi; un altro T11 torna agli accordi. Sulla plancia: «DRUMS» nella zona accordo e le sigle sui tasti C4…B4, che si accendono al colpo.
 
 ![Batteria a tastiera: DRUMS, le sigle degli strumenti sui tasti, i colpi registrati nel loop](img/drums.png)
 
@@ -104,28 +108,33 @@ Lo stesso principio degli accordi, per la batteria: **Mod + BPM** (m1 premuta e 
 
 ![Lock acceso (T13): la testata scrive LOCK SOUND PERFORM KEY e le celle dicono quale manopola fa cosa](img/lock.png)
 
-Quindici tasti in tre file da cinque e tre manopole a scatti. Le prime quattro colonne sono la **griglia gemella** delle manopole della MPK:
+Quindici tasti in tre file da cinque e tre manopole a scatti. Dal 16/10/2026 il pad non rifà i comandi della MPK: tiene Options, Panic, Lock, View, Page e i due voicing, e i tasti liberi fanno **quello che l'Orchid non ha**.
 
 | | col. 1 | col. 2 | col. 3 | col. 4 | col. 5 |
 |---|---|---|---|---|---|
-| in alto | **T1** Sound | **T2** Perform | **T3** FX | **T4** Key | **T13 LOCK** |
-| in mezzo | **T5** Bass | **T6** Loop | **T7** BPM | **T8** Volume | **T14 VIEW** |
-| in basso | **T9** Options | **T10** Back | **T11** Menu | **T12** Panic (tenuto 1 s) | **T15 PAGE** |
+| in alto | **T1** Hold | **T2** Tap tempo | **T3** Metronomo | **T4** Fill (tenuto) | **T13 LOCK** |
+| in mezzo | **T5** Scene 1 | **T6** Scene 2 | **T7** Scene 3 | **T8** Scene 4 | **T14 VIEW** |
+| in basso | **T9** Options | **T10** Save Loop | **T11** Drums | **T12** Panic (tenuto 1 s) | **T15 PAGE** |
 
-- Tn **premuto** = premere l'encoder; Tn **tenuto** = tenerlo; **Tn tenuto + Kn girata** = premere e girare (T4 + K4 = transpose, T8 + K8 = volume del basso, T7 + K7 = volume del Beat).
-- **T12 Panic** scatta solo dopo 1 secondo: spegne tutte le note. Sulla MPK: **SHIFT + STOP/PLAY**.
+- **T1 HOLD**: l'accordo resta a suonare anche quando lasci i tasti, finché non premi un tasto nuovo o non spegni il Hold. Serve per girare le manopole con tutte e due le mani. In testata «HOLD».
+- **T2 TAP**, **T3 METRO**, **T4 FILL**: il tempo battuto, il metronomo indipendente dal Beat, la battuta di riempimento tenuta (§6).
+- **T5…T8 SCENE 1…4**: un tocco richiama suono, basso, Perform, effetto, tonalità e basso acceso/spento; tenuto 1 secondo salva com'è adesso (la banda scrive «Scene 2 saved»). Una scena vuota lo dice. Le scene restano sulla SD (`Saves/stame/scene.txt`).
+- **T9 OPTIONS**: la lista delle opzioni (premi), poi si scorre con la manopola di navigazione.
+- **T10 SAVE LOOP**: ferma il loop e lo tiene da parte (§5).
+- **T11 DRUMS**: la batteria a tastiera (§6.1).
+- **T12 PANIC** scatta solo dopo 1 secondo: spegne tutte le note; tenuto 3 secondi fa il **Reset** (loop, Beat, transpose, Perform, Hold, metronomo da capo). Sulla MPK: **SHIFT + STOP/PLAY**.
 - **T13 LOCK, a scatto come il Caps Lock.** Un tocco accende, un altro spegne; non si tiene. Le manopole della MPK non hanno scatti, quelle del pad sì: con il Lock acceso le tre manopole del pad diventano gli encoder che hanno bisogno degli scatti, con tutti i loro gesti.
 
 | Manopola | Lock spento | Lock acceso |
 |---|---|---|
 | **M** (grande) | Chord Voicing · premi = Split/Octave | **Sound** · premi = lista · tieni = previsto Save |
 | **m1** | Bass Voicing · premi = Mod | **Perform** · premi = lista dei modi · tieni = Lock del Perform |
-| **m2** | liste e fuoco · premi = conferma | **Key** · premi = Key mode · premi e gira = Transpose |
+| **m2** | volume del Beat · premi e gira = volume del basso | **Key** · premi = Key mode · premi e gira = Transpose |
 
-  Finché è acceso la testata mostra **LOCK SOUND PERFORM KEY**; nella pagina dei comandi le celle dicono quale manopola fa cosa. Liste, fuoco e conferma restano sulla manopola di navigazione della MPK e sulla croce e A della Flip. Se stacchi il pad, il Lock si spegne.
+  Finché è acceso la testata mostra **LOCK SOUND PERFORM KEY**; nella pagina dei comandi le celle dicono quale manopola fa cosa. Liste, fuoco e conferma stanno sulla manopola di navigazione della MPK. Se stacchi il pad, il Lock si spegne.
 - **T14 VIEW**: Geek Out e, al tocco dopo, la vista di prima.
-- **T15 PAGE**: apre la pagina dei comandi della Flip e la tiene aperta finché non lo ripremi (o premi B).
-- Se il pad non c'è, i pad del **banco B** della MPK fanno da pulsanti di riserva (B1 Key, B2 Bass, B3 Perform, B4 Chord Voicing, B5 Loop, B6 BPM, B7 Options, B8 PUSH) e **SHIFT** tenuto fa da PUSH: tocca o gira una manopola K mentre lo tieni e quella manopola risulta «premuta».
+- **T15 PAGE**: apre la pagina dei comandi della Flip e la tiene aperta finché non lo ripremi (o premi −).
+- Se il pad non c'è, Options torna a SELECT della Flip, Mod a Y, e Chord Voicing e Bass Voicing si raggiungono con L1/R1 e la manopola di navigazione.
 
 ## 8. La MPK mini IV
 
@@ -133,10 +142,10 @@ Quindici tasti in tre file da cinque e tre manopole a scatti. Le prime quattro c
 |---|---|
 | 25 tasti | i 12 tasti dell'Orchid (conta solo il nome della nota) |
 | pad, banco A | Dim Min Maj Sus (sopra) · 6 m7 M7 9 (sotto) |
-| pad, banco B | i pulsanti di riserva (§7) |
+| pad, banco B | liberi (cambiano solo banco) |
 | K1…K8 | girano Sound, Perform, FX, Key / Bass, Loop, BPM, Volume |
-| SHIFT | PUSH: tenuto, la manopola K toccata è «premuta» |
-| manopola di navigazione | gira = liste e fuoco; premi = conferma; premi e gira = premi-e-gira del controllo con il fuoco |
+| SHIFT | **PUSH**: tenuto, la manopola K toccata è «premuta»; toccata e girata, premuta e girata; tenuto 1 s con la manopola toccata, tenuta |
+| manopola di navigazione | gira = liste e fuoco; premi = conferma; premi e gira = premi-e-gira del controllo con il fuoco. È la casa della navigazione, con − e + |
 | − / + | Back / menu della piattaforma |
 | UNDO | Undo del loop; **SHIFT + UNDO = Clear** |
 | LOOP | pausa e ripresa del loop |
@@ -169,24 +178,28 @@ Due **temi** (MENU › Theme): **Giorno** (LCD riflettente, quello con cui Stame
 
 | Tasto | Fa |
 |---|---|
-| L1 / R1 | sposta il fuoco fra gli 11 controlli (Sound, Perform, FX, Key, Bass, Loop, BPM, Volume, Options, Chord Voicing, Bass Voicing) e apre la pagina dei comandi |
-| croce | gira il controllo con il fuoco, o scorre la lista aperta (con ripetizione se tenuta) |
-| A | preme il controllo con il fuoco: conferma; tenuto = tieni; A tenuto + croce = premi e gira |
-| B | indietro: chiude liste, overlay e pagina dei comandi |
-| X | PUSH, come SHIFT della MPK (riserva) |
-| Y | Bass Voicing premuto: il modificatore Mod (riserva) |
-| SELECT | Options |
-| START | BPM: Beat on/off |
-| MENU | il menu della piattaforma; tenuto 2 s esce da Stame |
+I tasti della Flip sono **riserve**: ognuno vive solo quando manca l'apparecchio che sostituisce, e tace quando c'è (16/10/2026).
 
-### 9.3 Il menu della piattaforma (MENU, o T11, o + della MPK)
+| Tasto | Fa | Tace con |
+|---|---|---|
+| L1 / R1 | sposta il fuoco fra gli 11 controlli (Sound, Perform, FX, Key, Bass, Loop, BPM, Volume, Options, Chord Voicing, Bass Voicing) e apre la pagina dei comandi | il macro pad |
+| croce | gira il controllo con il fuoco, o scorre la lista aperta (con ripetizione se tenuta) | la MPK |
+| A | preme il controllo con il fuoco: conferma; tenuto = tieni; A tenuto + croce = premi e gira | la MPK |
+| B | indietro: chiude liste, overlay e pagina dei comandi | la MPK |
+| X | PUSH della MPK mini Plus | sempre, con la MK4 |
+| Y | Bass Voicing premuto: il modificatore Mod | il macro pad |
+| SELECT | Options | il macro pad |
+| START | BPM: Beat on/off | la MPK |
+| MENU | il menu della piattaforma; tenuto 2 s esce da Stame | mai |
+
+### 9.3 Il menu della piattaforma (MENU, o + della MPK)
 
 ![Il menu della piattaforma](img/menu.png)
 
 | Voce | Fa |
 |---|---|
 | Exit | chiude il menu |
-| Theme | Dark / Light |
+| Theme | Light (Giorno, il default) / Dark (Notte) |
 | Linnaeus Tag | On / Off: il cartellino con la classe dell'accordo (TRIANDRIA, TETRANDRIA…) in Geek Out |
 | Legend | On / Off: le sigle dei comandi nelle celle della pagina dei comandi |
 | Meters | On / Off: voci, carico e livelli nella barra di Geek Out |
@@ -210,7 +223,7 @@ Sono quattro brani originali di Stame, suonati a giro: **«Acacia»** (poco meno
 | «Pad disconnected» | il pad si è staccato: i tasti tenuti si rilasciano, il Lock si spegne | ricollegalo |
 | **CLIP** in testata | l'uscita satura | abbassa Volume, o il volume del basso o del Beat |
 | **XRUN** | l'audio ha perso un periodo (crepitii) | in `launch.sh` porta `STAME_AUDIO_FRAMES` a 1024 |
-| una nota resta appesa | — | Panic: T12 tenuto 1 s, oppure SHIFT + STOP/PLAY |
+| una nota resta appesa | — | Panic: T12 tenuto 1 s, oppure SHIFT + STOP/PLAY; se il Hold è acceso (HOLD in testata) spegnilo con T1 |
 | Stame non risponde | — | MENU tenuto 2 s |
 
 ## 12. Glossario
@@ -220,14 +233,17 @@ Sono quattro brani originali di Stame, suonati a giro: **«Acacia»** (poco meno
 - **Beat**: una battuta di batteria in loop, scelta dalla lista di BPM.
 - **Count-in**: la battuta di metronomo prima della registrazione.
 - **Finestra**: l'ottava in cui cadono le note dell'accordo, decisa dal Chord Voicing.
-- **Fuoco**: il controllo su cui agiscono croce e A della Flip e la manopola di navigazione; lo spostano L1/R1 e la pressione di qualunque encoder.
-- **Griglia gemella**: K1…K8 della MPK e T1…T8 del pad nelle stesse posizioni: la manopola gira, il tasto preme.
+- **Fill**: la battuta di riempimento del Beat, finché T4 è tenuto.
+- **Fuoco**: il controllo su cui agisce la manopola di navigazione (e, senza MPK, croce e A della Flip); lo sposta la pressione di qualunque encoder.
+- **Hold**: l'accordo resta a suonare dopo il rilascio (T1).
 - **Key mode**: la tonalità accesa: i tasti suonano i gradi.
 - **Lock (Perform, FX)**: il valore non cambia al cambio di suono.
 - **LOCK (T13)**: le manopole del pad fanno Sound, Perform e Key.
-- **Mod**: Bass Voicing premuto (m1 o Y), il modificatore delle combinazioni (previste).
+- **Mod**: Bass Voicing premuto (m1, o Y senza pad), il modificatore delle combinazioni.
 - **Overlay**: il nome e il valore del controllo toccato, nella banda.
-- **PUSH**: SHIFT, B8 o X tenuti: la manopola K toccata risulta premuta.
+- **PUSH**: SHIFT tenuto (B8 o X con la Plus): la manopola K toccata risulta premuta.
+- **Riserva**: un tasto della Flip (o il banco B della Plus) che rifà un comando di un altro apparecchio e vive solo quando quello manca.
+- **Scena**: suono, basso, Perform, effetto, tonalità e basso salvati su T5…T8.
 - **Split / Octave**: come si distribuiscono le note singole sui 12 tasti.
 - **Strato**: ogni passata di overdub nel loop.
 - **Voicing**: la disposizione delle note nella finestra.

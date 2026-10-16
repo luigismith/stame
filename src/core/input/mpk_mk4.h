@@ -4,7 +4,8 @@
  * 15/10/2026. Porta 1 (MIDI): tasti, pad, ruote, sustain. Porta 2 (DAW): manopole K1–K8 relative
  * (CC 24–31), SHIFT (CC 17), manopola di navigazione (CC 14 giro, CC 13 pressione), trasporto
  * (CC 73, 74, 76, 77, 78), − e + (CC 80, 81). I pad arrivano anche sulla porta 2: lì si ignorano.
- * Il PUSH (MIDI-084) è SHIFT, oppure il pad B8 del banco B, oppure il tasto X della Flip.
+ * Il PUSH (MIDI-084) è solo SHIFT (Luigi, 16/10/2026: ogni comando in una casa sola); il banco B
+ * dei pad è libero e il tasto X della Flip non conta più sulla MK4.
  */
 #ifndef STAME_MPK_MK4_H
 #define STAME_MPK_MK4_H
@@ -17,8 +18,7 @@ typedef struct {
     uint8_t  held[16];          /* bitmap delle note fisiche tenute */
     uint8_t  pc_count[12];      /* tasti tenuti per classe di nota */
     uint8_t  chords;            /* tasti accordo tenuti (banco A) */
-    uint8_t  fn;                /* pulsanti B1–B7 tenuti (banco B) */
-    uint8_t  b8, x, shift;      /* sorgenti del PUSH */
+    uint8_t  shift;             /* SHIFT tenuto: il PUSH */
     uint8_t  push;              /* MPK_PUSH_IDLE, MPK_PUSH_ARMED, MPK_PUSH_TARGET + k */
     uint32_t t_sel;
     int16_t  acc[8];            /* unità accumulate verso il prossimo scatto */

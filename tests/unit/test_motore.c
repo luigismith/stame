@@ -589,11 +589,87 @@ static void test_perf_revisione(void)
     CHECK(M.perf.n == 4 && M.ref[0][48] == 1 && M.ref[0][52] == 0);
 }
 
+/* MIDI-133 (16/10/2026): metronomo indipendente dal Beat, fill tenuto, uscita morbida con il loop in RAM */
+static void test_mappa_133(void)
+{
+    static dsp_t D;
+    static motore_t M;
+    static float l[4800], r[4800];
+    beat_hit_t h[8];
+
+    /* il fill è una battuta a sé: alla fine della battuta il Funk ha il rullante forte dove il Beat lo ha piano */
+    int nb = beat_hits(1, 15, h, 8), vb = 0, vf = 0;
+    for (int i = 0; i < nb; i++) if (h[i].inst == DRUM_SNARE) vb = h[i].vel;
+    int nf = beat_fill_hits(1, 15, h, 8);
+    for (int i = 0; i < nf; i++) if (h[i].inst == DRUM_SNARE) vf = h[i].vel;
+    CHECKM(vb == 80 && vf == 110, "fill del Funk: rullante %d contro %d", vf, vb);
+    for (int b = 0; b < BEAT_COUNT; b++) {                       /* ogni fill ha colpi e nessun passo fuori */
+        int tot = 0;
+        for (int s = 0; s < 16; s++) tot += beat_fill_hits(b, s, h, 8);
+        CHECKM(tot > 0, "fill del Beat %d vuoto", b);
+    }
+    CHECK_EQ(beat_fill_hits(0, 16, h, 8), 0);
+
+    /* metronomo di T3: mette in moto il trasporto da solo e clicca, con il Beat spento */
+    dsp_init(&D, 48000.0f, 1);
+    mot_init(&M, &D, 48000, 1);
+    mot_beat(&M, BEAT_M_PATTERN, 1);
+    CHECK_EQ(M.tr_on, 0);
+    mot_metronome(&M, true);
+    CHECK(M.tr_on == 1 && M.tr_t0 == 0);
+    mot_render(&M, l, r, 4800);
+    bool drum = false;
+    for (int i = 0; i < DRUM_VOICES; i++) if (M.drums.v[i].on || M.drums.v[i].t > 0.0f) drum = true;
+    CHECKM(drum, "il metronomo di T3 clicca senza Beat");
+    mot_metronome(&M, false);
+    CHECK_EQ(M.tr_on, 0);
+    /* con il Beat acceso il metronomo non lo ferma né lo riavvia */
+    mot_beat_on(&M, true);
+    uint32_t t0 = M.tr_t0;
+    mot_render(&M, l, r, 4800);
+    mot_metronome(&M, true);
+    CHECK(M.tr_on == 1 && M.tr_t0 == t0);
+    mot_fill(&M, true);
+    CHECK_EQ(M.fill, 1);
+    mot_fill(&M, false);
+
+    /* uscita morbida: il loop resta in RAM e il Loop successivo lo riprende da capo invece di registrare */
+    static looper_t L;
+    loop_ev_t ev[64];
+    loop_init(&L);
+    loop_set_len(&L, 384, 1);
+    loop_cmd(&L, LOOP_C_PRESS, 0, ev, 64);
+    for (uint32_t t = 0; t <= 384; t++) loop_run(&L, t, ev, 64);
+    loop_record(&L, 400, LOOP_TREBLE, 60, 100);
+    loop_record(&L, 450, LOOP_TREBLE, 60, 0);
+    for (uint32_t t = 385; t <= 768; t++) loop_run(&L, t, ev, 64);
+    CHECK_EQ(L.state, LOOP_PLAY);
+    uint16_t n = L.n;
+    loop_cmd(&L, LOOP_C_EXIT, 800, ev, 64);
+    CHECK(L.state == LOOP_IDLE && L.n == n && L.len == 384);
+    loop_cmd(&L, LOOP_C_PRESS, 1000, ev, 64);
+    CHECKM(L.state == LOOP_PLAY && L.t0 == 1000, "il loop in RAM riprende da t = 0");
+    int on60 = 0;
+    for (uint32_t t = 1000; t < 1384; t++) {
+        int k = loop_run(&L, t, ev, 64);
+        for (int i = 0; i < k; i++) if (ev[i].note == 60 && ev[i].vel && t == 1016) on60++;
+    }
+    CHECK_EQ(on60, 1);
+    loop_cmd(&L, LOOP_C_EXIT, 1400, ev, 64);
+    loop_cmd(&L, LOOP_C_CLEAR, 1401, ev, 64);                    /* Clear da fermo svuota la RAM */
+    CHECK(L.state == LOOP_IDLE && L.n == 0);
+    loop_cmd(&L, LOOP_C_PRESS, 1500, ev, 64);
+    CHECK_EQ(L.state, LOOP_COUNT_IN);                             /* e il Loop dopo registra di nuovo */
+    loop_cmd(&L, LOOP_C_EXIT, 1600, ev, 64);                      /* uscita durante il count-in: niente da tenere */
+    CHECK(L.state == LOOP_IDLE && L.n == 0);
+}
+
 void test_motore(void)
 {
     test_looper_revisione();
     test_motore_revisione();
     test_perf_revisione();
+    test_mappa_133();
     test_drum_loop();
     test_strum_harp();
     test_arp();

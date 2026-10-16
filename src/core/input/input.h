@@ -31,6 +31,7 @@ typedef struct {
     gest_t       gest;
     uint8_t      connected;     /* bit per src_t */
     uint32_t     flip_keys;     /* tasti PAD_* tenuti: al distacco della Flip si rilasciano anche negli altri profili */
+    uint16_t     flip_mute;     /* encoder (bit ENC_*, ENC_COUNT = fuoco) la cui pressione dalla Flip è stata taciuta */
 } inp_t;
 
 /* modelli della tastiera: la Plus con il programma STAME (§8.5) o la MK4 nel preset DAW (§8.9b) */

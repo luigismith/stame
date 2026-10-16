@@ -687,7 +687,7 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
   Velocity: 110 sui battiti, 80 sugli altri passi `[V]`.
 
 ### 10.5 Batteria a tastiera
-- **ACC-211** `DRUMS_TOGGLE` (Bass Voicing tenuto + BPM) DEVE alternare la modalità batteria: i tasti suonano un kit fisso, registrabile nel loop e quantizzabile `[O]`. In questa modalità tipi ed estensioni sono ignorati, il basso tace, nessuna performance; `KEY_DOWN` emette un evento `DRUM` con la velocity del tasto `[D]`.
+- **ACC-211** `DRUMS_TOGGLE` (Bass Voicing tenuto + BPM; dal 16/10/2026 anche T11 del macro pad, `40` MIDI-133) DEVE alternare la modalità batteria: i tasti suonano un kit fisso, registrabile nel loop e quantizzabile `[O]`. In questa modalità tipi ed estensioni sono ignorati, il basso tace, nessuna performance; `KEY_DOWN` emette un evento `DRUM` con la velocity del tasto `[D]`.
   - Stame (15/10/2026, Luigi: «lo stesso principio semplice dell'Orchid per creare loop di batteria») `[D]`: il kit è quello del Beat scelto (`20` SND-537), il colpo suona subito e, se il looper registra o sovraincide, entra nel loop con ruolo `DRUM` al **sedicesimo più vicino della griglia del loop** (24 tick contati da t0, l'inizio del giro; sul tick assoluto ogni colpo finiva spostato fino a 60 ms: revisione del 15/10/2026), senza note-off e senza transpose. Un colpo già sentito dal vivo e che la testina raggiungerebbe subito dopo (quantizzato in avanti in overdub, o oltre la fine della registrazione e quindi a t = 0) si segna e si salta una volta: niente flam. Uno quantizzato all'indietro è già dietro la testina e suona dal giro dopo. Alla commutazione gli accordi tenuti si rilasciano; Reset e demo spengono la modalità. Sulla plancia: «DRUMS» nella zona accordo e le sigle degli strumenti sui tasti C4…B4, che si accendono al colpo (`30` UI-150b).
 - **ACC-212** Mappa provvisoria tasti → strumenti, kit in stile CR-78 `[V]` (T-30):
 
@@ -725,9 +725,9 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 | `PLAYING`, `PAUSED` | `UNDO` | stesso | toglie l'ultimo strato; con il solo strato 0 il comando diventa `CLEAR` `[M]` |
 | `OVERDUB` | `UNDO` o `CLEAR` | `PLAYING` | annulla lo strato in corso `[M]` |
 | `PLAYING`, `PAUSED` | `CLEAR` | `WAITING` | cancella tutti gli strati `[V]` |
-| qualunque ≠ `IDLE` | `EXIT` (Loop tenuto 2 s → Exit) | `IDLE` | ferma la riproduzione; il loop resta in RAM fino allo spegnimento `[M]` |
+| qualunque ≠ `IDLE` | `EXIT` (Loop tenuto 2 s → Exit; T10 Save Loop del macro pad) | `IDLE` | ferma la riproduzione; il loop resta in RAM fino allo spegnimento `[M]`. Fatto il 16/10/2026 (`LOOP_C_EXIT`, `40` MIDI-133): in REC e OVERDUB chiude prima lo strato, nel count-in non tiene niente; Clear da fermo svuota la RAM `[D]` |
 | qualunque | `HARD_EXIT` (Bass Voicing tenuto + Loop) | `IDLE` | ferma e **cancella** il loop non salvato; ripristina metronomo e anello `[M]` (FW 3.84, 3.90) |
-| `IDLE` con loop in RAM | `OPEN` | `PLAYING` | riprende il loop in memoria `[V]` |
+| `IDLE` con loop in RAM | `OPEN` | `PLAYING` | riprende il loop in memoria da t = 0 `[V]` (fatto il 16/10/2026: `LOOP_C_PRESS` da `IDLE` con eventi in RAM) |
 
 - **ACC-223** Count-in: 1 battuta della metrica corrente `[M]`; il click del count-in ha un suono distinto `[O]`. Il comportamento in 3/4 e 6/8 è da verificare `[V]` (T-28).
   - Il metronomo clicca durante il count-in qualunque Beat sia scelto o acceso; con un Beat la metrica è 4/4 (ACC-209) `[D]`. Per ora il clic è quello del metronomo, non un suono distinto `[D]`.

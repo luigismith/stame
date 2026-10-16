@@ -4,6 +4,8 @@
  * 8 encoder, SHIFT = PUSH, manopola di navigazione = liste e fuoco (premuta = conferma, premuta e
  * ruotata = premi e ruota l'encoder col fuoco), REC = Loop, STOP/PLAY = BPM (beat), LOOP = pausa del
  * loop, UNDO = Undo (con SHIFT = Clear), ⊕ = Overdub, SHIFT + STOP/PLAY = Panic, − = Back, + = Menu.
+ * Dal 16/10/2026 il PUSH è solo SHIFT: B8 e X non contano più e il banco B è libero (le sue note
+ * rilasciano solo i tasti accordo del banco A, come un cambio di banco).
  */
 #include "mpk_mk4.h"
 #include "../midi_parse.h"
@@ -18,13 +20,8 @@ static const uint8_t KNOB_STEP[8] STAME_ROM = { 12, 8, 8, 12, 12, 12, 3, 2 };
 static const uint8_t CHORD_OF_PAD[8] STAME_ROM = {
     CHB_6, CHB_MIN7, CHB_MAJ7, CHB_9, CHB_DIM, CHB_MIN, CHB_MAJ, CHB_SUS
 };
-/* banco B, note 44–50 (B1–B7); 51 = B8 = PUSH */
-static const uint8_t FN_ENC[7] STAME_ROM = {
-    ENC_KEY, ENC_BASS, ENC_PERFORM, ENC_CHORD_VOICING, ENC_LOOP, ENC_BPM, ENC_OPTIONS
-};
-
 enum { CH_KEYS = 0, CH_PADS = 9 };
-enum { PAD_FIRST = 36, PAD_BANK_B = 44, PAD_PUSH = 51 };
+enum { PAD_FIRST = 36, PAD_BANK_B = 44, PAD_LAST = 51 };
 enum { CC_MOD = 1, CC_NAV_PUSH = 13, CC_NAV = 14, CC_SHIFT = 17, CC_K1 = 24, CC_SUSTAIN = 64,
        CC_UNDO = 73, CC_LOOP = 74, CC_PLAY = 76, CC_REC = 77, CC_OVERDUB = 78, CC_MINUS = 80, CC_PLUS = 81 };
 
@@ -36,15 +33,13 @@ static void push_up(mk4_state_t *s, pnl_out_t *o, int16_t synth)
     s->push = MPK_PUSH_IDLE;
 }
 
-/* SHIFT, B8 o X: il PUSH è premuto se lo è almeno uno dei tre */
-static void push_source(mk4_state_t *s, pnl_out_t *o, uint8_t *src, bool down, int16_t synth)
+/* SHIFT: l'unica sorgente del PUSH */
+static void push_shift(mk4_state_t *s, pnl_out_t *o, bool down, int16_t synth)
 {
-    if (down == (*src != 0)) return;
-    bool before = s->b8 || s->x || s->shift;
-    *src = down;
-    bool after = s->b8 || s->x || s->shift;
-    if (!before && after && s->push == MPK_PUSH_IDLE) s->push = MPK_PUSH_ARMED;
-    if (before && !after) push_up(s, o, synth);
+    if (down == (s->shift != 0)) return;
+    s->shift = down;
+    if (down) { if (s->push == MPK_PUSH_IDLE) s->push = MPK_PUSH_ARMED; }
+    else push_up(s, o, synth);
 }
 
 /* -------------------------------------------------------------------- pad */
@@ -56,35 +51,15 @@ static void release_bank_a(mk4_state_t *s, pnl_out_t *o)
     s->chords = 0;
 }
 
-static void release_bank_b(mk4_state_t *s, pnl_out_t *o)
-{
-    for (int k = 0; k < 7; k++)
-        if (s->fn & (1u << k)) pnl_put(o, PNL_ENC_UP, FN_ENC[k], PNL_B_SYNTH);
-    s->fn = 0;
-    push_source(s, o, &s->b8, false, PNL_B_SYNTH);
-}
-
 static void pad_note(mk4_state_t *s, pnl_out_t *o, uint8_t note, bool on)
 {
-    if (note < PAD_FIRST || note > PAD_PUSH) return;
-    bool bank_b = note >= PAD_BANK_B;
-    if (bank_b) release_bank_a(s, o);
-    else release_bank_b(s, o);
-    if (!bank_b) {
-        uint8_t c = CHORD_OF_PAD[note - PAD_FIRST];
-        uint8_t bit = (uint8_t)(1u << c);
-        if (on == ((s->chords & bit) != 0)) return;
-        s->chords ^= bit;
-        pnl_put(o, on ? PNL_CHORD_DOWN : PNL_CHORD_UP, c, 0);
-    } else if (note < PAD_PUSH) {
-        int k = note - PAD_BANK_B;
-        uint8_t bit = (uint8_t)(1u << k);
-        if (on == ((s->fn & bit) != 0)) return;
-        s->fn ^= bit;
-        pnl_put(o, on ? PNL_ENC_DOWN : PNL_ENC_UP, FN_ENC[k], 0);
-    } else {
-        push_source(s, o, &s->b8, on, 0);
-    }
+    if (note < PAD_FIRST || note > PAD_LAST) return;
+    if (note >= PAD_BANK_B) { release_bank_a(s, o); return; }   /* banco B: libero; cambia solo banco (MIDI-089) */
+    uint8_t c = CHORD_OF_PAD[note - PAD_FIRST];
+    uint8_t bit = (uint8_t)(1u << c);
+    if (on == ((s->chords & bit) != 0)) return;
+    s->chords ^= bit;
+    pnl_put(o, on ? PNL_CHORD_DOWN : PNL_CHORD_UP, c, 0);
 }
 
 /* --------------------------------------------------------------- tastiera */
@@ -138,7 +113,7 @@ static void daw_cc(mk4_state_t *s, pnl_out_t *o, uint8_t cc, uint8_t v)
     bool push = s->push != MPK_PUSH_IDLE;
     if (cc >= CC_K1 && cc < CC_K1 + 8) { knob(s, o, cc - CC_K1, v); return; }
     switch (cc) {
-    case CC_SHIFT: push_source(s, o, &s->shift, v != 0, 0); break;
+    case CC_SHIFT: push_shift(s, o, v != 0, 0); break;
     case CC_NAV: {                                                /* liste e fuoco, orario = voce successiva */
         int d = rel(v);
         if (d) pnl_put(o, PNL_ENC_TURN, ENC_FOCUS, (int16_t)d);
@@ -205,11 +180,8 @@ static int mk4_on_midi(void *st, uint8_t port, const uint8_t *m, uint16_t n,
 
 static int mk4_on_pad(void *st, uint16_t code, int32_t value, uint32_t t_us, pnl_event_t *out, int max)
 {
-    mk4_state_t *s = (mk4_state_t *)st;
-    pnl_out_t o;
-    pnl_out_init(&o, out, max, SRC_MPK, t_us, &s->dropped);
-    if (code == PAD_X && (value == 0 || value == 1)) push_source(s, &o, &s->x, value == 1, 0);
-    return o.n;
+    (void)st; (void)code; (void)value; (void)t_us; (void)out; (void)max;   /* X non è più il PUSH della MK4 */
+    return 0;
 }
 
 static int mk4_on_tick(void *st, uint32_t t_us, pnl_event_t *out, int max)
@@ -226,8 +198,6 @@ static int mk4_on_lost(void *st, uint32_t t_us, pnl_event_t *out, int max)
     for (uint8_t pc = 0; pc < 12; pc++)
         if (s->pc_count[pc]) pnl_put(&o, PNL_KEY_UP, pc, 0);
     release_bank_a(s, &o);
-    for (int k = 0; k < 7; k++)
-        if (s->fn & (1u << k)) pnl_put(&o, PNL_ENC_UP, FN_ENC[k], PNL_B_SYNTH);
     push_up(s, &o, PNL_B_SYNTH);
     if (s->nav_down) pnl_put(&o, PNL_ENC_UP, ENC_FOCUS, PNL_B_SYNTH);
     pnl_put(&o, PNL_SUSTAIN, 0, 0);

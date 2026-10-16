@@ -2,6 +2,7 @@
 #include "vetrina.h"
 #include "demo.h"
 #include "../../ui/ui_fmt.h"
+#include "../../core/kv.h"
 #include <math.h>
 #include <string.h>
 
@@ -30,6 +31,12 @@ typedef struct {
     int bpm, beat_mode, beat, meter, beat_on, beat_volume, view;
     uint8_t lock_perf, lock_fx, sec[ENC_COUNT];
     uint8_t drums;                      /* batteria a tastiera (ACC-211): i tasti colpiscono il kit */
+    uint8_t hold, metro, fill;          /* Hold dell'accordo, metronomo, Fill del Beat (MIDI-133) */
+    uint16_t hold_keys;                 /* tasti il cui rilascio aspetta (Hold) */
+    uint8_t hold_chords;                /* tasti accordo idem */
+    uint32_t tap_ms[4];                 /* ultimi tocchi del tap tempo */
+    uint8_t tap_n;
+    uint8_t scene_keep;                 /* una scena ha appena messo suono, Perform ed effetto: snd_sync non li rimette */
     uint8_t knob_lock;                  /* Lock delle manopole del macro pad (MIDI-131), per la testata */
     uint32_t drum_ms[12];               /* ultimo colpo di ogni tasto, per accendere il tasto sulla plancia */
 } sim_t;
@@ -439,12 +446,86 @@ static void demo_release(vet_t *v);                 /* definita con la demo, pi�
 static void drums_toggle(vet_t *v)
 {
     S.drums = (uint8_t)!S.drums;
+    S.hold_keys = 0; S.hold_chords = 0;
     for (int k = 0; k < 12; k++) ain(v, ACC_IN_KEY_UP, (uint8_t)k, 0);   /* niente accordi appesi */
     for (int i = 0; i < 4; i++) {                       /* né tipi ed estensioni: il loro rilascio in modalità batteria si perde */
         ain(v, ACC_IN_TYPE_UP, (uint8_t)i, 0);
         ain(v, ACC_IN_EXT_UP, (uint8_t)i, 0);
     }
     overlay(v, OV_DRUMS, ENC_BPM, S.drums);
+}
+
+static void chord_up(vet_t *v, uint8_t a)
+{
+    if (a < 4) ain(v, ACC_IN_TYPE_UP, a, 0); else ain(v, ACC_IN_EXT_UP, (uint8_t)(a - 4), 0);
+}
+
+/* Hold (MIDI-133, T1): i rilasci trattenuti escono prima del tasto nuovo o quando il Hold si spegne */
+static void hold_release(vet_t *v)
+{
+    for (int k = 0; k < 12; k++) if (S.hold_keys & (1u << k)) ain(v, ACC_IN_KEY_UP, (uint8_t)k, 0);
+    for (int c = 0; c < 8; c++) if (S.hold_chords & (1u << c)) chord_up(v, (uint8_t)c);
+    S.hold_keys = 0;
+    S.hold_chords = 0;
+}
+
+/* Tap tempo (MIDI-133, T2): il BPM dalla media degli ultimi quattro tocchi; due secondi senza tocchi = da capo */
+static void tap_tempo(vet_t *v)
+{
+    uint32_t t = v->now_ms;
+    if (S.tap_n && t - S.tap_ms[(S.tap_n - 1) & 3] > 2000u) S.tap_n = 0;
+    S.tap_ms[S.tap_n & 3] = t;
+    if (S.tap_n < 255) S.tap_n++;
+    if (S.tap_n < 2) return;
+    int n = S.tap_n < 4 ? S.tap_n : 4;
+    uint32_t span = t - S.tap_ms[(S.tap_n - n) & 3];
+    if (!span) return;
+    S.bpm = clampi((int)(60000u * (uint32_t)(n - 1) / span), 60, 200);
+    overlay(v, OV_BPM, ENC_BPM, S.bpm);
+}
+
+static void scene_text(char *t, size_t max, int n, const char *tail)
+{
+    char d[4];
+    ui_fmt_int(d, sizeof d, n + 1, 1);
+    ui_fmt_copy(t, max, "Scene ");
+    ui_fmt_cat(t, max, t, d);
+    ui_fmt_cat(t, max, t, tail);
+}
+
+/* Scene (MIDI-133, T5–T8): tocco = richiama suono, basso, Perform, effetto, tonalità e basso acceso */
+static void scene_recall(vet_t *v, int n)
+{
+    char t[40];
+    if (n < 0 || n > 3) return;
+    const vet_scene_t *sc = &v->scenes[n];
+    if (!sc->used) { scene_text(t, sizeof t, n, " empty: hold 1 s to save"); msg(v, MSG_INFO, t, 2500); return; }
+    S.sound = sc->sound % N_SOUNDS;
+    S.bass = sc->bass % N_BASSES;
+    S.perf_mode = sc->perf_mode % PERF_COUNT;
+    S.perf_amount = clampi(sc->perf_amount, 0, perf_max(S.perf_mode));
+    S.fx_amount = clampi(sc->fx_amount, 0, 10);
+    S.scene_keep = 1;
+    ain(v, ACC_IN_KEY_SELECT, (uint8_t)(sc->key_index % ACC_KEY_COUNT), 0);
+    if ((v->acc.key_on != 0) != (sc->key_on != 0)) ain(v, ACC_IN_KEY_MODE_TOGGLE, 0, 0);
+    ain(v, ACC_IN_OPTION_SET, ACC_OPT_BASS_ON, sc->bass_on ? 1 : 0);
+    scene_text(t, sizeof t, n, "");
+    msg(v, MSG_INFO, t, 2000);
+}
+
+static void scene_save(vet_t *v, int n)
+{
+    char t[40];
+    if (n < 0 || n > 3) return;
+    vet_scene_t *sc = &v->scenes[n];
+    sc->used = 1;
+    sc->sound = (uint8_t)S.sound; sc->bass = (uint8_t)S.bass;
+    sc->perf_mode = (uint8_t)S.perf_mode; sc->perf_amount = (uint8_t)S.perf_amount;
+    sc->fx_amount = (uint8_t)S.fx_amount;
+    sc->key_index = (uint8_t)v->acc.key_index; sc->key_on = v->acc.key_on != 0; sc->bass_on = v->acc.bass_on != 0;
+    v->scenes_dirty = 1;
+    scene_text(t, sizeof t, n, " saved");
+    msg(v, MSG_INFO, t, 2000);
 }
 
 static void handle(vet_t *v, const pnl_event_t *e)
@@ -455,16 +536,21 @@ static void handle(vet_t *v, const pnl_event_t *e)
             snd_push(v, VS_DRUM, 0, (uint8_t)(e->a % 12), (uint8_t)(e->b ? e->b : 100));
             S.drum_ms[e->a % 12] = v->now_ms;
             v->m.plat.midi_in_ms = v->now_ms;
-        } else ain(v, ACC_IN_KEY_DOWN, e->a, e->b);
+        } else { hold_release(v); ain(v, ACC_IN_KEY_DOWN, e->a, e->b); }
         break;
-    case PNL_KEY_UP: if (!S.drums) ain(v, ACC_IN_KEY_UP, e->a, 0); break;
+    case PNL_KEY_UP:
+        if (S.drums) break;
+        if (S.hold) S.hold_keys |= (uint16_t)(1u << (e->a % 12));   /* Hold: il rilascio aspetta il tasto dopo */
+        else ain(v, ACC_IN_KEY_UP, e->a, 0);
+        break;
     case PNL_CHORD_DOWN:
         if (S.drums) break;
         if (e->a < 4) ain(v, ACC_IN_TYPE_DOWN, e->a, 0); else ain(v, ACC_IN_EXT_DOWN, (uint8_t)(e->a - 4), 0);
         break;
     case PNL_CHORD_UP:
         if (S.drums) break;
-        if (e->a < 4) ain(v, ACC_IN_TYPE_UP, e->a, 0); else ain(v, ACC_IN_EXT_UP, (uint8_t)(e->a - 4), 0);
+        if (S.hold) S.hold_chords |= (uint8_t)(1u << (e->a & 7));
+        else chord_up(v, e->a);
         break;
     case PNL_BACK:
         if (v->list_kind) list_close(v);
@@ -493,6 +579,9 @@ static void handle(vet_t *v, const pnl_event_t *e)
             ain(v, ACC_IN_OPTION_SET, ACC_OPT_TRANSPOSE, 0);
             S.perf_mode = PERF_OFF; S.perf_amount = 0; S.lock_perf = 0;
             S.drums = 0;
+            S.hold = S.metro = S.fill = 0; S.hold_keys = 0; S.hold_chords = 0;
+            snd_push(v, VS_METRO, 0, 0, 0);
+            snd_push(v, VS_FILL, 0, 0, 0);
             S.view = VIEW_CHORD;
             v->page_until = v->now_ms;
             v->page_pinned = 0;
@@ -506,6 +595,22 @@ static void handle(vet_t *v, const pnl_event_t *e)
         } else if (e->a == MACRO_CONTROLS_PAGE) {                                /* T15: la pagina resta aperta */
             v->page_pinned = (uint8_t)!v->page_pinned;
             if (!v->page_pinned) v->page_until = v->now_ms;
+        }
+        /* le funzioni dei tasti liberi del pad (MIDI-133) */
+        else if (e->a == MACRO_HOLD_TOGGLE) { S.hold = (uint8_t)!S.hold; if (!S.hold) hold_release(v); }
+        else if (e->a == MACRO_TAP_TEMPO) tap_tempo(v);
+        else if (e->a == MACRO_METRO_TOGGLE) { S.metro = (uint8_t)!S.metro; snd_push(v, VS_METRO, 0, S.metro, 0); }
+        else if (e->a == MACRO_FILL) { S.fill = (uint8_t)(e->b != 0); snd_push(v, VS_FILL, 0, S.fill, 0); }
+        else if (e->a == MACRO_SCENE) scene_recall(v, (int)e->b);
+        else if (e->a == MACRO_SCENE_SAVE) scene_save(v, (int)e->b);
+        else if (e->a == MACRO_LOOP_EXIT) loop_send(v, LOOP_C_EXIT);
+        else if (e->a == MACRO_DRUMS_TOGGLE) drums_toggle(v);
+        else if (e->a == MACRO_BEAT_VOL) {
+            S.beat_volume = clampi(S.beat_volume + e->b, 0, 99);
+            overlay(v, OV_BEAT_VOLUME, ENC_BPM, S.beat_volume);
+        } else if (e->a == MACRO_BASS_VOL) {
+            S.bass_volume = clampi(S.bass_volume + e->b, 0, 99);
+            overlay(v, OV_BASS_VOLUME, ENC_VOLUME, S.bass_volume);
         }
         break;
     case PNL_SRC_CONNECTED:
@@ -549,6 +654,56 @@ uint32_t vet_demo_len(int i)
 }
 
 void vet_demo_select(vet_t *v, int i) { v->demo_song = (uint8_t)((i % vet_demo_songs_n + vet_demo_songs_n) % vet_demo_songs_n); }
+
+/* ---- scene (MIDI-133): testo chiave=valore, chiavi s1.sound … s4.basson ---- */
+static const char *const SCENE_KEY[9] = { "used", "sound", "bass", "perf", "amount", "fx", "key", "keyon", "basson" };
+
+size_t vet_scenes_write(const vet_t *v, char *buf, size_t max)
+{
+    kv_w_t w;
+    kv_w_begin(&w, buf, max);
+    for (int n = 0; n < 4; n++) {
+        const vet_scene_t *s = &v->scenes[n];
+        const int val[9] = { s->used, s->sound, s->bass, s->perf_mode, s->perf_amount, s->fx_amount,
+                             s->key_index, s->key_on, s->bass_on };
+        for (int k = 0; k < 9; k++) {
+            char key[16] = "s1.";
+            key[1] = (char)('1' + n);
+            ui_fmt_cat(key, sizeof key, key, SCENE_KEY[k]);
+            kv_w_int(&w, key, val[k]);
+        }
+    }
+    return kv_w_end(&w);
+}
+
+void vet_scenes_read(vet_t *v, const char *txt, size_t n)
+{
+    kv_r_t r;
+    kv_pair_t kv;
+    kv_r_begin(&r, txt, n);
+    while (kv_r_next(&r, &kv)) {
+        int32_t x;
+        if (kv.klen < 4 || kv.key[0] != 's' || kv.key[1] < '1' || kv.key[1] > '4' || kv.key[2] != '.') continue;
+        if (!kv_val_int(&kv, &x)) continue;
+        uint8_t b = (uint8_t)(x < 0 ? 0 : x > 255 ? 255 : x);
+        vet_scene_t *s = &v->scenes[kv.key[1] - '1'];
+        for (int k = 0; k < 9; k++) {
+            size_t l = strlen(SCENE_KEY[k]);
+            if (kv.klen - 3 != l || memcmp(kv.key + 3, SCENE_KEY[k], l)) continue;
+            switch (k) {
+            case 0: s->used = b != 0; break;
+            case 1: s->sound = b; break;
+            case 2: s->bass = b; break;
+            case 3: s->perf_mode = b; break;
+            case 4: s->perf_amount = b; break;
+            case 5: s->fx_amount = b; break;
+            case 6: s->key_index = b; break;
+            case 7: s->key_on = b != 0; break;
+            default: s->bass_on = b != 0; break;
+            }
+        }
+    }
+}
 
 /* tick del motore; senza motore, quelli che vet_tick conta dall'orologio */
 static uint32_t now_tick(const vet_t *v) { return v->snap ? v->snap->tick : v->vtick; }
@@ -636,6 +791,9 @@ static void demo_reset(vet_t *v)
     ain(v, ACC_IN_OPTION_SET, ACC_OPT_TRANSPOSE, 0);
     S.lock_perf = S.lock_fx = 0;
     S.drums = 0;
+    S.hold = S.metro = S.fill = 0; S.hold_keys = 0; S.hold_chords = 0;
+    snd_push(v, VS_METRO, 0, 0, 0);
+    snd_push(v, VS_FILL, 0, 0, 0);
     S.view = VIEW_CHORD;
     S.beat_mode = BEAT_PATTERN; S.beat = 0; S.beat_on = 0;
     v->snd_sound = -1;                          /* suono, Perform ed effetto da capo (ACC-162) */
@@ -767,6 +925,12 @@ void vet_midi(vet_t *v, const midi_msg_t *msg, uint32_t now_ms)
 static uint32_t menu_down_ms;      /* uscita di sicurezza della vetrina: MENU tenuto 2 s */
 static uint8_t menu_down;
 
+/* con la MK4 collegata i tasti del fuoco della Flip sono riserve inerti (16/10/2026): non aprono la pagina */
+static bool mk4_present(const vet_t *v)
+{
+    return (v->inp.connected & (1u << SRC_MPK)) && v->inp.mpk_model == MPK_MODEL_MK4;
+}
+
 void vet_pad(vet_t *v, uint16_t code, int32_t value, uint32_t now_ms)
 {
     pnl_event_t ev[INP_MAX_OUT];
@@ -774,7 +938,7 @@ void vet_pad(vet_t *v, uint16_t code, int32_t value, uint32_t now_ms)
     if (code == PAD_MENU && value != 2) { menu_down = value == 1; menu_down_ms = now_ms; }
     if (value == 1) user_input(v, now_ms);
     /* i tasti del fuoco aprono la pagina dei comandi e la tengono aperta (UI-142a) */
-    if (value != 0 && (code == PAD_L1 || code == PAD_R1 || code == PAD_A || code == PAD_X ||
+    if (value != 0 && !mk4_present(v) && (code == PAD_L1 || code == PAD_R1 || code == PAD_A || code == PAD_X ||
                        code == PAD_UP || code == PAD_DOWN || code == PAD_LEFT || code == PAD_RIGHT))
         v->page_until = now_ms + PAGE_MS;
     int n = inp_pad(&v->inp, code, value, now_ms * 1000u, ev, INP_MAX_OUT);
@@ -904,12 +1068,13 @@ static void snd_sync(vet_t *v)
         v->snd_fx_idx = (uint8_t)fx_main(p, &t);
         S.fx_type = t;
         v->snd_sound = (int16_t)S.sound;
-        if (S.lock_fx) v->snd_fx = -1;              /* con il Lock l'intensità resta e passa alla patch nuova */
+        if (S.lock_fx || S.scene_keep) v->snd_fx = -1;   /* con il Lock, o da una scena, l'intensità è quella voluta */
         else { S.fx_amount = fx_display(p[v->snd_fx_idx]); v->snd_fx = (int16_t)S.fx_amount; }
-        if (!S.lock_perf) {                         /* Perform di default del suono (ACC-162) */
+        if (!S.lock_perf && !S.scene_keep) {        /* Perform di default del suono (ACC-162) */
             S.perf_mode = vet_sound_perf[S.sound % VET_N_SOUNDS][0];
             S.perf_amount = vet_sound_perf[S.sound % VET_N_SOUNDS][1];
         }
+        S.scene_keep = 0;
     }
     if (S.fx_amount != v->snd_fx) {
         int raw = S.fx_amount * 127 / 10;
@@ -1156,6 +1321,7 @@ static void fill_tempo_looper(vet_t *v, ui_model_t *m)
     ui_fmt_copy(t->beat_name, sizeof t->beat_name, BEATS_NAME(S.beat % N_BEATS));
     t->beat_volume = (uint8_t)S.beat_volume;
     t->drums_on = S.drums;                                /* batteria a tastiera (UI-097) */
+    t->metro_on = S.metro;                                /* metronomo di T3 (MIDI-133) */
     const mot_snap_t *sn = v->snap;
     if (sn && sn->tr_on) {                                        /* posizione del trasporto vero */
         uint32_t pos = sn->tick - sn->tr_t0;
@@ -1208,6 +1374,9 @@ const ui_model_t *vet_model(vet_t *v)
     c->turn_target = gest_target(&v->inp.gest);
     if (S.view != VIEW_GEEK) v->view_back = (uint8_t)S.view;   /* T14 torna all'ultima vista prima di Geek Out, comunque ci si arrivi */
     bool mk4 = v->inp.mpk_model == MPK_MODEL_MK4;
+    m->plat.mpk_model = mk4;
+    m->ctl.hold = S.hold;
+    m->ctl.fill = S.fill;
     c->push = mk4 ? v->inp.mk4.push : v->inp.mpk.push;
     c->knob_lock = S.knob_lock;
     /* programma della Plus e banco stimato dei pad (MIDI-088, MIDI-089): prima non arrivavano alla

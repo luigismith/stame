@@ -9,16 +9,23 @@ static const char *const TITLE[ENC_COUNT] = {
     "SOUND", "PERFORM", "FX", "KEY", "BASS", "LOOP", "BPM", "VOLUME", "OPTIONS", "CH.VOICING", "BS.VOICING"
 };
 
-/* legende (UI-152): senza macro pad (banco B e tasti della Flip sono l'unica strada), con il macro
- * pad (le riserve B e Y non si mostrano) e con il macro pad e il Lock acceso (MIDI-131) */
-static const char *const LEG_NOPAD[ENC_COUNT] = {
+/* legende (UI-152), mappa del 16/10/2026: con la MK4 la pressione degli encoder è SHIFT + K («S+K»),
+ * i voicing stanno sul macro pad (M, m1) e, senza pad, sul fuoco della Flip (L1 R1 e la manopola nav);
+ * con il Lock acceso M, m1 e m2 sono Sound, Perform e Key (MIDI-131). Con la Plus restano banco B e Y */
+static const char *const LEG_MK4[ENC_COUNT] = {
+    "K1 S+K1", "K2 S+K2", "K3 S+K3", "K4 S+K4", "K5 S+K5", "K6 REC", "K7 PLAY", "K8 S+K8", "SEL", "L1 R1", "Y"
+};
+static const char *const LEG_MK4_PAD[ENC_COUNT] = {
+    "K1 S+K1", "K2 S+K2", "K3 S+K3", "K4 S+K4", "K5 S+K5", "K6 REC", "K7 PLAY", "K8 S+K8", "T9", "M", "m1"
+};
+static const char *const LEG_MK4_LOCK[ENC_COUNT] = {
+    "M K1", "m1 K2", "K3 S+K3", "m2 K4", "K5 S+K5", "K6 REC", "K7 PLAY", "K8 S+K8", "T9", "LOCK", "LOCK"
+};
+static const char *const LEG_PLUS[ENC_COUNT] = {
     "K1", "K2 B3", "K3", "K4 B1", "K5 B2", "K6 B5 REC", "K7 B6 PLAY", "K8", "B7 SEL", "B4", "Y"
 };
-static const char *const LEG_PAD[ENC_COUNT] = {
-    "K1 T1", "K2 T2", "K3 T3", "K4 T4", "K5 T5", "K6 T6 REC", "K7 T7 PLAY", "K8 T8", "T9", "M", "m1"
-};
-static const char *const LEG_LOCK[ENC_COUNT] = {
-    "M K1 T1", "m1 K2 T2", "K3 T3", "m2 K4 T4", "K5 T5", "K6 T6 REC", "K7 T7 PLAY", "K8 T8", "T9", "LOCK", "LOCK"
+static const char *const LEG_PLUS_PAD[ENC_COUNT] = {
+    "K1", "K2 B3", "K3", "K4 B1", "K5 B2", "K6 B5 REC", "K7 B6 PLAY", "K8", "T9", "M", "m1"
 };
 
 static const char *pc_name(int pc)
@@ -270,7 +277,9 @@ void uf_draw_cell(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, int k)
     }
     gfx_text_fit(fb, &GFX_S, x + 5, y + 44, t.detail, p->c[t.detail_tok], w - 10);
     if (m->prefs.legend) {
-        const char *leg = m->plat.pad_link != PADL_OPEN ? LEG_NOPAD[k] : c->knob_lock ? LEG_LOCK[k] : LEG_PAD[k];
+        bool pad = m->plat.pad_link == PADL_OPEN;
+        const char *leg = m->plat.mpk_model ? (pad ? (c->knob_lock ? LEG_MK4_LOCK[k] : LEG_MK4_PAD[k]) : LEG_MK4[k])
+                                            : (pad ? LEG_PLUS_PAD[k] : LEG_PLUS[k]);
         gfx_text_fit(fb, &GFX_XS, x + 5, y + 59, leg, p->c[T_GHOST], w - 10);
     }
     /* fuoco: cornice di 2 pixel */

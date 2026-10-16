@@ -399,7 +399,7 @@ static void t_joystick(void)
     CHECK(EV[1].type == G_TURN && EV[1].b == 1);
     /* senza lista: su = valore più alto, sull'encoder con il fuoco */
     gest_set_owner(&H.gest, ENC_COUNT);
-    tap(MPAD_T8);                                             /* premuto Volume: il fuoco va lì */
+    pad(PAD_X, 1); mpk("B0 4D 01"); pad(PAD_X, 0);           /* premuto Volume con X + K8: il fuoco va lì */
     clear();
     mpk("B0 03 7F B0 03 00");
     CHECK(only(G_TURN, ENC_VOLUME, 1));
@@ -438,60 +438,63 @@ static void t_filtri(void)
 
 /* ----------------------------------------------------------- riconoscitore */
 
-/* MIDI-103: premere, tenere 1 s, Loop tenuto 2 s, premere e ruotare; tenuto ignora le rotazioni */
+/* MIDI-103: premere, tenere 1 s, Loop tenuto 2 s, premere e ruotare; tenuto ignora le rotazioni.
+ * I pulsanti degli encoder qui sono il banco B della Plus (B1 Key, B5 Loop, B6 BPM) e T9 del pad */
 static void t_gesti(void)
 {
     reset();
-    pad(MPAD_T1, 1);
+    mpk("99 2C 7F");                                          /* B1: Key premuto */
     wait_us(GEST_T_HOLD_US - PNL_TICK_US);
     CHECK_EQ(NEV, 0);
     wait_us(PNL_TICK_US);
-    CHECK(only(G_HOLD, ENC_SOUND, 0));
+    CHECK(only(G_HOLD, ENC_KEY, 0));
     CHECK_EQ(EV[0].t_us, T0 + GEST_T_HOLD_US);
-    CHECK_EQ(EV[0].src, SRC_MACROPAD);
+    CHECK_EQ(EV[0].src, SRC_MPK);
     clear();
-    mpk("B0 46 02");                                          /* tenuto: la rotazione si ignora */
-    pad(MPAD_T1, 0);
-    CHECK(only(G_RELEASE, ENC_SOUND, 0));
+    mpk("B0 49 02");                                          /* tenuto: la rotazione si ignora */
+    mpk("89 2C 00");
+    CHECK(only(G_RELEASE, ENC_KEY, 0));
 
     clear();
-    tap(MPAD_T2);
+    tap(MPAD_T9);
     CHECK_EQ(NEV, 2);
-    CHECK(EV[0].type == G_PRESS && EV[0].a == ENC_PERFORM && EV[0].src == SRC_MACROPAD);
-    CHECK(EV[1].type == G_RELEASE && EV[1].a == ENC_PERFORM);
+    CHECK(EV[0].type == G_PRESS && EV[0].a == ENC_OPTIONS && EV[0].src == SRC_MACROPAD);
+    CHECK(EV[1].type == G_RELEASE && EV[1].a == ENC_OPTIONS);
 
     /* Loop: G_HOLD a 1 s e G_HOLD_LONG a 2 s, una volta sola; gli altri non hanno G_HOLD_LONG */
     clear();
-    pad(MPAD_T6, 1);
+    mpk("99 30 7F");
     wait_us(3000000);
-    pad(MPAD_T6, 0);
+    mpk("89 30 00");
     CHECK_EQ(count(G_HOLD, ENC_LOOP), 1);
     CHECK_EQ(count(G_HOLD_LONG, ENC_LOOP), 1);
     CHECK_EQ(count(G_PRESS, ENC_LOOP), 0);
     CHECK_EQ(count(G_RELEASE, ENC_LOOP), 1);
     clear();
-    pad(MPAD_T7, 1);
+    mpk("99 31 7F");
     wait_us(3000000);
-    pad(MPAD_T7, 0);
+    mpk("89 31 00");
     CHECK_EQ(count(G_HOLD, ENC_BPM), 1);
     CHECK_EQ(count(G_HOLD_LONG, ENC_BPM), 0);
 
     /* premere e ruotare: né G_HOLD né G_PRESS, anche oltre 1 s */
     clear();
-    pad(MPAD_T1, 1);
-    mpk("B0 46 02 B0 46 7E");
+    mpk("99 2C 7F");
+    mpk("B0 49 02 B0 49 7E");
     wait_us(1500000);
-    pad(MPAD_T1, 0);
+    mpk("89 2C 00");
     CHECK_EQ(NEV, 3);
-    CHECK(EV[0].type == G_PRESS_TURN && EV[0].a == ENC_SOUND && EV[0].b == 1);
-    CHECK(EV[1].type == G_PRESS_TURN && EV[1].a == ENC_SOUND && EV[1].b == -1);
-    CHECK(EV[2].type == G_RELEASE && EV[2].a == ENC_SOUND);
+    CHECK(EV[0].type == G_PRESS_TURN && EV[0].a == ENC_KEY && EV[0].b == 1);
+    CHECK(EV[1].type == G_PRESS_TURN && EV[1].a == ENC_KEY && EV[1].b == -1);
+    CHECK(EV[2].type == G_RELEASE && EV[2].a == ENC_KEY);
 }
 
 /* MIDI-104, MIDI-105, MIDI-092: fuoco del pannello, owner, ENC_FOCUS premuto con A */
 static void t_fuoco(void)
 {
     reset();
+    lost(SRC_MACROPAD);                                       /* senza pad L1 e R1 sono vivi (riserve, 16/10/2026) */
+    clear();
     CHECK_EQ(gest_target(&H.gest), ENC_SOUND);                /* all'avvio il fuoco è su Sound */
     tap(PAD_RIGHT);
     CHECK(only(G_TURN, ENC_SOUND, 1));
@@ -507,16 +510,16 @@ static void t_fuoco(void)
 
     /* la pressione di un encoder porta il fuoco, da qualunque sorgente */
     clear();
-    tap(MPAD_T4);
+    mpk("99 2C 7F 89 2C 00");                                 /* B1 della Plus: Key */
     CHECK_EQ(gest_target(&H.gest), ENC_KEY);
     clear();
-    tap(MPAD_M2_CW);
+    tap(PAD_RIGHT);
     CHECK(only(G_TURN, ENC_KEY, 1));
 
     /* l'owner vince sul fuoco; con una lista su e giù della croce sono invertiti */
     gest_set_owner(&H.gest, ENC_OPTIONS);
     clear();
-    tap(MPAD_M2_CW);
+    tap(PAD_RIGHT);
     tap(PAD_UP);
     tap(PAD_DOWN);
     CHECK_EQ(NEV, 3);
@@ -608,6 +611,8 @@ static void t_unione(void)
 static void t_flip(void)
 {
     reset();
+    lost(SRC_MACROPAD);                                       /* Y, SELECT, L1 e R1 vivono solo senza pad */
+    clear();
     tap(PAD_SELECT);
     CHECK_EQ(count(G_PRESS, ENC_OPTIONS), 1);
     clear();
@@ -647,20 +652,51 @@ static void t_flip(void)
     CHECK_EQ(count(G_TURN, tgt), 3);
 }
 
-/* MIDI-120…126, T-MIDI-16…21: macro pad BRIMFORD */
+/* MIDI-120…127, MIDI-133, T-MIDI-17…21: macro pad BRIMFORD con la mappa del 16/10/2026 */
 static void t_macro_pad(void)
 {
     mpad_state_t s;
     pnl_event_t raw[PNL_MAX_OUT];
 
-    /* T-MIDI-16: T4 tenuto + K4 della MPK = premere e ruotare Key */
+    /* T1 Hold, T2 Tap tempo, T3 Metronomo: un tocco, alla pressione; T4 Fill: giù e su */
     reset();
+    tap(MPAD_T1);
+    tap(MPAD_T2);
+    tap(MPAD_T3);
+    CHECK_EQ(NEV, 3);
+    CHECK(EV[0].type == PNL_MACRO && EV[0].a == MACRO_HOLD_TOGGLE);
+    CHECK(EV[1].type == PNL_MACRO && EV[1].a == MACRO_TAP_TEMPO);
+    CHECK(EV[2].type == PNL_MACRO && EV[2].a == MACRO_METRO_TOGGLE);
+    clear();
     pad(MPAD_T4, 1);
-    mpk("B0 49 02");
+    wait_us(1500000);
     pad(MPAD_T4, 0);
-    CHECK_EQ(count(G_PRESS_TURN, ENC_KEY), 1);
-    CHECK_EQ(sum_b(G_PRESS_TURN, ENC_KEY), 1);
-    CHECK_EQ(count(G_PRESS, ENC_KEY), 0);
+    CHECK_EQ(NEV, 2);
+    CHECK(EV[0].type == PNL_MACRO && EV[0].a == MACRO_FILL && EV[0].b == 1);
+    CHECK(EV[1].type == PNL_MACRO && EV[1].a == MACRO_FILL && EV[1].b == 0);
+
+    /* T5–T8 Scene: tocco = richiama; tenuto 1 s = salva, una volta, e il rilascio non richiama */
+    clear();
+    tap(MPAD_T5);
+    CHECK(only(PNL_MACRO, MACRO_SCENE, 0));
+    clear();
+    uint32_t t1 = NOW;
+    pad(MPAD_T8, 1);
+    wait_us(1500000);
+    pad(MPAD_T8, 0);
+    CHECK(only(PNL_MACRO, MACRO_SCENE_SAVE, 3));
+    CHECK_EQ(EV[0].t_us, t1 + MPAD_SCENE_HOLD_US);
+
+    /* T9 Options è l'unico pulsante di encoder rimasto; T10 Save Loop; T11 batteria a tastiera */
+    clear();
+    tap(MPAD_T9);
+    CHECK_EQ(count(G_PRESS, ENC_OPTIONS), 1);
+    clear();
+    tap(MPAD_T10);
+    CHECK(only(PNL_MACRO, MACRO_LOOP_EXIT, 0));
+    clear();
+    tap(MPAD_T11);
+    CHECK(only(PNL_MACRO, MACRO_DRUMS_TOGGLE, 0));
 
     /* T-MIDI-17: T12 tenuto 0,5 s: niente; tenuto 1,2 s: un solo Panic, a 1 s */
     clear();
@@ -668,7 +704,7 @@ static void t_macro_pad(void)
     wait_us(500000);
     pad(MPAD_T12, 0);
     CHECK_EQ(NEV, 0);
-    uint32_t t1 = NOW;
+    t1 = NOW;
     pad(MPAD_T12, 1);
     wait_us(1200000);
     pad(MPAD_T12, 0);
@@ -684,27 +720,33 @@ static void t_macro_pad(void)
     CHECK(EV[0].type == PNL_MACRO && EV[0].a == MACRO_PANIC);
     CHECK(EV[1].type == PNL_MACRO && EV[1].a == MACRO_RESET && EV[1].t_us == t1 + MPAD_RESET_HOLD_US);
 
-    /* T-MIDI-18: m1 premuta (Bass Voicing tenuto) + tocco di T6: premere Loop col modificatore */
+    /* T-MIDI-18: m1 premuta (Bass Voicing tenuto) + Loop (B5 della Plus): premere Loop col modificatore */
     clear();
     pad(MPAD_M1_PUSH, 1);
-    tap(MPAD_T6);
+    mpk("99 30 7F 89 30 00");
     CHECK_EQ(count(G_PRESS, ENC_LOOP), 1);
     CHECK(gest_held(&H.gest, ENC_BASS_VOICING));
     pad(MPAD_M1_PUSH, 0);
     CHECK(!gest_held(&H.gest, ENC_BASS_VOICING));
 
-    /* T-MIDI-19: lista dei suoni aperta, m2 orario = voce successiva, antiorario = precedente */
+    /* m2 senza Lock: volume del Beat; premuta e girata, volume del basso; premuta da sola, niente */
     clear();
-    gest_set_owner(&H.gest, ENC_SOUND);
     tap(MPAD_M2_CW);
     tap(MPAD_M2_CCW);
     CHECK_EQ(NEV, 2);
-    CHECK(EV[0].type == G_TURN && EV[0].a == ENC_SOUND && EV[0].b == 1);
-    CHECK(EV[1].type == G_TURN && EV[1].a == ENC_SOUND && EV[1].b == -1);
-    gest_set_owner(&H.gest, ENC_COUNT);
+    CHECK(EV[0].type == PNL_MACRO && EV[0].a == MACRO_BEAT_VOL && EV[0].b == 1);
+    CHECK(EV[1].type == PNL_MACRO && EV[1].a == MACRO_BEAT_VOL && EV[1].b == -1);
+    clear();
+    pad(MPAD_M2_PUSH, 1);
+    tap(MPAD_M2_CW);
+    pad(MPAD_M2_PUSH, 0);
+    CHECK(only(PNL_MACRO, MACRO_BASS_VOL, 1));
+    clear();
+    tap(MPAD_M2_PUSH);
+    CHECK_EQ(NEV, 0);
     PAD_BRIMFORD.reset(&s);
     CHECK_EQ(PAD_BRIMFORD.on_pad(&s, MPAD_M2_CW, 1, T0, raw, PNL_MAX_OUT), 1);
-    CHECK(raw[0].type == PNL_ENC_TURN && raw[0].a == ENC_FOCUS && raw[0].b == 1);   /* senza PNL_F_VERTICAL */
+    CHECK(raw[0].type == PNL_MACRO && raw[0].a == MACRO_BEAT_VOL && raw[0].b == 1);
     CHECK_EQ(PAD_BRIMFORD.on_pad(&s, MPAD_M2_CW, 0, T0, raw, PNL_MAX_OUT), 0);      /* il rilascio non conta */
 
     /* MIDI-131: T13 = Lock delle manopole, a scatto come il Caps Lock. Acceso, M, m1 e m2 sono Sound,
@@ -715,9 +757,11 @@ static void t_macro_pad(void)
     clear();
     tap(MPAD_M_CW);
     tap(MPAD_M1_CCW);
-    CHECK_EQ(NEV, 2);
+    tap(MPAD_M2_CW);
+    CHECK_EQ(NEV, 3);
     CHECK(EV[0].type == G_TURN && EV[0].a == ENC_SOUND && EV[0].b == 1);
     CHECK(EV[1].type == G_TURN && EV[1].a == ENC_PERFORM && EV[1].b == -1);
+    CHECK(EV[2].type == G_TURN && EV[2].a == ENC_KEY && EV[2].b == 1);
     clear();
     pad(MPAD_M2_PUSH, 1);                                     /* m2 premuta e girata = transpose */
     tap(MPAD_M2_CW);
@@ -752,41 +796,31 @@ static void t_macro_pad(void)
     pad(MPAD_T15, 0);
     CHECK(only(PNL_MACRO, MACRO_CONTROLS_PAGE, 0));
 
-    /* T-MIDI-20: scollegato con T1 tenuto: rilascio sintetico, poi SRC_LOST; niente G_HOLD dopo */
+    /* T-MIDI-20: scollegato con T9 e T4 tenuti: rilasci sintetici, poi SRC_LOST; niente G_HOLD dopo */
     PAD_BRIMFORD.reset(&s);
-    PAD_BRIMFORD.on_pad(&s, MPAD_T1, 1, T0, raw, PNL_MAX_OUT);
-    CHECK_EQ(PAD_BRIMFORD.on_lost(&s, T0, raw, PNL_MAX_OUT), 2);
-    CHECK(raw[0].type == PNL_ENC_UP && raw[0].a == ENC_SOUND && raw[0].b == PNL_B_SYNTH);
-    CHECK(raw[1].type == PNL_SRC_LOST && raw[1].a == SRC_MACROPAD);
+    PAD_BRIMFORD.on_pad(&s, MPAD_T9, 1, T0, raw, PNL_MAX_OUT);
+    PAD_BRIMFORD.on_pad(&s, MPAD_T4, 1, T0, raw, PNL_MAX_OUT);
+    CHECK_EQ(PAD_BRIMFORD.on_lost(&s, T0, raw, PNL_MAX_OUT), 3);
+    CHECK(raw[0].type == PNL_ENC_UP && raw[0].a == ENC_OPTIONS && raw[0].b == PNL_B_SYNTH);
+    CHECK(raw[1].type == PNL_MACRO && raw[1].a == MACRO_FILL && raw[1].b == 0);
+    CHECK(raw[2].type == PNL_SRC_LOST && raw[2].a == SRC_MACROPAD);
     clear();
-    pad(MPAD_T1, 1);
+    pad(MPAD_T9, 1);
     lost(SRC_MACROPAD);
     wait_us(1500000);
     CHECK_EQ(NEV, 2);
-    CHECK(EV[0].type == G_RELEASE && EV[0].a == ENC_SOUND);
+    CHECK(EV[0].type == G_RELEASE && EV[0].a == ENC_OPTIONS);
     CHECK(EV[1].type == PNL_SRC_LOST && EV[1].a == SRC_MACROPAD);
 
-    /* T-MIDI-21: T5 con la ripetizione automatica (1, 2, 2, 2, 0) */
+    /* T-MIDI-21: T5 con la ripetizione automatica (1, 2, 2, 2, 0): una scena richiamata, una volta */
     static const int32_t V[5] = { 1, 2, 2, 2, 0 };
-    int downs = 0, ups = 0;
-    PAD_BRIMFORD.reset(&s);
-    for (int i = 0; i < 5; i++) {
-        int n = PAD_BRIMFORD.on_pad(&s, MPAD_T5, V[i], T0, raw, PNL_MAX_OUT);
-        for (int j = 0; j < n; j++) {
-            downs += raw[j].type == PNL_ENC_DOWN && raw[j].a == ENC_BASS;
-            ups += raw[j].type == PNL_ENC_UP && raw[j].a == ENC_BASS;
-        }
-    }
-    CHECK_EQ(downs, 1);
-    CHECK_EQ(ups, 1);
     reset();
     for (int i = 0; i < 5; i++) pad(MPAD_T5, V[i]);
-    CHECK_EQ(count(G_PRESS, ENC_BASS), 1);
-    CHECK_EQ(count(G_RELEASE, ENC_BASS), 1);
+    CHECK(only(PNL_MACRO, MACRO_SCENE, 0));
 
     /* MIDI-120, MIDI-122: le lettere di fabbrica A…O vanno in ordine di lettura su 3 file da 5; la
      * quinta colonna è T13–T15. Il 15/10/2026 la lettera i-esima diventava T(i+1): il tasto che la
-     * mappa chiama Menu (fila in basso, terza colonna, lettera M) accendeva il Lock e la manopola
+     * mappa chiamava Menu (fila in basso, terza colonna, lettera M) accendeva il Lock e la manopola
      * dei rivolti cambiava strumento. */
     static const uint16_t FILE_PAD[15] = {
         MPAD_T1, MPAD_T2, MPAD_T3, MPAD_T4, MPAD_T13,
@@ -796,8 +830,8 @@ static void t_macro_pad(void)
     CHECK_EQ(mpad_tasto(-1), 0);
     CHECK_EQ(mpad_tasto(15), 0);
     reset();
-    tap(mpad_tasto(12));                                      /* lettera M: Menu, non Lock */
-    CHECK(only(PNL_MACRO, MACRO_SYSTEM_MENU, 0));
+    tap(mpad_tasto(12));                                      /* lettera M: T11, batteria a tastiera */
+    CHECK(only(PNL_MACRO, MACRO_DRUMS_TOGGLE, 0));
     clear();
     tap(MPAD_M_CW);
     CHECK(only(G_TURN, ENC_CHORD_VOICING, 1));
@@ -806,24 +840,17 @@ static void t_macro_pad(void)
     CHECK(only(PNL_MACRO, MACRO_KNOB_LOCK, 1));
     tap(mpad_tasto(4));
     clear();
-    tap(mpad_tasto(5));                                       /* lettera F, in mezzo a sinistra: Bass */
-    CHECK_EQ(count(G_PRESS, ENC_BASS), 1);
+    tap(mpad_tasto(5));                                       /* lettera F, in mezzo a sinistra: Scene 1 */
+    CHECK(only(PNL_MACRO, MACRO_SCENE, 0));
 
-    /* il resto della mappa */
+    /* il resto della mappa: M e m1 sono i voicing, M premuta = Split/Octave */
     clear();
-    tap(MPAD_T9);
-    tap(MPAD_T10);
-    tap(MPAD_T11);
     tap(MPAD_M_CW);
     tap(MPAD_M1_CCW);
     tap(MPAD_M_PUSH);
-    tap(MPAD_M2_PUSH);
-    CHECK_EQ(count(G_PRESS, ENC_OPTIONS), 1);
-    CHECK_EQ(count(PNL_BACK, 0), 1);
-    CHECK_EQ(count(PNL_MACRO, MACRO_SYSTEM_MENU), 1);
     CHECK_EQ(sum_b(G_TURN, ENC_CHORD_VOICING), 1);
     CHECK_EQ(sum_b(G_TURN, ENC_BASS_VOICING), -1);
-    CHECK_EQ(count(G_PRESS, ENC_CHORD_VOICING), 2);           /* M, poi m2 con il fuoco su Chord Voicing */
+    CHECK_EQ(count(G_PRESS, ENC_CHORD_VOICING), 1);
 }
 
 /* ----------------------------------------------------------- scollegamento */
@@ -1022,30 +1049,79 @@ static void t_revisione(void)
      * manopola della MK4 e la croce vanno sempre all'encoder con il fuoco. Solo una lista o un menu
      * aperto la prende, finché non si chiude */
     reset();
-    tap(MPAD_T6);                                             /* premuto Loop: il fuoco passa a Loop */
+    mpk("99 30 7F 89 30 00");                                 /* premuto Loop (B5 della Plus): il fuoco passa a Loop */
     clear();
     mpk("B0 46 02");                                          /* girato K1: overlay di Sound */
-    tap(MPAD_M2_CW);
+    tap(PAD_RIGHT);
     CHECK_EQ(NEV, 2);
     CHECK(EV[0].type == G_TURN && EV[0].a == ENC_SOUND && EV[0].b == 1);
-    CHECKM(EV[1].type == G_TURN && EV[1].a == ENC_LOOP && EV[1].b == 1, "m2 gira il fuoco, non la manopola appena girata");
+    CHECKM(EV[1].type == G_TURN && EV[1].a == ENC_LOOP && EV[1].b == 1, "la croce gira il fuoco, non la manopola appena girata");
     gest_set_owner(&H.gest, ENC_SOUND);                       /* la lista dei suoni aperta */
-    tap(MPAD_T6);
+    mpk("99 30 7F 89 30 00");
     clear();
-    tap(MPAD_M2_CW);
+    tap(PAD_RIGHT);
     CHECKM(only(G_TURN, ENC_SOUND, 1), "la lista resta padrona finché non si chiude");
     gest_set_owner(&H.gest, ENC_COUNT);
 
     /* dopo una sospensione di 40 minuti l'orologio a 32 bit sembra indietro: gest_resync lo rimette
      * e il tenuto funziona (prima T1 tenuto 1,5 s dava G_PRESS) */
     reset();
-    pad(MPAD_T1, 1);
+    pad(MPAD_T9, 1);
     NOW += 0x90000000u;
     gest_resync(&H.gest, NOW);
     clear();
     wait_us(1100000);
-    pad(MPAD_T1, 0);
-    CHECKM(count(G_HOLD, ENC_SOUND) == 1 && count(G_PRESS, ENC_SOUND) == 0, "tenuto dopo la sospensione");
+    pad(MPAD_T9, 0);
+    CHECKM(count(G_HOLD, ENC_OPTIONS) == 1 && count(G_PRESS, ENC_OPTIONS) == 0, "tenuto dopo la sospensione");
+}
+
+/* riserve inerti (Luigi, 16/10/2026): con la MK4 collegata croce, A, B e START della Flip tacciono;
+ * con il macro pad tacciono Y, SELECT, L1 e R1; MENU resta; un rilascio passa se è passata la pressione */
+static void t_riserve(void)
+{
+    midi_parser_init(&MP2, MIDI_PORT_DIN);
+    reset();                                                  /* Plus, Flip e pad */
+    clear();
+    tap(PAD_Y);
+    tap(PAD_SELECT);
+    tap(PAD_L1);
+    CHECK_EQ(NEV, 0);
+    CHECK_EQ(gest_target(&H.gest), ENC_SOUND);
+    tap(PAD_RIGHT);
+    CHECK(only(G_TURN, ENC_SOUND, 1));                        /* la croce vive: la MK4 non c'è */
+    lost(SRC_MACROPAD);
+    clear();
+    tap(PAD_Y);
+    CHECK_EQ(count(G_PRESS, ENC_BASS_VOICING), 1);
+
+    reset();
+    lost(SRC_MPK);
+    inp_set_mpk_model(&H, MPK_MODEL_MK4);
+    connected(SRC_MPK);
+    clear();
+    tap(PAD_RIGHT);
+    tap(PAD_A);
+    tap(PAD_B);
+    tap(PAD_START);
+    CHECK_EQ(NEV, 0);
+    tap(PAD_MENU);
+    CHECK(only(PNL_MACRO, MACRO_SYSTEM_MENU, 0));
+    /* A tenuto da prima del collegamento: il rilascio passa e chiude il gesto */
+    lost(SRC_MPK);
+    clear();
+    pad(PAD_A, 1);
+    connected(SRC_MPK);
+    pad(PAD_A, 0);
+    CHECK_EQ(count(G_RELEASE, ENC_SOUND), 1);
+    /* la MK4 non ha più il PUSH su B8 né su X: B8 cambia solo banco, X non fa niente */
+    clear();
+    pad(PAD_X, 1);
+    mpk("99 33 7F");
+    for (int i = 0; i < 12; i++) mk4_daw("B0 18 01");
+    mpk("89 33 00");
+    pad(PAD_X, 0);
+    CHECK(only(G_TURN, ENC_SOUND, 1));
+    inp_set_mpk_model(&H, MPK_MODEL_PLUS);
 }
 
 void test_input(void)
@@ -1066,6 +1142,7 @@ void test_input(void)
     t_unione();
     t_flip();
     t_macro_pad();
+    t_riserve();
     t_scollegamento();
     t_nomi();
     t_mk4();

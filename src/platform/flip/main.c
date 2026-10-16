@@ -54,6 +54,37 @@ void battery_read(uint8_t *pct, bool *charging)
 
 static vet_t vet;
 static ui_flip_state_t ufs;
+
+/* scene del macro pad (MIDI-133): Saves/stame/scene.txt, letto all'avvio e riscritto a ogni salvataggio */
+static void scenes_path(char *out, size_t max)
+{
+    const char *saves = getenv("STAME_SAVES");
+    snprintf(out, max, "%s/scene.txt", saves && *saves ? saves : ".");
+}
+
+static void scenes_load(vet_t *v)
+{
+    char path[256], buf[2048];
+    scenes_path(path, sizeof path);
+    FILE *f = fopen(path, "rb");
+    if (!f) return;
+    size_t n = fread(buf, 1, sizeof buf - 1, f);
+    fclose(f);
+    vet_scenes_read(v, buf, n);
+    log_msg("scene: lette da %s", path);
+}
+
+static void scenes_save(const vet_t *v)
+{
+    char path[256], buf[2048];
+    scenes_path(path, sizeof path);
+    size_t n = vet_scenes_write(v, buf, sizeof buf);
+    FILE *f = n ? fopen(path, "wb") : NULL;
+    if (!f) { log_msg("scene: non scritte in %s", path); return; }
+    fwrite(buf, 1, n, f);
+    fclose(f);
+    log_msg("scene: salvate in %s", path);
+}
 static uint16_t px[UI_FLIP_W * UI_FLIP_H];
 static midi_parser_t parser, parser2;            /* porta 1 e porta 2 (DAW della MK4) */
 
@@ -156,6 +187,7 @@ int main(int argc, char **argv)
     gfx_fb_init(&fb, px, UI_FLIP_W, UI_FLIP_H, UI_FLIP_W);
     uint32_t t = now_ms();
     vet_init(&vet, t);
+    scenes_load(&vet);
     midi_parser_init(&parser, MIDI_PORT_CTL);
     midi_parser_init(&parser2, MIDI_PORT_DIN);
     /* il banco dei campioni accanto al binario (launch.sh fa cd nella cartella dell'app), prima dell'audio */
@@ -293,6 +325,7 @@ int main(int argc, char **argv)
                 }
             }
         }
+        if (vet.scenes_dirty) { vet.scenes_dirty = 0; scenes_save(&vet); }
         if ((int32_t)(t - next_batt) >= 0) {             /* batteria ogni 5 s (PLT-090) */
             next_batt = t + 5000;
             uint8_t pct;

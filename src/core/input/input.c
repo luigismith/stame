@@ -32,10 +32,40 @@ static uint16_t bit_pad(int b)
     return (uint16_t)(b < 16 ? PAD_B + b : PAD_UP + b - 16);
 }
 
+/* Riserve inerti (Luigi, 16/10/2026): i tasti della Flip che rifanno la navigazione (croce, A, B) e la
+ * pressione di BPM (START) tacciono con la MK4 collegata; quelli che rifanno il macro pad (Y, SELECT,
+ * L1, R1) con il pad collegato. MENU resta sempre. Un rilascio tace solo se ha taciuto la pressione,
+ * così un tasto tenuto durante un collegamento non resta premuto. */
+static bool reserve_silent(inp_t *h, const pnl_event_t *e)
+{
+    if (e->src != SRC_FLIP) return false;
+    bool mk4 = (h->connected & (1u << SRC_MPK)) && h->mpk_model == MPK_MODEL_MK4;
+    bool pad = (h->connected & (1u << SRC_MACROPAD)) != 0;
+    uint8_t a = e->a & (uint8_t)~PNL_F_VERTICAL;
+    int bit = a == ENC_FOCUS ? ENC_COUNT : a < ENC_COUNT ? a : -1;
+    switch (e->type) {
+    case PNL_ENC_TURN:   return mk4 && a == ENC_FOCUS;
+    case PNL_BACK:       return mk4;
+    case PNL_FOCUS_STEP: return pad;
+    case PNL_ENC_DOWN: {
+        bool mute = ((a == ENC_FOCUS || a == ENC_BPM) && mk4) || ((a == ENC_BASS_VOICING || a == ENC_OPTIONS) && pad);
+        if (mute && bit >= 0) h->flip_mute |= (uint16_t)(1u << bit);
+        return mute;
+    }
+    case PNL_ENC_UP:
+        if (bit >= 0 && (h->flip_mute & (1u << bit))) { h->flip_mute &= (uint16_t)~(1u << bit); return true; }
+        return false;
+    default: return false;
+    }
+}
+
 /* eventi di un profilo -> gest -> out[k…]; ritorna il nuovo k */
 static int to_gest(inp_t *h, const pnl_event_t *ev, int n, pnl_event_t *out, int max, int k)
 {
-    for (int i = 0; i < n; i++) k += gest_feed(&h->gest, &ev[i], out + k, max - k);
+    for (int i = 0; i < n; i++) {
+        if (reserve_silent(h, &ev[i])) continue;
+        k += gest_feed(&h->gest, &ev[i], out + k, max - k);
+    }
     return k;
 }
 
@@ -111,7 +141,7 @@ int inp_connected(inp_t *h, uint8_t src, uint32_t t_us, pnl_event_t *out, int ma
 
     pnl_event_t ev = { .type = PNL_SRC_CONNECTED, .src = src, .a = src, .b = 0, .t_us = t_us };
     int k = gest_feed(&h->gest, &ev, out, max);
-    if (src == SRC_FLIP) h->flip_keys = 0;
+    if (src == SRC_FLIP) h->flip_keys = h->flip_mute = 0;
     else k = replay_flip_keys(h, src, 1, t_us, out, max, k);   /* X tenuto alla connessione della MPK */
     return k;
 }
