@@ -181,8 +181,9 @@ int main(int argc, char **argv)
         struct pollfd pf[1 + 2 + 8];                    /* tasti, due porte MIDI, i nodi del macro pad */
         int n = 0;
         if (pad >= 0) { pf[n].fd = pad; pf[n].events = POLLIN; n++; }
-        if (midi.fd >= 0) { pf[n].fd = midi.fd; pf[n].events = POLLIN; n++; }
-        if (midi.fd2 >= 0) { pf[n].fd = midi.fd2; pf[n].events = POLLIN; n++; }
+        int ip1 = -1, ip2 = -1;
+        if (midi.fd >= 0) { ip1 = n; pf[n].fd = midi.fd; pf[n].events = POLLIN; n++; }
+        if (midi.fd2 >= 0) { ip2 = n; pf[n].fd = midi.fd2; pf[n].events = POLLIN; n++; }
         int mfd[8], nm = macropad_fds(mfd, 8);
         for (int i = 0; i < nm; i++) { pf[n].fd = mfd[i]; pf[n].events = POLLIN; n++; }
         poll(pf, (nfds_t)n, 5);
@@ -215,7 +216,13 @@ int main(int argc, char **argv)
         if (midi.fd >= 0) {
             uint8_t buf[256];
             int r = 0, lost = 0;
-            for (int port = 0; port < 2 && !lost; port++) {   /* porta 1, poi la 2 della MK4 */
+            /* prima la porta che poll ha visto pronta: le porte non hanno tempi di arrivo, e leggere
+             * sempre la 1 prima della 2 della MK4 trasformava una manopola girata un attimo prima di
+             * B8 in una scelta del PUSH. Se sono pronte entrambe l'ordine resta 1, 2 */
+            bool r1 = ip1 >= 0 && (pf[ip1].revents & POLLIN), r2 = ip2 >= 0 && (pf[ip2].revents & POLLIN);
+            int first = !r1 && r2 ? 1 : 0;
+            for (int q = 0; q < 2 && !lost; q++) {
+                int port = (first + q) % 2;
                 midi_parser_t *ps = port ? &parser2 : &parser;
                 while ((r = midi_read(&midi, port, buf, sizeof buf)) > 0) {
                     for (int i = 0; i < r; i++) {

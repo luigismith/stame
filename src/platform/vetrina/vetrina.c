@@ -164,8 +164,10 @@ static void list_item(const vet_t *v, int kind, int i, ui_item_t *it)
         if (i == S.sound) it->mark = MK_CHECK;
         break;
     case L_PERFORM:
-        ui_fmt_copy(it->label, sizeof it->label, i == 0 ? "Off" : ui_fmt_perf_long((uint8_t)i));
-        if (i == S.perf_mode) it->mark = MK_DOT;
+        /* «Exit» in cima come in ogni lista (UI-073, UI-077): spegnere si fa con la manopola, amount 0
+         * (ACC-160). Prima la voce 0 era «Off» */
+        ui_fmt_copy(it->label, sizeof it->label, i == 0 ? "Exit" : ui_fmt_perf_long((uint8_t)i));
+        if (i && i == S.perf_mode) it->mark = MK_DOT;
         break;
     case L_OPTIONS: {
         static const char *const L[] = { "Exit", "View", "Play Style", "Single Notes", "Secret Chords" };
@@ -229,6 +231,7 @@ static void list_select(vet_t *v)
     switch (v->list_kind) {
     case L_SOUND: S.sound = i; break;
     case L_PERFORM:
+        if (i == 0) { list_close(v); break; }
         S.perf_mode = i;
         if (S.perf_amount == 0) S.perf_amount = perf_arp() ? 6 : S.perf_mode == PERF_PATTERN ? 1 : 5;
         S.perf_amount = clampi(S.perf_amount, 0, perf_max(S.perf_mode));
@@ -781,6 +784,7 @@ void vet_mpk(vet_t *v, bool connected, const char *fw, uint32_t now_ms)
                       : inp_lost(&v->inp, SRC_MPK, now_ms * 1000u, ev, INP_MAX_OUT);
     feed(v, ev, n);
     v->m.plat.mpk_link = connected ? MPK_OPEN : MPK_ABSENT;
+    v->factory_warned = 0;
     if (fw) ui_fmt_copy(v->m.plat.mpk_fw, sizeof v->m.plat.mpk_fw, fw);
     msg(v, connected ? MSG_INFO : MSG_WARN, connected ? "MPK connected" : "MPK disconnected", 2000);
 }
@@ -1194,8 +1198,18 @@ const ui_model_t *vet_model(vet_t *v)
     c->focus = v->inp.gest.focus;
     c->turn_target = gest_target(&v->inp.gest);
     if (S.view != VIEW_GEEK) v->view_back = (uint8_t)S.view;   /* T14 torna all'ultima vista prima di Geek Out, comunque ci si arrivi */
-    c->push = v->inp.mpk.push;
+    bool mk4 = v->inp.mpk_model == MPK_MODEL_MK4;
+    c->push = mk4 ? v->inp.mk4.push : v->inp.mpk.push;
     c->knob_lock = S.knob_lock;
+    /* programma della Plus e banco stimato dei pad (MIDI-088, MIDI-089): prima non arrivavano alla
+     * testata, e «FACTORY» non compariva mai. L'avviso di MIDI-119 una volta per collegamento */
+    m->plat.mpk_profile = !mk4 && v->inp.mpk.factory ? MPKP_FACTORY : MPKP_STAME;
+    m->plat.mpk_bank = mk4 ? MPK_BANK_EST_UNKNOWN : v->inp.mpk.bank == MPK_BANK_A ? MPK_BANK_EST_A
+                     : v->inp.mpk.bank == MPK_BANK_B ? MPK_BANK_EST_B : MPK_BANK_EST_UNKNOWN;
+    if (m->plat.mpk_profile == MPKP_FACTORY && !v->factory_warned && m->plat.mpk_link == MPK_OPEN) {
+        v->factory_warned = 1;
+        msg(v, MSG_WARN, "STAME program not active: reduced functions", 5000);
+    }
     for (int k = 0; k < ENC_COUNT; k++) {
         if (gest_held(&v->inp.gest, (uint8_t)k)) {
             /* dal tempo trascorso, non da t_down/1000: i µs girano ogni 2³² (71,6 min) e la barra del

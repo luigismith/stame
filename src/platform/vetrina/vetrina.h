@@ -81,6 +81,7 @@ typedef struct {
 
     /* demo automatica: il brano va a tick del motore (demo.h) */
     uint8_t     demo_on;              /* preferenza: demo automatica permessa */
+    uint8_t     factory_warned;       /* avviso «STAME program not active» già dato per questo collegamento (MIDI-119) */
     uint8_t     demo_running;
     uint32_t    demo_t0, last_input_ms;
     uint8_t     demo_theme;           /* il tema di chi suona, da rimettere quando la demo si ferma */
