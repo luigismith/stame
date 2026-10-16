@@ -520,7 +520,7 @@ Le quattro porte su Windows si chiamano «MPK mini IV MIDI Port», «DAW Port»,
 |---|---|
 | 25 tasti | i 12 tasti dell'Orchid (nota % 12), come la Plus (MIDI-079) |
 | Pad, banco A | fila in alto Dim, Min, Maj, Sus; fila in basso 6, m7, M7, 9: stesse note della Plus |
-| Pad, banco B | **liberi** dal 16/10/2026 (prima i pulsanti di riserva e B8 = PUSH): una nota del banco B rilascia solo i tasti accordo del banco A, come un cambio di banco (MIDI-089). Candidato: otto pad di batteria con velocity (proposta del 16/10/2026, da decidere con Luigi) |
+| Pad, banco B | **otto pad di batteria** con la velocity (MIDI-135, deciso da Luigi il 16/10/2026): fila bassa cassa, rullante, rimshot, battimani; fila alta charleston chiuso, charleston aperto, tom basso, piatto. Una nota del banco B rilascia prima i tasti accordo del banco A, come un cambio di banco (MIDI-089) |
 | K1–K8 | gli 8 encoder (Sound, Perform, FX, Key, Bass, Loop, BPM, Volume). Uno scatto ogni 12 unità per Sound, Key, Bass e Loop, 8 per Perform e FX, 3 per BPM, 2 per Volume [V: da tarare a mano] |
 | **SHIFT** | **PUSH** (MIDI-084): tenuto + manopola toccata e lasciata = premi; + manopola girata = premi e ruota; + tocco e 1 s = tieni. Il tremolio della selezione dura 300 ms, perché le manopole non hanno scatti. Dal 16/10/2026 è **l'unico PUSH**: B8 e X della Flip non contano |
 | Manopola di navigazione | girata: liste e fuoco (orario = voce successiva); premuta: conferma; premuta e girata: premi e ruota dell'encoder con il fuoco. Con − e + è la **casa della navigazione** (16/10/2026): m2 del pad e croce, A e B della Flip non la rifanno |
@@ -710,6 +710,14 @@ layers:
   - un rilascio tace solo se ha taciuto la pressione, così un tasto tenuto durante un collegamento non resta premuto;
   - sulla MK4 il banco B è libero; sulla Plus banco B, B8 e X restano vivi (la Plus non ha SHIFT nel profilo).
   Restano due doppioni voluti sulla MK4: STOP/PLAY accanto a SHIFT + K7 toccata (un tasto PLAY per la batteria) e SHIFT + STOP/PLAY accanto a T12 tenuto (un Panic veloce).
+
+- **MIDI-135** — **La drum machine dal vivo** [D, **decisa da Luigi il 16/10/2026**: «la drum machine deve avere la stessa "filosofia" di orchid... premo tasti, muovo manopole e creo loop di batteria in tempo reale», niente sequencer a passi; scelte con le domande a scelta multipla: pad del banco B, kit/Roll/Accent, Swing, FX sulla batteria]. Si suona e si registra nel looper come gli accordi (ACC-211); sotto **DRUMS** (T11) gli stessi encoder cambiano mestiere, come con il Lock, e le celle della pagina dei comandi lo scrivono (`30` UI-152):
+  - **pad del banco B della MK4**: otto colpi con la velocity, sempre, anche senza DRUMS (`PNL_MACRO(MACRO_DRUM_HIT, strumento << 8 | velocity)`, velocity 0 al rilascio); fila bassa cassa, rullante, rimshot, battimani, fila alta charleston chiuso e aperto, tom basso, piatto, nell'ordine degli strumenti di `drums.h` (ACC-212);
+  - **K1 = Kit** (cella «KIT»): 0 = il kit del Beat scelto, poi Studio, Jazz, 808, Techno, Chip (`mot_kit`); vale per i tasti, i pad e il Beat;
+  - **K2 = Roll** (cella «ROLL»): un tasto o un pad **tenuto** si ripete sulla griglia del loop (o del trasporto) con la suddivisione scelta: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32 (`mot_roll`, in tick: 96, 48, 32, 24, 16, 12). Il colpo della mano suona subito; la ripetizione salta il punto di griglia che cade a meno di mezza suddivisione dal colpo; ogni ripetizione entra nel loop al suo tick esatto. È lo Strum della batteria;
+  - **K5 = Accent** (cella «ACCENT», 0…10, default 10): quanto conta la velocity: `v = 100 + (velocity − 100) × Accent / 10`, quindi 0 = colpi tutti uguali a 100, 10 = la dinamica com'è. Vale per tasti e pad;
+  - gli overlay sono `OV_KIT`, `OV_ROLL`, `OV_ACCENT` (`30` UI-025); K3 (FX sulla batteria) e K4 (Swing sulla griglia del loop e dei Beat) sono decisi ma non ancora fatti;
+  - fuori da DRUMS gli encoder tornano quelli dell'Orchid; kit, Roll e Accent restano come sono.
 
 ---
 

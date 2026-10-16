@@ -37,6 +37,7 @@ typedef struct {
     uint32_t tap_ms[4];                 /* ultimi tocchi del tap tempo */
     uint8_t tap_n;
     uint8_t scene_keep;                 /* una scena ha appena messo suono, Perform ed effetto: snd_sync non li rimette */
+    int kit, roll, accent;              /* drum machine (MIDI-135): kit 0 = del Beat, Roll 0…6, Accent 0…10 */
     uint8_t knob_lock;                  /* Lock delle manopole del macro pad (MIDI-131), per la testata */
     uint32_t drum_ms[12];               /* ultimo colpo di ogni tasto, per accendere il tasto sulla plancia */
 } sim_t;
@@ -326,6 +327,9 @@ static void looper_press(vet_t *v)
 
 static void looper_stop(vet_t *v) { loop_send(v, LOOP_C_STOP); }
 
+/* drum machine (MIDI-135): suddivisioni del Roll in tick e velocity con l'Accent (0 = colpi uguali, 10 = com'è) */
+static const uint8_t ROLL_TICKS[7] = { 0, 96, 48, 32, 24, 16, 12 };
+
 /* ---- gesti ---- */
 static void turn(vet_t *v, int enc, int d, bool pressed)
 {
@@ -336,6 +340,25 @@ static void turn(vet_t *v, int enc, int d, bool pressed)
             return;
         }
         list_close(v);
+    }
+    if (S.drums && !pressed) {                          /* drum machine (MIDI-135): kit, Roll e Accent sotto DRUMS */
+        if (enc == ENC_SOUND) {
+            S.kit = wrap(S.kit + d, KIT_COUNT + 1);
+            snd_push(v, VS_KIT, 0, (uint8_t)S.kit, 0);
+            overlay(v, OV_KIT, ENC_SOUND, S.kit);
+            return;
+        }
+        if (enc == ENC_PERFORM) {
+            S.roll = clampi(S.roll + d, 0, 6);
+            snd_push(v, VS_ROLL, 0, ROLL_TICKS[S.roll], 0);
+            overlay(v, OV_ROLL, ENC_PERFORM, S.roll);
+            return;
+        }
+        if (enc == ENC_BASS) {
+            S.accent = clampi(S.accent + d, 0, 10);
+            overlay(v, OV_ACCENT, ENC_BASS, S.accent);
+            return;
+        }
     }
     switch (enc) {
     case ENC_SOUND:
@@ -455,6 +478,22 @@ static void drums_toggle(vet_t *v)
     overlay(v, OV_DRUMS, ENC_BPM, S.drums);
 }
 
+static uint8_t accent(int vel)
+{
+    int v = 100 + (vel - 100) * S.accent / 10;
+    return (uint8_t)clampi(v, 1, 127);
+}
+
+static void drum_hit(vet_t *v, int inst, int vel)
+{
+    if (inst < 0 || inst >= 12) return;
+    if (vel) {
+        snd_push(v, VS_DRUM, 0, (uint8_t)inst, accent(vel));
+        S.drum_ms[inst] = v->now_ms;
+    } else snd_push(v, VS_DRUM_OFF, 0, (uint8_t)inst, 0);
+    v->m.plat.midi_in_ms = v->now_ms;
+}
+
 static void chord_up(vet_t *v, uint8_t a)
 {
     if (a < 4) ain(v, ACC_IN_TYPE_UP, a, 0); else ain(v, ACC_IN_EXT_UP, (uint8_t)(a - 4), 0);
@@ -532,14 +571,11 @@ static void handle(vet_t *v, const pnl_event_t *e)
 {
     switch (e->type) {
     case PNL_KEY_DOWN:
-        if (S.drums) {
-            snd_push(v, VS_DRUM, 0, (uint8_t)(e->a % 12), (uint8_t)(e->b ? e->b : 100));
-            S.drum_ms[e->a % 12] = v->now_ms;
-            v->m.plat.midi_in_ms = v->now_ms;
-        } else { hold_release(v); ain(v, ACC_IN_KEY_DOWN, e->a, e->b); }
+        if (S.drums) drum_hit(v, e->a % 12, e->b ? e->b : 100);
+        else { hold_release(v); ain(v, ACC_IN_KEY_DOWN, e->a, e->b); }
         break;
     case PNL_KEY_UP:
-        if (S.drums) break;
+        if (S.drums) { drum_hit(v, e->a % 12, 0); break; }        /* ferma il Roll */
         if (S.hold) S.hold_keys |= (uint16_t)(1u << (e->a % 12));   /* Hold: il rilascio aspetta il tasto dopo */
         else ain(v, ACC_IN_KEY_UP, e->a, 0);
         break;
@@ -611,7 +647,7 @@ static void handle(vet_t *v, const pnl_event_t *e)
         } else if (e->a == MACRO_BASS_VOL) {
             S.bass_volume = clampi(S.bass_volume + e->b, 0, 99);
             overlay(v, OV_BASS_VOLUME, ENC_VOLUME, S.bass_volume);
-        }
+        } else if (e->a == MACRO_DRUM_HIT) drum_hit(v, (e->b >> 8) & 0x7F, e->b & 0x7F);   /* pad del banco B (MIDI-135) */
         break;
     case PNL_SRC_CONNECTED:
         if (e->a == SRC_MACROPAD) msg(v, MSG_INFO, "Pad connected", 2000);
@@ -1017,6 +1053,7 @@ void vet_init(vet_t *v, uint32_t now_ms)
     S.sound = 2; S.fx_type = FX_REV; S.fx_amount = 4; S.bass = 0; S.volume = 72; S.bass_volume = 70;
     S.bpm = 120; S.beat_mode = BEAT_PATTERN; S.beat = 0; S.meter = METER_4_4; S.beat_on = 0;
     S.beat_volume = 72; S.view = VIEW_CHORD;         /* i kit a campioni stanno a −1 dBFS: 72 ≈ −5,5 dB */
+    S.accent = 10;                                   /* drum machine: tutta la dinamica (MIDI-135) */
 
     ui_model_t *m = &v->m;
     m->layer.base = BASE_BOOT;
@@ -1322,6 +1359,9 @@ static void fill_tempo_looper(vet_t *v, ui_model_t *m)
     t->beat_volume = (uint8_t)S.beat_volume;
     t->drums_on = S.drums;                                /* batteria a tastiera (UI-097) */
     t->metro_on = S.metro;                                /* metronomo di T3 (MIDI-133) */
+    t->kit = (uint8_t)S.kit;                              /* drum machine (MIDI-135) */
+    t->roll = (uint8_t)S.roll;
+    t->accent = (uint8_t)S.accent;
     const mot_snap_t *sn = v->snap;
     if (sn && sn->tr_on) {                                        /* posizione del trasporto vero */
         uint32_t pos = sn->tick - sn->tr_t0;

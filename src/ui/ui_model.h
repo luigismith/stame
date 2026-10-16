@@ -60,6 +60,7 @@ typedef struct {
     uint8_t  beat_volume;
     uint8_t  drums_on;
     uint8_t  metro_on;                  /* metronomo indipendente dal Beat (T3 del pad, MIDI-133) */
+    uint8_t  kit, roll, accent;         /* drum machine (40 MIDI-135): kit scelto (0 = del Beat), Roll 0…6, Accent 0…10 */
 } ui_tempo_t;
 
 /* ---- 2.3 looper (UI-023) ---- */
@@ -108,7 +109,7 @@ typedef struct {
 typedef enum { OV_NONE, OV_VOLUME, OV_BASS_VOLUME, OV_BEAT_VOLUME, OV_BATTERY, OV_SOUND, OV_PERFORM,
                OV_ARP, OV_FX, OV_KEY, OV_KEY_TOGGLE, OV_TRANSPOSE, OV_BPM, OV_BASS_SOUND,
                OV_BASS_TOGGLE, OV_VOICING, OV_BASS_VOICING, OV_SINGLE_NOTES, OV_COUNT_IN,
-               OV_SAVED, OV_DRUMS, OV_LOW_BATTERY } ui_ov_kind_t;
+               OV_SAVED, OV_DRUMS, OV_LOW_BATTERY, OV_KIT, OV_ROLL, OV_ACCENT } ui_ov_kind_t;
 typedef struct { uint8_t kind, enc; int16_t value; uint32_t until_ms; } ui_overlay_t;
 
 #define UI_LIST_WIN 9

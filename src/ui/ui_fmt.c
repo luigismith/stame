@@ -52,6 +52,18 @@ char *ui_fmt_signed(char *buf, int n, int v)
     return ui_fmt_int(buf, n, v, 1);
 }
 
+const char *ui_fmt_kit(uint8_t kit)
+{
+    static const char *const N[6] = { "Beat", "Studio", "Jazz", "808", "Techno", "Chip" };
+    return kit < 6 ? N[kit] : "?";
+}
+
+const char *ui_fmt_roll(uint8_t roll)
+{
+    static const char *const N[7] = { "Off", "1/4", "1/8", "1/8T", "1/16", "1/16T", "1/32" };
+    return roll < 7 ? N[roll] : "?";
+}
+
 const char *ui_fmt_perf_short(uint8_t mode)
 {
     static const char *const N[PERF_COUNT] = {

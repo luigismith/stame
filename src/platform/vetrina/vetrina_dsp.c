@@ -28,6 +28,9 @@ void vet_snd_apply(motore_t *m, const vet_snd_t *e)
     case VS_DRUM:        mot_drum(m, e->a, e->b); break;
     case VS_METRO:       mot_metronome(m, e->a != 0); break;
     case VS_FILL:        mot_fill(m, e->a != 0); break;
+    case VS_DRUM_OFF:    mot_drum_off(m, e->a); break;
+    case VS_KIT:         mot_kit(m, e->a); break;
+    case VS_ROLL:        mot_roll(m, e->a); break;
     default: break;
     }
 }

@@ -633,6 +633,29 @@ static void test_mappa_133(void)
     CHECK_EQ(M.fill, 1);
     mot_fill(&M, false);
 
+    /* drum machine (MIDI-135): con il Roll a 1/16 un tasto tenuto si ripete sulla griglia ed entra nel loop in
+     * registrazione; il rilascio lo ferma; il kit a mano resta nei limiti */
+    mot_roll(&M, 24);
+    mot_loop(&M, LOOP_C_PRESS);
+    int guard = 0;
+    while (M.loop.state == LOOP_COUNT_IN && guard++ < 100) mot_render(&M, l, r, 4800);
+    CHECK_EQ(M.loop.state, LOOP_REC);
+    mot_drum(&M, 0, 100);
+    uint16_t n0 = M.loop.n;
+    for (int i = 0; i < 10; i++) mot_render(&M, l, r, 4800);   /* un secondo a 120 BPM: otto sedicesimi */
+    int hits = M.loop.n - n0;
+    CHECKM(hits >= 7 && hits <= 9, "Roll 1/16: %d colpi in un secondo", hits);
+    mot_drum_off(&M, 0);
+    n0 = M.loop.n;
+    for (int i = 0; i < 10; i++) mot_render(&M, l, r, 4800);
+    CHECK_EQ(M.loop.n, n0);
+    mot_roll(&M, 0);
+    mot_kit(&M, 3);
+    CHECK_EQ(M.kit_sel, 3);
+    mot_kit(&M, 9);
+    CHECK_EQ(M.kit_sel, 0);
+    mot_loop(&M, LOOP_C_RESET);
+
     /* uscita morbida: il loop resta in RAM e il Loop successivo lo riprende da capo invece di registrare */
     static looper_t L;
     loop_ev_t ev[64];

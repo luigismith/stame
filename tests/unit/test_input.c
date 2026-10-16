@@ -1113,14 +1113,25 @@ static void t_riserve(void)
     connected(SRC_MPK);
     pad(PAD_A, 0);
     CHECK_EQ(count(G_RELEASE, ENC_SOUND), 1);
-    /* la MK4 non ha più il PUSH su B8 né su X: B8 cambia solo banco, X non fa niente */
+    /* la MK4 non ha più il PUSH su B8 né su X: X non fa niente e il banco B è la batteria (MIDI-135):
+     * B8 = piatto con la velocity, il rilascio con velocity 0; B1 = cassa */
     clear();
     pad(PAD_X, 1);
     mpk("99 33 7F");
     for (int i = 0; i < 12; i++) mk4_daw("B0 18 01");
     mpk("89 33 00");
     pad(PAD_X, 0);
-    CHECK(only(G_TURN, ENC_SOUND, 1));
+    CHECK_EQ(NEV, 3);
+    CHECK(EV[0].type == PNL_MACRO && EV[0].a == MACRO_DRUM_HIT && EV[0].b == (11 << 8 | 127));
+    CHECK(EV[1].type == G_TURN && EV[1].a == ENC_SOUND && EV[1].b == 1);
+    CHECK(EV[2].type == PNL_MACRO && EV[2].a == MACRO_DRUM_HIT && EV[2].b == (11 << 8));
+    clear();
+    mpk("99 28 40 99 2C 50");                                   /* Dim tenuto, poi B1: il banco cambia, Dim si rilascia */
+    CHECK_EQ(NEV, 3);
+    CHECK(EV[0].type == PNL_CHORD_DOWN && EV[0].a == CHB_DIM);
+    CHECK(EV[1].type == PNL_CHORD_UP && EV[1].a == CHB_DIM);
+    CHECK(EV[2].type == PNL_MACRO && EV[2].a == MACRO_DRUM_HIT && EV[2].b == (0 << 8 | 80));
+    mpk("89 2C 00");
     inp_set_mpk_model(&H, MPK_MODEL_PLUS);
 }
 

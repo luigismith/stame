@@ -126,6 +126,8 @@ void mot_drum(motore_t *m, uint8_t k, uint8_t vel)
 {
     if (k >= DRUM_COUNT || vel == 0) return;
     drums_hit(&m->drums, k, vel);
+    m->drum_held[k] = vel;                                        /* per il Roll (MIDI-135) */
+    m->drum_t[k] = m->tick;
     /* il sedicesimo più vicino sulla griglia del loop, che parte da t0 e non dal tick 0: sul tick
      * assoluto ogni colpo finiva spostato di t0 mod 24 (fino a 60 ms a 120 BPM) */
     int32_t x = (int32_t)(m->tick - m->loop.t0) + (int32_t)(STEP_TICKS / 2u);
@@ -202,7 +204,7 @@ void mot_perf(motore_t *m, uint8_t mode, uint8_t amount)
 /* il kit del Beat scelto (SND-537): il set del banco con quel nome, o la sintesi se manca */
 static void apply_kit(motore_t *m)
 {
-    const char *kit = beat_kit(m->beat);
+    const char *kit = m->kit_sel ? beat_kit_name(m->kit_sel - 1) : beat_kit(m->beat);
     drums_set_kit(&m->drums, m->bank, kit ? smp_set_find(m->bank, kit) : NULL);
 }
 
@@ -240,6 +242,16 @@ void mot_metronome(motore_t *m, bool on)
 }
 
 void mot_fill(motore_t *m, bool on) { m->fill = on; }
+
+void mot_drum_off(motore_t *m, uint8_t k) { if (k < DRUM_COUNT) m->drum_held[k] = 0; }
+
+void mot_kit(motore_t *m, uint8_t sel)
+{
+    m->kit_sel = sel <= KIT_COUNT ? sel : 0;
+    apply_kit(m);
+}
+
+void mot_roll(motore_t *m, uint8_t div_ticks) { m->roll_div = div_ticks; }
 void mot_transpose(motore_t *m, int8_t t) { m->transpose = t; }
 
 void mot_loop(motore_t *m, int cmd)
@@ -258,6 +270,7 @@ void mot_all_off(motore_t *m)
     perf_ev_t ev[48];
     apply_perf(m, ev, perf_release(&m->perf, m->tick, ev, 48));
     memset(m->held, 0, sizeof m->held);
+    memset(m->drum_held, 0, sizeof m->drum_held);
     dsp_all_notes_off(m->d);
     drums_all_off(&m->drums);
     memset(m->lp_out, MOT_NONE, sizeof m->lp_out);
@@ -272,6 +285,15 @@ static void tick_run(motore_t *m)
     apply_perf(m, pe, perf_run(&m->perf, m->tick, pe, 48));
     loop_ev_t le[LOOP_OUT_MAX];
     apply_loop(m, le, loop_run(&m->loop, m->tick, le, LOOP_OUT_MAX));
+    if (m->roll_div) {                                            /* Roll (MIDI-135): i tasti tenuti si ripetono sulla griglia */
+        uint32_t base = loop_moving(&m->loop) ? m->loop.t0 : m->tr_on ? m->tr_t0 : 0u;
+        if ((m->tick - base) % m->roll_div == 0)
+            for (int k = 0; k < DRUM_COUNT; k++)
+                if (m->drum_held[k] && m->tick - m->drum_t[k] >= m->roll_div / 2u) {   /* non subito dopo il colpo della mano */
+                    drums_hit(&m->drums, (uint8_t)k, m->drum_held[k]);
+                    loop_record_hit(&m->loop, m->tick, m->tick, (uint8_t)k, m->drum_held[k]);
+                }
+    }
     if (!m->tr_on) return;
     uint32_t pos = m->tick - m->tr_t0;
     beat_hit_t h[8];

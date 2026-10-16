@@ -450,6 +450,12 @@ static int render_scene(const char *dir)
     sc_midi(0x90, 62, 110); sc_run(40);
     render_to(dir, "drums");
     sc_midi(0x80, 62, 0);
+    /* la pagina dei comandi sotto DRUMS: le celle KIT, ROLL e ACCENT (MIDI-135) */
+    sc_pad(MPAD_T15);
+    sc_run(200);
+    render_to(dir, "drums_comandi");
+    sc_pad(MPAD_T15);
+    sc_run(200);
     sc_pad(MPAD_T11);
     sc_run(2200);
     /* menu della piattaforma, poi la stessa pagina di gioco nel tema Notte */

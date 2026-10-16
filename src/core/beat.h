@@ -13,6 +13,7 @@
 enum { BEAT_M_OFF, BEAT_M_METRONOME, BEAT_M_PATTERN };    /* come ui_beat_mode_t */
 enum { METER_2_4, METER_3_4, METER_4_4, METER_6_8 };      /* metriche del metronomo (ACC-206, ACC-208) */
 #define BEAT_COUNT 15                                      /* 0 = provvisorio di ACC-210, 1…14 della vetrina */
+#define KIT_COUNT 5                                        /* studio, jazz, 808, techno, Chip (sintesi) */
 
 typedef struct { uint8_t inst, vel; } beat_hit_t;
 
@@ -27,6 +28,9 @@ uint32_t meter_click(int meter);
  * quarto), CLICK sugli altri (ACC-207) */
 int metro_hits(int meter, uint32_t pos, beat_hit_t *out, int max);
 const char *beat_name(int b);
+/* i kit scelti a mano dalla drum machine (MIDI-135): set del banco (NULL = Chip) ed etichetta */
+const char *beat_kit_name(int i);
+const char *beat_kit_label(int i);
 /* nome del set del banco che fa da kit al Beat b (SND-537); NULL = kit sintetizzato */
 const char *beat_kit(int b);
 

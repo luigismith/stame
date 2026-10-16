@@ -53,6 +53,10 @@ typedef struct {
     uint8_t  beat_sel, beat, meter;     /* Beat o metronomo selezionato (BEAT_M_*), indice, metrica */
     uint8_t  beat_on, tr_on;            /* Beat acceso; trasporto in moto (ACC-204) */
     uint8_t  metro_on, fill;            /* metronomo indipendente dal Beat e Fill tenuto (MIDI-133) */
+    uint8_t  kit_sel;                   /* drum machine (MIDI-135): 0 = il kit del Beat, 1…KIT_COUNT a mano */
+    uint8_t  roll_div;                  /* Roll: tick fra due ripetizioni di un tasto tenuto, 0 = spento */
+    uint8_t  drum_held[DRUM_COUNT];     /* velocity dei tasti di batteria tenuti (0 = su) */
+    uint32_t drum_t[DRUM_COUNT];        /* tick del colpo che li ha premuti */
     uint32_t tr_t0;                     /* tick della battuta 1 */
     uint8_t  held[16], held_vel;        /* voicing treble che arriva dal motore degli accordi */
     uint8_t  dirty, key_down, legato, went_empty;
@@ -74,6 +78,11 @@ void mot_chord_start(motore_t *m);              /* KEY_DOWN di un accordo nuovo 
  * Beat (ACC-212) e, se il looper registra, entra nel loop quantizzato al sedicesimo più vicino della
  * griglia del loop (da t0, l'inizio del giro) */
 void mot_drum(motore_t *m, uint8_t k, uint8_t vel);
+/* drum machine (MIDI-135): rilascio del tasto k (ferma il Roll), kit a mano (0 = quello del Beat),
+ * Roll in tick fra due ripetizioni (0 = spento): un tasto tenuto si ripete sulla griglia del loop o del trasporto */
+void mot_drum_off(motore_t *m, uint8_t k);
+void mot_kit(motore_t *m, uint8_t sel);
+void mot_roll(motore_t *m, uint8_t div_ticks);
 void mot_bpm(motore_t *m, uint16_t bpm);        /* 60…200 (ACC-202) */
 void mot_perf(motore_t *m, uint8_t mode, uint8_t amount);
 /* selezione del menu dei Beat: BEAT_M_METRONOME con la metrica, o BEAT_M_PATTERN con l'indice di beat.h */

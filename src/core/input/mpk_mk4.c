@@ -16,6 +16,9 @@ static const uint8_t KNOB_ENC[8] STAME_ROM = {
 /* unità relative per scatto dell'Orchid: le manopole non hanno scatti e accelerano [V] (15/10/2026:
  * un gesto «di tre scatti» vale 50–90 unità) */
 static const uint8_t KNOB_STEP[8] STAME_ROM = { 12, 8, 8, 12, 12, 12, 3, 2 };
+/* banco B, note 44–51: otto pad di batteria (MIDI-135), strumenti nell'ordine di drums.h (ACC-212): fila bassa
+ * cassa, rullante, rimshot, battimani; fila alta charleston chiuso, charleston aperto, tom basso, piatto */
+static const uint8_t DRUM_OF_PAD[8] STAME_ROM = { 0, 2, 1, 3, 4, 6, 5, 11 };
 /* banco A, note 36–43: fila bassa 6 m7 M7 9, fila alta Dim Min Maj Sus (come la Plus) */
 static const uint8_t CHORD_OF_PAD[8] STAME_ROM = {
     CHB_6, CHB_MIN7, CHB_MAJ7, CHB_9, CHB_DIM, CHB_MIN, CHB_MAJ, CHB_SUS
@@ -51,10 +54,14 @@ static void release_bank_a(mk4_state_t *s, pnl_out_t *o)
     s->chords = 0;
 }
 
-static void pad_note(mk4_state_t *s, pnl_out_t *o, uint8_t note, bool on)
+static void pad_note(mk4_state_t *s, pnl_out_t *o, uint8_t note, uint8_t vel, bool on)
 {
     if (note < PAD_FIRST || note > PAD_LAST) return;
-    if (note >= PAD_BANK_B) { release_bank_a(s, o); return; }   /* banco B: libero; cambia solo banco (MIDI-089) */
+    if (note >= PAD_BANK_B) {                                     /* banco B: la batteria (MIDI-135); cambia banco (MIDI-089) */
+        release_bank_a(s, o);
+        pnl_put(o, PNL_MACRO, MACRO_DRUM_HIT, (int16_t)(DRUM_OF_PAD[note - PAD_BANK_B] << 8 | (on ? vel : 0)));
+        return;
+    }
     uint8_t c = CHORD_OF_PAD[note - PAD_FIRST];
     uint8_t bit = (uint8_t)(1u << c);
     if (on == ((s->chords & bit) != 0)) return;
@@ -163,7 +170,7 @@ static int mk4_on_midi(void *st, uint8_t port, const uint8_t *m, uint16_t n,
         return o.n;
     }
     if (ch == CH_PADS) {
-        if (ty == 0x80 || ty == 0x90) pad_note(s, &o, d1, on);   /* A9: aftertouch ignorato */
+        if (ty == 0x80 || ty == 0x90) pad_note(s, &o, d1, d2, on);   /* A9: aftertouch ignorato */
     } else if (ch == CH_KEYS) {
         switch (ty) {
         case 0x80: case 0x90: key_note(s, &o, d1, d2, on); break;

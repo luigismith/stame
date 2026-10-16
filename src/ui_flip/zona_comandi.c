@@ -47,8 +47,9 @@ uint64_t uf_sig_cell(const ui_model_t *m, int k)
     uint64_t h = UF_H0;
     const ui_controls_t *c = &m->ctl;
     h = uf_h(h, &c->st[k].flags, 1);
-    uint8_t f[7] = { (uint8_t)(c->focus == k), (uint8_t)(c->turn_target == k), (uint8_t)(c->push == 2 + k),
-                     m->plat.pad_link, m->prefs.legend, m->prefs.theme, c->knob_lock };
+    uint8_t f[12] = { (uint8_t)(c->focus == k), (uint8_t)(c->turn_target == k), (uint8_t)(c->push == 2 + k),
+                      m->plat.pad_link, m->prefs.legend, m->prefs.theme, c->knob_lock, m->plat.mpk_model,
+                      m->tempo.drums_on, m->tempo.kit, m->tempo.roll, m->tempo.accent };
     h = uf_h(h, f, sizeof f);
     if (c->st[k].flags & CF_PRESSED) {
         uint32_t held = m->core_ms - c->st[k].pressed_since_ms;
@@ -110,6 +111,22 @@ static void cell_text(const ui_model_t *m, int k, cell_txt_t *t)
     t->gauge = -1;
     t->detail_tok = T_DIM;
     bool sec = (c->st[k].flags & CF_SECONDARY) != 0;
+    if (m->tempo.drums_on && (k == ENC_SOUND || k == ENC_PERFORM || k == ENC_BASS)) {   /* drum machine (MIDI-135) */
+        if (k == ENC_SOUND) {
+            t->title = "KIT";
+            ui_fmt_copy(t->value, sizeof t->value, ui_fmt_kit(m->tempo.kit));
+            ui_fmt_copy(t->detail, sizeof t->detail, m->tempo.kit ? "Drums" : m->tempo.beat_name);
+        } else if (k == ENC_PERFORM) {
+            t->title = "ROLL";
+            ui_fmt_copy(t->value, sizeof t->value, ui_fmt_roll(m->tempo.roll));
+            ui_fmt_copy(t->detail, sizeof t->detail, "Hold a key");
+        } else {
+            t->title = "ACCENT";
+            ui_fmt_int(t->value, sizeof t->value, m->tempo.accent, 2);
+            ui_fmt_copy(t->detail, sizeof t->detail, "Velocity");
+        }
+        return;
+    }
     switch (k) {
     case ENC_SOUND:
         if (c->sound_user) { ui_fmt_int(b, sizeof b, c->sound_num, 2); ui_fmt_cat(a, sizeof a, "U", b); }

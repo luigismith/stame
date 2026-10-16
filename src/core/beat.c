@@ -135,4 +135,9 @@ int metro_hits(int meter, uint32_t pos, beat_hit_t *out, int max)
 }
 
 const char *beat_name(int b) { return b >= 0 && b < BEAT_COUNT ? BEATS[b].name : ""; }
+
+static const char *const KIT_NAME[KIT_COUNT] STAME_ROM = { KIT_STUDIO, KIT_JAZZ, KIT_808, KIT_TECHNO, NULL };
+static const char *const KIT_LABEL[KIT_COUNT] STAME_ROM = { "Studio", "Jazz", "808", "Techno", "Chip" };
+const char *beat_kit_name(int i) { return i >= 0 && i < KIT_COUNT ? KIT_NAME[i] : NULL; }
+const char *beat_kit_label(int i) { return i >= 0 && i < KIT_COUNT ? KIT_LABEL[i] : ""; }
 const char *beat_kit(int b) { return b >= 0 && b < BEAT_COUNT ? BEATS[b].kit : NULL; }

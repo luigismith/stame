@@ -18,6 +18,9 @@ const char *ui_fmt_fx_name(uint8_t type);
 const char *ui_fmt_engine(uint8_t engine);                   /* VA, FM, RP */
 const char *ui_fmt_view_short(uint8_t view);
 const char *ui_fmt_play_style(uint8_t style);
+/* drum machine (40 MIDI-135): kit scelto (0 = «Beat», poi Studio, Jazz, 808, Techno, Chip) e suddivisione del Roll */
+const char *ui_fmt_kit(uint8_t kit);
+const char *ui_fmt_roll(uint8_t roll);
 /* Nome di Linneo del numero di classi di nota di un accordo: 3 -> "TRIANDRIA" (identità). */
 const char *ui_fmt_linnaeus(int n_pcs);
 

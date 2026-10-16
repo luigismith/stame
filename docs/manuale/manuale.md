@@ -104,6 +104,19 @@ Lo stesso principio degli accordi, per la batteria: **T11 DRUMS** del pad (oppur
 
 ![Batteria a tastiera: DRUMS, le sigle degli strumenti sui tasti, i colpi registrati nel loop](img/drums.png)
 
+### 6.2 La drum machine dal vivo
+
+![La pagina dei comandi sotto DRUMS: le celle KIT, ROLL e ACCENT al posto di Sound, Perform e Bass](img/drums_comandi.png)
+
+Stessa filosofia dell'Orchid: premi tasti, muovi manopole, il loop di batteria nasce mentre suoni. Niente da programmare a passi.
+
+- **I pad del banco B** della MPK sono otto pad di batteria con la velocity, sempre, anche senza DRUMS: premi BANK e suoni la batteria sopra gli accordi del loop. Fila bassa cassa, rullante, rimshot, battimani; fila alta charleston chiuso e aperto, tom basso, piatto.
+- Con **DRUMS acceso** tre manopole cambiano mestiere, e le celle lo scrivono:
+  - **K1 KIT**: il kit (Beat = quello del Beat scelto, poi Studio, Jazz, 808, Techno, Chip);
+  - **K2 ROLL**: tieni un tasto o un pad e il colpo si ripete a tempo: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32. Il primo colpo è il tuo, le ripetizioni entrano nel loop sulla griglia;
+  - **K5 ACCENT**: quanto conta la forza del tocco, da 0 (colpi tutti uguali) a 10 (tutta la dinamica).
+- Previsti: K4 Swing sulla griglia, K3 effetto sulla batteria.
+
 ## 7. Il macro pad
 
 ![Lock acceso (T13): la testata scrive LOCK SOUND PERFORM KEY e le celle dicono quale manopola fa cosa](img/lock.png)
@@ -142,7 +155,7 @@ Quindici tasti in tre file da cinque e tre manopole a scatti. Dal 16/10/2026 il 
 |---|---|
 | 25 tasti | i 12 tasti dell'Orchid (conta solo il nome della nota) |
 | pad, banco A | Dim Min Maj Sus (sopra) · 6 m7 M7 9 (sotto) |
-| pad, banco B | liberi (cambiano solo banco) |
+| pad, banco B | otto pad di batteria con la velocity (§6.2) |
 | K1…K8 | girano Sound, Perform, FX, Key / Bass, Loop, BPM, Volume |
 | SHIFT | **PUSH**: tenuto, la manopola K toccata è «premuta»; toccata e girata, premuta e girata; tenuto 1 s con la manopola toccata, tenuta |
 | manopola di navigazione | gira = liste e fuoco; premi = conferma; premi e gira = premi-e-gira del controllo con il fuoco. È la casa della navigazione, con − e + |

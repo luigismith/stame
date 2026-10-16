@@ -21,7 +21,7 @@ Ogni comando ha una casa sola: girare e premere sulla MPK, liste sulla manopola 
 | tasti | fondamentale (solo il nome della nota) |
 | pad A, sopra | Dim · Min · Maj · Sus |
 | pad A, sotto | 6 · m7 · M7 · 9 |
-| pad B | liberi (cambiano solo banco) |
+| pad B | batteria: cassa · rullante · rimshot · battimani / charleston ch. · charleston ap. · tom · piatto |
 | K1 K2 K3 K4 | Sound · Perform · FX · Key |
 | K5 K6 K7 K8 | Bass · Loop · BPM · Volume |
 | SHIFT | PUSH: tenuto + K toccata = premuta |
@@ -85,6 +85,10 @@ T14: Geek Out e ritorno. T15: pagina dei comandi aperta finché non lo ripremi (
 Options: Exit · View (React, Chord, Keyboard, Chord+Kb, Notes, Geek Out) · Play Style (Simple, Advanced, Free) · Single Notes (Split, Octave) · Secret Chords (On, Off).
 Lista di BPM: 2/4 · 3/4 · 4/4 · 6/8 · Funk · Bossa · Motorik · Lounge · Shuffle · Halftime · Boom Bap · Disco · Samba · Ballad · Train · Chip · Techno · Dub. Batteria a tastiera (T11): tasti C…B = cassa, rimshot, rullante, battimani, charleston chiuso, tom basso, charleston aperto, tom alto, maracas, conga, campanaccio, piatto; i colpi entrano nel loop al sedicesimo.
 Menu: Exit · Theme (Giorno di default) · Linnaeus Tag · Legend · Meters · Demo · Play Demo Song · Quit Stame.
+
+## Drum machine (DRUMS acceso)
+
+K1 Kit (Beat, Studio, Jazz, 808, Techno, Chip) · K2 Roll (tieni il tasto: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32) · K5 Accent 0…10 · i pad del banco B suonano sempre. Prev.: K4 Swing, K3 FX sulla batteria.
 
 ## Looper
 

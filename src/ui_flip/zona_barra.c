@@ -196,6 +196,17 @@ static void overlay(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
     case OV_DRUMS:
         e.label = "Drums"; e.text = v ? "On" : "Off";
         break;
+    case OV_KIT:                                              /* drum machine (MIDI-135) */
+        e.label = "Kit"; e.text = ui_fmt_kit((uint8_t)v);
+        break;
+    case OV_ROLL:
+        e.label = "Roll"; e.text = ui_fmt_roll((uint8_t)v);
+        break;
+    case OV_ACCENT:
+        ui_fmt_int(d, sizeof d, v, 2);
+        e.label = "Accent"; e.digits = d;
+        e.gauge = v * 100;
+        break;
     default:
         return;
     }
