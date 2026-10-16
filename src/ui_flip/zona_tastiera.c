@@ -159,15 +159,19 @@ void uf_draw_z4(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, int kb_l
     }
 
     /* note fuori gamma */
-    bool below = false, above = false;
-    for (int n = 0; n < 128; n++) {
-        bool on = bit128(mu->live_treble, n) || bit128(mu->live_bass, n) || bit128(mu->loop_treble, n) || bit128(mu->loop_bass, n);
-        if (!on) continue;
-        if (n < kb_lo) below = true;
-        if (n > kb_lo + 47) above = true;
-    }
-    if (below) gfx_text(fb, &GFX_S, 1, 300, "\xE2\x97\x80", p->c[T_TREBLE]);
-    if (above) gfx_text(fb, &GFX_S, 630, 300, "\xE2\x96\xB6", p->c[T_TREBLE]);
+    /* nel colore del ruolo (UI-150): il treble vince sul basso, il basso sul loop; 0 = nessuna */
+    static const int TOK[3] = { T_TREBLE, T_BASS, T_LOOP };
+    int below = 0, above = 0;
+    for (int r = 2; r >= 0; r--)
+        for (int n = 0; n < 128; n++) {
+            bool on = r == 0 ? bit128(mu->live_treble, n) : r == 1 ? bit128(mu->live_bass, n)
+                    : bit128(mu->loop_treble, n) || bit128(mu->loop_bass, n);
+            if (!on) continue;
+            if (n < kb_lo) below = TOK[r];
+            if (n > kb_lo + 47) above = TOK[r];
+        }
+    if (below) gfx_text(fb, &GFX_S, 1, 300, "\xE2\x97\x80", p->c[below]);
+    if (above) gfx_text(fb, &GFX_S, 630, 300, "\xE2\x96\xB6", p->c[above]);
 
     /* etichette delle ottave */
     if (m->prefs.note_labels != LBL_OFF) {

@@ -52,9 +52,10 @@ static void battery(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
     char buf[8];
     if (unknown) ui_fmt_copy(buf, sizeof buf, "--");
     else { ui_fmt_int(buf, sizeof buf, pct, 1); ui_fmt_cat(buf, sizeof buf, buf, "%"); }
-    if (!hide) gfx_text_right(fb, &GFX_S, 602, 4, buf, c, 0);
+    /* la colonna è 576..635 (UI-126): «100%» finiva sopra «POCKET», che arriva a 575 */
+    if (!hide) gfx_text_right(fb, &GFX_S, 606, 4, buf, c, 0);
     /* icona 28×12: contorno, polo, 4 celle */
-    int x = 606, y = 6;
+    int x = 608, y = 6;
     gfx_frame(fb, x, y, 26, 12, 1, p->c[T_DIM]);
     gfx_fill(fb, x + 26, y + 3, 2, 6, p->c[T_DIM]);
     int cells = unknown ? 0 : (pct + 24) / 25;

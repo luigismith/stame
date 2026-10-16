@@ -175,8 +175,10 @@ int ui_flip_render(ui_flip_state_t *st, const ui_model_t *m, gfx_fb16_t *fb, gfx
     st->boot_shown = 0;
 
     meters_update(st, m);
-    st->kb_lo = (int16_t)uf_kb_lo(st->ready > 1 ? st->kb_lo : -1, m->music.W, m->music.WB);
-    st->ready = 2;
+    /* la storia di kb_lo non dipende da ready: un cambio di tema o un invalidate ridisegnano tutto ma
+     * non devono far saltare la tastiera di un'ottava (UI-150) */
+    st->kb_lo = (int16_t)uf_kb_lo(st->kb_valid ? st->kb_lo : -1, m->music.W, m->music.WB);
+    st->kb_valid = 1;
 
     bool controls = uf_controls(m);
     uint64_t sig[UF_ZONES];

@@ -375,13 +375,18 @@ void uf_draw_z2(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
         break;
     case VIEW_NOTES: {
         draw_name(fb, p, mu, NAME_X, 116, NAME_MAXW, 3);
-        int w = 0;
-        for (int i = 0; i < uf_nn(mu); i++) w += gfx_text_w(&GFX_XXL, mu->notes[i].name, 0) + 32;
-        const gfx_face_t *f = w - 32 <= NAME_MAXW ? &GFX_XXL : &GFX_L;
-        int y = f == &GFX_XXL ? 140 : 160;
-        w = 0;
-        for (int i = 0; i < uf_nn(mu); i++) w += gfx_text_w(f, mu->notes[i].name, 0) + f->f->w;
-        int x = ZW / 2 - (w - f->f->w) / 2;
+        /* la classe più grande in cui la fila ci sta: sette note con le alterazioni non stavano
+         * nemmeno in classe L e la fila si tagliava ai due bordi */
+        static const gfx_face_t *const F[4] = { &GFX_XXL, &GFX_L, &GFX_M, &GFX_S };
+        static const int Y[4] = { 140, 160, 164, 168 };
+        const gfx_face_t *f = F[3];
+        int y = Y[3], w = 0;
+        for (int fi = 0; fi < 4; fi++) {
+            w = -F[fi]->f->w;
+            for (int i = 0; i < uf_nn(mu); i++) w += gfx_text_w(F[fi], mu->notes[i].name, 0) + F[fi]->f->w;
+            if (w <= NAME_MAXW || fi == 3) { f = F[fi]; y = Y[fi]; break; }
+        }
+        int x = ZW / 2 - w / 2;
         for (int i = 0; i < uf_nn(mu); i++)
             x = gfx_text(fb, f, x, y, mu->notes[i].name, p->c[mu->notes[i].role == ROLE_BASS ? T_BASS : T_TREBLE]) + f->f->w;
         break;

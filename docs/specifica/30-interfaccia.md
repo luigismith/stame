@@ -824,7 +824,7 @@ I font dell'OLED sono diversi e propri (§7.2).
 | clip | 452..487 | «clip» in `dim`; in negativo su `warn` per **1500 ms** dopo ogni aumento di `clip_count` |
 | macro pad | 492..523 | contrassegno «PAD» (40, §8.10): in `focus` se collegato e aperto in esclusiva (`PADL_OPEN`); in `warn` se non si apre in esclusiva (`PADL_ERROR`) o manda codici che nessuna mappa conosce (`PADL_UNMAPPED`); nascosto se assente. Con il Lock delle manopole acceso (MIDI-131) diventa «LOCK» in `active` |
 | modo tascabile | 528..575 | contrassegno «POCKET» in `active`, solo se acceso |
-| batteria | 576..635 | «87%» e un'icona da 28×12 px con il riempimento proporzionale e il lampo durante la carica; sotto il 15% in `warn` (PLT-090), sotto il 10% lampeggia a 1 Hz |
+| batteria | 576..635 | «87%» allineato a destra a x = 606 e un'icona da 28×12 px a x = 608 con il riempimento proporzionale e il lampo durante la carica; sotto il 15% in `warn` (PLT-090), sotto il 10% lampeggia a 1 Hz. Anche «100%» resta nella colonna (16/10/2026: prima copriva «POCKET») |
 
 - In Geek Out, con `prefs.meters` spento si nascondono voci, carico, livello e clip.
 - Le informazioni di piattaforma stanno solo qui, nel menu della piattaforma e negli avvisi (UI-156).
@@ -896,12 +896,12 @@ In Geek Out cambiano anche le altre zone: la testata diventa la barra completa (
 
 | Righe | Contenuto |
 |---|---|
-| 152..183 | **stato** in classe L con il simbolo: «● REC» e «◉ DUB» in `warn`, «▶ PLAY» in `loop`, «❚❚ PAUSE» in `dim`, «WAIT» nella Waiting Room, «COUNT» nel count-in, «LOOP» in `dim` se Loop è solo toccato. A destra la battuta corrente su quelle totali in classe L («2/4»; «FREE» in Free) e, prima, gli strati in classe S («L2») |
+| 152..183 | **stato** in classe L con il simbolo: «● REC» e «◉ DUB» in `warn`, «▶ PLAY» in `loop`, «❚❚ PAUSE» in `dim`, «WAIT» nella Waiting Room, «COUNT» nel count-in, «LOOP» in `dim` se Loop è solo toccato. A destra la battuta corrente su quelle totali in classe L («2/4»; «FREE» in Free) e, prima, gli strati in classe S («L2») e «FULL» in `warn`. Lo stato prende lo spazio che resta: se non ci sta perde il simbolo, poi passa alla classe M (16/10/2026: «❚❚ PAUSE», «L3» e «12/16» si scrivevano uno sopra l'altro) |
 | 190..201 | **barra di avanzamento** di 204×12 px divisa in `bars` segmenti (2 px di spazio tra uno e l'altro): parte suonata in `loop` (in `warn` in registrazione), resto in `seg_off`, testina di 2 px in `text`. In Free durante la prima registrazione: tratteggio che scorre (UI-086). Nella Waiting Room: segmenti della scelta selezionata, vuoti |
 | 210..233 | **menu a tre voci** (UI-088): tre pulsanti da 65×24 (x 428..492, 497..561, 566..630) con il testo in classe S centrato. La voce selezionata è piena: in `focus` se Loop è il bersaglio della rotazione, altrimenti in `bar` |
 
 - Durante registrazione, overdub e count-in il bordo di Z3 diventa una cornice di 2 px in `warn`: si capisce da lontano che si sta registrando.
-- `loop_full` aggiunge «FULL» in `warn` sopra lo stato.
+- `loop_full` aggiunge «FULL» in `warn` accanto agli strati, prima della battuta.
 - Con il looper attivo l'accordo resta visibile in Z2: sulla plancia non vale UI-090, che riguarda solo l'OLED.
 
 ### 4.7 Tastiera

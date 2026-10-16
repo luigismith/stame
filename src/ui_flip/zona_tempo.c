@@ -169,7 +169,11 @@ void uf_draw_z3(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
     case LP_COUNT_IN:     st = "COUNT"; tok = T_WARN; break;
     default: break;
     }
-    gfx_text(fb, &GFX_L, X0, 152, st, p->c[tok]);
+    /* a destra la battuta in classe L, prima gli strati («L3») e «FULL» in classe S; lo stato prende
+     * lo spazio che resta e si accorcia se non ci sta: prima senza il simbolo, poi in classe M.
+     * Prima «❚❚ PAUSE», «L3», «FULL» e «12/16» si scrivevano uno sopra l'altro */
+    char lay[8] = "";
+    int ctw = 0, lw = 0, fw = 0;
     if (lp->state != LP_IDLE) {
         if (lp->free_mode && lp->bars == 0) ui_fmt_copy(buf, sizeof buf, "FREE");
         else {
@@ -178,14 +182,29 @@ void uf_draw_z3(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
             ui_fmt_cat(buf, sizeof buf, buf, "/");
             ui_fmt_cat(buf, sizeof buf, buf, n2);
         }
-        int w = gfx_text_w(&GFX_L, buf, 0);
-        gfx_text(fb, &GFX_L, X0 + XW - w, 152, buf, p->c[T_TEXT]);
+        ctw = gfx_text_w(&GFX_L, buf, 0);
         if (lp->layers) {
             ui_fmt_int(n2, sizeof n2, lp->layers, 1);
-            ui_fmt_cat(buf, sizeof buf, "L", n2);
-            gfx_text_right(fb, &GFX_S, X0 + XW - w - 8, 166, buf, p->c[T_LOOP], 0);
+            ui_fmt_cat(lay, sizeof lay, "L", n2);
+            lw = gfx_text_w(&GFX_S, lay, 0) + 8;
         }
-        if (lp->loop_full) uf_label(fb, X0 + 112, 150, "FULL", p->c[T_WARN]);
+        if (lp->loop_full) fw = gfx_text_w(&GFX_S, "FULL", 0) + 8;
+    }
+    int avail = XW - ctw - lw - fw;
+    const gfx_face_t *sf = &GFX_L;
+    int sy = 152;
+    if (gfx_text_w(sf, st, 0) > avail) {                        /* senza il simbolo */
+        const char *sp = st;
+        while (*sp && *sp != ' ') sp++;
+        if (*sp) st = sp + 1;
+    }
+    if (gfx_text_w(sf, st, 0) > avail) { sf = &GFX_M; sy = 156; }
+    gfx_text(fb, sf, X0, sy, st, p->c[tok]);
+    if (lp->state != LP_IDLE) {
+        gfx_text(fb, &GFX_L, X0 + XW - ctw, 152, buf, p->c[T_TEXT]);
+        int xr = X0 + XW - ctw - 8;
+        if (lw) { gfx_text_right(fb, &GFX_S, xr, 166, lay, p->c[T_LOOP], 0); xr -= lw; }
+        if (fw) gfx_text_right(fb, &GFX_S, xr, 166, "FULL", p->c[T_WARN], 0);
     }
     progress_bar(fb, p, m, 190, 12);
 

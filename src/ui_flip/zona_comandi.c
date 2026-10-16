@@ -276,7 +276,10 @@ void uf_draw_cell(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, int k)
     /* fuoco: cornice di 2 pixel */
     if (focus) gfx_frame(fb, ix, y + 1, x + w - ix, 71, 2, p->c[T_FOCUS]);
     /* premuto: barra che cresce fino alla soglia del tenuto (UI-153) */
-    bool pushed = (fl & CF_PRESSED) || c->push == 2 + k;
+    /* anche la pressione del PUSH da B8 o X arriva come CF_PRESSED (il riconoscitore unisce le
+     * sorgenti, MIDI-102): il bersaglio da solo non è una pressione, e con pressed_since_ms vecchio
+     * la barra restava ferma o partiva piena */
+    bool pushed = (fl & CF_PRESSED) != 0;
     if (pushed && !(fl & CF_SECONDARY)) {
         uint32_t held = m->core_ms - c->st[k].pressed_since_ms;
         uint32_t th = c->st[k].t_hold_ms ? c->st[k].t_hold_ms : 1000;
