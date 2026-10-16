@@ -392,14 +392,15 @@ static void t_joystick(void)
 
     /* lista aperta: su = voce precedente; « » non portano il flag */
     clear();
-    gest_set_owner(&H.gest, ENC_SOUND, true);
+    gest_set_owner(&H.gest, ENC_SOUND);
     mpk("B0 03 7F B0 03 00 B0 74 7F B0 74 00");
     CHECK_EQ(NEV, 2);
     CHECK(EV[0].type == G_TURN && EV[0].b == -1);
     CHECK(EV[1].type == G_TURN && EV[1].b == 1);
-    /* overlay senza lista: su = valore più alto */
+    /* senza lista: su = valore più alto, sull'encoder con il fuoco */
+    gest_set_owner(&H.gest, ENC_COUNT);
+    tap(MPAD_T8);                                             /* premuto Volume: il fuoco va lì */
     clear();
-    gest_set_owner(&H.gest, ENC_VOLUME, false);
     mpk("B0 03 7F B0 03 00");
     CHECK(only(G_TURN, ENC_VOLUME, 1));
 }
@@ -513,7 +514,7 @@ static void t_fuoco(void)
     CHECK(only(G_TURN, ENC_KEY, 1));
 
     /* l'owner vince sul fuoco; con una lista su e giù della croce sono invertiti */
-    gest_set_owner(&H.gest, ENC_OPTIONS, true);
+    gest_set_owner(&H.gest, ENC_OPTIONS);
     clear();
     tap(MPAD_M2_CW);
     tap(PAD_UP);
@@ -522,7 +523,7 @@ static void t_fuoco(void)
     CHECK(EV[0].a == ENC_OPTIONS && EV[0].b == 1);
     CHECK(EV[1].a == ENC_OPTIONS && EV[1].b == -1);
     CHECK(EV[2].a == ENC_OPTIONS && EV[2].b == 1);
-    gest_set_owner(&H.gest, ENC_COUNT, false);
+    gest_set_owner(&H.gest, ENC_COUNT);
     clear();
     tap(PAD_UP);
     CHECK(only(G_TURN, ENC_KEY, 1));
@@ -541,10 +542,10 @@ static void t_fuoco(void)
     /* il rilascio di A va all'encoder premuto, anche se intanto si è aperta una lista */
     clear();
     pad(PAD_A, 1);
-    gest_set_owner(&H.gest, ENC_SOUND, true);
+    gest_set_owner(&H.gest, ENC_SOUND);
     pad(PAD_A, 0);
     CHECK_EQ(count(G_PRESS, ENC_KEY), 1);
-    gest_set_owner(&H.gest, ENC_COUNT, false);
+    gest_set_owner(&H.gest, ENC_COUNT);
 }
 
 /* MIDI-102: stato per sorgente; SRC_LOST come rete di sicurezza */
@@ -694,13 +695,13 @@ static void t_macro_pad(void)
 
     /* T-MIDI-19: lista dei suoni aperta, m2 orario = voce successiva, antiorario = precedente */
     clear();
-    gest_set_owner(&H.gest, ENC_SOUND, true);
+    gest_set_owner(&H.gest, ENC_SOUND);
     tap(MPAD_M2_CW);
     tap(MPAD_M2_CCW);
     CHECK_EQ(NEV, 2);
     CHECK(EV[0].type == G_TURN && EV[0].a == ENC_SOUND && EV[0].b == 1);
     CHECK(EV[1].type == G_TURN && EV[1].a == ENC_SOUND && EV[1].b == -1);
-    gest_set_owner(&H.gest, ENC_COUNT, false);
+    gest_set_owner(&H.gest, ENC_COUNT);
     PAD_BRIMFORD.reset(&s);
     CHECK_EQ(PAD_BRIMFORD.on_pad(&s, MPAD_M2_CW, 1, T0, raw, PNL_MAX_OUT), 1);
     CHECK(raw[0].type == PNL_ENC_TURN && raw[0].a == ENC_FOCUS && raw[0].b == 1);   /* senza PNL_F_VERTICAL */
@@ -994,12 +995,12 @@ static void t_mk4(void)
 
     /* manopola di navigazione con la lista dei suoni aperta: orario = voce successiva */
     clear();
-    gest_set_owner(&H.gest, ENC_SOUND, true);
+    gest_set_owner(&H.gest, ENC_SOUND);
     mk4_daw("B0 0E 01 B0 0E 7F");
     CHECK_EQ(NEV, 2);
     CHECK(EV[0].type == G_TURN && EV[0].a == ENC_SOUND && EV[0].b == 1);
     CHECK(EV[1].type == G_TURN && EV[1].a == ENC_SOUND && EV[1].b == -1);
-    gest_set_owner(&H.gest, ENC_COUNT, false);
+    gest_set_owner(&H.gest, ENC_COUNT);
 
     /* pitch bend a riposo; scollegamento con un tasto tenuto */
     clear();
@@ -1017,19 +1018,23 @@ static void t_mk4(void)
 /* revisione del 15/10/2026 */
 static void t_revisione(void)
 {
-    /* MIDI-104: un overlay perde la manopola del fuoco quando si preme un altro encoder; una lista no */
+    /* MIDI-104 (Luigi, 16/10/2026): girare una manopola non sposta la manopola del fuoco; m2, la
+     * manopola della MK4 e la croce vanno sempre all'encoder con il fuoco. Solo una lista o un menu
+     * aperto la prende, finché non si chiude */
     reset();
-    gest_set_owner(&H.gest, ENC_SOUND, false);                /* l'overlay di Sound, appena girato K1 */
     tap(MPAD_T6);                                             /* premuto Loop: il fuoco passa a Loop */
     clear();
+    mpk("B0 46 02");                                          /* girato K1: overlay di Sound */
     tap(MPAD_M2_CW);
-    CHECKM(only(G_TURN, ENC_LOOP, 1), "m2 gira il fuoco, non più Sound");
-    gest_set_owner(&H.gest, ENC_SOUND, true);                 /* la lista dei suoni aperta */
+    CHECK_EQ(NEV, 2);
+    CHECK(EV[0].type == G_TURN && EV[0].a == ENC_SOUND && EV[0].b == 1);
+    CHECKM(EV[1].type == G_TURN && EV[1].a == ENC_LOOP && EV[1].b == 1, "m2 gira il fuoco, non la manopola appena girata");
+    gest_set_owner(&H.gest, ENC_SOUND);                       /* la lista dei suoni aperta */
     tap(MPAD_T6);
     clear();
     tap(MPAD_M2_CW);
     CHECKM(only(G_TURN, ENC_SOUND, 1), "la lista resta padrona finché non si chiude");
-    gest_set_owner(&H.gest, ENC_COUNT, false);
+    gest_set_owner(&H.gest, ENC_COUNT);
 
     /* dopo una sospensione di 40 minuti l'orologio a 32 bit sembra indietro: gest_resync lo rimette
      * e il tenuto funziona (prima T1 tenuto 1,5 s dava G_PRESS) */

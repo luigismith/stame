@@ -107,15 +107,12 @@ static void overlay(vet_t *v, uint8_t kind, uint8_t enc, int value)
     v->m.layer.ov.value = (int16_t)value;
     v->ov_until = v->now_ms + OVERLAY_MS;
     v->m.layer.ov.until_ms = v->ov_until;
-    if (!v->list_kind) gest_set_owner(&v->inp.gest, enc < ENC_COUNT ? enc : ENC_COUNT, false);
 }
 
-/* l'overlay sparisce e restituisce la manopola del fuoco (MIDI-104): nasconderlo senza restituirla
- * lasciava m2, la manopola della MK4 e la croce legate a un encoder che non si vedeva più */
+/* l'overlay è solo un'evidenza: la manopola del fuoco resta al fuoco (MIDI-104, 16/10/2026) */
 static void ov_hide(vet_t *v)
 {
     v->m.layer.ov.kind = OV_NONE;
-    if (!v->list_kind) gest_set_owner(&v->inp.gest, ENC_COUNT, false);
 }
 
 static void msg(vet_t *v, uint8_t level, const char *text, uint32_t ms)
@@ -216,13 +213,13 @@ static void list_open(vet_t *v, int kind, uint8_t owner)
     case L_BEATS: v->list_sel = (uint16_t)beat_item(); break;
     default: v->list_sel = 0; break;
     }
-    gest_set_owner(&v->inp.gest, owner, true);
+    gest_set_owner(&v->inp.gest, owner);
 }
 
 static void list_close(vet_t *v)
 {
     v->list_kind = L_NONE;
-    gest_set_owner(&v->inp.gest, ENC_COUNT, false);
+    gest_set_owner(&v->inp.gest, ENC_COUNT);
 }
 
 static void list_select(vet_t *v)
@@ -296,7 +293,7 @@ static void looper_item(vet_t *v, uint8_t item)
     case LPI_STOP: if (st == LP_OVERDUB) loop_send(v, LOOP_C_STOP); break;
     case LPI_UNDO: loop_send(v, LOOP_C_UNDO); break;
     case LPI_CLEAR: loop_send(v, LOOP_C_CLEAR); break;
-    case LPI_BACK: gest_set_owner(&v->inp.gest, ENC_COUNT, false); break;
+    case LPI_BACK: gest_set_owner(&v->inp.gest, ENC_COUNT); break;
     default: break;
     }
 }
@@ -1005,12 +1002,8 @@ void vet_tick(vet_t *v, uint32_t now_ms)
         v->ov_until = now_ms + 100u;
         v->m.layer.ov.until_ms = v->ov_until;
     }
-    /* overlay e liste che scadono; un overlay a cui la pressione di un altro encoder ha tolto la
-     * manopola (gest, MIDI-104) sparisce subito */
+    /* overlay e liste che scadono */
     if (v->m.layer.ov.kind != OV_NONE && (int32_t)(now_ms - v->ov_until) >= 0) ov_hide(v);
-    if (v->m.layer.ov.kind != OV_NONE && v->m.layer.ov.kind != OV_COUNT_IN && !v->list_kind &&
-        v->inp.gest.owner != v->m.layer.ov.enc)
-        v->m.layer.ov.kind = OV_NONE;
     if ((v->list_kind == L_SOUND || v->list_kind == L_PERFORM || v->list_kind == L_BEATS) && now_ms - v->list_ms > LIST_IDLE_MS)
         list_close(v);
     if (v->m.msg_plat.level && (int32_t)(now_ms - v->m.msg_plat.until_ms) >= 0) v->m.msg_plat.level = MSG_NONE;

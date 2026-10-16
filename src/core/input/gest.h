@@ -38,8 +38,7 @@ typedef struct {
     uint8_t  down_src[ENC_COUNT];       /* sorgente che ha cominciato la pressione */
     uint32_t t_down[ENC_COUNT];
     uint8_t  focus;                     /* fuoco del pannello (MIDI-104), parte da Sound */
-    uint8_t  owner;                     /* encoder della lista, del menu o dell'overlay visibile; ENC_COUNT = nessuno */
-    uint8_t  owner_list;                /* 1 = l'owner ha aperto una lista o un menu (MIDI-105) */
+    uint8_t  owner;                     /* encoder della lista o del menu aperto; ENC_COUNT = nessuno */
     uint8_t  started;                   /* now è valido */
     uint32_t now;                       /* tempo più recente visto */
     uint32_t dropped;                   /* eventi che non stavano in out[] */
@@ -47,9 +46,9 @@ typedef struct {
 
 void gest_init(gest_t *g);
 
-/* Lista, menu o overlay visibile e il suo encoder (MIDI-104 punto 1); ENC_COUNT = nessuno.
- * Lo imposta core/ui. */
-void gest_set_owner(gest_t *g, uint8_t enc, bool is_list);
+/* Lista o menu aperto e il suo encoder (MIDI-104 punto 1); ENC_COUNT = nessuno. Lo imposta
+ * core/ui. L'overlay di valore non conta: dal 16/10/2026 ENC_FOCUS va sempre al fuoco (MIDI-104). */
+void gest_set_owner(gest_t *g, uint8_t enc);
 
 /* Un evento del pannello -> 0..max eventi per il nucleo; ritorna quanti. */
 int  gest_feed(gest_t *g, const pnl_event_t *e, pnl_event_t *out, int max);

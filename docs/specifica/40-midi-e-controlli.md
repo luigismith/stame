@@ -888,12 +888,12 @@ PNL_ENC_UP(e):
 ### 10.4 Il fuoco
 
 - **MIDI-104** — `ENC_FOCUS` DEVE essere risolto dal nucleo, in questo ordine [D]:
-  1. l'encoder che ha aperto la lista, il menu o l'overlay visibile (Options, menu Loop, lista dei suoni, dei modi, degli effetti, dei beat);
+  1. l'encoder che ha aperto la lista o il menu visibile (Options, menu Loop, lista dei suoni, dei modi, degli effetti, dei beat), finché non si chiude;
   2. altrimenti il **fuoco del pannello**: un solo valore, condiviso da tutte le sorgenti, che parte da Sound. Lo cambiano `PNL_FOCUS_STEP` e la pressione di un encoder da qualunque sorgente (`PNL_ENC_DOWN(e)` con `e` ≠ `ENC_FOCUS` porta il fuoco su `e`). Così m2 del macro pad, « », il joystick della MPK e la croce della Flip ruotano Options, o qualunque encoder, subito dopo averne premuto il pulsante.
 
   Lo schermo DEVE mostrare quale encoder ha il fuoco (resa in `30`).
 
-  Revisione del 15/10/2026 `[D]`: la pressione di un altro encoder toglie la manopola del fuoco all'**overlay** di valore (punto 1), che sparisce; liste e menu restano padroni finché non si chiudono. Prima, dopo aver girato K1 e premuto un altro tasto, m2 continuava a girare Sound per 3,4 s mentre la cornice del fuoco stava altrove. Un overlay nascosto da Reset, B o dalla demo restituisce sempre la manopola.
+  Decisione di Luigi del 16/10/2026 `[D]`: l'**overlay** di valore (la banda che per 3,4 s mostra il controllo appena girato, `30` UI-154) NON prende la manopola del fuoco. Girare K1 e poi m2 regola l'encoder con il fuoco, non Sound; per regolare con m2 ciò che si è appena girato si preme prima il suo pulsante (punto 2). Fino al 15/10 l'overlay era padrone della manopola finché non spariva, e dalla revisione di quel giorno la pressione di un altro encoder glielo toglieva: la regola è ora una sola, senza la finestra di 3,4 s.
 
 - **MIDI-105** — **Verso dei comandi verticali** [D, 13/10/2026]. Croce ▲▼ della Flip e joystick ▲▼ della MPK emettono `PNL_ENC_TURN(ENC_FOCUS | PNL_F_VERTICAL, ±1)` con su = +1. Il nucleo DEVE:
   - con una lista o un menu aperto, invertire il segno: su = voce precedente, cioè più in alto sullo schermo (`30` UI-157);

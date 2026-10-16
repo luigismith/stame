@@ -10,10 +10,9 @@ void gest_init(gest_t *g)
     for (int s = 0; s < SRC_COUNT; s++) g->fdown[s] = ENC_COUNT;
 }
 
-void gest_set_owner(gest_t *g, uint8_t enc, bool is_list)
+void gest_set_owner(gest_t *g, uint8_t enc)
 {
     g->owner = enc < ENC_COUNT ? enc : (uint8_t)ENC_COUNT;
-    g->owner_list = g->owner < ENC_COUNT && is_list;
 }
 
 uint8_t gest_target(const gest_t *g)
@@ -144,7 +143,7 @@ int gest_feed(gest_t *g, const pnl_event_t *e, pnl_event_t *out, int max)
         if (n == 0) break;
         if (a == ENC_FOCUS) {
             a = gest_target(g);
-            if ((e->a & PNL_F_VERTICAL) && g->owner_list) n = (int16_t)-n;   /* MIDI-105: su = voce precedente */
+            if ((e->a & PNL_F_VERTICAL) && g->owner < ENC_COUNT) n = (int16_t)-n;   /* MIDI-105: su = voce precedente */
         }
         if (a < ENC_COUNT) enc_turn(g, &o, a, n);
         break;
@@ -156,10 +155,6 @@ int gest_feed(gest_t *g, const pnl_event_t *e, pnl_event_t *out, int max)
             enc_down(g, g->fdown[s], s);
         } else if (e->a < ENC_COUNT) {
             g->focus = e->a;                                      /* MIDI-104: la pressione porta il fuoco */
-            /* e lo toglie all'overlay di un altro encoder: dopo aver girato Sound e premuto un altro
-             * tasto, m2 girava ancora Sound per 3,4 s mentre la cornice del fuoco stava altrove. Le
-             * liste e i menu restano padroni finché non si chiudono */
-            if (g->owner < ENC_COUNT && !g->owner_list && g->owner != e->a) g->owner = ENC_COUNT;
             enc_down(g, e->a, s);
         }
         break;
