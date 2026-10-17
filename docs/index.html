@@ -30,7 +30,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       STAME
     </a>
     <nav aria-label="Sections">
-      <a href="#cosa">What</a><a href="#postazione">Rig</a><a href="#plancia">Panel</a><a href="#suono">Sound</a><a href="#stato">Status</a><a href="#prova">Try it</a><a href="#documenti">Docs</a>
+      <a href="#cosa">What</a><a href="#postazione">Rig</a><a href="#plancia">Panel</a><a href="#suono">Sound</a><a href="#case">Case</a><a href="#stato">Status</a><a href="#prova">Try it</a><a href="#documenti">Docs</a>
     </nav>
     <div class="lingua">
       <a href="index.html" aria-current="page" hreflang="en">EN</a>
@@ -106,7 +106,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       </figure>
       <figure>
         <img src="sito/img/flip.jpg" alt="The Miyoo Flip, open, a small clamshell console with a 3.5-inch screen, a d-pad and four coloured buttons" width="997" height="1200">
-        <figcaption><b>Miyoo Flip.</b> The brain and the display: a 640×480 screen on a hinge, a Cortex-A55 running the synth at 48 kHz. Its own buttons move a focus, open the controls page and the menu.</figcaption>
+        <figcaption><b>Miyoo Flip.</b> The brain and the display: a 640×480 screen on a hinge, a Cortex-A55 running the synth at 48 kHz. Its own controls always work: the buttons move a focus and open the controls page and the menu, the left stick bends and modulates, the right one moves the two voicing windows, L2 taps the tempo and R2 holds a fill.</figcaption>
       </figure>
     </div>
   </div>
@@ -154,6 +154,37 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
   </div>
 </section>
 
+<section class="sezione" id="case">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">The case · draft 4</span>
+      <h2>A birch console that holds all three.</h2>
+      <p>The MPK sits on the left under an engraved black mask, the macro pad on the right in line with the keys, the Flip above it on a shelf with the screen at 65°. The cables run behind and under the shelf, to a USB hub hidden in the tower.</p>
+    </div>
+    <figure class="foto-grande">
+      <img src="sito/img/case_console.png" alt="The console in 3D: a birch plywood frame with layered sides, the MPK mini IV under a black mask on the left, the macro pad with sand-coloured keycaps on the right, the Flip open on a shelf above it" width="1320" height="720" loading="lazy">
+      <figcaption>569 × 244 mm, 46 mm to the shelf. Drawn from the same geometry as the parts to cut and print: change one measurement and the sheets, the printed parts, the model and the instructions change with it.</figcaption>
+    </figure>
+    <div class="galleria larga">
+      <figure><img src="sito/img/case_passo_7.png" alt="Assembly step 7: the MPK in its bay and the mask above it, highlighted in amber" width="1320" height="720" loading="lazy"><figcaption><b>Step 7 of 9.</b> The assembly instructions show each step with the new parts in amber: the MPK in its bay, the feet glued under the mask, the mask on top.</figcaption></figure>
+      <figure><img src="sito/img/case_retro.png" alt="The console seen from behind: the back strip with cable windows, the tower with the Flip's visor, the layered birch sides" width="1320" height="720" loading="lazy"><figcaption><b>From behind.</b> Tabs in slots and glue, no screws in sight: the back strip, the divider and the tower walls lock into the base; the sides are four layers of 4 mm birch.</figcaption></figure>
+    </div>
+    <figure class="foto-grande" style="margin-top:16px">
+      <img src="sito/img/case_mascherina.png" alt="The black acrylic mask: openings for the wheels, the eight pads, the display, the navigation knob, the buttons and the eight knobs, with the names engraved in dots" width="1973" height="538" loading="lazy">
+      <figcaption><b>The mask.</b> 3 mm black acrylic, cut and engraved with a diode laser. Chord types over the pads and extensions under them, the bank B drums beside, the knob names in the Matrice dots; the buttons Stame does not use stay covered. Its openings were measured from photographs of the MPK, to about a millimetre.</figcaption>
+    </figure>
+    <div class="schede" style="margin-top:16px">
+      <div class="scheda"><span class="etichetta">Laser</span><h3>Five sheets</h3><p>Two of 4 mm birch and two of 6 mm birch, 390 × 390 for an AtomStack S10, and one of black acrylic. SVG for LightBurn and DXF, each sheet nested by material.</p><p><a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/taglio/progetti_di_taglio.pdf">Cutting sheets (PDF)</a></p></div>
+      <div class="scheda"><span class="etichetta">Printer</span><h3>Seven STL files</h3><p>In PETG: the Flip's cradle, the visor, the pad's frame, the hub holder, six M3 brackets, eleven feet for the mask and fifteen keycaps with their names in raised dots.</p><p><a href="https://github.com/luigismith/stame/tree/main/hardware/case/out">The parts</a></p></div>
+      <div class="scheda"><span class="etichetta">Model</span><h3>SketchUp, OBJ</h3><p>Fifty parts on nine layers, one scene per assembly step; the same model as OBJ for any other program, in millimetres.</p><p><a href="https://github.com/luigismith/stame/raw/main/hardware/case/out/stame_console.skp">stame_console.skp</a> · <a href="https://github.com/luigismith/stame/raw/main/hardware/case/out/stame_console.obj">OBJ</a></p></div>
+      <div class="scheda"><span class="etichetta">Instructions</span><h3>Nine steps</h3><p>Parts and hardware on the cover, one step per page, the checks before cutting at the end. In Italian, like the manual.</p><p><a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/istruzioni_montaggio.pdf" hreflang="it">Assembly instructions (PDF)</a></p></div>
+    </div>
+    <div class="prosa" style="margin-top:16px">
+      <p>Not cut yet. Before the laser runs, the macro pad still has to be measured (photos alone disagree by ten percent), the mask's paper template goes on the MPK, and a test cut sets the play of the tabs. Everything is generated by four Python scripts in <a href="https://github.com/luigismith/stame/tree/main/hardware/case" hreflang="it">hardware/case</a> from one file of measurements, each marked with where it comes from.</p>
+    </div>
+  </div>
+</section>
+
 <section class="sezione" id="stato">
   <div class="contenitore">
     <div class="testata">
@@ -172,8 +203,9 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
           <li>Looper: REC with a count-in, four bars, overdub, pause, undo, clear, synced with the transport</li>
           <li>Macro pad: Hold, tap tempo, metronome, fill, four scenes, Options, Save Loop, drums, Panic (held 1 s) and Reset (held 3 s), T13 Lock, T14 View, T15 Page; the two voicing knobs, beat and bass volume</li>
           <li>Three rigs: keyboard and pad, keyboard alone, pad alone. With the pad alone it becomes the instrument: twelve root keys, the big knob holds the chord type, the small one the extension. The Flip's buttons work in every rig</li>
+          <li>The Flip's sticks and triggers: bend and modulation on the left stick, Chord and Bass Voicing on the right one, tap tempo and fill on L2 and R2</li>
           <li>MPK mini IV profile in the DAW preset: pads, keys, knobs, SHIFT as the push, navigation knob with − and +, transport, bank B as drum pads</li>
-          <li>The panel: play page, controls page, six views, two themes, lists, platform menu, demo «Acacia»</li>
+          <li>The panel: play page, controls page, six views, two themes, lists, platform menu with Panic, metronome and Save Loop, four demos</li>
         </ul>
       </div>
       <div class="previsto">
@@ -184,7 +216,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
           <li>Swing and an effect on the drum bus; the other Mod combinations</li>
           <li>MIDI out to the DIN port of the MPK, MIDI clock, external control</li>
           <li>Pocket Mode (playing with the Flip alone), Learn Pad, MPK status page</li>
-          <li>The case: designed (birch, engraved black acrylic, PETG), not cut yet</li>
+          <li>The case: draft 4 complete on paper (cutting sheets, printed parts, SketchUp model, assembly instructions), not cut yet; the macro pad still to measure</li>
           <li>Phase 2: the same core on dedicated hardware (Teensy 4.1 + Audio Shield, probably)</li>
         </ul>
       </div>
@@ -231,7 +263,7 @@ sh tools/deploy.sh              # copies it over SSH (the Flip's address in tool
       <div class="scheda"><span class="etichetta">docs/specifica</span><h3>The functional specification</h3><p>Seven sections: overview, chords and performance, sound, interface, MIDI and controls, the Flip platform, the case. Every requirement has an ID and a source tag: [M] manual, [O] observed, [D] deduced, [V] to verify on a real unit. Open questions are listed, not hidden.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/specifica/00-panoramica.md" hreflang="it">Start from the overview</a></p></div>
       <div class="scheda"><span class="etichetta">docs/manuale</span><h3>Manual and quick reference</h3><p>How to play the showcase on the Flip: the rig, chords, every control and its gestures, the looper step by step, beats, the macro pad with Hold, scenes, fill, Lock / View / Page, the live drum machine, the Flip's pages and menu, what to do when something is red.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/manuale/manuale.md" hreflang="it">Manual</a> · <a href="https://github.com/luigismith/stame/blob/main/docs/manuale/prontuario.md" hreflang="it">Quick reference</a></p></div>
       <div class="scheda"><span class="etichetta">docs/identita</span><h3>The identity</h3><p>The story, the mark, the two themes, the dot-matrix font drawn for Stame, the seven-segment digits, the botanical plate, the sound logo of the boot. The same language on the screen and on the case.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/identita/README.md" hreflang="it">Read it</a></p></div>
-      <div class="scheda"><span class="etichetta">hardware/case</span><h3>The case</h3><p>A birch plywood console with an engraved black acrylic mask over the MPK, a tower on the right for the pad and the Flip, a PETG cradle holding the screen at 65°. Generated from a table of measurements: SVG for the laser, STL for the printer.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/specifica/60-case.md" hreflang="it">Draft 3</a></p></div>
+      <div class="scheda"><span class="etichetta">hardware/case</span><h3>The case</h3><p>A birch plywood console with an engraved black acrylic mask over the MPK, a tower on the right for the pad and the Flip, a PETG cradle holding the screen at 65°. Generated from a table of measurements: SVG and DXF for the laser, STL for the printer, a SketchUp model and the assembly instructions.</p><p><a href="#case">Draft 4</a> · <a href="https://github.com/luigismith/stame/blob/main/hardware/case/README.md" hreflang="it">README</a> · <a href="https://github.com/luigismith/stame/blob/main/docs/specifica/60-case.md" hreflang="it">Specification</a></p></div>
     </div>
   </div>
 </section>

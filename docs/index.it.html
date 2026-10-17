@@ -30,7 +30,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       STAME
     </a>
     <nav aria-label="Sezioni">
-      <a href="#cosa">Cos'è</a><a href="#postazione">Postazione</a><a href="#plancia">Plancia</a><a href="#suono">Suono</a><a href="#stato">Stato</a><a href="#prova">Provarlo</a><a href="#documenti">Documenti</a>
+      <a href="#cosa">Cos'è</a><a href="#postazione">Postazione</a><a href="#plancia">Plancia</a><a href="#suono">Suono</a><a href="#case">Case</a><a href="#stato">Stato</a><a href="#prova">Provarlo</a><a href="#documenti">Documenti</a>
     </nav>
     <div class="lingua">
       <a href="index.html" hreflang="en" lang="en">EN</a>
@@ -106,7 +106,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       </figure>
       <figure>
         <img src="sito/img/flip.jpg" alt="La Miyoo Flip aperta, una piccola console a conchiglia con uno schermo da 3,5 pollici, una croce e quattro tasti colorati" width="997" height="1200">
-        <figcaption><b>Miyoo Flip.</b> Il cervello e il display: uno schermo 640×480 su una cerniera, un Cortex-A55 che fa girare il synth a 48 kHz. I suoi tasti spostano il fuoco, aprono la pagina dei comandi e il menu.</figcaption>
+        <figcaption><b>Miyoo Flip.</b> Il cervello e il display: uno schermo 640×480 su una cerniera, un Cortex-A55 che fa girare il synth a 48 kHz. I suoi comandi funzionano sempre: i tasti spostano il fuoco e aprono la pagina dei comandi e il menu, la levetta sinistra fa bend e modulazione, la destra muove le due finestre del voicing, L2 batte il tempo e R2 tiene il fill.</figcaption>
       </figure>
     </div>
   </div>
@@ -154,6 +154,37 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
   </div>
 </section>
 
+<section class="sezione" id="case">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">Il case · bozza 4</span>
+      <h2>Una console di betulla che le tiene tutte e tre.</h2>
+      <p>La MPK a sinistra sotto una mascherina nera incisa, il macro pad a destra in linea con i tasti, la Flip sopra il pad su una mensola, con lo schermo a 65°. I cavi passano dietro e sotto la mensola, fino a un hub USB nascosto nella torre.</p>
+    </div>
+    <figure class="foto-grande">
+      <img src="sito/img/case_console.png" alt="La console in 3D: un telaio di compensato di betulla con i fianchi a strati, a sinistra la MPK mini IV sotto una mascherina nera, a destra il macro pad con i copritasti color sabbia, sopra la Flip aperta su una mensola" width="1320" height="720" loading="lazy">
+      <figcaption>569 × 244 mm, 46 mm fino alla mensola. Disegnata dalla stessa geometria dei pezzi da tagliare e stampare: cambia una misura e cambiano insieme i fogli, i pezzi stampati, il modello e le istruzioni.</figcaption>
+    </figure>
+    <div class="galleria larga">
+      <figure><img src="sito/img/case_passo_7.png" alt="Passo 7 del montaggio: la MPK nel suo vano e la mascherina sopra, in ambra" width="1320" height="720" loading="lazy"><figcaption><b>Passo 7 di 9.</b> Le istruzioni mostrano ogni passo con i pezzi nuovi in ambra: la MPK nel suo vano, i piedini incollati sotto la mascherina, la mascherina sopra.</figcaption></figure>
+      <figure><img src="sito/img/case_retro.png" alt="La console vista da dietro: il listello con le finestre dei cavi, la torre con la visiera della Flip, i fianchi di betulla a strati" width="1320" height="720" loading="lazy"><figcaption><b>Da dietro.</b> Linguette nelle asole e colla, nessuna vite in vista: listello del retro, divisorio e pareti della torre si incastrano nella base; i fianchi sono quattro strati di betulla da 4 mm.</figcaption></figure>
+    </div>
+    <figure class="foto-grande" style="margin-top:16px">
+      <img src="sito/img/case_mascherina.png" alt="La mascherina di acrilico nero: le aperture per le ruote, gli otto pad, il display, la manopola di navigazione, i pulsanti e le otto manopole, con i nomi incisi a punti" width="1973" height="538" loading="lazy">
+      <figcaption><b>La mascherina.</b> Acrilico nero da 3 mm, tagliato e inciso con un laser a diodo. I tipi d'accordo sopra i pad e le estensioni sotto, accanto la batteria del banco B, i nomi delle manopole nei punti della Matrice; i pulsanti che Stame non usa restano coperti. Le aperture sono misurate sulle foto della MPK, a circa un millimetro.</figcaption>
+    </figure>
+    <div class="schede" style="margin-top:16px">
+      <div class="scheda"><span class="etichetta">Laser</span><h3>Cinque fogli</h3><p>Due di betulla da 4 mm e due da 6 mm, 390 × 390 per una AtomStack S10, e uno di acrilico nero. SVG per LightBurn e DXF, un foglio per materiale.</p><p><a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/taglio/progetti_di_taglio.pdf">Progetti di taglio (PDF)</a></p></div>
+      <div class="scheda"><span class="etichetta">Stampante</span><h3>Sette file STL</h3><p>In PETG: la culla della Flip, la visiera, la cornice del pad, il fermo dell'hub, sei squadrette M3, undici piedini per la mascherina e quindici copritasti con i nomi a punti in rilievo.</p><p><a href="https://github.com/luigismith/stame/tree/main/hardware/case/out">I pezzi</a></p></div>
+      <div class="scheda"><span class="etichetta">Modello</span><h3>SketchUp, OBJ</h3><p>Cinquanta pezzi su nove livelli, una scena per ogni passo del montaggio; lo stesso modello in OBJ per qualsiasi altro programma, in millimetri.</p><p><a href="https://github.com/luigismith/stame/raw/main/hardware/case/out/stame_console.skp">stame_console.skp</a> · <a href="https://github.com/luigismith/stame/raw/main/hardware/case/out/stame_console.obj">OBJ</a></p></div>
+      <div class="scheda"><span class="etichetta">Istruzioni</span><h3>Nove passi</h3><p>Pezzi e minuteria in copertina, un passo per pagina, in fondo le verifiche da fare prima di tagliare.</p><p><a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/istruzioni_montaggio.pdf">Istruzioni di montaggio (PDF)</a></p></div>
+    </div>
+    <div class="prosa" style="margin-top:16px">
+      <p>Non ancora tagliato. Prima del laser va misurato il macro pad (le foto da sole non concordano: il 10 % di differenza), la dima di carta della mascherina va provata sulla MPK e un taglio di prova fissa il gioco delle linguette. Tutto esce da quattro script Python in <a href="https://github.com/luigismith/stame/tree/main/hardware/case">hardware/case</a>, da un solo file di misure, ognuna con la sua fonte.</p>
+    </div>
+  </div>
+</section>
+
 <section class="sezione" id="stato">
   <div class="contenitore">
     <div class="testata">
@@ -172,8 +203,9 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
           <li>Looper: REC con count-in, quattro battute, sovraincisione, pausa, undo, clear, in sincrono con il trasporto</li>
           <li>Macro pad: Hold, tap tempo, metronomo, fill, quattro scene, Options, Save Loop, batteria, Panic (tenuto 1 s) e Reset (tenuto 3 s), T13 Lock, T14 View, T15 Page; le due manopole del voicing, volume del Beat e del basso</li>
           <li>Tre combinazioni: tastiera e pad, sola tastiera, solo pad. Con il solo pad il pad diventa lo strumento: dodici tasti per le fondamentali, la manopola grande tiene il tipo d'accordo, la piccola l'estensione. I tasti della Flip funzionano sempre</li>
+          <li>Levette e grilletti della Flip: bend e modulazione sulla levetta sinistra, Chord e Bass Voicing sulla destra, tap tempo e fill su L2 e R2</li>
           <li>Profilo della MPK mini IV nel preset DAW: pad, tasti, manopole, SHIFT come pressione, manopola di navigazione con − e +, trasporto, banco B come pad di batteria</li>
-          <li>La plancia: pagina di gioco, pagina dei comandi, sei viste, due temi, liste, menu della piattaforma, demo «Acacia»</li>
+          <li>La plancia: pagina di gioco, pagina dei comandi, sei viste, due temi, liste, menu della piattaforma con Panic, metronomo e Save Loop, quattro demo</li>
         </ul>
       </div>
       <div class="previsto">
@@ -184,7 +216,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
           <li>Swing ed effetto sul bus della batteria; le altre combinazioni con Mod</li>
           <li>MIDI in uscita sul DIN della MPK, clock MIDI, controllo esterno</li>
           <li>Pocket Mode (suonare con la sola Flip), Learn Pad, pagina di stato della MPK</li>
-          <li>Il case: progettato (betulla, acrilico nero inciso, PETG), non ancora tagliato</li>
+          <li>Il case: bozza 4 completa sulla carta (fogli di taglio, pezzi da stampare, modello SketchUp, istruzioni di montaggio), non ancora tagliato; resta da misurare il macro pad</li>
           <li>Fase 2: lo stesso nucleo su hardware dedicato (Teensy 4.1 + Audio Shield, probabilmente)</li>
         </ul>
       </div>
@@ -231,7 +263,7 @@ sh tools/deploy.sh              # la copia via SSH (l'indirizzo della Flip in to
       <div class="scheda"><span class="etichetta">docs/specifica</span><h3>La specifica funzionale</h3><p>Sette sezioni: panoramica, accordi e performance, suono, interfaccia, MIDI e controlli, la piattaforma Flip, il case. Ogni requisito ha un ID e un'etichetta di fonte: [M] manuale, [O] osservato, [D] dedotto, [V] da verificare su un Orchid vero. Le questioni aperte sono elencate, non nascoste.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/specifica/00-panoramica.md">Si parte dalla panoramica</a></p></div>
       <div class="scheda"><span class="etichetta">docs/manuale</span><h3>Manuale e prontuario</h3><p>Come si suona la vetrina sulla Flip: la postazione, gli accordi, ogni controllo con i suoi gesti, il looper passo per passo, i Beat, il macro pad con Hold, scene, fill, Lock / View / Page, la drum machine dal vivo, le pagine e il menu della Flip, cosa fare quando qualcosa è rosso.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/manuale/manuale.md">Manuale</a> · <a href="https://github.com/luigismith/stame/blob/main/docs/manuale/prontuario.md">Prontuario</a></p></div>
       <div class="scheda"><span class="etichetta">docs/identita</span><h3>L'identità</h3><p>La storia, il marchio, i due temi, il carattere a punti disegnato per Stame, le cifre a sette segmenti, la tavola botanica, il logo sonoro dell'avvio. La stessa lingua sullo schermo e sul case.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/identita/README.md">Leggila</a></p></div>
-      <div class="scheda"><span class="etichetta">hardware/case</span><h3>Il case</h3><p>Una console di compensato di betulla con una mascherina di acrilico nero inciso sopra la MPK, una torre a destra per il pad e la Flip, una culla in PETG che tiene lo schermo a 65°. Generato da una tabella di misure: SVG per il laser, STL per la stampante.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/specifica/60-case.md">Bozza 3</a></p></div>
+      <div class="scheda"><span class="etichetta">hardware/case</span><h3>Il case</h3><p>Una console di compensato di betulla con una mascherina di acrilico nero inciso sopra la MPK, una torre a destra per il pad e la Flip, una culla in PETG che tiene lo schermo a 65°. Generato da una tabella di misure: SVG e DXF per il laser, STL per la stampante, un modello SketchUp e le istruzioni di montaggio.</p><p><a href="#case">Bozza 4</a> · <a href="https://github.com/luigismith/stame/blob/main/hardware/case/README.md">README</a> · <a href="https://github.com/luigismith/stame/blob/main/docs/specifica/60-case.md">Specifica</a></p></div>
     </div>
   </div>
 </section>
