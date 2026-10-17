@@ -32,40 +32,21 @@ static uint16_t bit_pad(int b)
     return (uint16_t)(b < 16 ? PAD_B + b : PAD_UP + b - 16);
 }
 
-/* Riserve inerti (Luigi, 16/10/2026): i tasti della Flip che rifanno la navigazione (croce, A, B) e la
- * pressione di BPM (START) tacciono con la MK4 collegata; quelli che rifanno il macro pad (Y, SELECT,
- * L1, R1) con il pad collegato. MENU resta sempre. Un rilascio tace solo se ha taciuto la pressione,
- * così un tasto tenuto durante un collegamento non resta premuto. */
-static bool reserve_silent(inp_t *h, const pnl_event_t *e)
+/* Configurazione (MIDI-137, 17/10/2026): i tasti della Flip non tacciono mai, ma X e START cambiano
+ * ruolo con la tastiera collegata, e il pad senza tastiera è lo strumento (MIDI-136). Si chiama dopo
+ * ogni collegamento, scollegamento o cambio di modello, anche perché il reset dei profili azzera cfg. */
+static void cfg_sync(inp_t *h)
 {
-    if (e->src != SRC_FLIP) return false;
-    bool mk4 = (h->connected & (1u << SRC_MPK)) && h->mpk_model == MPK_MODEL_MK4;
-    bool pad = (h->connected & (1u << SRC_MACROPAD)) != 0;
-    uint8_t a = e->a & (uint8_t)~PNL_F_VERTICAL;
-    int bit = a == ENC_FOCUS ? ENC_COUNT : a < ENC_COUNT ? a : -1;
-    switch (e->type) {
-    case PNL_ENC_TURN:   return mk4 && a == ENC_FOCUS;
-    case PNL_BACK:       return mk4;
-    case PNL_FOCUS_STEP: return pad;
-    case PNL_ENC_DOWN: {
-        bool mute = ((a == ENC_FOCUS || a == ENC_BPM) && mk4) || ((a == ENC_BASS_VOICING || a == ENC_OPTIONS) && pad);
-        if (mute && bit >= 0) h->flip_mute |= (uint16_t)(1u << bit);
-        return mute;
-    }
-    case PNL_ENC_UP:
-        if (bit >= 0 && (h->flip_mute & (1u << bit))) { h->flip_mute &= (uint16_t)~(1u << bit); return true; }
-        return false;
-    default: return false;
-    }
+    bool mpk = (h->connected & (1u << SRC_MPK)) != 0;
+    bool mk4 = mpk && h->mpk_model == MPK_MODEL_MK4;
+    h->flip.cfg = (uint8_t)((mk4 ? FLIP_CFG_MK4 : 0) | (mpk && !mk4 ? FLIP_CFG_PLUS : 0));
+    h->mpad.want_inst = (uint8_t)!mpk;                         /* il profilo cambia mappa a pad fermo */
 }
 
 /* eventi di un profilo -> gest -> out[k…]; ritorna il nuovo k */
 static int to_gest(inp_t *h, const pnl_event_t *ev, int n, pnl_event_t *out, int max, int k)
 {
-    for (int i = 0; i < n; i++) {
-        if (reserve_silent(h, &ev[i])) continue;
-        k += gest_feed(&h->gest, &ev[i], out + k, max - k);
-    }
+    for (int i = 0; i < n; i++) k += gest_feed(&h->gest, &ev[i], out + k, max - k);
     return k;
 }
 
@@ -89,6 +70,7 @@ void inp_init(inp_t *h)
     memset(h, 0, sizeof *h);
     for (int s = 0; s < SRC_COUNT; s++) prof(h, s)->reset(state(h, s));
     gest_init(&h->gest);
+    cfg_sync(h);
 }
 
 void inp_set_mpk_model(inp_t *h, uint8_t model)
@@ -96,6 +78,7 @@ void inp_set_mpk_model(inp_t *h, uint8_t model)
     if (model == h->mpk_model) return;
     h->mpk_model = model;
     prof(h, SRC_MPK)->reset(state(h, SRC_MPK));
+    cfg_sync(h);
 }
 
 int inp_midi(inp_t *h, const midi_msg_t *m, pnl_event_t *out, int max)
@@ -138,10 +121,11 @@ int inp_connected(inp_t *h, uint8_t src, uint32_t t_us, pnl_event_t *out, int ma
     if (src >= SRC_COUNT) return 0;
     prof(h, src)->reset(state(h, src));
     h->connected |= (uint8_t)(1u << src);
+    cfg_sync(h);
 
     pnl_event_t ev = { .type = PNL_SRC_CONNECTED, .src = src, .a = src, .b = 0, .t_us = t_us };
     int k = gest_feed(&h->gest, &ev, out, max);
-    if (src == SRC_FLIP) h->flip_keys = h->flip_mute = 0;
+    if (src == SRC_FLIP) h->flip_keys = 0;
     else k = replay_flip_keys(h, src, 1, t_us, out, max, k);   /* X tenuto alla connessione della MPK */
     return k;
 }
@@ -160,6 +144,7 @@ int inp_lost(inp_t *h, uint8_t src, uint32_t t_us, pnl_event_t *out, int max)
     int n = prof(h, src)->on_lost(state(h, src), t_us, tmp, PNL_MAX_OUT);
     k = to_gest(h, tmp, n, out, max, k);
     h->connected &= (uint8_t)~(1u << src);
+    cfg_sync(h);
     return k;
 }
 

@@ -5,6 +5,9 @@
  * profili, ognuno prende i suoi (X della Flip va a mpk_stame come PUSH); poi gest. In uscita gli
  * eventi per il nucleo descritti in gest.h. Lo stato lo alloca il chiamante.
  *
+ * La configurazione degli apparecchi collegati decide due cose (MIDI-137): il ruolo di X e START
+ * della Flip e la mappa del macro pad, che senza tastiera è lo strumento (MIDI-136).
+ *
  *     static inp_t in;
  *     inp_init(&in);
  *     pnl_event_t ev[INP_MAX_OUT];
@@ -31,7 +34,6 @@ typedef struct {
     gest_t       gest;
     uint8_t      connected;     /* bit per src_t */
     uint32_t     flip_keys;     /* tasti PAD_* tenuti: al distacco della Flip si rilasciano anche negli altri profili */
-    uint16_t     flip_mute;     /* encoder (bit ENC_*, ENC_COUNT = fuoco) la cui pressione dalla Flip è stata taciuta */
 } inp_t;
 
 /* modelli della tastiera: la Plus con il programma STAME (§8.5) o la MK4 nel preset DAW (§8.9b) */

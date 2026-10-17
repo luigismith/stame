@@ -27,6 +27,11 @@ static const char *const LEG_PLUS[ENC_COUNT] = {
 static const char *const LEG_PLUS_PAD[ENC_COUNT] = {
     "K1", "K2 B3", "K3", "K4 B1", "K5 B2", "K6 B5 REC", "K7 B6 PLAY", "K8", "T9", "M", "m1"
 };
+/* senza tastiera (MIDI-137): tutto dal fuoco della Flip (L1 R1, croce, A) e, con il pad, da m2;
+ * restano scritti solo i comandi diretti. Col pad strumento il Lock dà Sound, Perform e Key a M, m1, m2 */
+static const char *const LEG_FLIP[ENC_COUNT] = { "", "", "", "", "", "", "START", "", "SEL", "", "Y" };
+static const char *const LEG_PAD[ENC_COUNT] = { "", "", "", "", "", "", "START", "", "SEL", "", "m1 Y" };
+static const char *const LEG_PAD_LOCK[ENC_COUNT] = { "M", "m1", "", "m2", "", "", "START", "", "SEL", "", "Y" };
 
 static const char *pc_name(int pc)
 {
@@ -47,9 +52,9 @@ uint64_t uf_sig_cell(const ui_model_t *m, int k)
     uint64_t h = UF_H0;
     const ui_controls_t *c = &m->ctl;
     h = uf_h(h, &c->st[k].flags, 1);
-    uint8_t f[12] = { (uint8_t)(c->focus == k), (uint8_t)(c->turn_target == k), (uint8_t)(c->push == 2 + k),
+    uint8_t f[14] = { (uint8_t)(c->focus == k), (uint8_t)(c->turn_target == k), (uint8_t)(c->push == 2 + k),
                       m->plat.pad_link, m->prefs.legend, m->prefs.theme, c->knob_lock, m->plat.mpk_model,
-                      m->tempo.drums_on, m->tempo.kit, m->tempo.roll, m->tempo.accent };
+                      m->tempo.drums_on, m->tempo.kit, m->tempo.roll, m->tempo.accent, m->plat.mpk_link, c->pad_inst };
     h = uf_h(h, f, sizeof f);
     if (c->st[k].flags & CF_PRESSED) {
         uint32_t held = m->core_ms - c->st[k].pressed_since_ms;
@@ -295,7 +300,9 @@ void uf_draw_cell(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, int k)
     gfx_text_fit(fb, &GFX_S, x + 5, y + 44, t.detail, p->c[t.detail_tok], w - 10);
     if (m->prefs.legend) {
         bool pad = m->plat.pad_link == PADL_OPEN;
-        const char *leg = m->plat.mpk_model ? (pad ? (c->knob_lock ? LEG_MK4_LOCK[k] : LEG_MK4_PAD[k]) : LEG_MK4[k])
+        bool kb = m->plat.mpk_link == MPK_OPEN;
+        const char *leg = !kb ? (pad ? (c->knob_lock ? LEG_PAD_LOCK[k] : LEG_PAD[k]) : LEG_FLIP[k])
+                        : m->plat.mpk_model ? (pad ? (c->knob_lock ? LEG_MK4_LOCK[k] : LEG_MK4_PAD[k]) : LEG_MK4[k])
                                             : (pad ? LEG_PLUS_PAD[k] : LEG_PLUS[k]);
         gfx_text_fit(fb, &GFX_XS, x + 5, y + 59, leg, p->c[T_GHOST], w - 10);
     }

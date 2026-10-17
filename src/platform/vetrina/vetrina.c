@@ -158,7 +158,7 @@ static int list_n(int kind)
     case L_SOUND: return N_SOUNDS;
     case L_PERFORM: return PERF_COUNT;
     case L_OPTIONS: return 5;
-    case L_PLATFORM: return 8;
+    case L_PLATFORM: return 11;
     case L_BEATS: return BEAT_ITEMS;
     default: return 0;
     }
@@ -204,14 +204,17 @@ static void list_item(const vet_t *v, int kind, int i, ui_item_t *it)
         break;
     }
     case L_PLATFORM: {
-        static const char *const L[] = { "Exit", "Theme", "Linnaeus Tag", "Legend", "Meters", "Demo",
-                                         "Play Demo Song", "Quit Stame" };
+        /* Panic al secondo posto (UI-129: MENU, giù, A); Metronome e Save Loop (MIDI-137): senza il pad
+         * i suoi T3 e T10 stanno qui, e senza MK4 né pad il Panic ha solo questa casa */
+        static const char *const L[] = { "Exit", "Panic", "Metronome", "Save Loop", "Theme", "Linnaeus Tag",
+                                         "Legend", "Meters", "Demo", "Play Demo Song", "Quit Stame" };
         ui_fmt_copy(it->label, sizeof it->label, L[i]);
-        if (i == 1) ui_fmt_copy(it->value, sizeof it->value, v->m.prefs.theme ? "Light" : "Dark");
-        if (i == 2) ui_fmt_copy(it->value, sizeof it->value, v->m.prefs.linnaeus ? "On" : "Off");
-        if (i == 3) ui_fmt_copy(it->value, sizeof it->value, v->m.prefs.legend ? "On" : "Off");
-        if (i == 4) ui_fmt_copy(it->value, sizeof it->value, v->m.prefs.meters ? "On" : "Off");
-        if (i == 5) ui_fmt_copy(it->value, sizeof it->value, v->demo_on ? "Auto" : "Off");
+        if (i == 2) ui_fmt_copy(it->value, sizeof it->value, S.metro ? "On" : "Off");
+        if (i == 4) ui_fmt_copy(it->value, sizeof it->value, v->m.prefs.theme ? "Light" : "Dark");
+        if (i == 5) ui_fmt_copy(it->value, sizeof it->value, v->m.prefs.linnaeus ? "On" : "Off");
+        if (i == 6) ui_fmt_copy(it->value, sizeof it->value, v->m.prefs.legend ? "On" : "Off");
+        if (i == 7) ui_fmt_copy(it->value, sizeof it->value, v->m.prefs.meters ? "On" : "Off");
+        if (i == 8) ui_fmt_copy(it->value, sizeof it->value, v->demo_on ? "Auto" : "Off");
         break;
     }
     default: break;
@@ -265,16 +268,23 @@ static void list_select(vet_t *v)
         break;
     case L_PLATFORM:
         if (i == 0) list_close(v);
-        else if (i == 1) v->m.prefs.theme = (uint8_t)!v->m.prefs.theme;
-        else if (i == 2) v->m.prefs.linnaeus = (uint8_t)!v->m.prefs.linnaeus;
-        else if (i == 3) v->m.prefs.legend = (uint8_t)!v->m.prefs.legend;
-        else if (i == 4) v->m.prefs.meters = (uint8_t)!v->m.prefs.meters;
-        else if (i == 5) v->demo_on = (uint8_t)!v->demo_on;
-        else if (i == 6) {                              /* il brano successivo, subito */
+        else if (i == 1) {                              /* come T12 e SHIFT + STOP/PLAY */
+            msg(v, MSG_INFO, "Panic: all notes off", 2000);
+            snd_push(v, VS_ALL_OFF, 0, 0, 0);
+            list_close(v);
+        }
+        else if (i == 2) { S.metro = (uint8_t)!S.metro; snd_push(v, VS_METRO, 0, S.metro, 0); }
+        else if (i == 3) { snd_push(v, VS_LOOP, 0, (uint8_t)LOOP_C_EXIT, 0); list_close(v); }   /* come T10 */
+        else if (i == 4) v->m.prefs.theme = (uint8_t)!v->m.prefs.theme;
+        else if (i == 5) v->m.prefs.linnaeus = (uint8_t)!v->m.prefs.linnaeus;
+        else if (i == 6) v->m.prefs.legend = (uint8_t)!v->m.prefs.legend;
+        else if (i == 7) v->m.prefs.meters = (uint8_t)!v->m.prefs.meters;
+        else if (i == 8) v->demo_on = (uint8_t)!v->demo_on;
+        else if (i == 9) {                              /* il brano successivo, subito */
             if (v->demo_running) v->demo_song = (uint8_t)((v->demo_song + 1) % vet_demo_songs_n);
             demo_start(v);
         }
-        else if (i == 7) v->quit = 1;
+        else if (i == 10) v->quit = 1;
         break;
     default: break;
     }
@@ -961,10 +971,21 @@ void vet_midi(vet_t *v, const midi_msg_t *msg, uint32_t now_ms)
 static uint32_t menu_down_ms;      /* uscita di sicurezza della vetrina: MENU tenuto 2 s */
 static uint8_t menu_down;
 
-/* con la MK4 collegata i tasti del fuoco della Flip sono riserve inerti (16/10/2026): non aprono la pagina */
 static bool mk4_present(const vet_t *v)
 {
     return (v->inp.connected & (1u << SRC_MPK)) && v->inp.mpk_model == MPK_MODEL_MK4;
+}
+
+/* con la Plus X della Flip è il suo PUSH; senza è Hold (MIDI-137) */
+static bool plus_present(const vet_t *v)
+{
+    return (v->inp.connected & (1u << SRC_MPK)) && v->inp.mpk_model != MPK_MODEL_MK4;
+}
+
+/* solo la MK4, senza pad (MIDI-137): il fuoco parte da Chord Voicing, così nav è la manopola dei rivolti */
+static void mk4_only_focus(vet_t *v)
+{
+    if (mk4_present(v) && !(v->inp.connected & (1u << SRC_MACROPAD))) v->inp.gest.focus = ENC_CHORD_VOICING;
 }
 
 void vet_pad(vet_t *v, uint16_t code, int32_t value, uint32_t now_ms)
@@ -973,8 +994,9 @@ void vet_pad(vet_t *v, uint16_t code, int32_t value, uint32_t now_ms)
     v->now_ms = now_ms;
     if (code == PAD_MENU && value != 2) { menu_down = value == 1; menu_down_ms = now_ms; }
     if (value == 1) user_input(v, now_ms);
-    /* i tasti del fuoco aprono la pagina dei comandi e la tengono aperta (UI-142a) */
-    if (value != 0 && !mk4_present(v) && (code == PAD_L1 || code == PAD_R1 || code == PAD_A || code == PAD_X ||
+    /* i tasti del fuoco aprono la pagina dei comandi e la tengono aperta (UI-142a); dal 17/10/2026 i
+     * tasti della Flip non tacciono mai (MIDI-137), quindi anche con la MK4. X solo quando è il PUSH della Plus */
+    if (value != 0 && (code == PAD_L1 || code == PAD_R1 || code == PAD_A || (code == PAD_X && plus_present(v)) ||
                        code == PAD_UP || code == PAD_DOWN || code == PAD_LEFT || code == PAD_RIGHT))
         v->page_until = now_ms + PAGE_MS;
     int n = inp_pad(&v->inp, code, value, now_ms * 1000u, ev, INP_MAX_OUT);
@@ -990,6 +1012,7 @@ void vet_mpk(vet_t *v, bool connected, const char *fw, uint32_t now_ms)
     int n = connected ? inp_connected(&v->inp, SRC_MPK, now_ms * 1000u, ev, INP_MAX_OUT)
                       : inp_lost(&v->inp, SRC_MPK, now_ms * 1000u, ev, INP_MAX_OUT);
     feed(v, ev, n);
+    if (connected) mk4_only_focus(v);
     v->m.plat.mpk_link = connected ? MPK_OPEN : MPK_ABSENT;
     v->factory_warned = 0;
     if (fw) ui_fmt_copy(v->m.plat.mpk_fw, sizeof v->m.plat.mpk_fw, fw);
@@ -1017,6 +1040,7 @@ void vet_macropad(vet_t *v, uint8_t link, uint32_t now_ms)
         int n = on ? inp_connected(&v->inp, SRC_MACROPAD, now_ms * 1000u, ev, INP_MAX_OUT)
                    : inp_lost(&v->inp, SRC_MACROPAD, now_ms * 1000u, ev, INP_MAX_OUT);
         feed(v, ev, n);
+        if (!on) mk4_only_focus(v);
     }
     v->m.plat.pad_link = link;
 }
@@ -1419,6 +1443,13 @@ const ui_model_t *vet_model(vet_t *v)
     m->ctl.fill = S.fill;
     c->push = mk4 ? v->inp.mk4.push : v->inp.mpk.push;
     c->knob_lock = S.knob_lock;
+    c->pad_inst = v->inp.mpad.inst;                   /* pad strumento: tipo ed estensione tenuti (MIDI-136) */
+    c->pad_type = v->inp.mpad.ch_type;
+    c->pad_ext = v->inp.mpad.ch_ext;
+    if (c->pad_inst != v->pad_inst_seen) {             /* senza tastiera il pad suona: lo si dice una volta */
+        v->pad_inst_seen = c->pad_inst;
+        if (c->pad_inst && v->m.plat.pad_link == PADL_OPEN) msg(v, MSG_INFO, "Pad plays notes", 2000);
+    }
     /* programma della Plus e banco stimato dei pad (MIDI-088, MIDI-089): prima non arrivavano alla
      * testata, e «FACTORY» non compariva mai. L'avviso di MIDI-119 una volta per collegamento */
     m->plat.mpk_profile = !mk4 && v->inp.mpk.factory ? MPKP_FACTORY : MPKP_STAME;

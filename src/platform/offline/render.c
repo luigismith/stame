@@ -367,11 +367,12 @@ static void sc_setup(void)
     sc_run(2500);                                     /* passano gli avvisi di collegamento */
 }
 
-/* MENU › Theme: alterna Notte e Giorno dal menu della piattaforma con la manopola nav della MK4 */
+/* MENU › Theme: alterna Notte e Giorno dal menu della piattaforma con la manopola nav della MK4.
+ * Theme è la quinta voce: Exit, Panic, Metronome, Save Loop, Theme (17/10/2026) */
 static void sc_theme_toggle(void)
 {
     sc_pad(PAD_MENU);
-    sc_daw(14, 1);
+    sc_daw(14, 4);
     sc_run(60);
     sc_daw_tap(13);
     sc_back();
@@ -458,6 +459,22 @@ static int render_scene(const char *dir)
     sc_run(200);
     sc_pad(MPAD_T11);
     sc_run(2200);
+    /* solo il pad (40 MIDI-136): la MK4 si stacca e il pad diventa lo strumento. M due scatti (Min), m1 due
+     * (m7), poi il Sol (T8) tenuto: la testata scrive MIN m7. M premuta toglie tipo ed estensione */
+    vet_mpk(&vet, false, NULL, sc_now);
+    sc_run(2500);                                     /* passano gli avvisi */
+    sc_pad(MPAD_M_CW);
+    sc_pad(MPAD_M_CW);
+    sc_pad(MPAD_M1_CW);
+    sc_pad(MPAD_M1_CW);
+    vet_pad(&vet, MPAD_T8, 1, sc_now);
+    sc_run(400);
+    render_to(dir, "pad_strumento");
+    vet_pad(&vet, MPAD_T8, 0, sc_now);
+    sc_run(40);
+    sc_pad(MPAD_M_PUSH);
+    vet_mpk(&vet, true, "1.0.0", sc_now);
+    sc_run(2500);                                     /* la MK4 torna: il pad fa di nuovo i comandi */
     /* menu della piattaforma, poi la stessa pagina di gioco nel tema Notte */
     sc_pad(PAD_MENU);
     sc_run(200);

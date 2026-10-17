@@ -16,14 +16,15 @@ uint64_t uf_sig_z1(const ui_model_t *m, const ui_flip_state_t *st)
     uint64_t h = UF_H0;
     const ui_platform_t *pl = &m->plat;
     bool g = geek(m);
-    uint8_t v[22] = {
+    uint8_t v[25] = {
         pl->mpk_link, pl->mpk_profile, pl->mpk_bank, pl->pad_link, m->prefs.pocket, m->prefs.meters, m->ctl.knob_lock,
         (uint8_t)(g && m->now_ms - pl->midi_in_ms < 50), (uint8_t)(g && m->now_ms - pl->midi_out_ms < 50),
         g ? m->meters.voices_used : 0, g ? m->meters.dsp_load_pct : 0, pl->battery_pct, pl->charging,
         (uint8_t)((int32_t)(st->xrun_until - m->now_ms) > 0), (uint8_t)((int32_t)(st->clip_until - m->now_ms) > 0),
-        (uint8_t)(pl->mpk_link == MPK_ABSENT && mpk_blink(m)),
+        (uint8_t)(pl->mpk_link == MPK_ABSENT && mpk_blink(m) && (!m->ctl.pad_inst || g)),
         (uint8_t)(pl->battery_pct < 10 && uf_blink(m->now_ms, 500, 500)),
         (uint8_t)g, m->tempo.drums_on, m->tempo.metro_on, m->ctl.hold, m->ctl.fill,
+        m->ctl.pad_inst, m->ctl.pad_type, m->ctl.pad_ext,
     };
     h = uf_h(h, v, sizeof v);
     if (g) h = uf_h(h, st->peak_db10, sizeof st->peak_db10);
@@ -99,6 +100,8 @@ static int mpk(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, int x, bo
     case MPK_BUSY:  word = "BUSY"; tok = T_WARN; break;
     case MPK_ERROR: word = "ERROR"; tok = T_WARN; break;
     default:
+        /* senza MPK ma con il pad strumento si suona (40 MIDI-136): non è un guasto, e lo stato tace */
+        if (m->ctl.pad_inst && !always) return x;
         /* «NO MPK» lampeggia; lo spazio resta occupato, così il resto non si sposta */
         if (mpk_blink(m)) gfx_text(fb, &GFX_S, x, 4, "NO MPK", p->c[T_WARN]);
         return x + gfx_text_w(&GFX_S, "NO MPK", 0) + 16;
@@ -133,6 +136,16 @@ void uf_draw_z1(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, const ui
         if (m->ctl.hold) x = gfx_text(fb, &GFX_S, x, y, "HOLD", p->c[T_ACTIVE]) + 16;
         if (m->tempo.metro_on) x = gfx_text(fb, &GFX_S, x, y, "METRO", p->c[T_ACTIVE]) + 16;
         if (m->ctl.fill) x = gfx_text(fb, &GFX_S, x, y, "FILL", p->c[T_ACTIVE]) + 16;
+        /* pad strumento (MIDI-136): tipo ed estensione fissati con M e m1 sono tasti tenuti, e si vedono */
+        if (m->ctl.pad_inst && (m->ctl.pad_type || m->ctl.pad_ext)) {
+            static const char *const TY[5] = { "", "DIM", "MIN", "MAJ", "SUS" };
+            static const char *const EX[5] = { "", "6", "m7", "M7", "9" };
+            if (m->ctl.pad_type && m->ctl.pad_type <= 4)
+                x = gfx_text(fb, &GFX_S, x, y, TY[m->ctl.pad_type], p->c[T_ACTIVE]) + 8;
+            if (m->ctl.pad_ext && m->ctl.pad_ext <= 4)
+                x = gfx_text(fb, &GFX_S, x, y, EX[m->ctl.pad_ext], p->c[T_ACTIVE]) + 8;
+            x += 8;
+        }
         clip_xrun(fb, p, m, st, x, false, true);
         battery(fb, p, m);
         return;

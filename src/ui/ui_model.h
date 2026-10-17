@@ -92,6 +92,7 @@ typedef struct {
     uint8_t  focus, turn_target, push;
     uint8_t  knob_lock;                 /* Lock del macro pad (40, MIDI-131): M, m1, m2 = Sound, Perform, Key */
     uint8_t  hold, fill;                /* Hold dell'accordo e Fill del Beat tenuto (T1, T4 del pad: MIDI-133) */
+    uint8_t  pad_inst, pad_type, pad_ext;   /* pad strumento (40, MIDI-136): tipo 1…4 Dim Min Maj Sus, estensione 1…4 6 m7 M7 9 */
     uint8_t  sound_user, sound_num;
     char     sound_name[17];
     uint8_t  sound_engine;

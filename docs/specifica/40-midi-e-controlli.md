@@ -537,7 +537,7 @@ Le quattro porte su Windows si chiamano «MPK mini IV MIDI Port», «DAW Port»,
 
 ### 8.10 Macro pad BRIMFORD (profilo `pad_brimford`)
 
-Gli encoder dell'Orchid si premono, le manopole della MPK no. Luigi ha aggiunto un **macro pad** che il 13/10/2026 dava agli encoder i loro pulsanti (K1–K8 e T1–T8 come **due griglie gemelle 4×2**). Il **16/10/2026** Luigi ha chiesto di togliere i comandi replicati fra gli apparecchi («studia l'ergonomia migliore per i comandi utilizzando quelli che sono più ergonomicamente funzionali, se restano tasti o manopole libere... assegnamogli nuove feature») e ha deciso: la pressione degli encoder sta tutta su SHIFT + K della MK4, liste, conferma, Back e Menu sulla manopola di navigazione, − e + della MK4, il Lock resta, le riserve tacciono quando c'è l'apparecchio che sostituiscono. Il pad tiene Options, Panic, Lock, View, Page e i due voicing, e i tasti liberi fanno quello che l'Orchid non ha (MIDI-133).
+Gli encoder dell'Orchid si premono, le manopole della MPK no. Luigi ha aggiunto un **macro pad** che il 13/10/2026 dava agli encoder i loro pulsanti (K1–K8 e T1–T8 come **due griglie gemelle 4×2**). Il **16/10/2026** Luigi ha chiesto di togliere i comandi replicati fra gli apparecchi («studia l'ergonomia migliore per i comandi utilizzando quelli che sono più ergonomicamente funzionali, se restano tasti o manopole libere... assegnamogli nuove feature») e ha deciso: la pressione degli encoder sta tutta su SHIFT + K della MK4, liste, conferma, Back e Menu sulla manopola di navigazione, − e + della MK4, il Lock resta, le riserve tacciono quando c'è l'apparecchio che sostituiscono. Il pad tiene Options, Panic, Lock, View, Page e i due voicing, e i tasti liberi fanno quello che l'Orchid non ha (MIDI-133). Il **17/10/2026** Luigi ha chiesto che i comandi si adattino agli apparecchi collegati: senza tastiera il pad è lo strumento (MIDI-136), e i tasti della Flip non tacciono più (MIDI-137, al posto delle riserve inerti di MIDI-134).
 
 | Voce | Valore | Etichetta |
 |---|---|---|
@@ -571,7 +571,7 @@ Gli encoder dell'Orchid si premono, le manopole della MPK no. Luigi ha aggiunto 
 
 La quinta colonna è quella **decisa da Luigi il 15/10/2026**: **T13 Lock** (MIDI-131), **T14 View** e **T15 Page** (MIDI-132). Le prime quattro, fino al 15/10 gemelle delle manopole della MPK, dal 16/10/2026 sono le funzioni di MIDI-133.
 
-- **MIDI-120** — Il profilo `pad_brimford` DEVE applicare questa mappa [D, **13/10/2026**, rifatta il **16/10/2026**]. I codici sono quelli programmati sul macro pad (MIDI-122) o imparati con Learn Pad (MIDI-123); al profilo arrivano già tradotti nei codici portabili `MPAD_*` (MIDI-124):
+- **MIDI-120** — Il profilo `pad_brimford` DEVE applicare questa mappa [D, **13/10/2026**, rifatta il **16/10/2026**] quando c'è una tastiera; senza, il pad è lo strumento di MIDI-136. I codici sono quelli programmati sul macro pad (MIDI-122) o imparati con Learn Pad (MIDI-123); al profilo arrivano già tradotti nei codici portabili `MPAD_*` (MIDI-124):
 
 | Comando | Codice (strato 3 di fabbrica) | Evento del pannello (§10.1) | Funzione |
 |---|---|---|---|
@@ -703,13 +703,7 @@ layers:
   - **T11 Drums**: `DRUMS_TOGGLE` di ACC-211, la batteria a tastiera, che con il PUSH su SHIFT non ha più una combinazione comoda (Mod + BPM resta);
   - **m2** (Lock spento): girata regola il **volume del Beat**, premuta e girata il **volume del basso**, uno scatto per punto, con i loro overlay; premuta da sola non fa niente. Con il Lock acceso resta Key (MIDI-131).
 
-- **MIDI-134** — **Riserve inerti** [D, **deciso da Luigi il 16/10/2026**: «Inerti e nascoste»]. Un comando che rifà quello di un altro apparecchio vive solo quando quell'apparecchio manca; con l'apparecchio collegato tace e non compare nelle legende (`30` UI-152). Lo decide lo strato di input (`input.c`, `reserve_silent`), non i profili:
-  - con la **MK4 collegata** tacciono, della Flip, la croce, A e B (la navigazione: manopola nav, − e + della MK4) e START (BPM premuto: SHIFT + K7). X non conta mai sulla MK4;
-  - con il **macro pad collegato** tacciono Y (Mod: m1), SELECT (Options: T9) e L1/R1 (il fuoco: Chord Voicing e Bass Voicing hanno M e m1);
-  - MENU della Flip resta sempre: è la via d'uscita;
-  - un rilascio tace solo se ha taciuto la pressione, così un tasto tenuto durante un collegamento non resta premuto;
-  - sulla MK4 il banco B è libero; sulla Plus banco B, B8 e X restano vivi (la Plus non ha SHIFT nel profilo).
-  Restano due doppioni voluti sulla MK4: STOP/PLAY accanto a SHIFT + K7 toccata (un tasto PLAY per la batteria) e SHIFT + STOP/PLAY accanto a T12 tenuto (un Panic veloce).
+- **MIDI-134** — **Riserve inerti** [D, 16/10/2026; **superata il 17/10/2026** da MIDI-137]. Dal 16 al 17/10/2026 i tasti della Flip che rifacevano il comando di un altro apparecchio tacevano quando quell'apparecchio c'era (croce, A, B e START con la MK4; Y, SELECT, L1 e R1 con il pad). Sulla Flip Luigi è rimasto chiuso nel menu: MENU lo apriva, ma la croce taceva. Il 17/10/2026: «i tasti della flip devono funzionare per la gestione», poi «tutti».
 
 - **MIDI-135** — **La drum machine dal vivo** [D, **decisa da Luigi il 16/10/2026**: «la drum machine deve avere la stessa "filosofia" di orchid... premo tasti, muovo manopole e creo loop di batteria in tempo reale», niente sequencer a passi; scelte con le domande a scelta multipla: pad del banco B, kit/Roll/Accent, Swing, FX sulla batteria]. Si suona e si registra nel looper come gli accordi (ACC-211); sotto **DRUMS** (T11) gli stessi encoder cambiano mestiere, come con il Lock, e le celle della pagina dei comandi lo scrivono (`30` UI-152):
   - **pad del banco B della MK4**: otto colpi con la velocity, sempre, anche senza DRUMS (`PNL_MACRO(MACRO_DRUM_HIT, strumento << 8 | velocity)`, velocity 0 al rilascio); fila bassa cassa, rullante, rimshot, battimani, fila alta charleston chiuso e aperto, tom basso, piatto, nell'ordine degli strumenti di `drums.h` (ACC-212);
@@ -718,6 +712,37 @@ layers:
   - **K5 = Accent** (cella «ACCENT», 0…10, default 10): quanto conta la velocity: `v = 100 + (velocity − 100) × Accent / 10`, quindi 0 = colpi tutti uguali a 100, 10 = la dinamica com'è. Vale per tasti e pad;
   - gli overlay sono `OV_KIT`, `OV_ROLL`, `OV_ACCENT` (`30` UI-025); K3 (FX sulla batteria) e K4 (Swing sulla griglia del loop e dei Beat) sono decisi ma non ancora fatti;
   - fuori da DRUMS gli encoder tornano quelli dell'Orchid; kit, Roll e Accent restano come sono.
+
+- **MIDI-136** — **Il pad senza tastiera è lo strumento** [D, **deciso da Luigi il 17/10/2026**: «quando ho solo collegato il macro pad i controlli devono essere ottimizzati per l'uso con macropad», e fra le proposte «il pad è lo strumento»; poi «i controlli devono essere intelligenti, sensati, intuitivi ed ergonomici»]. Senza MPK collegata il profilo `pad_brimford` usa questa mappa; con una tastiera torna quella di MIDI-120. Il pad si tiene con le manopole a destra: la mano sinistra suona le fondamentali, la destra sceglie l'accordo con la manopola grande, la più comoda, perché è il comando che cambia più spesso.
+
+| Comando | Evento del pannello (§10.1) | Funzione |
+|---|---|---|
+| **T1–T12** | `PNL_KEY_DOWN(0…11, 100)` alla pressione, `PNL_KEY_UP` al rilascio | le **dodici fondamentali** in ordine di lettura: fila alta Do Do♯ Re Re♯, in mezzo Mi Fa Fa♯ Sol, in basso Sol♯ La La♯ Si. Velocity fissa 100 [D], come il modo tascabile (MIDI-093) |
+| **M** girata | `PNL_CHORD_UP` del tipo di prima, poi `PNL_CHORD_DOWN` del nuovo | **tipo d'accordo** tenuto: nessuno, Dim, Min, Maj, Sus (l'ordine dei tasti dell'Orchid, orario verso Sus); agli estremi si ferma |
+| **M** premuta | `PNL_CHORD_UP` di tipo ed estensione | li toglie tutti e due: di nuovo l'accordo della Key mode, con un gesto solo |
+| **m1** girata | come M, sui tasti delle estensioni | **estensione** tenuta: nessuna, 6, m7, M7, 9 |
+| **m1** premuta | `PNL_ENC_DOWN/UP(ENC_BASS_VOICING)` | **Mod**, il modificatore delle combinazioni, come con la tastiera |
+| **m2** girata | `PNL_ENC_TURN(ENC_FOCUS, ±1)` | il **controllo col fuoco** (lo spostano L1 e R1 della Flip) o la lista aperta |
+| **m2** premuta | `PNL_ENC_DOWN/UP(ENC_FOCUS)` | preme il controllo col fuoco o conferma la voce; premuta e girata = premere e ruotare |
+| **T13, T14, T15** | come MIDI-120 | Lock (M, m1, m2 = Sound, Perform, Key, MIDI-131), View, Page (MIDI-132) |
+
+  Regole:
+  - tipo ed estensione sono **tasti accordo tenuti dal pad** (lo stato unito di MIDI-102 li vede premuti): il motore degli accordi li tratta come se una mano li tenesse, quindi una fondamentale suona l'accordo come sull'Orchid, e girando M mentre una fondamentale suona l'accordo cambia come passando da un tasto all'altro;
+  - sono uno **stato** e si vedono: la testata li scrive accesi, per esempio «MIN m7» (`30` UI-126);
+  - quando il pad diventa lo strumento la plancia lo dice una volta: «Pad plays notes» (`30` UI-156);
+  - la mappa cambia **solo con il pad fermo** (nessun tasto né manopola premuti), come il modo tascabile di MIDI-094; lasciando lo strumento tipo ed estensione si rilasciano;
+  - le altre aggiunte del pad (MIDI-133) qui non ci sono: Hold è X della Flip, il pulsante di BPM è START (MIDI-137); Panic, Metronomo e Save Loop stanno nel menu della Flip (`30` UI-129); la batteria a tastiera è Mod + BPM (m1 premuta + START), come sull'Orchid, e allora T1–T12 suonano i dodici pezzi del kit.
+
+- **MIDI-137** — **Configurazioni: i comandi secondo gli apparecchi collegati, la Flip sempre viva** [D, **deciso da Luigi il 17/10/2026**: «i tasti della flip devono funzionare per la gestione»; «quando ho collegato solo la mini i controlli devono essere ottimizzati per la sola mini; mentre quando ho solo collegato il macro pad i controlli devono essere ottimizzati per l'uso con macropad. in entrambe queste configurazioni, i controlli della flip devono funzionare»; con MK4 e pad insieme, «tutti» i tasti della Flip]. Sostituisce MIDI-134. Lo strato di input sa quali apparecchi sono collegati (`input.c`, `cfg_sync`, a ogni collegamento e scollegamento) e lo dice ai profili:
+  - i tasti della Flip **non tacciono mai**: lo schema a fuoco di MIDI-092 vale in ogni configurazione, anche dove lo stesso comando c'è su un altro apparecchio. MENU resta la via d'uscita;
+  - **X** è **Hold** (`PNL_MACRO(MACRO_HOLD_TOGGLE)`, come T1 del pad); con la **Plus** collegata resta il suo PUSH (§8.6);
+  - **START** è il pulsante di **BPM**; con la **MK4** collegata, che ha STOP/PLAY per il Beat, è il **Fill** finché è tenuto (`PNL_MACRO(MACRO_FILL, 1/0)`, come T4). Il ruolo si fissa alla pressione: il rilascio va lì anche se intanto cambia la configurazione;
+  - **solo MK4**: la MK4 fa quello che fa con il pad (MIDI-130, MIDI-135). Quando la configurazione lo diventa, il fuoco va su **Chord Voicing**: la manopola nav è la manopola dei rivolti, e premuta alterna Split e Octave; L1 e R1 portano il fuoco su Bass Voicing e sugli altri controlli. Y è il Mod, SELECT Options, X Hold, START Fill; Panic è anche SHIFT + STOP/PLAY; Metronomo e Save Loop sono nel menu (`30` UI-129); la batteria a tastiera è Mod + STOP/PLAY (Y tenuto), come sull'Orchid. Tap tempo e Scene restano del pad;
+  - **solo pad**: il pad è lo strumento (MIDI-136);
+  - **MK4 e pad**: la mappa del 16/10/2026 (MIDI-120, MIDI-130, MIDI-133), più i tasti della Flip;
+  - **solo Flip**: lo schema a fuoco di MIDI-092 (il modo tascabile di MIDI-093 è previsto);
+  - le legende della pagina dei comandi seguono la configurazione (`30` UI-152);
+  - la MK4 non può prendere le funzioni del pad su **SHIFT + pad** né su **SHIFT + LOOP**: sono comandi della tastiera stessa (SHIFT + Pad 5 accende il suo modo accordi, SHIFT + LOOP apre il suo menu globale; guida della MK4 nel vault).
 
 ---
 
@@ -748,14 +773,14 @@ layers:
 | Croce destra / sinistra | `PNL_ENC_TURN(ENC_FOCUS, +1/−1)`, con ripetizione | Come su / giù |
 | A | `PNL_ENC_DOWN/UP(ENC_FOCUS)` | Pressione dell'encoder con il fuoco: conferma; tenere = tenere; A tenuto + croce = premere e ruotare |
 | B | `PNL_BACK` | Indietro |
-| **X** | **PUSH** (§8.6) | Riserva per quando il macro pad non c'è (resta attivo anche con il macro pad). Tenuto: la manopola della MPK toccata o girata viene "premuta" (premere, tenere, premere e ruotare). Senza MPK non fa nulla |
+| **X** | `PNL_MACRO(MACRO_HOLD_TOGGLE)`; con la Plus il **PUSH** (§8.6) | **Hold** dell'accordo (MIDI-137, come T1 del pad). Con la Plus collegata è il suo PUSH: tenuto, la manopola della Plus toccata o girata viene "premuta" (premere, tenere, premere e ruotare) |
 | Y | `PNL_ENC_DOWN/UP(ENC_BASS_VOICING)` | Bass Voicing premuto, come m1 del macro pad: il modificatore delle combinazioni (Y + A con il fuoco su Loop = uscita hard dal loop) |
 | SELECT | `PNL_ENC_DOWN/UP(ENC_OPTIONS)` | Pulsante di Options |
-| START | `PNL_ENC_DOWN/UP(ENC_BPM)` | Pulsante di BPM (beat o metronomo) |
+| START | `PNL_ENC_DOWN/UP(ENC_BPM)`; con la MK4 `PNL_MACRO(MACRO_FILL, 1/0)` | Pulsante di BPM (beat o metronomo); con la MK4, che ha STOP/PLAY, il **Fill** finché è tenuto (MIDI-137) |
 | MENU | `PNL_MACRO(MACRO_SYSTEM_MENU)` | Menu della piattaforma (`30` UI-129): Panic, Pocket Mode, Quit Stame… |
 | L2, R2, L3, R3, levette | — | Liberi |
 
-**Riserve inerti (16/10/2026).** Con la MK4 collegata la croce, A, B e START tacciono; con il macro pad collegato tacciono Y, SELECT, L1 e R1; X conta solo con la Plus; MENU resta sempre (MIDI-134). I tasti che tacciono non aprono la pagina dei comandi (`30` UI-142a).
+**Sempre vivi (17/10/2026).** I tasti della Flip non tacciono mai, con qualunque apparecchio collegato: sono la console di gestione (MIDI-137, al posto delle riserve inerti di MIDI-134). X e START cambiano ruolo secondo la tastiera collegata, come dice la tabella.
 
 - **MIDI-095** — **Uscita dall'app:** l'unica strada DEVE essere MENU → «Quit Stame», oltre a `SIGTERM` (`50` PLT-086). Non c'è una combinazione di tasti riservata: SELECT e START servono già a Options e BPM [D].
 

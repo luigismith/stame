@@ -10,8 +10,30 @@ Come nella foto del 15/10/2026:
 
 - **MPK mini IV a sinistra**, nel preset **DAW** (è di fabbrica, non va programmato). La sinistra sta sugli 8 pad, la destra sui tasti; le 8 manopole K1…K8 sono sopra i tasti, a destra; sotto le manopole, il trasporto (UNDO, LOOP, STOP/PLAY, REC, ⊕).
 - **Macro pad a destra**, in linea con i tasti, con le manopole verso destra: le due piccole in alto (**m1** vicina ai tasti, **m2** sul bordo), la grande **M** in basso. Si usa solo via cavo, sullo strato di fabbrica 3 (o sull'1, reso uguale al 3).
-- **Flip sopra il pad**, aperta, con lo schermo verso chi suona: è un display a portata di sguardo, fuori dalle mani. Con MPK e pad collegati dei suoi tasti serve solo MENU: gli altri sono riserve, vive quando manca l'apparecchio che sostituiscono (§9.2).
+- **Flip sopra il pad**, aperta, con lo schermo verso chi suona: è un display a portata di sguardo, fuori dalle mani. I suoi tasti funzionano sempre, qualunque cosa sia collegata: sono la console di gestione (§9.2).
 - MPK e pad entrano in un **hub USB 2.0 semplice, senza Power Delivery**, sulla porta USB-C **di sopra** della Flip. Mai forzare la porta in modalità host dal sistema: Stame non lo fa e non va fatto a mano.
+
+### 1.1 Le tre combinazioni
+
+Stame si adatta a cosa è collegato (17/10/2026). La Flip c'è sempre, e i suoi tasti funzionano sempre.
+
+| | MK4 + pad | solo MK4 | solo pad |
+|---|---|---|---|
+| fondamentali | tasti della MK4, con la velocity | tasti della MK4 | **T1…T12** del pad: Do…Si, velocity fissa |
+| tipi ed estensioni | pad del banco A | pad del banco A | **M** il tipo, **m1** l'estensione: restano tenuti |
+| gli 8 controlli | K1…K8; SHIFT + K per premere | K1…K8; SHIFT + K | il fuoco: L1/R1 della Flip, **m2** gira e preme |
+| Chord Voicing | M | **nav** (il fuoco parte da lì) | il fuoco |
+| Bass Voicing · Mod | m1 · m1 premuta | il fuoco · Y | il fuoco · m1 premuta |
+| Options | T9 | SELECT | SELECT |
+| Hold | T1 (o X) | **X** | **X** |
+| Fill | T4 (o START) | **START** tenuto | — |
+| Beat on/off | STOP/PLAY | STOP/PLAY | START |
+| Tap, Scene | T2, T5…T8 | — | — |
+| Metronomo, Save Loop | T3, T10 | MENU | MENU |
+| Panic | T12 tenuto, SHIFT + STOP/PLAY | SHIFT + STOP/PLAY, MENU | MENU |
+| batteria | pad del banco B, T11 | pad del banco B, Y + STOP/PLAY | m1 premuta + START |
+
+Il cambio avviene quando attacchi o stacchi un apparecchio, appena le mani sono ferme.
 
 ## 2. Accendere e spegnere
 
@@ -21,7 +43,7 @@ Come nella foto del 15/10/2026:
 2. Se non tocchi niente, **parte la demo** (i brani «Acacia», «Felce» e «Pistillo», a giro). Un tasto, un pad o una nota la fermano e lo strumento è tuo.
 3. Per uscire: **MENU › Quit Stame** (esce subito, senza conferma). Uscita di sicurezza: **MENU tenuto 2 secondi**. Accensione e spegnimento della Flip e il volume di sistema restano a spruceOS.
 
-Lo stato della MPK e del pad si vede nella testata, in alto: a riposo c'è solo la batteria; «NO MPK» lampeggia finché la tastiera non c'è; «PAD» in rosso vuol dire che il macro pad non si apre o manda codici sconosciuti (§10).
+Lo stato della MPK e del pad si vede nella testata, in alto: a riposo c'è solo la batteria; «NO MPK» lampeggia finché la tastiera non c'è, salvo quando suoni con il solo pad (§7.1); «PAD» in rosso vuol dire che il macro pad non si apre o manda codici sconosciuti (§10).
 
 ## 3. Suonare un accordo
 
@@ -121,7 +143,7 @@ Stessa filosofia dell'Orchid: premi tasti, muovi manopole, il loop di batteria n
 
 ![Lock acceso (T13): la testata scrive LOCK SOUND PERFORM KEY e le celle dicono quale manopola fa cosa](img/lock.png)
 
-Quindici tasti in tre file da cinque e tre manopole a scatti. Dal 16/10/2026 il pad non rifà i comandi della MPK: tiene Options, Panic, Lock, View, Page e i due voicing, e i tasti liberi fanno **quello che l'Orchid non ha**.
+Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera collegata (dal 16/10/2026) il pad non rifà i comandi della MPK: tiene Options, Panic, Lock, View, Page e i due voicing, e i tasti liberi fanno **quello che l'Orchid non ha**. Senza tastiera il pad è lo strumento (§7.1).
 
 | | col. 1 | col. 2 | col. 3 | col. 4 | col. 5 |
 |---|---|---|---|---|---|
@@ -147,7 +169,32 @@ Quindici tasti in tre file da cinque e tre manopole a scatti. Dal 16/10/2026 il 
   Finché è acceso la testata mostra **LOCK SOUND PERFORM KEY**; nella pagina dei comandi le celle dicono quale manopola fa cosa. Liste, fuoco e conferma stanno sulla manopola di navigazione della MPK. Se stacchi il pad, il Lock si spegne.
 - **T14 VIEW**: Geek Out e, al tocco dopo, la vista di prima.
 - **T15 PAGE**: apre la pagina dei comandi della Flip e la tiene aperta finché non lo ripremi (o premi −).
-- Se il pad non c'è, Options torna a SELECT della Flip, Mod a Y, e Chord Voicing e Bass Voicing si raggiungono con L1/R1 e la manopola di navigazione.
+- Se il pad non c'è: Options è SELECT della Flip, Mod è Y, Hold è X, Fill è START tenuto; il fuoco parte da Chord Voicing, quindi la manopola di navigazione della MK4 gira i rivolti, e L1/R1 lo portano su Bass Voicing (§1.1).
+
+### 7.1 Senza tastiera: il pad è lo strumento
+
+![Il pad strumento: M su Min, m1 su m7, il Sol tenuto; la testata scrive MIN m7](img/pad_strumento.png)
+
+Se colleghi solo il pad, il pad suona (17/10/2026). La mano sinistra sta sui tasti, la destra sulle manopole.
+
+| | col. 1 | col. 2 | col. 3 | col. 4 | col. 5 |
+|---|---|---|---|---|---|
+| in alto | **Do** | **Do♯** | **Re** | **Re♯** | **T13 LOCK** |
+| in mezzo | **Mi** | **Fa** | **Fa♯** | **Sol** | **T14 VIEW** |
+| in basso | **Sol♯** | **La** | **La♯** | **Si** | **T15 PAGE** |
+
+| Manopola | Gira | Premi |
+|---|---|---|
+| **M** (grande) | il **tipo d'accordo**: nessuno, Dim, Min, Maj, Sus | toglie tipo ed estensione: di nuovo l'accordo di Key |
+| **m1** | l'**estensione**: nessuna, 6, m7, M7, 9 | Mod |
+| **m2** | il controllo con il fuoco (lo scegli con L1/R1 della Flip) o la lista aperta | preme il controllo con il fuoco; premi e gira = premi e gira |
+
+- Tipo ed estensione **restano tenuti** finché non li cambi: è come tenere premuti i tasti accordo dell'Orchid. La testata li scrive (per esempio **MIN m7**). Se giri M mentre una nota suona, l'accordo cambia sotto le dita.
+- Con la **Key mode** accesa e nessun tipo, ogni fondamentale suona l'accordo della scala, come sull'Orchid: è il modo più semplice di suonare con il solo pad.
+- **T13 LOCK** funziona come sempre: M, m1 e m2 diventano Sound, Perform e Key (Key premuta = Key mode).
+- I tasti del pad non hanno velocity: suonano a 100.
+- Dalla Flip: **X** = Hold, **START** = Beat on/off, SELECT = Options, Y = Mod, MENU = Panic, Metronome e Save Loop. La batteria a tastiera è **m1 premuta + START**: i dodici tasti suonano il kit.
+- Quando il pad diventa lo strumento, la banda lo dice: «Pad plays notes». Se attacchi la MK4, il pad torna ai comandi appena lo lasci.
 
 ## 8. La MPK mini IV
 
@@ -158,7 +205,7 @@ Quindici tasti in tre file da cinque e tre manopole a scatti. Dal 16/10/2026 il 
 | pad, banco B | otto pad di batteria con la velocity (§6.2) |
 | K1…K8 | girano Sound, Perform, FX, Key / Bass, Loop, BPM, Volume |
 | SHIFT | **PUSH**: tenuto, la manopola K toccata è «premuta»; toccata e girata, premuta e girata; tenuto 1 s con la manopola toccata, tenuta |
-| manopola di navigazione | gira = liste e fuoco; premi = conferma; premi e gira = premi-e-gira del controllo con il fuoco. È la casa della navigazione, con − e + |
+| manopola di navigazione | gira = liste e fuoco; premi = conferma; premi e gira = premi-e-gira del controllo con il fuoco. È la casa della navigazione, con − e +. Senza pad il fuoco parte da Chord Voicing (§1.1) |
 | − / + | Back / menu della piattaforma |
 | UNDO | Undo del loop; **SHIFT + UNDO = Clear** |
 | LOOP | pausa e ripresa del loop |
@@ -189,21 +236,19 @@ Due **temi** (MENU › Theme): **Giorno** (LCD riflettente, quello con cui Stame
 
 ### 9.2 I tasti
 
+I tasti della Flip funzionano **sempre**, qualunque cosa sia collegata (17/10/2026): sono la console di gestione. Solo X e START cambiano compito secondo la tastiera.
+
 | Tasto | Fa |
 |---|---|
-I tasti della Flip sono **riserve**: ognuno vive solo quando manca l'apparecchio che sostituisce, e tace quando c'è (16/10/2026).
-
-| Tasto | Fa | Tace con |
-|---|---|---|
-| L1 / R1 | sposta il fuoco fra gli 11 controlli (Sound, Perform, FX, Key, Bass, Loop, BPM, Volume, Options, Chord Voicing, Bass Voicing) e apre la pagina dei comandi | il macro pad |
-| croce | gira il controllo con il fuoco, o scorre la lista aperta (con ripetizione se tenuta) | la MPK |
-| A | preme il controllo con il fuoco: conferma; tenuto = tieni; A tenuto + croce = premi e gira | la MPK |
-| B | indietro: chiude liste, overlay e pagina dei comandi | la MPK |
-| X | PUSH della MPK mini Plus | sempre, con la MK4 |
-| Y | Bass Voicing premuto: il modificatore Mod | il macro pad |
-| SELECT | Options | il macro pad |
-| START | BPM: Beat on/off | la MPK |
-| MENU | il menu della piattaforma; tenuto 2 s esce da Stame | mai |
+| L1 / R1 | sposta il fuoco fra gli 11 controlli (Sound, Perform, FX, Key, Bass, Loop, BPM, Volume, Options, Chord Voicing, Bass Voicing) e apre la pagina dei comandi |
+| croce | gira il controllo con il fuoco, o scorre la lista aperta (con ripetizione se tenuta) |
+| A | preme il controllo con il fuoco: conferma; tenuto = tieni; A tenuto + croce = premi e gira |
+| B | indietro: chiude liste, overlay e pagina dei comandi |
+| X | Hold; con la MPK mini Plus, il suo PUSH |
+| Y | Bass Voicing premuto: il modificatore Mod |
+| SELECT | Options |
+| START | BPM: Beat on/off; con la MK4 (che ha STOP/PLAY), Fill finché lo tieni |
+| MENU | il menu della piattaforma; tenuto 2 s esce da Stame |
 
 ### 9.3 Il menu della piattaforma (MENU, o + della MPK)
 
@@ -212,6 +257,9 @@ I tasti della Flip sono **riserve**: ognuno vive solo quando manca l'apparecchio
 | Voce | Fa |
 |---|---|
 | Exit | chiude il menu |
+| Panic | spegne tutte le note, subito |
+| Metronome | On / Off: il metronomo indipendente dal Beat (come T3 del pad) |
+| Save Loop | ferma il loop e lo tiene da parte; REC lo riprende (come T10 del pad) |
 | Theme | Light (Giorno, il default) / Dark (Notte) |
 | Linnaeus Tag | On / Off: il cartellino con la classe dell'accordo (TRIANDRIA, TETRANDRIA…) in Geek Out |
 | Legend | On / Off: le sigle dei comandi nelle celle della pagina dei comandi |
@@ -220,7 +268,7 @@ I tasti della Flip sono **riserve**: ognuno vive solo quando manca l'apparecchio
 | Play Demo Song | il brano successivo della demo, subito |
 | Quit Stame | esce (subito) |
 
-Previsti: Panic nel menu, Pocket Mode (suonare con la sola Flip), MPK Status, Learn Pad, Note Labels, Beat Flash, Ghost Chord, Boot Sound, Debug.
+Previsti: Pocket Mode (suonare con la sola Flip), MPK Status, Learn Pad, Note Labels, Beat Flash, Ghost Chord, Boot Sound, Debug.
 
 ## 10. La demo
 
@@ -252,10 +300,10 @@ Sono quattro brani originali di Stame, suonati a giro: **«Acacia»** (poco meno
 - **Key mode**: la tonalità accesa: i tasti suonano i gradi.
 - **Lock (Perform, FX)**: il valore non cambia al cambio di suono.
 - **LOCK (T13)**: le manopole del pad fanno Sound, Perform e Key.
-- **Mod**: Bass Voicing premuto (m1, o Y senza pad), il modificatore delle combinazioni.
+- **Mod**: Bass Voicing premuto (m1 o Y), il modificatore delle combinazioni.
 - **Overlay**: il nome e il valore del controllo toccato, nella banda.
+- **Pad strumento**: il macro pad senza tastiera: T1…T12 sono le fondamentali, M e m1 tengono tipo ed estensione (§7.1).
 - **PUSH**: SHIFT tenuto (B8 o X con la Plus): la manopola K toccata risulta premuta.
-- **Riserva**: un tasto della Flip (o il banco B della Plus) che rifà un comando di un altro apparecchio e vive solo quando quello manca.
 - **Scena**: suono, basso, Perform, effetto, tonalità e basso salvati su T5…T8.
 - **Split / Octave**: come si distribuiscono le note singole sui 12 tasti.
 - **Strato**: ogni passata di overdub nel loop.
