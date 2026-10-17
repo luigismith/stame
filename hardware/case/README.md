@@ -23,13 +23,17 @@ python -I hardware/case/genera.py      pezzi (SVG laser, STL), fogli di taglio (
 python -I hardware/case/assieme.py     modello 3D (OBJ), dati per SketchUp, tavole del montaggio (PNG)
 python -I hardware/case/manuale.py     PDF: progetti di taglio e istruzioni di montaggio
 python -I hardware/case/sketchup.py    codice per costruire il modello in SketchUp (out/sketchup/)
+python -I hardware/case/etichette.py   etichette dei tasti trasparenti del pad (A4, SVG e PDF)
+python -I hardware/case/rendering.py   rendering con Blender 5.2, Cycles su GPU (out/render/)
 ```
 
 Tutte le misure stanno in `misure.py`, ognuna con la sua fonte: [M] manuale, [O] osservato, [D] dedotto, [V] da verificare. Cambiata una misura, si rigenera tutto. `genera.py` controlla che i pezzi stiano nei piani delle macchine e che i pezzi stampati siano gusci chiusi.
 
 Il riferimento del case (x a destra, y verso il musicista, z in su) è sinistrorso. Gli STL e i modelli 3D escono specchiati su y, cioè nel verso fisico giusto: senza lo specchio la culla avrebbe gli intagli dal lato sbagliato.
 
-`manuale.py` usa la suite ArtCraft: VectorCraft converte le pagine SVG in PDF vettoriali, PdfCraft le unisce. Il modello SketchUp si costruisce con lo strumento SketchUp (nel cloud), eseguendo nell'ordine `out/sketchup/parte_0.py`, `parte_1.py`, `parte_2.py`. Ha un livello e una scena per ogni passo del montaggio.
+`manuale.py` usa la suite ArtCraft: VectorCraft converte le pagine SVG in PDF vettoriali, PdfCraft le unisce. Il modello SketchUp si costruisce con lo strumento SketchUp (nel cloud), eseguendo nell'ordine `out/sketchup/parte_0.py`, `parte_1.py`, `parte_2.py` e `scene.py`, poi salvandolo. Ha un livello e una scena per ogni passo del montaggio.
+
+`rendering.py` prepara le texture in `build/render/` (incisioni dagli SVG, etichette, la faccia della Flip raddrizzata dalla foto, la plancia sullo schermo) e lancia `blender_scena.py` in Blender: betulla con i bordi bruciati dal laser, acrilico lucido con le incisioni satinate, PETG con gli strati, alluminio, tasti trasparenti con l'etichetta dentro. La luce da studio è `studio_small_09_2k.hdr` di Poly Haven (CC0), da scaricare in `build/render/`. `--prova` fa una passata veloce. `tools/sito_case.py` porta render, tavole e fogli nel sito (`docs/case.html`).
 
 ## Cosa esce in `out/`
 
@@ -43,6 +47,8 @@ Il riferimento del case (x a destra, y verso il musicista, z in su) è sinistror
 | `stame_console.skp` | il modello SketchUp, con le scene dei passi |
 | `stame_console.obj`, `.mtl` | lo stesso modello per altri programmi, in millimetri |
 | `montaggio/*.png` | le tavole dei passi e due viste della console |
+| `render/*.jpg` | i rendering: la console, la torre, la mascherina |
+| `etichette_pad.pdf`, `.svg` | le etichette dei tasti del pad, A4 al 100 % |
 | `dima_mascherina.svg`, `tavola_insieme.svg` | dima da stampare su carta, tavola dall'alto e di fianco |
 
 ## Prima di tagliare

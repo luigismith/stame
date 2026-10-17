@@ -64,6 +64,57 @@ def mascherina():
     print('case_mascherina.png', im.size)
 
 
+CARTELLA = os.path.join(DEST, 'case')
+FONDI = {'betulla4': (226, 196, 152), 'betulla6': (214, 182, 135), 'acrilico3': (34, 34, 38)}
+
+
+def pagina():
+    """le immagini della pagina del case (docs/case.html): render, passi, fogli, etichette"""
+    os.makedirs(CARTELLA, exist_ok=True)
+    rd = os.path.join(CASE, 'render')
+    for n in sorted(os.listdir(rd)):
+        im = Image.open(os.path.join(rd, n)).convert('RGB')
+        im = im.resize((1600, round(im.height * 1600 / im.width)), Image.LANCZOS)
+        im.save(os.path.join(CARTELLA, 'render_' + n), quality=86, optimize=True, progressive=True)
+        print('case/render_' + n, im.size)
+    for k in range(1, 10):
+        im = Image.open(os.path.join(CASE, 'montaggio', f'passo_{k}.png')).convert('RGB').crop((90, 200, 1410, 920))
+        im = im.resize((990, 540), Image.LANCZOS)
+        im = im.quantize(colors=128, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
+        im.save(os.path.join(CARTELLA, f'passo_{k}.png'), optimize=True)
+    print('case/passo_1..9.png')
+    td = os.path.join(CASE, 'taglio')
+    with tempfile.TemporaryDirectory() as tmp:
+        for n in sorted(os.listdir(td)):
+            if not (n.startswith('taglio_') and n.endswith('.svg')):
+                continue
+            png = os.path.join(tmp, 'f.png')
+            subprocess.run([VC, 'convert', os.path.join(td, n), png, '--scale', '0.9'], check=True, capture_output=True)
+            a = np.asarray(Image.open(png).convert('RGBA')).astype(float)
+            mat = n[len('taglio_'):].rsplit('_', 1)[0]
+            fondo = np.array(FONDI[mat], float)
+            chiaro = mat != 'acrilico3'
+            col = np.empty(a.shape[:2] + (3,))
+            col[...] = fondo
+            al = a[..., 3:4] / 255
+            rosso = (a[..., 0] > 150) & (a[..., 1] < 120)
+            segno = (a[..., 2] > 150) & (a[..., 0] < 120)
+            linea = np.where(rosso[..., None], (120, 30, 20) if chiaro else (220, 90, 70),
+                             np.where(segno[..., None], (60, 90, 200), (90, 50, 25) if chiaro else (230, 226, 214)))
+            col = col * (1 - al) + linea * al
+            Image.fromarray(col.astype(np.uint8)).save(os.path.join(CARTELLA, n[:-4] + '.png'), optimize=True)
+            print('case/' + n[:-4] + '.png')
+        png = os.path.join(tmp, 'e.png')
+        subprocess.run([VC, 'convert', os.path.join(CASE, 'etichette_pad.svg'), png, '--scale', '3'], check=True, capture_output=True)
+        im = Image.open(png).convert('RGBA')
+        s = im.width / 210.0
+        bianco = Image.new('RGBA', im.size, (255, 255, 255, 255))
+        im = Image.alpha_composite(bianco, im).convert('RGB').crop((int(14 * s), int(60 * s), int(196 * s), int(232 * s)))
+        im.save(os.path.join(CARTELLA, 'etichette.png'), optimize=True)
+        print('case/etichette.png', im.size)
+
+
 if __name__ == '__main__':
     tavole()
     mascherina()
+    pagina()

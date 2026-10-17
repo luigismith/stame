@@ -188,6 +188,13 @@ def registra(svg, frames, t, materiale, passo, quanti=None):
     """salva il pezzo del laser e lo registra con i suoi riferimenti (uno per copia montata)"""
     if not isinstance(frames, list):
         frames = [frames]
+    if svg.incisione:
+        for O, U, V, N in frames:
+            # nel mondo vero (y specchiata) U x V deve andare come N, dalla faccia incisa dentro il
+            # pezzo: altrimenti, con la faccia incisa fuori, le scritte si leggono a specchio
+            u, v, n = (U[0], -U[1], U[2]), (V[0], -V[1], V[2]), (N[0], -N[1], N[2])
+            c = (u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0])
+            assert sum(a * b for a, b in zip(c, n)) > 0, f'{svg.nome}: le incisioni uscirebbero a specchio'
     LASER.append(dict(nome=svg.nome, svg=svg, frames=frames, t=t, materiale=materiale, passo=passo,
                       quanti=quanti or len(frames)))
     return svg.salva()
@@ -475,8 +482,11 @@ def fianco(lato, strato):
                if esterno else f'strato interno dei fianchi: tagliarne {2 * (M.FIANCO_STRATI - 1)}') +
               f', compensato {M.PLY} mm.')
     sp = lato == 'sx'
+    # gli strati interni sono tutti il disegno del sinistro; gli esterni hanno il disegno che si legge
+    # da fuori: il sinistro con il davanti a destra, il destro con il davanti a sinistra
+    rovescio = (not sp) if esterno else sp
     def P(y, z):
-        u = (Y - y) if sp else y
+        u = (Y - y) if rovescio else y
         return (u + 1, H - z + 1)
     svg.poligono([P(y, z) for y, z in prof])
     if not esterno:                               # viti delle squadrette (CASE-003): a 6 mm sopra la base
@@ -486,7 +496,7 @@ def fianco(lato, strato):
         cx, cy = P(40.0, 30.0)
         logo(svg, cx, cy, 28.0)
         x, y = P(72.0, 22.0)
-        if sp:
+        if rovescio:
             svg.punti(x, y, 1.3, 'STAME', 'destra')
             svg.pixel(x, y + 3, 0.26, 'STAMEN HARMONICUM', 'destra')
         else:
@@ -501,8 +511,10 @@ def fianco(lato, strato):
         if disegno_sx:                            # gli strati interni sono tutti uguali: si girano
             return _orienta(piano((x0, Y + 1, H + 1), (0.0, -1.0, 0.0), (0.0, 0.0, -1.0)), (1.0, 0.0, 0.0))
         return _orienta(piano((L, -1.0, H + 1), (0.0, 1.0, 0.0), (0.0, 0.0, -1.0)), (-1.0, 0.0, 0.0))
-    if esterno:
-        frames = [fr_sx(0) if sp else fr_dx(0, False)]
+    if esterno and sp:
+        frames = [_orienta(piano((0.0, -1.0, H + 1), (0.0, 1.0, 0.0), (0.0, 0.0, -1.0)), (1.0, 0.0, 0.0))]
+    elif esterno:
+        frames = [_orienta(piano((L, Y + 1, H + 1), (0.0, -1.0, 0.0), (0.0, 0.0, -1.0)), (-1.0, 0.0, 0.0))]
     else:
         frames = [fr_sx(k) for k in range(1, M.FIANCO_STRATI)] + [fr_dx(k, True) for k in range(1, M.FIANCO_STRATI)]
     return registra(svg, frames, M.PLY, 'betulla4', 3)

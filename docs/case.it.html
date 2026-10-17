@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stame · il case</title>
+<meta name="description" content="La console di Stame: un case di compensato di betulla per la MPK mini IV, il macro pad e la Miyoo Flip. Rendering, nove passi di montaggio, fogli di taglio, pezzi stampati ed etichette.">
+<meta property="og:title" content="Stame · il case">
+<meta property="og:description" content="Una console di betulla che tiene MPK mini IV, macro pad e Miyoo Flip: rendering, montaggio, fogli di taglio.">
+<meta property="og:image" content="https://luigismith.github.io/stame/sito/img/case/render_eroe.jpg">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#050C0B">
+<link rel="icon" type="image/png" href="sito/favicon.png">
+<link rel="alternate" hreflang="en" href="case.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="sito/stame.css">
+<script>
+/* il tema scelto l'ultima volta, prima del primo disegno */
+try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+
+<header class="barra">
+  <div class="contenitore">
+    <a class="marchio" href="index.it.html" aria-label="Stame, pagina iniziale">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"><path d="M30 98 L70 98"/><path d="M50 98 C47 62 22 52 16 36"/><path d="M50 98 C50 75 50 50 50 30"/><path d="M50 98 C53 62 78 52 84 36"/></g><g fill="currentColor"><ellipse cx="16" cy="26" rx="10.5" ry="17" transform="rotate(-26 16 26)"/><ellipse cx="50" cy="20" rx="10.5" ry="17"/><ellipse cx="84" cy="26" rx="10.5" ry="17" transform="rotate(26 84 26)"/></g></svg>
+      STAME
+    </a>
+    <nav aria-label="Sezioni">
+      <a href="#render">Rendering</a><a href="#montaggio">Montaggio</a><a href="#pezzi">Pezzi</a><a href="#prima">Prima di tagliare</a><a href="#file">File</a><a href="index.it.html">Home</a>
+    </nav>
+    <div class="lingua">
+      <a href="case.html" hreflang="en" lang="en">EN</a>
+      <a href="case.it.html" aria-current="page" hreflang="it">IT</a>
+      <button type="button" id="tema" aria-label="Passa dal tema Notte al tema Giorno">Notte / Giorno</button>
+    </div>
+  </div>
+</header>
+
+<main id="inizio">
+<section class="sezione" id="render">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">Il case · bozza 4 · ottobre 2026</span>
+      <h1>Una console di betulla che le tiene tutte e tre.</h1>
+      <p>La MPK mini IV a sinistra sotto una mascherina di acrilico nero inciso, il macro pad a destra in linea con i tasti, la Miyoo Flip sopra il pad su una mensola, con lo schermo a 65°. 589 × 244 mm, 46 mm fino alla mensola. I cavi passano dietro e sotto la mensola, fino a un hub USB nascosto nella torre.</p>
+    </div>
+    <figure class="foto-grande">
+      <img src="sito/img/case/render_eroe.jpg" alt="Rendering della console: un telaio di compensato di betulla con i fianchi a strati, la MPK mini IV sotto una mascherina nera incisa con i pad accesi, il macro pad con i tasti trasparenti e le manopole di alluminio, la Miyoo Flip bianca aperta sulla mensola con la plancia di Stame sullo schermo" width="1600" height="900">
+      <figcaption>Rendering con Blender (Cycles), dalla stessa geometria dei pezzi da tagliare e stampare. I pad si accendono nei colori della plancia, accordi in acqua ed estensioni in bianco (CASE-033); la Flip mostra la pagina di gioco.</figcaption>
+    </figure>
+    <div class="galleria larga">
+      <figure><img src="sito/img/case/render_torre.jpg" alt="La torre da vicino: tasti trasparenti con le etichette di carta (HOLD, TAP, METRO, FILL, LOCK…), il cartellino inciso con le funzioni delle manopole, la Flip nella culla bassa, il fianco di betulla inciso" width="1600" height="900" loading="lazy"><figcaption><b>La torre.</b> Tasti trasparenti a due strati con un'etichetta di carta sotto il coperchio; il cartellino di acrilico dice cosa fanno le tre manopole. La culla è un vassoio basso: L1, R1, L2 e R2 restano liberi, perché sono sempre vivi.</figcaption></figure>
+      <figure><img src="sito/img/case/render_mascherina.jpg" alt="La mascherina da vicino: i tipi d'accordo incisi sopra i pad, sotto le estensioni e la batteria del banco B, i nomi delle manopole SOUND, PERFORM, FX, KEY, BASS, LOOP, BPM, VOLUME, i nomi del trasporto" width="1600" height="900" loading="lazy"><figcaption><b>La mascherina.</b> Acrilico nero da 3 mm, tagliato e inciso con un laser a diodo. Le aperture vengono dalle foto della MPK, a circa un millimetro; i pulsanti che Stame non usa restano coperti.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="sezione" id="montaggio">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">Montaggio</span>
+      <h2>Nove passi, linguette nelle asole e colla.</h2>
+      <p>Nessuna vite in vista: listello del retro, divisorio e pareti della torre si incastrano nella base a linguetta, i fianchi sono quattro strati di betulla da 4 mm. In ambra i pezzi che ogni passo aggiunge.</p>
+    </div>
+    <div class="galleria">
+      <figure><img src="sito/img/case/passo_1.png" alt="Passo 1: le due metà della base" width="990" height="540" loading="lazy"><figcaption><b>1. La base.</b> Unire le due metà della base a coda di rondine, con la colla vinilica. Piedini in gomma sotto.</figcaption></figure>
+      <figure><img src="sito/img/case/passo_2.png" alt="Passo 2: listello del retro e divisorio" width="990" height="540" loading="lazy"><figcaption><b>2. Retro e divisorio.</b> Il listello del retro nelle tacche del bordo posteriore, il divisorio nelle sue asole: colla nelle linguette.</figcaption></figure>
+      <figure><img src="sito/img/case/passo_3.png" alt="Passo 3: i fianchi e le squadrette" width="990" height="540" loading="lazy"><figcaption><b>3. I fianchi.</b> Incollare i quattro strati di ogni fianco, quello inciso fuori, poi avvitarli alla base con le sei squadrette M3.</figcaption></figure>
+      <figure><img src="sito/img/case/passo_4.png" alt="Passo 4: fermo dell'hub, pareti della torre, cartellino" width="990" height="540" loading="lazy"><figcaption><b>4. Il vano dell'hub.</b> Fermo dell'hub avvitato alla base, hub dentro. Pareti della torre nelle asole; cartellino incollato sulla parete davanti.</figcaption></figure>
+      <figure><img src="sito/img/case/passo_5.png" alt="Passo 5: la mensola con culla e visiera" width="990" height="540" loading="lazy"><figcaption><b>5. La mensola.</b> Culla e visiera avvitate al piano (M3 da sopra, dadi sotto), poi il piano sulle linguette delle pareti, con la colla.</figcaption></figure>
+      <figure><img src="sito/img/case/passo_6.png" alt="Passo 6: il macro pad nella sua cornice" width="990" height="540" loading="lazy"><figcaption><b>6. Il macro pad.</b> Cornice incollata sulla base, il pad dentro; il cavo entra nel vano dalla finestra della parete davanti.</figcaption></figure>
+      <figure><img src="sito/img/case/passo_7.png" alt="Passo 7: la MPK e la mascherina" width="990" height="540" loading="lazy"><figcaption><b>7. MPK e mascherina.</b> La MPK nel suo vano; i piedini sotto la mascherina dove indica la dima di carta; la mascherina sopra.</figcaption></figure>
+      <figure><img src="sito/img/case/passo_8.png" alt="Passo 8: la Flip nella culla" width="990" height="540" loading="lazy"><figcaption><b>8. La Flip e i cavi.</b> La Flip aperta nella culla; nell'hub l'OTG della Flip, l'USB della MPK e quella del pad. Cuffie nel jack della Flip.</figcaption></figure>
+      <figure><img src="sito/img/case/passo_9.png" alt="Passo 9: i tasti trasparenti con le etichette" width="990" height="540" loading="lazy"><figcaption><b>9. Le etichette.</b> I tasti trasparenti sul pad, sotto ogni coperchio la sua etichetta, nella disposizione del cartellino.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="sezione" id="pezzi">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">I pezzi</span>
+      <h2>Cinque fogli per il laser, sei pezzi per la stampante, un foglio di carta.</h2>
+      <p>Lastre da 390 × 390 per una AtomStack S10, impaginate per materiale; in rosso il taglio, in marrone l'incisione. Fianchi e mascherina hanno le stesse lettere a punti dello schermo.</p>
+    </div>
+    <div class="galleria">
+      <figure><img src="sito/img/case/taglio_betulla4_1.png" alt="Foglio 1, betulla 4 mm: i due fianchi esterni incisi e quattro strati interni" width="995" height="995" loading="lazy"><figcaption><b>Betulla 4 mm, foglio 1.</b> I due fianchi esterni, incisi con il marchio e STAMEN HARMONICUM, e quattro strati interni.</figcaption></figure>
+      <figure><img src="sito/img/case/taglio_betulla4_2.png" alt="Foglio 2, betulla 4 mm: listello del retro, divisorio, pareti della torre, strati interni" width="995" height="995" loading="lazy"><figcaption><b>Betulla 4 mm, foglio 2.</b> Il listello del retro in due metà, il divisorio, le pareti della torre, gli ultimi strati interni.</figcaption></figure>
+      <figure><img src="sito/img/case/taglio_acrilico3_1.png" alt="Lastra di acrilico nero: la mascherina e il cartellino, incisi" width="995" height="995" loading="lazy"><figcaption><b>Acrilico nero 3 mm.</b> La mascherina e il cartellino del pad; basta una lastra da 356 × 142.</figcaption></figure>
+      <figure><img src="sito/img/case/taglio_betulla6_1.png" alt="Foglio 1, betulla 6 mm: metà sinistra della base e piano della mensola" width="995" height="995" loading="lazy"><figcaption><b>Betulla 6 mm, foglio 1.</b> La metà sinistra della base e il piano della mensola, con le asole per le linguette.</figcaption></figure>
+      <figure><img src="sito/img/case/taglio_betulla6_2.png" alt="Foglio 2, betulla 6 mm: metà destra della base" width="995" height="995" loading="lazy"><figcaption><b>Betulla 6 mm, foglio 2.</b> La metà destra della base, con le code di rondine.</figcaption></figure>
+      <figure><img src="sito/img/case/etichette.png" alt="Il foglio delle etichette: otto serie da quindici, quattro chiare e quattro scure, a punti" width="1547" height="1463" loading="lazy"><figcaption><b>Le etichette.</b> Un A4 al 100 %, otto serie da 15 etichette da 10,8 × 8,8 mm: il nome nei punti della Matrice, in basso a destra la nota del pad strumento, LOCK, VIEW e PAGE in negativo. Serie chiare e serie Notte.</figcaption></figure>
+    </div>
+    <div class="schede" style="margin-top:16px">
+      <div class="scheda"><span class="etichetta">Stampa · PETG</span><h3>Culla e visiera della Flip</h3><p>Un vassoio basso con un intaglio solo per jack e USB-C, aperto dietro e alle spalle; una visiera che segue lo schermo a 65°.</p></div>
+      <div class="scheda"><span class="etichetta">Stampa · PETG</span><h3>Cornice, fermo, squadrette</h3><p>La cornice che tiene il pad sulla base, il fermo dell'hub, sei squadrette M3 fra base e fianchi.</p></div>
+      <div class="scheda"><span class="etichetta">Stampa · TPU</span><h3>Undici piedini</h3><p>Sotto la mascherina, dove li segna la dima di carta: zone piane della MPK, lontane da ogni apertura.</p></div>
+      <div class="scheda"><span class="etichetta">Da comprare</span><h3>Tasti trasparenti, hub, viti</h3><p>Quindici tasti trasparenti a due strati per Cherry MX, un hub USB 2.0 semplice senza Power Delivery, viti M3 × 10 e dadi, viti da legno 3 × 12, sei piedini in gomma.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sezione" id="prima">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">Prima di tagliare</span>
+      <h2>Misurato sulle foto, verificato sulla carta.</h2>
+    </div>
+    <div class="due">
+      <div class="prosa">
+        <p>Ogni misura sta in un file solo, <code>misure.py</code>, con la sua fonte: [M] manuale o scheda, [O] osservato, [D] dedotto, [V] da verificare. I controlli della MPK sono misurati su una foto dall'alto in cui la scala torna sui due assi, a circa un millimetro; il macro pad su una foto in cui i suoi tasti standard da 18 mm fanno da righello, confermata da un pulsante della MPK nella stessa inquadratura; le porte della Flip su due foto che concordano entro mezzo millimetro.</p>
+        <p>Costruire il modello 3D dai pezzi ha fatto trovare errori veri prima di tagliare il legno: pareti sovrapposte al piano, viti fuori dalle pareti, una culla che copriva le spalle della Flip, fori della mascherina sovrapposti e le incisioni dei fianchi a specchio. Ora il generatore rifiuta un pezzo inciso che si leggerebbe al contrario.</p>
+      </div>
+      <div class="prosa">
+        <h3>Le tre verifiche che restano</h3>
+        <ul>
+          <li>Stampare la dima della mascherina al 100 %, controllare il righello di 100 mm, posarla sulla MPK.</li>
+          <li>Un taglio di prova per tarare il laser e il gioco delle linguette (0,2 mm per lato).</li>
+          <li>Le altezze: il pad, i pulsanti piccoli della MPK, quanto si apre la Flip (servono 115°).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sezione" id="file">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">File</span>
+      <h2>Tutto si rigenera da una tabella di misure.</h2>
+    </div>
+    <div class="schede">
+      <div class="scheda"><span class="etichetta">PDF</span><h3>Istruzioni di montaggio</h3><p>Pezzi e minuteria, un passo per pagina, in fondo le verifiche.</p><p><a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/istruzioni_montaggio.pdf">istruzioni_montaggio.pdf</a></p></div>
+      <div class="scheda"><span class="etichetta">PDF · SVG · DXF</span><h3>Progetti di taglio</h3><p>I cinque fogli 1:1 e la dima di carta della mascherina; SVG per LightBurn, DXF per tutto il resto.</p><p><a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/taglio/progetti_di_taglio.pdf">progetti_di_taglio.pdf</a> · <a href="https://github.com/luigismith/stame/tree/main/hardware/case/out/taglio">fogli</a></p></div>
+      <div class="scheda"><span class="etichetta">STL · PDF</span><h3>Pezzi stampati ed etichette</h3><p>Già girati nel verso giusto e appoggiati sul piatto; le etichette su un A4.</p><p><a href="https://github.com/luigismith/stame/tree/main/hardware/case/out">STL</a> · <a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/etichette_pad.pdf">etichette_pad.pdf</a></p></div>
+      <div class="scheda"><span class="etichetta">3D</span><h3>Modelli e rendering</h3><p>SketchUp con una scena per passo, OBJ in millimetri, la scena di Blender che fa questi rendering.</p><p><a href="https://github.com/luigismith/stame/raw/main/hardware/case/out/stame_console.skp">stame_console.skp</a> · <a href="https://github.com/luigismith/stame/raw/main/hardware/case/out/stame_console.obj">OBJ</a> · <a href="https://github.com/luigismith/stame/tree/main/hardware/case/out/render">rendering</a></p></div>
+    </div>
+    <div class="prosa" style="margin-top:16px">
+<pre><code>python -I hardware/case/genera.py      # pezzi, fogli di taglio, STL
+python -I hardware/case/assieme.py     # modello 3D, tavole del montaggio
+python -I hardware/case/manuale.py     # PDF: istruzioni, progetti di taglio
+python -I hardware/case/etichette.py   # le etichette dei tasti
+python -I hardware/case/rendering.py   # rendering con Blender (Cycles, GPU)</code></pre>
+      <p>Script, misure e note sono in <a href="https://github.com/luigismith/stame/tree/main/hardware/case">hardware/case</a>; i requisiti nella <a href="https://github.com/luigismith/stame/blob/main/docs/specifica/60-case.md">specifica del case</a>.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="piede">
+  <div class="contenitore">
+    <div>Stame · <a href="https://github.com/luigismith/stame">github.com/luigismith/stame</a> · MIT · luce da studio: Poly Haven, CC0</div>
+    <div><a href="index.it.html">Torna allo strumento</a></div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var b = document.getElementById('tema');
+  if (!b) return;
+  b.addEventListener('click', function () {
+    var r = document.documentElement;
+    var light = window.matchMedia('(prefers-color-scheme: light)').matches;
+    var cur = r.dataset.theme || (light ? 'giorno' : 'notte');
+    var next = cur === 'notte' ? 'giorno' : 'notte';
+    r.dataset.theme = next;
+    try { localStorage.setItem('stame-tema', next); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
