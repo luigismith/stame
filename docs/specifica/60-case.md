@@ -1,6 +1,6 @@
-# 60 — Case della fase 1 (bozza 3)
+# 60 — Case della fase 1 (bozza 4)
 
-> Contenitore che tiene insieme MPK mini IV, macro pad BRIMFORD e Miyoo Flip, con hub e cavi. La bozza 1 (13/10/2026) è nelle pagine 10–11 di `docs/disegni/stame-plancia-e-controlli.pdf`; la bozza 2 (14/10/2026) metteva la Flip su un ponte dietro la MPK mini Plus. La **bozza 3 (15/10/2026)** nasce dalla composizione che Luigi ha scelto e fotografato: la **MK4** al posto della Plus, il **macro pad a destra in linea con i tasti** e la **Flip aperta sopra il pad**, «così lo schermo non copre i tasti del macro pad». L'identità che il case condivide con la plancia è in `docs/identita/README.md`. I pezzi si generano con `hardware/case/genera.py` (istruzioni in `hardware/case/README.md`). Prefisso dei requisiti: `CASE-`.
+> Contenitore che tiene insieme MPK mini IV, macro pad BRIMFORD e Miyoo Flip, con hub e cavi. La bozza 1 (13/10/2026) è nelle pagine 10–11 di `docs/disegni/stame-plancia-e-controlli.pdf`; la bozza 2 (14/10/2026) metteva la Flip su un ponte dietro la MPK mini Plus. La **bozza 3 (15/10/2026)** nasce dalla composizione che Luigi ha scelto e fotografato: la **MK4** al posto della Plus, il **macro pad a destra in linea con i tasti** e la **Flip aperta sopra il pad**, «così lo schermo non copre i tasti del macro pad». L'identità che il case condivide con la plancia è in `docs/identita/README.md`. La **bozza 4 (17/10/2026)** tiene la composizione e rifà la costruzione: incastri a linguetta, culla bassa che lascia libere le spalle della Flip, visiera che segue lo schermo, legende della mappa del 17/10/2026, copritasti, e un modello 3D che nasce dalla stessa geometria dei pezzi (`hardware/case/assieme.py`), con le istruzioni di montaggio e i progetti di taglio in PDF (`hardware/case/manuale.py`). I pezzi si generano con `hardware/case/genera.py` (istruzioni in `hardware/case/README.md`). Prefisso dei requisiti: `CASE-`.
 
 ## 1. Principi
 - **CASE-001** [D] Il case NON DEVE modificare gli apparecchi. Niente viti nella MK4, nella Flip o nel pad: entrano interi e si tolgono in un minuto.
@@ -36,21 +36,23 @@ Coordinate in mm: x verso destra dal bordo esterno del fianco sinistro, y dal re
 |---|---|---|---|---|
 | Fianchi | 0–16 e 553,5–569,5 | 0–244 | 0–54 dietro, 40 davanti | 4 strati di betulla da 4 mm |
 | Base | 16–553,5 | 0–244 | 0–6 | betulla 6 mm, due metà a coda di rondine (giunta a x = 310) |
-| Listello del retro | 16–553,5 | 0–4 | 6–36 | chiude la zona dei cavi; uscite per alimentazione, audio e pedale |
+| Listello del retro | 16–553,5 | 0–4 | 6–36 | chiude la zona dei cavi; uscite per alimentazione, audio e pedale; due linguette per metà nelle tacche della base |
 | Zona dei cavi | 18–551,5 | 4–44 | | dietro MK4 e torre: connettori della MK4, cavo OTG |
 | MK4 | 18–365,5 | 44–236 | 6–43 (51,7 con le manopole) | |
 | Mascherina | sopra la MK4 | 47–138 | +4 mm sul pannello | acrilico nero 3 mm, un pezzo |
-| Divisorio | 367,5–371,5 | 44–236 | 6–46 | copre il fianco della MK4, regge la mensola; passaggio dei cavi dietro |
-| Torre: mensola | 373,5–551,5 | 44–144 | piano a 46 | betulla 6 mm con la tasca della culla; sotto il vano dell'hub (40 mm) |
-| Torre: parete davanti e cartellino | 373,5–551,5 | 144–148 (+3 di acrilico) | 6–46 | la mappa del pad, rivolta a chi suona |
-| Flip, metà con i tasti | 420,5–504,5 | 50,6–131 | 48–60 | in piano nella culla; cerniera dietro |
+| Divisorio | 367,5–371,5 | 44–236 | 6–46 | copre il fianco della MK4; due linguette nelle asole della base; passaggio dei cavi dietro |
+| Torre: piano della mensola | 373,5–551,5 | 41–151 | 40–46 | betulla 6 mm; sporge 3 mm oltre le pareti, che entrano nelle sue asole; sotto il vano dell'hub (34 mm) |
+| Torre: pareti dietro e davanti | 373,5–551,5 | 44–48 e 144–148 | 6–40 | linguette in basso nella base e in alto nel piano |
+| Cartellino | 375,5–527,5 | 148–151 | 6–39 | la mappa del pad, incollato sulla parete davanti; a destra il passaggio del cavo del pad |
+| Culla | 417,9–507,1 | 54–137,4 | 46–53 | vassoio sul piano, bordi di 5 mm, aperto dietro |
+| Flip, metà con i tasti | 420,5–504,5 | 54,6–135 | 48–60 | in piano nella culla; cerniera dietro |
 | Flip, schermo | 420,5–504,5 | da 50,6 a ≈ 17 | fino a ≈ 133 | a 65° dall'orizzontale, inclinato verso il retro |
 | Macro pad | 383,5–541,5 | 157–227 | 6–38 | sulla base, dentro la cornice stampata; in linea con i tasti della MK4 (142–236) |
 
 - **CASE-010** [D] La Flip DEVE stare aperta sulla mensola, con la metà dei tasti **in piano** e lo schermo a **65° dall'orizzontale**, inclinato verso il retro (apertura della cerniera 115° [V]). Il centro dello schermo sta a circa 96 mm dal tavolo: da 60 cm, con gli occhi 35 cm sopra il tavolo, lo sguardo scende di 23° e arriva a 2° dalla perpendicolare allo schermo. L'altezza massima con lo schermo aperto è 133 mm; lo schermo non sporge dal retro della base.
 - **CASE-011** [D] La culla della Flip DEVE essere aperta davanti (jack e USB-C di sotto, per la ricarica), dietro (USB-C di sopra, OTG, verso l'hub) e sui lati (tasti del volume). Le posizioni vanno misurate sulla console [V].
 - **CASE-012** [D] Dietro gli apparecchi restano 40 mm per i cavi; per l'USB-C della MK4 conviene un connettore a 90° [V].
-- **CASE-013** [D] **La torre.** Mensola di betulla a 46 mm con la tasca per la culla; sotto, un vano di circa 170 × 92 × 40 mm per l'hub e la riserva dei cavi, chiuso davanti dalla parete con il cartellino e dietro da una parete con il passaggio dei cavi. Il pad sta sulla base, in piano, dentro una cornice stampata alta 8 mm che lo tiene fermo e lascia un intaglio per il suo cavo, che entra nel vano da un intaglio nella parete davanti.
+- **CASE-013** [D, bozza 4] **La torre.** Piano di betulla da 6 mm (z 40–46) appoggiato su due pareti da 4 mm, dietro e davanti, che stanno sotto di lui e si incastrano a linguetta nella base e nel piano; il piano sporge di 3 mm oltre le pareti, così le asole restano chiuse. Sotto, un vano di circa 170 × 96 × 34 mm per l'hub e la riserva dei cavi; la parete dietro ha la finestra dei cavi, quella davanti il passaggio del cavo del pad, a destra del cartellino. Il pad sta sulla base, in piano, dentro una cornice stampata alta 8 mm che si incolla. Nella bozza 3 le pareti arrivavano alla quota del piano e le viti del piano cadevano fuori dalle pareti: la bozza 4 lo corregge.
 - **CASE-014** [D] Altezze delle mani: tasti del pad a 38 mm dal tavolo, tasti della MK4 a circa 36, manopole della MK4 a 52, mascherina a 47–50 [V]. La destra passa dai tasti al pad senza salire.
 
 ## 4. Integrazione della MK4
@@ -61,16 +63,16 @@ Coordinate in mm: x verso destra dal bordo esterno del fianco sinistro, y dal re
   - si toglie sollevandola: serve per PLUGIN/DAW (scelta del preset DAW, `40` MIDI-130) e per il Global.
 - **CASE-031** [D] **Legende della mascherina**, incise:
   - sotto ogni manopola la funzione a punti Matrice: SOUND, PERFORM, FX, KEY / BASS, LOOP, BPM, VOLUME;
-  - pad: la fila alta ha DIM, MIN, MAJ, SUS nello spazio fra le due file (3 mm: Spleen piccolo), la fila bassa 6, m7, M7, 9 a punti Matrice sotto, con accanto in piccolo la riserva del banco B (B:KEY, B:BASS, B:PERF, B:VOIC);
-  - sotto i pulsanti del trasporto: UNDO, PAUSE, BEAT, LOOP, DUB (`40` MIDI-130); sotto SHIFT: PUSH; sotto − e +: BACK e MENU; sotto la manopola di navigazione: LIST; sotto le ruote BEND e MOD.
+  - pad: la fila alta ha DIM, MIN, MAJ, SUS nello spazio fra le due file (Spleen piccolo), la fila bassa 6, m7, M7, 9 a punti Matrice sotto; accanto, in piccolo, la batteria del banco B (`40` MIDI-135, bozza 4): B:CHH, B:OHH, B:TOM, B:CYM sopra, B:KICK, B:SNARE, B:RIM, B:CLAP sotto;
+  - sotto i pulsanti del trasporto: UNDO (e S:CLEAR), PAUSE, BEAT (e S:PANIC), LOOP, DUB (`40` MIDI-130); sotto SHIFT: PUSH; sotto − e +: BACK e MENU; sotto la manopola di navigazione: LIST; sotto le ruote BEND e MOD.
 - **CASE-032** [D] Il fianco sinistro di betulla copre la guancia della MK4; il divisorio copre quella verso la torre.
 - **CASE-033** [D, **deciso da Luigi il 15/10/2026**] I LED dei pad della MK4 in tono con la plancia (accordi acqua, estensioni bianco). Si pilotano dall'host con Note On sul canale 7 (guida MK4 §10.3), senza SysEx; la prima prova si fa con Luigi davanti, reversibile, e poi diventa un'aggiunta di Stame accesa per default [V].
 
 ## 5. La Flip sopra il pad
-- **CASE-040** [D] La metà con i tasti sta in una **culla** stampata che scende nella tasca del piano della mensola; la Flip chiusa entra di 12 mm, aperta la metà con i tasti resta nella culla. Niente legende dei tasti della Flip sul legno: dal 15/10/2026 la plancia non le mostra più (`30` UI-155) e i tasti servono solo a liste e pagina dei comandi, che il macro pad apre con T15.
-- **CASE-041** [D] Una **visiera** stampata in PETG nero circonda lo schermo aperto su tre lati: lo ripara dalla luce e lo fa sembrare il display della console. Si avvita al piano della mensola dietro la culla, non tocca la Flip [V: angolo dello schermo e ingombro della cerniera]. **Deciso da Luigi il 15/10/2026: la visiera c'è** (la composizione funzionerebbe anche senza, ma così lo schermo è il display della console).
-- **CASE-042** [D] **Cartellino del pad.** Una striscia di acrilico nero (174 × 36 mm) avvitata sulla parete davanti della mensola, proprio dietro il pad, porta la mappa dei 15 tasti nello stesso ordine in cui stanno sul pad (T1 SOUND … T4 KEY, T13 LOCK / T5 BASS … T8 VOLUME, T14 VIEW / T9 OPTIONS … T12 PANIC, T15 PAGE) e le tre manopole disposte come sul pad (m1 BASS VOIC, m2 LIST, M CHORD VOIC) con il mestiere che hanno con il Lock acceso (SOUND, PERFORM, KEY; `40` MIDI-131, MIDI-132). Le tre aggiunte di Stame (T13–T15) hanno un segno sotto il nome.
-- **CASE-043** [D, **deciso da Luigi il 15/10/2026**] **Tasti del macro pad.** I 15 tasti del BRIMFORD si coprono con copritasti stampati in PETG sabbia con il nome inciso (SOUND … PAGE, gli stessi del cartellino), nel carattere delle scritte della mascherina (CASE-005). Servono le misure dello stelo e del passo dei tasti [V]; finché non ci sono, le legende stanno sul cartellino (CASE-042).
+- **CASE-040** [D, bozza 4] La metà con i tasti sta in una **culla** stampata: un vassoio sul piano della mensola, con fondo da 2 mm e bordi da 5 mm davanti e ai lati, fissato con 4 viti M3 svasate (dadi sotto il piano). È **aperta dietro**: dal 17/10/2026 i tasti della Flip sono sempre vivi (`40` MIDI-137, MIDI-138), spalle comprese (L1, R1 il fuoco, L2 Tap, R2 Fill), e la culla della bozza 3, che faceva scendere la Flip di 12 mm nel piano, le avrebbe coperte. Niente legende dei tasti della Flip sul legno.
+- **CASE-041** [D, bozza 4] Una **visiera** stampata in PETG nero circonda lo schermo aperto su tre lati: due fianchi che seguono lo schermo a 65° (24 mm davanti, 3 mm dietro), un tettuccio sopra il bordo alto e due piedi avvitati al piano accanto alla culla. Non tocca la Flip e lascia libere le spalle [V: angolo dello schermo e ingombro della cerniera]. Arriva a 150 mm dal tavolo. **Deciso da Luigi il 15/10/2026: la visiera c'è** (la composizione funzionerebbe anche senza, ma così lo schermo è il display della console).
+- **CASE-042** [D, bozza 4] **Cartellino del pad.** Una striscia di acrilico nero (152 × 33 mm) incollata sulla parete davanti della mensola, proprio dietro il pad, porta la mappa dei 15 tasti nello stesso ordine in cui stanno sul pad, con la mappa del 16-17/10/2026 (`40` MIDI-120, MIDI-133): T1 HOLD, T2 TAP, T3 METRO, T4 FILL, T13 LOCK / T5–T8 SCENE 1–4, T14 VIEW / T9 OPTIONS, T10 SAVE LP, T11 DRUMS, T12 PANIC, T15 PAGE. In ogni casella dei tasti T1–T12 c'è anche, in piccolo, la nota del pad strumento (C … B, `40` MIDI-136). Le tre manopole sono disposte come sul pad, con il mestiere con la tastiera (m1 BASS VOIC, m2 BEAT VOL, M CHORD VOIC), quello del pad strumento (EXT, FOCUS, TYPE) e, in alto, quello con il Lock acceso (SOUND, PERFORM, KEY). Le tre aggiunte di Stame (T13–T15) hanno un segno sotto il nome.
+- **CASE-043** [D, **deciso da Luigi il 15/10/2026**; bozza 4] **Tasti del macro pad.** I 15 tasti del BRIMFORD si coprono con copritasti stampati in PETG sabbia (`copritasti.stl`, tutti e 15 in un pezzo da stampare): sopra il nome della mappa con la tastiera, a punti Matrice in rilievo di 0,5 mm (neri, con il cambio di filamento), e in basso a destra, più piccola, la nota del pad strumento. Stelo a croce tipo MX [V]: le misure dello stelo e del passo vanno prese sul pad prima di stamparne quindici.
 
 ## 6. Collegamenti
 - **CASE-020** [O] Si usa la porta USB-C **di sopra** della Flip (OTG): con un apparecchio collegato passa da sola in modalità host. Mai forzare `otg_mode` (nota del second brain «Miyoo Flip e spruceOS - app native, SSH e gotcha»).
@@ -80,11 +82,13 @@ Coordinate in mm: x verso destra dal bordo esterno del fianco sinistro, y dal re
 - **CASE-024** [D] Pedale nel jack SUSTAIN della MK4 (retro). Audio dal jack della Flip (bordo davanti, connettore a 90°) verso cuffie o amplificatore: il cavo corre sotto il cartellino, lungo la parete davanti, fino al fianco destro e all'uscita nel listello del retro. **Deciso da Luigi il 15/10/2026: l'audio esce dal jack della Flip**; un'interfaccia audio USB sull'hub resta una possibilità futura, che il case non prevede.
 
 ## 7. Pezzi
-L'elenco completo, con quantità e materiali, è in `hardware/case/README.md`. In sintesi:
-- laser: mascherina e cartellino (acrilico nero 3 mm); listello del retro in due metà, 8 strati dei fianchi, divisorio, pareti davanti e dietro della mensola (betulla 4 mm); base in due metà e piano della mensola (betulla 6 mm);
-- stampa (PETG): culla della Flip, cornice del pad, visiera (facoltativa), 11 piedini (meglio TPU), 16 squadrette M3, fermo dell'hub.
+L'elenco completo, con quantità, materiali e minuteria, è in `hardware/case/README.md` e nella copertina di `hardware/case/out/istruzioni_montaggio.pdf`. In sintesi:
+- laser: mascherina e cartellino (acrilico nero 3 mm, un foglio); listello del retro in due metà, 8 strati dei fianchi, divisorio, pareti davanti e dietro della mensola (betulla 4 mm, due fogli); base in due metà e piano della mensola (betulla 6 mm, due fogli). I fogli impaginati sono in `out/taglio/` (SVG e DXF) e in `progetti_di_taglio.pdf`;
+- stampa (PETG): culla della Flip, cornice del pad, visiera, 11 piedini (meglio TPU), 6 squadrette M3, fermo dell'hub, 15 copritasti.
 
-Ingombro 569,5 × 244 mm; altezza 54 ai fianchi, 133 con lo schermo aperto. Peso stimato con gli apparecchi: circa 2,5 kg [D].
+- **CASE-050** [D, bozza 4] Il modello 3D della console (`out/stame_console.skp` con una scena per passo, `out/stame_console.obj`), le tavole del montaggio e i fogli di taglio DEVONO nascere dalla stessa geometria dei pezzi da tagliare e stampare: un pezzo cambiato in `genera.py` o una misura cambiata in `misure.py` cambiano tutto insieme. Il riferimento del case è sinistrorso, quindi ogni esportazione 3D lo specchia su y: senza, la culla e la cornice uscirebbero al rovescio.
+
+Ingombro 569,5 × 244 mm; altezza 54 ai fianchi, 133 lo schermo aperto, 150 la visiera. Peso stimato con gli apparecchi: circa 2,5 kg [D].
 
 ## 8. Alternative scartate
 - **Flip dietro la MK4 su un ponte (bozza 2):** lo sguardo cadeva lontano dalla destra e dal pad; Luigi l'ha messa sopra il pad, e lì resta.
@@ -109,7 +113,7 @@ Ingombro 569,5 × 244 mm; altezza 54 ai fianchi, 133 con lo schermo aperto. Peso
 - [V] Consumo di MK4 + pad dalla Flip con un hub non alimentato.
 - [V] Stelo e passo dei tasti del macro pad, per i copritasti (CASE-043).
 - Decise da Luigi il 15/10/2026 (sera): LED dei pad in tono con la plancia (CASE-033), visiera sì (CASE-041), audio dal jack della Flip (CASE-024), tasti del macro pad in sabbia con le legende incise (CASE-043).
-- Il modello 3D `hardware/case/out/stame_console.skp` e l'immagine `docs/identita/img/case_3d.png` sono ancora della bozza 2: da rifare quando le misure [V] saranno confermate.
+- Modello 3D, modello SketchUp e immagine `docs/identita/img/case_3d.png` sono della bozza 4 (17/10/2026); si rigenerano da `misure.py` quando le misure [V] saranno confermate.
 
 ## Dipendenze da altre sezioni
 - `40`: mappa dei controlli della MK4 (§8.9b, MIDI-130) e del pad (§8.10, MIDI-131, MIDI-132), collegamento (MIDI-128).

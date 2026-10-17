@@ -1,71 +1,96 @@
 # Case di Stame — la console
 
-Bozza 3, 15/10/2026. Specifica: `docs/specifica/60-case.md`. Identità: `docs/identita/README.md`.
+Bozza 4, 17/10/2026. Specifica: `docs/specifica/60-case.md`. Identità: `docs/identita/README.md`.
+
+![La console](out/montaggio/console.png)
 
 Un telaio di betulla tiene insieme la MPK mini IV, il macro pad BRIMFORD e la Miyoo Flip, nella composizione scelta da Luigi: MK4 a sinistra; a destra la **torre**, con il pad davanti in linea con i tasti e la Flip aperta dietro, su una mensola che nasconde l'hub. Nessun apparecchio viene modificato (CASE-001): si posano e si tolgono in un minuto.
 
-Il modello 3D `out/stame_console.skp` e l'immagine `docs/identita/img/case_3d.png` sono ancora della bozza 2 (Flip dietro la Plus): si rifanno dopo le misure con il calibro.
+Cosa cambia nella bozza 4:
+- **Incastri a linguetta.** Retro, divisorio e pareti della torre entrano con linguette nelle asole della base e del piano, e si incollano. Il piano poggia sulle pareti, che stanno sotto di lui; prima le pareti arrivavano alla stessa quota del piano e le viti cadevano fuori dalle pareti.
+- **Culla bassa.** È un vassoio sul piano, alto 5 mm, avvitato con 4 viti. È aperto dietro, così le spalle della Flip (L1, R1, L2 Tap, R2 Fill) restano libere: dal 17/10/2026 sono comandi sempre vivi.
+- **Visiera.** Ha due fianchi che seguono lo schermo a 65°, un tettuccio e due piedi avvitati al piano.
+- **Squadrette.** I fori nella base sono a 6 mm dal fianco e quelli nel fianco 6 mm sopra la base, come vuole la squadretta.
+- **Legende.** Usano la mappa del 17/10/2026: banco B della MK4 = batteria; sul cartellino e sui copritasti le funzioni del pad con la tastiera e, in piccolo, la nota del pad strumento.
+- **Copritasti.** Sono 15, con le scritte a punti Matrice in rilievo.
+- **3D e documenti.** Modello 3D, modello SketchUp, fogli di taglio, tavole e istruzioni di montaggio nascono dalla stessa geometria dei pezzi.
 
-## Come si generano i pezzi
+## Come si genera tutto
 
 ```
-python -I hardware/case/genera.py
+python -I hardware/case/genera.py      pezzi (SVG laser, STL), fogli di taglio (SVG, DXF), dima, tavola
+python -I hardware/case/assieme.py     modello 3D (OBJ), dati per SketchUp, tavole del montaggio (PNG)
+python -I hardware/case/manuale.py     PDF: progetti di taglio e istruzioni di montaggio
+python -I hardware/case/sketchup.py    codice per costruire il modello in SketchUp (out/sketchup/)
 ```
 
-Tutte le misure stanno in `misure.py`, ognuna con la sua fonte: [M] manuale, [O] osservato, [D] dedotto, [V] da verificare. Cambiata una misura, si rigenera tutto. Il generatore stampa l'elenco dei pezzi, controlla che stiano nei piani delle macchine e che i pezzi stampati siano gusci chiusi, e toglie da `out/` i pezzi della bozza precedente.
+Tutte le misure stanno in `misure.py`, ognuna con la sua fonte: [M] manuale, [O] osservato, [D] dedotto, [V] da verificare. Cambiata una misura, si rigenera tutto. `genera.py` controlla che i pezzi stiano nei piani delle macchine e che i pezzi stampati siano gusci chiusi.
 
-Escono in `hardware/case/out/`:
-- **SVG per il laser**, in scala 1:1 e in millimetri. In LightBurn il rosso è taglio, il nero pieno è incisione, il blu è un segno leggero (posizioni, aree);
-- **STL da stampare**;
-- `dima_mascherina.svg`, da stampare su carta al 100%;
-- `tavola_insieme.svg`, vista dall'alto e di fianco (non si taglia).
+Il riferimento del case (x a destra, y verso il musicista, z in su) è sinistrorso. Gli STL e i modelli 3D escono specchiati su y, cioè nel verso fisico giusto: senza lo specchio la culla avrebbe gli intagli dal lato sbagliato.
+
+`manuale.py` usa la suite ArtCraft: VectorCraft converte le pagine SVG in PDF vettoriali, PdfCraft le unisce. Il modello SketchUp si costruisce con lo strumento SketchUp (nel cloud), eseguendo nell'ordine `out/sketchup/parte_0.py`, `parte_1.py`, `parte_2.py`. Ha un livello e una scena per ogni passo del montaggio.
+
+## Cosa esce in `out/`
+
+| File | Cos'è |
+|---|---|
+| `istruzioni_montaggio.pdf` | copertina con pezzi e minuteria, un passo per pagina, misure da verificare |
+| `taglio/progetti_di_taglio.pdf` | i fogli 1:1 per materiale e la dima |
+| `taglio/taglio_*.svg`, `.dxf` | i fogli per LightBurn: rosso taglio, nero incisione, blu segno (nel DXF: livelli TAGLIO, INCISIONE, SEGNO) |
+| `*.svg` | i singoli pezzi del laser, 1:1 in millimetri |
+| `*.stl` | i pezzi da stampare, nel verso giusto, appoggiati sul piatto |
+| `stame_console.skp` | il modello SketchUp, con le scene dei passi |
+| `stame_console.obj`, `.mtl` | lo stesso modello per altri programmi, in millimetri |
+| `montaggio/*.png` | le tavole dei passi e due viste della console |
+| `dima_mascherina.svg`, `tavola_insieme.svg` | dima da stampare su carta, tavola dall'alto e di fianco |
 
 ## Prima di tagliare
 
 1. **Misurare** con il calibro le voci [V] di `misure.py`, soprattutto:
-   - posizione e misura dei controlli della MK4 (`MK4_CTRL`, `FORO`) e altezza dei pulsanti piccoli: la mascherina sta 4 mm sopra (`piede_h`);
-   - ingombro del macro pad, passo dei tasti, posizione delle manopole e della presa USB-C (`PAD`, `PAD_KNOB`, `PAD_USB_X`);
-   - porte, tasti del volume e angolo di apertura della Flip (serve almeno 115°).
-2. **Stampare la dima** su carta al 100% e controllare il righello di 100 mm. Ritagliarla e posarla sulla MK4: i fori devono cadere sui controlli, i rettangoli blu sui pulsanti coperti, i cerchi blu dei piedini su zone piane senza pulsanti.
-3. **Prova di taglio** di un ritaglio di acrilico e di compensato per tarare potenza, velocità e passate (il laser a diodo taglia l'acrilico nero, non quello trasparente).
+   - controlli della MK4 (`MK4_CTRL`, `FORO`) e altezza dei pulsanti piccoli, perché la mascherina sta 4 mm sopra (`piede_h`);
+   - ingombro del macro pad, passo dei tasti, manopole, presa USB-C e stelo dei tasti (`PAD`, `PAD_KNOB`, `PAD_USB_X`, `COPRITASTO`);
+   - porte, tasti del volume e angolo di apertura della Flip (serve almeno 115°);
+   - misure dell'hub (`HUB`).
+2. **Stampare la dima** su carta al 100% e controllare il righello di 100 mm. Posarla sulla MK4: i fori devono cadere sui controlli, i cerchi blu dei piedini su zone piane.
+3. **Fare una prova di taglio** su un ritaglio, per tarare potenza, velocità e il gioco delle linguette (0,2 mm per lato, `GIOCO`). Il laser a diodo taglia l'acrilico nero, non quello trasparente.
 
 ## Pezzi
 
 ### Laser
 
-| File | Materiale | Quanti | Note |
-|---|---|---|---|
-| `mascherina.svg` | acrilico nero 3 mm | 1 | un pezzo solo (343,5 × 93); incisione chiara: le legende di Stame; si può ripassare con colore sabbia |
-| `cartellino_pad.svg` | acrilico nero 3 mm | 1 | la mappa del macro pad, sulla parete davanti della mensola |
-| `retro_sx.svg`, `retro_dx.svg` | betulla 4 mm | 1 + 1 | listello del retro, alto 30: chiude la zona dei cavi, con le uscite |
-| `fianco_sx_esterno.svg`, `fianco_dx_esterno.svg` | betulla 4 mm | 1 + 1 | strato esterno con marchio e nome |
-| `fianco_interno.svg` | betulla 4 mm | 6 | tre strati interni per fianco, incollati all'esterno: 16 mm |
-| `base_sx.svg`, `base_dx.svg` | betulla 6 mm | 1 + 1 | si incastrano a coda di rondine; segni per la posa di MK4, divisorio, torre, pad e hub |
-| `divisorio.svg` | betulla 4 mm | 1 | fra MK4 e torre; copre il fianco della MK4 e regge la mensola; passaggio dei cavi dietro |
-| `torre_piano.svg` | betulla 6 mm | 1 | piano della mensola con la tasca della culla |
-| `torre_fronte.svg`, `torre_retro.svg` | betulla 4 mm | 1 + 1 | pareti del vano dell'hub: davanti porta il cartellino e l'intaglio del cavo del pad, dietro il passaggio dei cavi |
+| Materiale | Fogli (390 × 390) | Pezzi |
+|---|---|---|
+| betulla 4 mm | 2 | listello del retro (2 metà), 2 fianchi esterni incisi, 6 strati interni, divisorio, 2 pareti della torre |
+| betulla 6 mm | 2 | base (2 metà a coda di rondine), piano della mensola |
+| acrilico nero 3 mm | 1 (basta 352 × 140) | mascherina della MK4, cartellino del pad |
 
 ### Stampa 3D (Kobra S1, PETG)
 
 | File | Quanti | Note |
 |---|---|---|
-| `culla_flip.stl` | 1 | scende nella tasca della mensola; aperta davanti (jack e USB-C di ricarica), dietro (USB-C OTG) e ai lati (tasti del volume) [V] |
-| `cornice_pad.stl` | 1 | tiene fermo il pad sulla base, con l'intaglio per il cavo |
-| `visiera.stl` | 1 | cappa attorno allo schermo aperto; si avvita alla mensola. Facoltativa |
+| `culla_flip.stl` | 1 | vassoio sul piano, 4 viti M3 svasate; intagli del jack e della USB-C davanti, finestre del volume ai lati [V] |
+| `visiera.stl` | 1 | si avvita al piano dietro la culla; stampare sul tettuccio, con supporti |
+| `cornice_pad.stl` | 1 | si incolla sulla base attorno al pad |
+| `fermo_hub.stl` | 1 | tiene l'hub nel vano, 2 viti nella base |
+| `squadretta_m3.stl` | 6 | fra base e fianchi |
 | `piedino_mascherina.stl` | 11 | meglio in TPU; si incollano sotto la mascherina dove indica la dima |
-| `squadretta_m3.stl` | 16 | uniscono base, fianchi, retro, divisorio e torre |
-| `fermo_hub.stl` | 1 | tiene l'hub USB nel vano sotto la mensola |
+| `copritasti.stl` | 1 (15 tasti) | PETG sabbia, dritti; filamento nero dall'altezza dei punti in su; supporto solo sotto lo stelo; stelo a croce tipo MX [V] |
 
-Minuteria: viti M3×8 per legno o autofilettanti (fori da 2,5 mm nel compensato), colla vinilica per i fianchi a strati, piedini in gomma da 12 mm sotto la base.
+Minuteria: 4 viti M3 × 10 svasate e 8 viti M3 × 10 con i dadi; 8 viti da legno 3 × 12; colla vinilica; biadesivo sottile per il cartellino; 6 piedini in gomma da 12 mm; hub USB 2.0 senza Power Delivery; un cavo USB-C a 90° per la MK4.
 
 ## Montaggio
 
-1. Incollare i fianchi: tre strati interni e l'esterno, allineati sul profilo.
-2. Unire le due metà della base (coda di rondine e colla) e del listello del retro.
-3. Retro, fianchi e divisorio sulla base con le squadrette.
-4. Torre: pareti davanti e dietro sulla base, poi il piano della mensola sopra pareti, divisorio e fianco destro; hub nel suo fermo, nel vano.
-5. Culla nella tasca della mensola, visiera dietro la culla se la si vuole; cartellino avvitato sulla parete davanti; cornice del pad sulla base.
-6. MK4 nel suo vano, mascherina sopra con i piedini; pad nella cornice; Flip nella culla, aperta.
+Le istruzioni con le tavole sono in `out/istruzioni_montaggio.pdf`. In breve:
+
+1. **La base:** le due metà a coda di rondine, con la colla.
+2. **Retro e divisorio:** nelle tacche e nelle asole della base, con la colla.
+3. **I fianchi:** quattro strati incollati per lato, poi avvitati alla base con le squadrette.
+4. **Il vano dell'hub:** fermo e hub, le pareti della torre nelle asole, il cartellino sulla parete davanti.
+5. **La mensola:** culla e visiera avvitate al piano, poi il piano sulle linguette delle pareti.
+6. **Il macro pad:** cornice incollata sulla base, il pad dentro, il cavo nel vano.
+7. **MK4 e mascherina:** la MK4 nel vano, i piedini sotto la mascherina, la mascherina sopra.
+8. **La Flip e i cavi:** la Flip aperta nella culla; nell'hub OTG della Flip, USB della MK4 e del pad.
+9. **I copritasti:** al posto dei tasti del pad.
 
 ## Misure principali
 
@@ -73,6 +98,6 @@ Minuteria: viti M3×8 per legno o autofilettanti (fori da 2,5 mm nel compensato)
 |---|---|
 | ingombro | 569,5 × 244 |
 | altezza dei fianchi | 54 dietro, 40 davanti |
-| mensola della Flip | piano a 46; vano sotto 40 |
-| altezza con lo schermo aperto | 133 (schermo a 65°, centro a 96 dal tavolo) |
+| mensola della Flip | piano da 40 a 46; vano sotto alto 34 |
+| altezza con lo schermo aperto | 133 lo schermo (a 65°), 150 la visiera |
 | tasti del pad / tasti della MK4 | 38 / ≈ 36 dal tavolo |

@@ -92,6 +92,48 @@ def _in_tri(p, a, b, c):
 
 
 def triangola(outer, holes=()):
+    """Triangoli (indici nella lista di vertici ritornata) di un profilo con fori. Prima le orecchie
+    con i ponti verso i fori; se l'area dei triangoli non torna (molti fori vicini, come nella
+    mascherina) si passa alle strisce, che non sbagliano ma non chiudono il guscio (vanno bene per
+    il modello e le tavole, non per l'STL)."""
+    poly, tris = _orecchie(outer, holes)
+    atteso = abs(_area(outer)) - sum(abs(_area(h)) for h in holes)
+    fatto = sum(abs(_area([poly[i], poly[j], poly[k]])) for i, j, k in tris)
+    if atteso > 0 and abs(fatto - atteso) > 0.002 * atteso:
+        return _strisce(outer, holes)
+    return poly, tris
+
+
+def _strisce(outer, holes):
+    """trapezi fra quote successive dei vertici, con la regola pari-dispari"""
+    loops = [outer] + list(holes)
+    lati = []
+    for L in loops:
+        for i in range(len(L)):
+            a, b = L[i], L[(i + 1) % len(L)]
+            if a[1] != b[1]:
+                lati.append((a, b) if a[1] < b[1] else (b, a))
+    ys = sorted({p[1] for L in loops for p in L})
+    poly, tris = [], []
+    def x_a(lato, y):
+        (x0, y0), (x1, y1) = lato
+        return x0 + (x1 - x0) * (y - y0) / (y1 - y0)
+    for y0, y1 in zip(ys, ys[1:]):
+        if y1 - y0 < 1e-9:
+            continue
+        ym = (y0 + y1) / 2
+        attivi = [l for l in lati if l[0][1] <= ym <= l[1][1]]
+        attivi.sort(key=lambda l: x_a(l, ym))
+        for k in range(0, len(attivi) - 1, 2):
+            sx, dx = attivi[k], attivi[k + 1]
+            q = [(x_a(sx, y0), y0), (x_a(dx, y0), y0), (x_a(dx, y1), y1), (x_a(sx, y1), y1)]
+            n = len(poly)
+            poly += q
+            tris += [(n, n + 1, n + 2), (n, n + 2, n + 3)]
+    return poly, tris
+
+
+def _orecchie(outer, holes=()):
     """Triangoli (indici nella lista di vertici ritornata) di un profilo antiorario con fori orari."""
     outer = ccw(outer)
     holes = [cw(h) for h in holes]
@@ -131,22 +173,58 @@ def triangola(outer, holes=()):
     return poly, tris
 
 
+IDENTITA = ((0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
+
+
+def _lin(frame, v):
+    """parte lineare di un riferimento (O, U, V, N) applicata a un vettore"""
+    _, U, V, N = frame
+    return (v[0] * U[0] + v[1] * V[0] + v[2] * N[0],
+            v[0] * U[1] + v[1] * V[1] + v[2] * N[1],
+            v[0] * U[2] + v[1] * V[2] + v[2] * N[2])
+
+
+def applica(frame, p):
+    """punto locale (u, v, t) -> mondo"""
+    O = frame[0]
+    q = _lin(frame, p)
+    return (O[0] + q[0], O[1] + q[1], O[2] + q[2])
+
+
+def componi(esterno, interno):
+    """riferimento che fa prima interno e poi esterno"""
+    return (applica(esterno, interno[0]), _lin(esterno, interno[1]), _lin(esterno, interno[2]), _lin(esterno, interno[3]))
+
+
+def det(frame):
+    _, U, V, N = frame
+    return (U[0] * (V[1] * N[2] - V[2] * N[1]) - V[0] * (U[1] * N[2] - U[2] * N[1]) + N[0] * (U[1] * V[2] - U[2] * V[1]))
+
+
+def ruota_z(gradi, tx=0.0, ty=0.0, tz=0.0):
+    a = math.radians(gradi)
+    c, s = math.cos(a), math.sin(a)
+    return ((tx, ty, tz), (c, s, 0.0), (-s, c, 0.0), (0.0, 0.0, 1.0))
+
+
+def sposta(tx, ty, tz):
+    return ((tx, ty, tz), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0))
+
+
 class Mesh:
+    """Un pezzo come insieme di prismi: profilo 2D (con fori) estruso da z0 a z1 in un riferimento
+    (O, U, V, N). Dai prismi escono i triangoli dell'STL e, uguali, le facce del modello SketchUp."""
+
     def __init__(self, nome):
         self.nome = nome
-        self.gusci = []               # liste di triangoli ((x,y,z),(x,y,z),(x,y,z))
+        self.prismi = []              # dict(outer, holes, z0, z1, frame)
 
-    def _add(self, tris):
-        self.gusci.append(tris)
+    @property
+    def gusci(self):
+        return [self._tris(p) for p in self.prismi]
 
-    def box(self, x0, y0, z0, x1, y1, z1):
-        self.prisma(rett(x0, y0, x1, y1), z0, z1)
-
-    def cilindro(self, cx, cy, z0, z1, r, n=40):
-        self.prisma(cerchio(cx, cy, r, n), z0, z1)
-
-    def prisma(self, outer, z0, z1, holes=()):
-        """profilo 2D (con fori) estruso da z0 a z1"""
+    def _tris(self, p):
+        outer, holes, z0, z1, frame = p['outer'], p['holes'], p['z0'], p['z1'], p['frame']
         poly, tris = triangola(outer, holes)
         out = []
         for i, j, k in tris:
@@ -155,25 +233,41 @@ class Mesh:
             out.append(((a[0], a[1], z0), (c[0], c[1], z0), (b[0], b[1], z0)))     # sotto
         for ring in [ccw(outer)] + [cw(h) for h in holes]:
             for i in range(len(ring)):
-                p, q = ring[i], ring[(i + 1) % len(ring)]
-                out.append(((p[0], p[1], z0), (q[0], q[1], z0), (q[0], q[1], z1)))
-                out.append(((p[0], p[1], z0), (q[0], q[1], z1), (p[0], p[1], z1)))
-        self._add(out)
+                p0, q = ring[i], ring[(i + 1) % len(ring)]
+                out.append(((p0[0], p0[1], z0), (q[0], q[1], z0), (q[0], q[1], z1)))
+                out.append(((p0[0], p0[1], z0), (q[0], q[1], z1), (p0[0], p0[1], z1)))
+        rev = det(frame) < 0
+        res = []
+        for t in out:
+            w = tuple(applica(frame, v) for v in t)
+            res.append(w[::-1] if rev else w)
+        return res
+
+    def prisma(self, outer, z0, z1, holes=(), frame=IDENTITA):
+        """profilo 2D (con fori) estruso da z0 a z1, nel riferimento frame"""
+        self.prismi.append(dict(outer=list(outer), holes=[list(h) for h in holes], z0=z0, z1=z1, frame=frame))
+
+    def box(self, x0, y0, z0, x1, y1, z1, frame=IDENTITA):
+        self.prisma(rett(x0, y0, x1, y1), z0, z1, frame=frame)
+
+    def cilindro(self, cx, cy, z0, z1, r, n=40, frame=IDENTITA):
+        self.prisma(cerchio(cx, cy, r, n), z0, z1, frame=frame)
 
     def prisma_x(self, profilo_yz, x0, x1):
         """profilo nel piano yz estruso lungo x (per fianchi e cunei)"""
-        poly, tris = triangola(profilo_yz)
-        out = []
-        for i, j, k in tris:
-            a, b, c = poly[i], poly[j], poly[k]
-            out.append(((x1, a[0], a[1]), (x1, b[0], b[1]), (x1, c[0], c[1])))
-            out.append(((x0, a[0], a[1]), (x0, c[0], c[1]), (x0, b[0], b[1])))
-        ring = ccw(profilo_yz)
-        for i in range(len(ring)):
-            p, q = ring[i], ring[(i + 1) % len(ring)]
-            out.append(((x0, p[0], p[1]), (x0, q[0], q[1]), (x1, q[0], q[1])))
-            out.append(((x0, p[0], p[1]), (x1, q[0], q[1]), (x1, p[0], p[1])))
-        self._add(out)
+        self.prisma(profilo_yz, x0, x1, frame=((0.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0), (1.0, 0.0, 0.0)))
+
+    def unisci(self, altro, frame=IDENTITA):
+        """aggiunge i prismi di un altro pezzo, portati con frame"""
+        for p in altro.prismi:
+            q = dict(p)
+            q['frame'] = componi(frame, p['frame'])
+            self.prismi.append(q)
+
+    def portato(self, frame, nome=None):
+        m = Mesh(nome or self.nome)
+        m.unisci(self, frame)
+        return m
 
     def controlla(self):
         """True se ogni guscio è chiuso e orientato in modo coerente."""
@@ -192,6 +286,11 @@ class Mesh:
     def ingombro(self):
         pts = [p for g in self.gusci for t in g for p in t]
         return tuple(min(p[i] for p in pts) for i in range(3)), tuple(max(p[i] for p in pts) for i in range(3))
+
+    def a_terra(self):
+        """lo stesso pezzo spostato con l'angolo minimo nell'origine (per lo slicer)"""
+        (x0, y0, z0), _ = self.ingombro()
+        return self.portato(sposta(-x0, -y0, -z0))
 
     def salva(self, path):
         tris = [t for g in self.gusci for t in g]

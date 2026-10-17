@@ -7,3 +7,4 @@ zig-out/
 __pycache__/
 /tools/flip.ip
 !/assets/suoni/*.wav
+/hardware/case/out/montaggio/pagine/

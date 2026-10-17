@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Stame, taglio_betulla6_2: compensato di betulla 6 mm, foglio 390 x 390 mm. Rosso taglio, nero incisione, blu segno. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="390.00mm" height="390.00mm" viewBox="0 0 390.000 390.000">
+<title>Stame — taglio_betulla6_2</title>
+<rect x="0" y="0" width="390.0" height="390.0" fill="none" stroke="#0000FF" stroke-width="0.2"/>
+<g transform="translate(4.00,4.00)"><title>base_dx</title>
+<g id="incisione" fill="#000000" stroke="none">
+
+</g>
+<g id="segno" fill="none" stroke="#0000FF" stroke-width="0.1">
+<circle cx="219.500" cy="21.000" r="6.000"/>
+<circle cx="219.500" cy="225.000" r="6.000"/>
+<rect x="1.500" y="45.000" width="55.000" height="192.000"/>
+<rect x="74.500" y="158.000" width="158.000" height="70.000" rx="4.000" ry="4.000"/>
+</g>
+<g id="taglio" fill="none" stroke="#FF0000" stroke-width="0.1">
+<path d="M244.500,1.000 L244.500,245.000 L1.000,245.000 L1.000,205.000 L11.000,209.000 L11.000,173.000 L1.000,177.000 L1.000,75.000 L11.000,79.000 L11.000,43.000 L1.000,47.000 L1.000,1.000 L34.000,1.000 L34.000,5.200 L48.400,5.200 L48.400,1.000 L197.300,1.000 L197.300,5.200 L211.700,5.200 L211.700,1.000 Z"/>
+<circle cx="238.500" cy="21.000" r="1.700"/>
+<circle cx="238.500" cy="131.000" r="1.700"/>
+<circle cx="238.500" cy="231.000" r="1.700"/>
+<rect x="58.300" y="117.800" width="4.400" height="14.400"/>
+<rect x="58.300" y="207.800" width="4.400" height="14.400"/>
+<rect x="82.300" y="44.800" width="14.400" height="4.400"/>
+<rect x="210.300" y="44.800" width="14.400" height="4.400"/>
+<rect x="82.300" y="144.800" width="14.400" height="4.400"/>
+<rect x="210.300" y="144.800" width="14.400" height="4.400"/>
+<circle cx="100.600" cy="95.400" r="1.250"/>
+<circle cx="206.400" cy="95.400" r="1.250"/>
+</g>
+</g>
+</svg>

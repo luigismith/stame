@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Stame, retro_dx: listello del retro, compensato 4.0 mm, alto 30; sta sulla base. Scala 1:1, millimetri. Rosso taglio, nero incisione, blu segno. -->
-<svg xmlns="http://www.w3.org/2000/svg" width="245.30mm" height="32.00mm" viewBox="0 0 245.300 32.000">
+<!-- Stame, retro_dx: listello del retro, compensato 4.0 mm, alto 30 più le linguette; sta sulla base. Scala 1:1, millimetri. Rosso taglio, nero incisione, blu segno. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="245.30mm" height="38.00mm" viewBox="0 0 245.300 38.000">
 <title>Stame — retro_dx</title>
 <g id="incisione" fill="#000000" stroke="none">
 
@@ -9,10 +9,8 @@
 
 </g>
 <g id="taglio" fill="none" stroke="#FF0000" stroke-width="0.1">
-<path d="M1.000,31.000 L244.300,31.000 L244.300,1.000 L1.000,1.000 Z"/>
+<path d="M1.000,31.000 L34.000,31.000 L34.000,37.000 L48.000,37.000 L48.000,31.000 L197.300,31.000 L197.300,37.000 L211.300,37.000 L211.300,31.000 L244.300,31.000 L244.300,1.000 L1.000,1.000 Z"/>
 <rect x="76.800" y="11.000" width="28.000" height="12.000" rx="6.000" ry="6.000"/>
 <rect x="176.800" y="11.000" width="28.000" height="12.000" rx="6.000" ry="6.000"/>
-<circle cx="13.000" cy="23.000" r="1.250"/>
-<circle cx="232.300" cy="23.000" r="1.250"/>
 </g>
 </svg>

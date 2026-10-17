@@ -97,17 +97,35 @@ TORRE_X0 = DIV_X + PLY + 2.0      # 373,5
 TORRE_W = PAD['w'] + 20.0         # 178: 10 mm per lato attorno al pad
 TORRE_X1 = TORRE_X0 + TORRE_W     # 551,5
 LARGHEZZA = TORRE_X1 + 2.0 + FIANCO   # 569,5
-MENSOLA_Y = (MK4_Y0, MK4_Y0 + 100.0)  # 44..144: mensola della Flip, dietro
-MENSOLA_Z = 46.0                  # cima del piano della mensola: sotto c'è il vano dell'hub (40 mm)
+MENSOLA_Y = (MK4_Y0, MK4_Y0 + 100.0)  # 44..144: vano della mensola fra la parete dietro e quella davanti
+MENSOLA_Z = 46.0                  # cima del piano della mensola: sotto c'è il vano dell'hub
 TORRE_FRONTE_Y = MENSOLA_Y[1]     # parete davanti della mensola (4 mm), con il cartellino sul davanti
+# Bozza 4 (17/10/2026): le pareti della torre stanno SOTTO il piano (z da BASE_T a MENSOLA_Z - BASE_T)
+# e si incastrano a linguetta nella base e nel piano; il piano sporge di 3 mm oltre le pareti, così
+# le asole restano chiuse. Il listello del retro e il divisorio si incastrano nella base allo stesso modo.
+PIANO_Y = (MENSOLA_Y[0] - 3.0, TORRE_FRONTE_Y + PLY + 3.0)   # 41..151
+PIANO_Z0 = MENSOLA_Z - BASE_T     # 40: sotto il piano il vano è alto 34 mm
+LINGUETTA = 14.0                  # larghezza delle linguette; le asole hanno GIOCO in più per lato
 PAD_X0 = TORRE_X0 + 10.0
 PAD_Y0 = TORRE_FRONTE_Y + PLY + (BASE_Y1 - 8.0 - TORRE_FRONTE_Y - PLY - PAD['d']) / 2   # 157: centrato
 FLIP_X = TORRE_X0 + TORRE_W / 2   # 462,5: centro della Flip
-TASCA_FLIP = (FLIP['w'] + 8.0, FLIP['d'] + 7.6)   # la culla stampata scende nel piano della mensola
-FLIP_Y0 = MENSOLA_Y[0] + PLY + 4.0 + 2.6          # bordo posteriore della metà con i tasti (cerniera)
+# Culla (bozza 4): un vassoio basso appoggiato sul piano e fissato con 4 viti M3. Il 17/10/2026 i tasti
+# della Flip sono diventati sempre vivi, spalle comprese (L1 R1 fuoco, L2 Tap, R2 Fill): la culla non
+# deve coprirle, quindi è aperta dietro e i bordi sono alti solo CULLA_BORDO.
+CULLA_FONDO = 2.0
+CULLA_BORDO = 5.0
+CULLA_PARETE = 2.0
+FLIP_Y0 = MENSOLA_Y[0] + PLY + 6.6                # bordo posteriore della metà con i tasti (cerniera): 54,6
+FLIP_Z0 = MENSOLA_Z + CULLA_FONDO                 # la metà con i tasti appoggia sul fondo della culla: 48
 SCHERMO_DEG = 65.0                # schermo a 65° dall'orizzontale: apertura della cerniera 115° [V]
 GIUNTA = 310.0                    # giunta delle due metà di base e retro
 FIANCO_Z = dict(front=40.0, back=54.0, y_front=180.0, y_back=140.0)   # profilo dei fianchi
 
 # cartellino del macro pad: acrilico sulla parete davanti della mensola
-CARTELLINO = dict(w=TORRE_W - 4.0, h=36.0)
+CARTELLINO = dict(w=TORRE_W - 4.0, h=PIANO_Z0 - BASE_T - 1.0)   # 33: sotto il bordo del piano
+# hub USB nel suo fermo, sotto la culla
+HUB_X0 = FLIP_X - (HUB['w'] + 0.8) / 2
+HUB_Y0 = MENSOLA_Y[0] + PLY + 30.0
+# copritasti del macro pad (CASE-043): stelo a croce tipo MX [V: verificare sul pad, che ha tasti
+# meccanici]; il cappuccio è più piccolo del passo di 1,6 mm
+COPRITASTO = dict(w=PAD['pitch_x'] - 1.6, d=PAD['pitch_y'] - 2.9, h=7.5, top=1.6, stelo_d=5.5, croce=(4.1, 1.35), stelo_h=4.0)

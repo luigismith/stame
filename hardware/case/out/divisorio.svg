@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Stame, divisorio: divisorio fra MK4 e torre, compensato 4.0 mm; sta sulla base. Scala 1:1, millimetri. Rosso taglio, nero incisione, blu segno. -->
-<svg xmlns="http://www.w3.org/2000/svg" width="194.00mm" height="42.00mm" viewBox="0 0 194.000 42.000">
+<!-- Stame, divisorio: divisorio fra MK4 e torre, compensato 4.0 mm; si incastra nella base. Scala 1:1, millimetri. Rosso taglio, nero incisione, blu segno. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="194.00mm" height="48.00mm" viewBox="0 0 194.000 48.000">
 <title>Stame — divisorio</title>
 <g id="incisione" fill="#000000" stroke="none">
 
@@ -9,8 +9,6 @@
 
 </g>
 <g id="taglio" fill="none" stroke="#FF0000" stroke-width="0.1">
-<path d="M1.000,27.000 L27.000,27.000 L27.000,41.000 L193.000,41.000 L193.000,1.000 L1.000,1.000 Z"/>
-<circle cx="61.000" cy="33.000" r="1.250"/>
-<circle cx="151.000" cy="33.000" r="1.250"/>
+<path d="M1.000,27.000 L27.000,27.000 L27.000,41.000 L74.000,41.000 L74.000,47.000 L88.000,47.000 L88.000,41.000 L164.000,41.000 L164.000,47.000 L178.000,47.000 L178.000,41.000 L193.000,41.000 L193.000,1.000 L1.000,1.000 Z"/>
 </g>
 </svg>
