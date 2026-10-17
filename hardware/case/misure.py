@@ -42,12 +42,14 @@ FLIP_JACK_DX = -6.0
 FLIP_USBC_DX = 6.3
 # tasti sul fianco destro, vicino alla cerniera: fra 6 e 16 mm dal bordo posteriore [D, foto]
 FLIP_TASTI_LATO = (6.0, 16.0)
-# macro pad BRIMFORD: 15 tasti in 3 file da 5 e 3 manopole a destra [O]; misure dalle foto [D, V]
-PAD = dict(w=158.0, d=70.0, h=32.0, pitch_x=18.2, pitch_y=19.5, k0=(12.0, 11.0))
+# macro pad BRIMFORD: 15 tasti in 3 file da 5 e 3 manopole a destra [O]. Misure dalla foto
+# pad_brimford_luigi.jpg (17/10/2026), con i copritasti 1u come metro (base 18 mm): 7,39 px/mm, e il
+# pulsante AUTOMATION della MK4 nella stessa foto (17,7 mm) dà 7,40 [D, ±2 %]. L'altezza è [V].
+PAD = dict(w=178.0, d=72.0, h=32.0, pitch_x=21.0, pitch_y=22.3, k0=(17.2, 13.3))
 # manopole del pad: centro (x, y dal bordo posteriore) e raggio [D, foto]; m1 è la piccola vicina ai
 # tasti, m2 quella sul bordo, M la grande in basso (specifica 40 §8.10)
-PAD_KNOB = {'m1': (117.5, 13.0, 10.0), 'm2': (150.0, 13.0, 10.0), 'M': (135.0, 53.0, 15.0)}
-PAD_USB_X = 150.0                 # presa USB-C sul bordo posteriore del pad, verso le manopole [D, V]
+PAD_KNOB = {'m1': (131.4, 16.0, 9.5), 'm2': (164.3, 16.4, 9.5), 'M': (150.0, 59.7, 15.0)}   # M sporge 2 mm davanti
+PAD_USB_X = 148.0                 # presa USB-C sul bordo posteriore del pad, verso le manopole [D]
 HUB = dict(w=85.0, d=32.0, h=15.0)   # hub USB 2.0 [V]
 
 # Controlli della MK4: centro (x dal bordo sinistro, y dal bordo posteriore) [D, foto, rimisurati il
@@ -140,6 +142,7 @@ CARTELLINO = dict(w=TORRE_W - 4.0, h=PIANO_Z0 - BASE_T - 1.0)   # 33: sotto il b
 # hub USB nel suo fermo, sotto la culla
 HUB_X0 = FLIP_X - (HUB['w'] + 0.8) / 2
 HUB_Y0 = MENSOLA_Y[0] + PLY + 30.0
-# copritasti del macro pad (CASE-043): stelo a croce tipo MX [V: verificare sul pad, che ha tasti
-# meccanici]; il cappuccio è più piccolo del passo di 1,6 mm
-COPRITASTO = dict(w=PAD['pitch_x'] - 1.6, d=PAD['pitch_y'] - 2.9, h=7.5, top=1.6, stelo_d=5.5, croce=(4.1, 1.35), stelo_h=4.0)
+# tasti del macro pad (CASE-043, Luigi 17/10/2026): tasti trasparenti a due strati per Cherry MX,
+# 17 × 17 alla base; sotto il coperchio un'etichetta di carta da 11 × 9 [M, scheda del venditore]
+TASTO_PAD = dict(w=17.0, d=17.0, h=11.0, top_w=12.5)
+ETICHETTA = (11.0, 9.0)

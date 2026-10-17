@@ -10,7 +10,7 @@ def get_or_create_material(name, r, g, b, a=255):
     model.add_materials([mat])
     return mat
 
-PASSI = [(1, '1 La base'), (2, '2 Retro e divisorio'), (3, '3 I fianchi'), (4, "4 Il vano dell'hub"), (5, '5 La mensola'), (6, '6 Il macro pad'), (7, '7 MK4 e mascherina'), (8, '8 La Flip e i cavi'), (9, '9 I copritasti')]
+PASSI = [(1, '1 La base'), (2, '2 Retro e divisorio'), (3, '3 I fianchi'), (4, "4 Il vano dell'hub"), (5, '5 La mensola'), (6, '6 Il macro pad'), (7, '7 MK4 e mascherina'), (8, '8 La Flip e i cavi'), (9, '9 Le etichette')]
 layers = {}
 for k, nome in PASSI:
     ly = Layer()

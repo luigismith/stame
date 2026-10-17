@@ -31,7 +31,7 @@ COLORI = {
     'betulla4': (214, 182, 135), 'betulla6': (205, 172, 124), 'acrilico3': (28, 28, 31),
     'petg_nero': (48, 48, 52), 'petg_sabbia': (204, 189, 158), 'tpu': (70, 70, 72),
     'mk4': (232, 232, 226), 'mk4_tasti': (247, 247, 242), 'mk4_neri': (34, 34, 36), 'mk4_pad': (82, 82, 86),
-    'manopole': (52, 52, 56), 'pad': (38, 38, 42), 'flip': (64, 66, 72), 'schermo': (14, 44, 40), 'hub': (96, 98, 104),
+    'manopole': (52, 52, 56), 'pad': (38, 38, 42), 'trasparente': (214, 222, 226), 'flip': (64, 66, 72), 'schermo': (14, 44, 40), 'hub': (96, 98, 104),
 }
 AMBRA = (236, 150, 40)
 
@@ -44,7 +44,7 @@ PASSI = {
     6: ('Il macro pad', 'Cornice incollata sulla base, il pad dentro; il cavo entra nel vano dalla finestra della parete davanti.'),
     7: ('MK4 e mascherina', 'La MK4 nel suo vano; i piedini sotto la mascherina dove indica la dima; la mascherina sopra la MK4.'),
     8: ('La Flip e i cavi', 'La Flip aperta nella culla; cavi nell\'hub: OTG della Flip, USB della MK4, USB del pad. Cuffie al jack della Flip.'),
-    9: ('I copritasti', 'Togliere i tasti del pad e mettere i copritasti di Stame, nella stessa disposizione del cartellino.'),
+    9: ('Le etichette', 'Togliere i tasti del pad e mettere i tasti trasparenti; sotto ogni coperchio la sua etichetta (etichette_pad.pdf), nella disposizione del cartellino.'),
 }
 
 
@@ -66,8 +66,6 @@ def parti_case():
             nome = p['nome'] if len(p['frames']) == 1 else f'{p["nome"]}_{i + 1}'
             out.append(dict(nome=nome, passo=p['passo'], colore=COLORI[p['materiale']], mesh=_laser_mesh(p, fr)))
     for s in G.STAMPATI:
-        if s['nome'] == 'copritasti':
-            continue
         frames = s['frames'] or [IDENTITA]
         for i, fr in enumerate(frames):
             nome = s['nome'] if len(frames) == 1 else f'{s["nome"]}_{i + 1}'
@@ -76,7 +74,7 @@ def parti_case():
 
 
 def apparecchi():
-    """MPK mini IV, macro pad con i copritasti, Flip aperta, hub: forme semplici, misure di misure.py"""
+    """MPK mini IV, macro pad con i tasti trasparenti, Flip aperta, hub: forme semplici, misure di misure.py"""
     out = []
     def parte(nome, passo, colore):
         m = Mesh(nome)
@@ -113,22 +111,24 @@ def apparecchi():
             pads.box(cx - 12.0, cy - 6.0, zt, cx + 12.0, cy + 6.0, zt + 0.6)
         else:
             pads.box(cx - 7.5, cy - 4.0, zt, cx + 7.5, cy + 4.0, zt + 1.5)
-    # ---- macro pad, con i copritasti di Stame ----
+    # ---- macro pad, con i tasti trasparenti e le etichette ----
     pc = parte('Macro pad', 6, 'pad')
     px0, py0 = M.PAD_X0, M.PAD_Y0
     pc.prisma(rett(px0, py0, px0 + M.PAD['w'], py0 + M.PAD['d'], 5.0), z0, z0 + 20.0)
     for k, (kx, ky, kr) in M.PAD_KNOB.items():
         pc.cilindro(px0 + kx, py0 + ky, z0 + 20.0, z0 + 20.0 + (14.0 if k != 'M' else 16.0), kr, 24)
-    tasti = parte('Tasti del pad', 6, 'mk4_tasti')
-    caps = parte('Copritasti', 9, 'petg_sabbia')
-    C = M.COPRITASTO
+    tasti = parte('Interruttori del pad', 6, 'pad')
+    caps = parte('Tasti trasparenti', 9, 'trasparente')
+    C = M.TASTO_PAD
+    zc = z0 + M.PAD['h'] - C['h']
     for r in range(3):
         for c in range(5):
             cx = px0 + M.PAD['k0'][0] + c * M.PAD['pitch_x']
             cy = py0 + M.PAD['k0'][1] + r * M.PAD['pitch_y']
-            tasti.box(cx - 7.5, cy - 7.5, z0 + 20.0, cx + 7.5, cy + 7.5, z0 + M.PAD['h'] - 1.0)
-            zc = z0 + M.PAD['h'] - C['h'] + 1.0
-            caps.prisma(rett(cx - C['w'] / 2, cy - C['d'] / 2, cx + C['w'] / 2, cy + C['d'] / 2, 1.5), zc + 4.0, zc + C['h'])
+            tasti.box(cx - 7.0, cy - 7.0, z0 + 20.0, cx + 7.0, cy + 7.0, zc)
+            caps.prisma(rett(cx - C['w'] / 2, cy - C['d'] / 2, cx + C['w'] / 2, cy + C['d'] / 2, 1.5), zc, zc + C['h'] - 3.0)
+            t = C['top_w'] / 2
+            caps.prisma(rett(cx - t, cy - t, cx + t, cy + t, 1.0), zc + C['h'] - 3.0, zc + C['h'])
     # ---- Miyoo Flip aperta ----
     fl = parte('Miyoo Flip', 8, 'flip')
     sch = parte('Schermo della Flip', 8, 'schermo')
@@ -339,13 +339,11 @@ def tavole(parti):
             os.remove(os.path.join(MONTAGGIO, n))
     out = []
     for k, (tit, txt) in PASSI.items():
-        vis = [p for p in parti if p['passo'] <= k and not (k < 9 and p['nome'] == 'Copritasti')]
-        if k >= 9:
-            vis = [p for p in vis if p['nome'] != 'Tasti del pad']
+        vis = [p for p in parti if p['passo'] <= k]
         nuovi = {p['nome'] for p in vis if p['passo'] == k}
         out.append(disegna(vis, os.path.join(MONTAGGIO, f'passo_{k}.png'), evidenzia=nuovi,
                            titolo=f'{k}. {tit}', testo=txt))
-    finale = [p for p in parti if p['nome'] != 'Tasti del pad']
+    finale = parti
     out.append(disegna(finale, os.path.join(MONTAGGIO, 'console.png'), titolo='Stame, la console',
                        testo='MPK mini IV, macro pad e Miyoo Flip nel telaio di betulla (bozza 4).'))
     out.append(disegna(finale, os.path.join(MONTAGGIO, 'console_retro.png'), vista=(-0.7, 0.9, 0.7)))

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Stame, torre_piano: piano della mensola della Flip, compensato 6.0 mm. Scala 1:1, millimetri. Rosso taglio, nero incisione, blu segno. -->
-<svg xmlns="http://www.w3.org/2000/svg" width="180.00mm" height="112.00mm" viewBox="0 0 180.000 112.000">
+<svg xmlns="http://www.w3.org/2000/svg" width="200.00mm" height="112.00mm" viewBox="0 0 200.000 112.000">
 <title>Stame — torre_piano</title>
 <g id="incisione" fill="#000000" stroke="none">
 <rect x="7.000" y="104.440" width="1.760" height="0.220"/>
@@ -65,16 +65,16 @@
 
 </g>
 <g id="taglio" fill="none" stroke="#FF0000" stroke-width="0.1">
-<path d="M1.000,1.000 L179.000,1.000 L179.000,111.000 L1.000,111.000 Z"/>
+<path d="M1.000,1.000 L199.000,1.000 L199.000,111.000 L1.000,111.000 Z"/>
 <rect x="18.800" y="3.800" width="14.400" height="4.400"/>
-<rect x="146.800" y="3.800" width="14.400" height="4.400"/>
+<rect x="166.800" y="3.800" width="14.400" height="4.400"/>
 <rect x="18.800" y="103.800" width="14.400" height="4.400"/>
-<rect x="146.800" y="103.800" width="14.400" height="4.400"/>
-<circle cx="60.000" cy="29.600" r="1.700"/>
-<circle cx="60.000" cy="79.600" r="1.700"/>
-<circle cx="120.000" cy="29.600" r="1.700"/>
-<circle cx="120.000" cy="79.600" r="1.700"/>
-<circle cx="34.000" cy="26.600" r="1.700"/>
-<circle cx="146.000" cy="26.600" r="1.700"/>
+<rect x="166.800" y="103.800" width="14.400" height="4.400"/>
+<circle cx="70.000" cy="29.600" r="1.700"/>
+<circle cx="70.000" cy="79.600" r="1.700"/>
+<circle cx="130.000" cy="29.600" r="1.700"/>
+<circle cx="130.000" cy="79.600" r="1.700"/>
+<circle cx="44.000" cy="26.600" r="1.700"/>
+<circle cx="156.000" cy="26.600" r="1.700"/>
 </g>
 </svg>

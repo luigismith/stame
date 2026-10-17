@@ -11,8 +11,9 @@ Cosa cambia nella bozza 4:
 - **Culla bassa.** È un vassoio sul piano, alto 5 mm, avvitato con 4 viti. È aperto dietro, così le spalle della Flip (L1, R1, L2 Tap, R2 Fill) restano libere: dal 17/10/2026 sono comandi sempre vivi.
 - **Visiera.** Ha due fianchi che seguono lo schermo a 65°, un tettuccio e due piedi avvitati al piano.
 - **Squadrette.** I fori nella base sono a 6 mm dal fianco e quelli nel fianco 6 mm sopra la base, come vuole la squadretta.
-- **Legende.** Usano la mappa del 17/10/2026: banco B della MK4 = batteria; sul cartellino e sui copritasti le funzioni del pad con la tastiera e, in piccolo, la nota del pad strumento.
-- **Copritasti.** Sono 15, con le scritte a punti Matrice in rilievo.
+- **Legende.** Usano la mappa del 17/10/2026: banco B della MK4 = batteria; sul cartellino e sulle etichette dei tasti le funzioni del pad con la tastiera e, in piccolo, la nota del pad strumento.
+- **Tasti del pad.** Dal 17/10/2026 sono tasti trasparenti a due strati (17 × 17, Cherry MX) con un'etichetta di carta sotto il coperchio: `etichette.py` stampa le etichette da 11 × 9 a punti Matrice, in chiaro e in scuro. Sostituiscono i copritasti stampati.
+- **Misure del pad.** Ricavate dalla foto con i copritasti 1u come metro (18 mm), confermate dal pulsante AUTOMATION della MK4 nella stessa foto: 178 × 72, passo 21,0 × 22,3. La torre è più larga di 20 mm.
 - **3D e documenti.** Modello 3D, modello SketchUp, fogli di taglio, tavole e istruzioni di montaggio nascono dalla stessa geometria dei pezzi.
 
 ## Come si genera tutto
@@ -47,7 +48,7 @@ Il riferimento del case (x a destra, y verso il musicista, z in su) è sinistror
 ## Prima di tagliare
 
 1. **Misurare** le voci [V] di `misure.py`. I controlli della MK4 e le porte della Flip sono stati rimisurati sulle foto il 17/10/2026 (±1 mm); restano:
-   - ingombro del macro pad, passo dei tasti, manopole, presa USB-C e stelo dei tasti (`PAD`, `PAD_KNOB`, `PAD_USB_X`, `COPRITASTO`): le foto non bastano, due foto danno passi diversi del 10%;
+   - altezza del macro pad (`PAD['h']`): ingombro, passo, manopole e presa sono stati ricavati dalla foto il 17/10/2026, con i copritasti 1u come metro (±2 %);
    - altezza dei pulsanti piccoli della MK4, perché la mascherina sta 4 mm sopra il pannello (`piede_h`);
    - angolo di apertura della Flip (serve almeno 115°);
    - misure dell'hub (`HUB`).
@@ -76,7 +77,6 @@ Il riferimento del case (x a destra, y verso il musicista, z in su) è sinistror
 | `fermo_hub.stl` | 1 | tiene l'hub nel vano, 2 viti nella base |
 | `squadretta_m3.stl` | 6 | fra base e fianchi |
 | `piedino_mascherina.stl` | 11 | meglio in TPU; si incollano sotto la mascherina dove indica la dima |
-| `copritasti.stl` | 1 (15 tasti) | PETG sabbia, dritti; filamento nero dall'altezza dei punti in su; supporto solo sotto lo stelo; stelo a croce tipo MX [V] |
 
 Minuteria: 4 viti M3 × 10 svasate e 8 viti M3 × 10 con i dadi; 8 viti da legno 3 × 12; colla vinilica; biadesivo sottile per il cartellino; 6 piedini in gomma da 12 mm; hub USB 2.0 senza Power Delivery; un cavo USB-C a 90° per la MK4.
 
@@ -92,7 +92,7 @@ Le istruzioni con le tavole sono in `out/istruzioni_montaggio.pdf`. In breve:
 6. **Il macro pad:** cornice incollata sulla base, il pad dentro, il cavo nel vano.
 7. **MK4 e mascherina:** la MK4 nel vano, i piedini sotto la mascherina, la mascherina sopra.
 8. **La Flip e i cavi:** la Flip aperta nella culla; nell'hub OTG della Flip, USB della MK4 e del pad.
-9. **I copritasti:** al posto dei tasti del pad.
+9. **Le etichette:** tasti trasparenti sul pad, sotto ogni coperchio la sua etichetta (`out/etichette_pad.pdf`, stampata al 100 %).
 
 ## Misure principali
 

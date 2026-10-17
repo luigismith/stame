@@ -112,7 +112,7 @@ MINUTERIA = [
 
 VERIFICARE = [
     'MK4: controlli rimisurati sulle foto (±1 mm): provare la dima su carta; altezza dei pulsanti piccoli',
-    'Macro pad: ingombro, passo dei tasti, manopole, presa USB-C; stelo dei tasti (copritasti)',
+    'Macro pad: altezza; ingombro e passo ricavati dalla foto con i copritasti 1u come metro (±2 %)',
     'Flip: angolo massimo dello schermo (serve 115°: schermo a 65°); porte e tasti presi dalle foto',
     'Hub: misure reali (fermo dell\'hub) e consumo di MK4 + pad dalla batteria della Flip',
     'Prova di taglio su un ritaglio: potenza, velocità e gioco delle linguette (0,2 mm per lato)',

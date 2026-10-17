@@ -7,7 +7,7 @@ blu = segno leggero. Le scritte usano gli stessi caratteri della plancia: Matric
 funzioni principali, Spleen a pixel per le legende piccole. Così il case e lo schermo parlano la
 stessa lingua (docs/identita/README.md).
 Stampa (STL, PETG): culla della Flip, cornice del macro pad, visiera, piedini, squadrette, fermo
-dell'hub, copritasti.
+dell'hub. I tasti del pad sono trasparenti, con le etichette di carta di etichette.py.
 Fogli di taglio: i pezzi del laser impaginati per materiale, in SVG (LightBurn) e DXF.
 Dima (SVG da stampare su carta al 100%): la mascherina sopra il contorno della MK4.
 
@@ -947,59 +947,11 @@ def fermo_hub():
     return ms
 
 
-# copritasti del macro pad (CASE-043): una scritta per la mappa con la tastiera e, sotto, la nota
-# del pad strumento; punti Matrice in rilievo di 0,5 mm sulla faccia di sopra. Si stampano dritti,
-# con il cambio di filamento all'altezza dei punti (neri sul sabbia) e il supporto solo sotto lo stelo
+# scritte dei tasti del macro pad (CASE-043): il nome nella mappa con la tastiera e la nota del
+# pad strumento. Dal 17/10/2026 vanno sulle etichette di carta dei tasti trasparenti (etichette.py)
 COPRITASTI = [(['HOLD'], 'C'), (['TAP'], 'C♯'), (['METRO'], 'D'), (['FILL'], 'D♯'), (['LOCK'], ''),
               (['SCENE', '1'], 'E'), (['SCENE', '2'], 'F'), (['SCENE', '3'], 'F♯'), (['SCENE', '4'], 'G'), (['VIEW'], ''),
               (['OPT'], 'G♯'), (['SAVE', 'LOOP'], 'A'), (['DRUMS'], 'A♯'), (['PANIC'], 'B'), (['PAGE'], '')]
-
-
-def copritasto(righe, nota):
-    """un copritasto nel suo riferimento: base aperta a z = 0, faccia di sopra a z = h"""
-    C = M.COPRITASTO
-    w, d, h, top = C['w'], C['d'], C['h'], C['top']
-    ms = Mesh('Stame copritasto')
-    ms.prisma(rett(-w / 2, -d / 2, w / 2, d / 2, 1.5), 0.0, h - top, holes=[rett(-w / 2 + 1.2, -d / 2 + 1.2, w / 2 - 1.2, d / 2 - 1.2, 0.8)])
-    ms.prisma(rett(-w / 2, -d / 2, w / 2, d / 2, 1.5), h - top, h)
-    passo = 0.5
-    buchi = []                                   # i punti in rilievo
-    righe_h = len(righe) * 7 * passo + (len(righe) - 1) * 1.2
-    y = -d / 2 + 2.2 + (d - 4.4 - righe_h - (3.2 if nota else 0)) / 2 + 7 * passo
-    for testo in righe:
-        x = -matrice_w(testo, passo) / 2
-        for px, py in matrice_punti(testo, passo):
-            buchi.append(cerchio(x + px, y + py, passo * 0.45, 8))
-        y += 7 * passo + 1.2
-    if nota:
-        pn = 0.4
-        x = w / 2 - 1.6 - matrice_w(nota, pn)
-        yb = d / 2 - 1.6
-        for px, py in matrice_punti(nota, pn):
-            buchi.append(cerchio(x + px, yb + py, pn * 0.45, 8))
-    # punti sulla faccia di sopra: la y del disegno della scritta è verso il musicista
-    for b in buchi:
-        ms.prisma(b, h, h + 0.5)
-    cx, cy = C['croce']
-    croce = [(-cx / 2, -cy / 2), (-cy / 2, -cy / 2), (-cy / 2, -cx / 2), (cy / 2, -cx / 2), (cy / 2, -cy / 2), (cx / 2, -cy / 2),
-             (cx / 2, cy / 2), (cy / 2, cy / 2), (cy / 2, cx / 2), (-cy / 2, cx / 2), (-cy / 2, cy / 2), (-cx / 2, cy / 2)]
-    ms.prisma(cerchio(0, 0, C['stelo_d'] / 2, 24), h - top - C['stelo_h'], h - top, holes=[croce])
-    return ms
-
-
-def copritasti():
-    """i 15 copritasti in un pezzo solo da stampare, in tre file da cinque come sul pad, e le
-    copie montate per il modello 3D"""
-    tutti = Mesh('Stame copritasti')
-    montati = []
-    for i, (righe, nota) in enumerate(COPRITASTI):
-        r, c = i // 5, i % 5
-        k = copritasto(righe, nota)
-        tutti.unisci(k, sposta(c * (M.COPRITASTO['w'] + 3.0), r * (M.COPRITASTO['d'] + 3.0), 0.0))
-        cx = M.PAD_X0 + M.PAD['k0'][0] + c * M.PAD['pitch_x']
-        cy = M.PAD_Y0 + M.PAD['k0'][1] + r * M.PAD['pitch_y']
-        montati.append((k, sposta(cx, cy, M.BASE_T + M.PAD['h'] - M.COPRITASTO['h'] + 1.0)))
-    return tutti, montati
 
 
 # ---------------------------------------------------------------------------------------------
@@ -1162,14 +1114,11 @@ def genera():
     zp = M.BASE_T + M.MK4['h']
     stampato('piedino_mascherina', piedino(), [sposta(M.MK4_X0 + x, M.MK4_Y0 + y, zp) for x, y in M.PIEDINI], 7,
              'meglio TPU; si incollano sotto la mascherina dove indica la dima', 'tpu')
-    tutti, montati = copritasti()
-    stampato('copritasti', tutti, [], 9, 'PETG sabbia, dritti; filamento nero dai punti in su; supporto solo sotto lo stelo; '
-             'stelo a croce tipo MX [V]', 'petg_sabbia')
-    return laser, montati
+    return laser
 
 
 def main():
-    laser, _ = genera()
+    laser = genera()
     print('LASER (SVG 1:1, mm)')
     for p in laser:
         txt = open(p, encoding='utf-8').read()

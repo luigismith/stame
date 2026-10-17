@@ -163,7 +163,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     </div>
     <figure class="foto-grande">
       <img src="sito/img/case_console.png" alt="La console in 3D: un telaio di compensato di betulla con i fianchi a strati, a sinistra la MPK mini IV sotto una mascherina nera, a destra il macro pad con i copritasti color sabbia, sopra la Flip aperta su una mensola" width="1320" height="720" loading="lazy">
-      <figcaption>569 × 244 mm, 46 mm fino alla mensola. Disegnata dalla stessa geometria dei pezzi da tagliare e stampare: cambia una misura e cambiano insieme i fogli, i pezzi stampati, il modello e le istruzioni.</figcaption>
+      <figcaption>589 × 244 mm, 46 mm fino alla mensola. Disegnata dalla stessa geometria dei pezzi da tagliare e stampare: cambia una misura e cambiano insieme i fogli, i pezzi stampati, il modello e le istruzioni.</figcaption>
     </figure>
     <div class="galleria larga">
       <figure><img src="sito/img/case_passo_7.png" alt="Passo 7 del montaggio: la MPK nel suo vano e la mascherina sopra, in ambra" width="1320" height="720" loading="lazy"><figcaption><b>Passo 7 di 9.</b> Le istruzioni mostrano ogni passo con i pezzi nuovi in ambra: la MPK nel suo vano, i piedini incollati sotto la mascherina, la mascherina sopra.</figcaption></figure>
@@ -175,12 +175,12 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     </figure>
     <div class="schede" style="margin-top:16px">
       <div class="scheda"><span class="etichetta">Laser</span><h3>Cinque fogli</h3><p>Due di betulla da 4 mm e due da 6 mm, 390 × 390 per una AtomStack S10, e uno di acrilico nero. SVG per LightBurn e DXF, un foglio per materiale.</p><p><a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/taglio/progetti_di_taglio.pdf">Progetti di taglio (PDF)</a></p></div>
-      <div class="scheda"><span class="etichetta">Stampante</span><h3>Sette file STL</h3><p>In PETG: la culla della Flip, la visiera, la cornice del pad, il fermo dell'hub, sei squadrette M3, undici piedini per la mascherina e quindici copritasti con i nomi a punti in rilievo.</p><p><a href="https://github.com/luigismith/stame/tree/main/hardware/case/out">I pezzi</a></p></div>
+      <div class="scheda"><span class="etichetta">Stampante</span><h3>Sei file STL, un foglio di etichette</h3><p>In PETG: la culla della Flip, la visiera, la cornice del pad, il fermo dell'hub, sei squadrette M3, undici piedini per la mascherina. Il pad prende tasti trasparenti a due strati, con sotto ogni coperchio un'etichetta di carta stampata con i punti della Matrice.</p><p><a href="https://github.com/luigismith/stame/tree/main/hardware/case/out">I pezzi</a> · <a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/etichette_pad.pdf">Etichette (PDF)</a></p></div>
       <div class="scheda"><span class="etichetta">Modello</span><h3>SketchUp, OBJ</h3><p>Cinquanta pezzi su nove livelli, una scena per ogni passo del montaggio; lo stesso modello in OBJ per qualsiasi altro programma, in millimetri.</p><p><a href="https://github.com/luigismith/stame/raw/main/hardware/case/out/stame_console.skp">stame_console.skp</a> · <a href="https://github.com/luigismith/stame/raw/main/hardware/case/out/stame_console.obj">OBJ</a></p></div>
       <div class="scheda"><span class="etichetta">Istruzioni</span><h3>Nove passi</h3><p>Pezzi e minuteria in copertina, un passo per pagina, in fondo le verifiche da fare prima di tagliare.</p><p><a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/istruzioni_montaggio.pdf">Istruzioni di montaggio (PDF)</a></p></div>
     </div>
     <div class="prosa" style="margin-top:16px">
-      <p>Non ancora tagliato. Prima del laser va misurato il macro pad (le foto da sole non concordano: il 10 % di differenza), la dima di carta della mascherina va provata sulla MPK e un taglio di prova fissa il gioco delle linguette. Tutto esce da quattro script Python in <a href="https://github.com/luigismith/stame/tree/main/hardware/case">hardware/case</a>, da un solo file di misure, ognuna con la sua fonte.</p>
+      <p>Non ancora tagliato. Prima del laser la dima di carta della mascherina va provata sulla MPK e un taglio di prova fissa il gioco delle linguette. Tutto esce da cinque script Python in <a href="https://github.com/luigismith/stame/tree/main/hardware/case">hardware/case</a>, da un solo file di misure, ognuna con la sua fonte.</p>
     </div>
   </div>
 </section>
@@ -216,7 +216,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
           <li>Swing ed effetto sul bus della batteria; le altre combinazioni con Mod</li>
           <li>MIDI in uscita sul DIN della MPK, clock MIDI, controllo esterno</li>
           <li>Pocket Mode (suonare con la sola Flip), Learn Pad, pagina di stato della MPK</li>
-          <li>Il case: bozza 4 completa sulla carta (fogli di taglio, pezzi da stampare, modello SketchUp, istruzioni di montaggio), non ancora tagliato; resta da misurare il macro pad</li>
+          <li>Il case: bozza 4 completa sulla carta (fogli di taglio, pezzi da stampare, modello SketchUp, istruzioni di montaggio), non ancora tagliato; restano da controllare le altezze</li>
           <li>Fase 2: lo stesso nucleo su hardware dedicato (Teensy 4.1 + Audio Shield, probabilmente)</li>
         </ul>
       </div>
