@@ -370,7 +370,10 @@ def mascherina():
     svg.pixel(x - ox, y + M.FORO['e'][1] / 2 + 1.5 - oy, 0.2, 'LIST', 'centro')
     for nome, testo in PULSANTI.items():
         x, y, _ = M.MK4_CTRL[nome]
-        svg.pixel(x - ox, y + M.FORO['b'][1] / 2 + 1.5 - oy, 0.2, testo, 'centro')
+        if nome == 'SHIFT':
+            svg.pixel(x - ox, y + M.FORO['b'][1] / 2 + 1.5 - oy, 0.2, testo, 'centro')
+        else:                        # BACK e MENU sopra: sotto c'è il foro di SHIFT, a 3 mm
+            svg.pixel(x - ox, y - M.FORO['b'][1] / 2 - 3.8 - oy, 0.2, testo, 'centro')
     for nome, (testo, con_shift) in TRASPORTO.items():
         x, y, _ = M.MK4_CTRL[nome]
         svg.pixel(x - ox, y + M.FORO['b'][1] / 2 + 1.5 - oy, 0.2, testo, 'centro')
@@ -855,10 +858,14 @@ def culla_flip():
     ms = Mesh('Stame culla della Flip')
     viti = [cerchio(x, y, 1.7, 16) for x, y in culla_viti()]
     ms.prisma(rett(x0 - p, y0, x1 + p, y1 + p, 2.0), z0, zf, holes=viti)                  # fondo
-    for a, b in ((x0 - p, M.FLIP_X - 22.0), (M.FLIP_X - 12.0, M.FLIP_X - 4.0), (M.FLIP_X + 10.0, x1 + p)):
-        ms.box(a, y1, zf, b, y1 + p, zf + h)                                               # bordo davanti
-    for xa, xb in ((x0 - p, x0), (x1, x1 + p)):                                            # bordi laterali
-        ms.box(xa, y0 + 12.0, zf, xb, y0 + 30.0, zf + h)
+    # bordo davanti con un intaglio solo per jack e USB-C, che stanno a 12 mm l'uno dall'altra
+    ia, ib = M.FLIP_X + M.FLIP_JACK_DX - 6.5, M.FLIP_X + M.FLIP_USBC_DX + 7.0
+    for a, b in ((x0 - p, ia), (ib, x1 + p)):
+        ms.box(a, y1, zf, b, y1 + p, zf + h)
+    # bordi laterali: liberi i tasti sul fianco, vicino alla cerniera
+    ya = M.FLIP_Y0 + M.FLIP_TASTI_LATO[1] + 4.0
+    for xa, xb in ((x0 - p, x0), (x1, x1 + p)):
+        ms.box(xa, ya, zf, xb, ya + 18.0, zf + h)
         ms.box(xa, y0 + 60.0, zf, xb, y1, zf + h)
     return ms
 

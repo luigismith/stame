@@ -24,8 +24,8 @@
 | Oggetto | Misure (mm) | Fonte |
 |---|---|---|
 | MPK mini IV | 347,5 × 192 × 45,7 con le manopole; corpo 37; tasti da 98 mm dal retro, alti ≈ 30 dal tavolo | [M] guida MK4 §1; [D] foto, [V] |
-| Controlli della MK4 | centri in `hardware/case/misure.py` (`MK4_CTRL`): ruote 24/52, pad 88…170 × 17/46 (25 mm), display e manopola di navigazione a 212, −/+ e SHIFT a 202/222, manopole 249…335 × 15/46, trasporto 250…332 × 75 | [D] foto del 15/10/2026 in rapporto alla larghezza; [V] con la dima |
-| Miyoo Flip, chiusa | 84 × 80,35 × 24,5; metà con i tasti 12,25; porta USB-C di sopra OTG, porta di sotto e jack sul bordo davanti | [O] schede; [O] foto; [D] metà; [V] posizioni, tasti del volume, apertura della cerniera (serve ≥ 115°) |
+| Controlli della MK4 | centri in `hardware/case/misure.py` (`MK4_CTRL`): ruote 22,9/53,7 × 37,1, pad 87,9…173,3 (passo 28,5) × 18/46,3, cornice 25 mm; display e manopola di navigazione a 214,3; −/+ e SHIFT a 203,7/224,4; manopole 252,3…335,8 (passo 27,8) × 18,3/50, anello rosso 15–17 mm; pulsanti 17,7 × 11,5, trasporto 252,9…334,2 × 74,4 | [D] rimisurati il 17/10/2026 su `mk4_vista_alto.jpg` (scala verificata sui due assi, prospettiva corretta), ±1 mm; prova con la dima |
+| Miyoo Flip, chiusa | 84 × 80,35 × 24,5; metà con i tasti 12,25; porta USB-C di sopra OTG; sul bordo davanti jack a −6 e USB-C a +6,3 mm dal centro; tasti sul fianco destro fra 6 e 16 mm dalla cerniera | [O] schede; [D] metà; [D] porte e tasti da due foto (entro 0,5 mm); [V] apertura della cerniera (serve ≥ 115°) |
 | Macro pad BRIMFORD | ≈ 158 × 70 × 32; 15 tasti in 3 file da 5, passo ≈ 18,2 × 19,5, primo tasto a (12, 11); manopole m1 (117,5, 13) e m2 (150, 13) ⌀ 20, M (135, 53) ⌀ 30; USB-C sul retro verso le manopole | [D] foto; [V] tutto, con il calibro |
 | Hub USB 2.0 | ≈ 85 × 32 × 15 | [V] dipende dal modello |
 
@@ -50,7 +50,7 @@ Coordinate in mm: x verso destra dal bordo esterno del fianco sinistro, y dal re
 | Macro pad | 383,5–541,5 | 157–227 | 6–38 | sulla base, dentro la cornice stampata; in linea con i tasti della MK4 (142–236) |
 
 - **CASE-010** [D] La Flip DEVE stare aperta sulla mensola, con la metà dei tasti **in piano** e lo schermo a **65° dall'orizzontale**, inclinato verso il retro (apertura della cerniera 115° [V]). Il centro dello schermo sta a circa 96 mm dal tavolo: da 60 cm, con gli occhi 35 cm sopra il tavolo, lo sguardo scende di 23° e arriva a 2° dalla perpendicolare allo schermo. L'altezza massima con lo schermo aperto è 133 mm; lo schermo non sporge dal retro della base.
-- **CASE-011** [D] La culla della Flip DEVE essere aperta davanti (jack e USB-C di sotto, per la ricarica), dietro (USB-C di sopra, OTG, verso l'hub) e sui lati (tasti del volume). Le posizioni vanno misurate sulla console [V].
+- **CASE-011** [D] La culla della Flip DEVE essere aperta davanti (jack e USB-C di sotto, per la ricarica), dietro (USB-C di sopra, OTG, verso l'hub) e sui lati (tasti del volume). Jack e USB-C stanno a 12 mm l'uno dall'altra: davanti basta un intaglio solo, da 6,5 mm prima del jack a 7 mm dopo la USB-C; i bordi laterali cominciano 4 mm dopo i tasti (posizioni dalle foto del 15/10/2026).
 - **CASE-012** [D] Dietro gli apparecchi restano 40 mm per i cavi; per l'USB-C della MK4 conviene un connettore a 90° [V].
 - **CASE-013** [D, bozza 4] **La torre.** Piano di betulla da 6 mm (z 40–46) appoggiato su due pareti da 4 mm, dietro e davanti, che stanno sotto di lui e si incastrano a linguetta nella base e nel piano; il piano sporge di 3 mm oltre le pareti, così le asole restano chiuse. Sotto, un vano di circa 170 × 96 × 34 mm per l'hub e la riserva dei cavi; la parete dietro ha la finestra dei cavi, quella davanti il passaggio del cavo del pad, a destra del cartellino. Il pad sta sulla base, in piano, dentro una cornice stampata alta 8 mm che si incolla. Nella bozza 3 le pareti arrivavano alla quota del piano e le viti del piano cadevano fuori dalle pareti: la bozza 4 lo corregge.
 - **CASE-014** [D] Altezze delle mani: tasti del pad a 38 mm dal tavolo, tasti della MK4 a circa 36, manopole della MK4 a 52, mascherina a 47–50 [V]. La destra passa dai tasti al pad senza salire.
@@ -100,16 +100,16 @@ Ingombro 569,5 × 244 mm; altezza 54 ai fianchi, 133 lo schermo aperto, 150 la v
 - **Guscio unico che smonta la MK4:** è il lavoro della fase 2, lo strumento dedicato.
 
 ## 9. Prossimi passi
-1. Misurare con il calibro le voci [V] di `hardware/case/misure.py`: pad (ingombro, passo dei tasti, manopole, presa USB), MK4 (altezza dei pulsanti, connettori sul retro), Flip (porte, tasti del volume, angolo della cerniera).
+1. Misurare le voci [V] di `hardware/case/misure.py`: pad (ingombro, passo dei tasti, manopole, presa USB), MK4 (altezza dei pulsanti, connettori sul retro), Flip (angolo della cerniera), hub. Basta anche una foto da sopra con il pezzo su un foglio A4 tutto in vista.
 2. Stampare la dima della mascherina su carta e provarla sulla MK4.
 3. Prova di taglio dei materiali; poi mascherina e cartellino.
 4. Stampa di prova della culla e della cornice con la Flip e il pad veri.
 5. Telaio di betulla e torre.
 
 ## Questioni aperte
-- [V] Posizioni e misure dei controlli della MK4, altezza dei pulsanti piccoli, posizione dei connettori sul retro.
+- [V] Altezza dei pulsanti piccoli della MK4 e posizione dei connettori sul retro; i controlli sono rimisurati sulle foto (17/10/2026), resta la prova della dima.
 - [V] Misure del macro pad e della sua presa USB-C.
-- [V] Porte, tasti del volume, cerniera e angolo massimo dello schermo della Flip; 65° è una proposta, da provare fra 60° e 70°.
+- [V] Cerniera e angolo massimo dello schermo della Flip; 65° è una proposta, da provare fra 60° e 70°. Porte e tasti dalle foto [D].
 - [V] Consumo di MK4 + pad dalla Flip con un hub non alimentato.
 - [V] Stelo e passo dei tasti del macro pad, per i copritasti (CASE-043).
 - Decise da Luigi il 15/10/2026 (sera): LED dei pad in tono con la plancia (CASE-033), visiera sì (CASE-041), audio dal jack della Flip (CASE-024), tasti del macro pad in sabbia con le legende incise (CASE-043).

@@ -46,11 +46,13 @@ Il riferimento del case (x a destra, y verso il musicista, z in su) è sinistror
 
 ## Prima di tagliare
 
-1. **Misurare** con il calibro le voci [V] di `misure.py`, soprattutto:
-   - controlli della MK4 (`MK4_CTRL`, `FORO`) e altezza dei pulsanti piccoli, perché la mascherina sta 4 mm sopra (`piede_h`);
-   - ingombro del macro pad, passo dei tasti, manopole, presa USB-C e stelo dei tasti (`PAD`, `PAD_KNOB`, `PAD_USB_X`, `COPRITASTO`);
-   - porte, tasti del volume e angolo di apertura della Flip (serve almeno 115°);
+1. **Misurare** le voci [V] di `misure.py`. I controlli della MK4 e le porte della Flip sono stati rimisurati sulle foto il 17/10/2026 (±1 mm); restano:
+   - ingombro del macro pad, passo dei tasti, manopole, presa USB-C e stelo dei tasti (`PAD`, `PAD_KNOB`, `PAD_USB_X`, `COPRITASTO`): le foto non bastano, due foto danno passi diversi del 10%;
+   - altezza dei pulsanti piccoli della MK4, perché la mascherina sta 4 mm sopra il pannello (`piede_h`);
+   - angolo di apertura della Flip (serve almeno 115°);
    - misure dell'hub (`HUB`).
+
+   Senza calibro basta una foto da sopra, con il pezzo appoggiato su un foglio A4 tutto in vista: i quattro angoli del foglio danno la scala e la prospettiva, e la misura viene entro mezzo millimetro.
 2. **Stampare la dima** su carta al 100% e controllare il righello di 100 mm. Posarla sulla MK4: i fori devono cadere sui controlli, i cerchi blu dei piedini su zone piane.
 3. **Fare una prova di taglio** su un ritaglio, per tarare potenza, velocità e il gioco delle linguette (0,2 mm per lato, `GIOCO`). Il laser a diodo taglia l'acrilico nero, non quello trasparente.
 
@@ -68,7 +70,7 @@ Il riferimento del case (x a destra, y verso il musicista, z in su) è sinistror
 
 | File | Quanti | Note |
 |---|---|---|
-| `culla_flip.stl` | 1 | vassoio sul piano, 4 viti M3 svasate; intagli del jack e della USB-C davanti, finestre del volume ai lati [V] |
+| `culla_flip.stl` | 1 | vassoio sul piano, 4 viti M3 svasate; un intaglio davanti per jack e USB-C, ai lati libero vicino alla cerniera per i tasti [D, foto] |
 | `visiera.stl` | 1 | si avvita al piano dietro la culla; stampare sul tettuccio, con supporti |
 | `cornice_pad.stl` | 1 | si incolla sulla base attorno al pad |
 | `fermo_hub.stl` | 1 | tiene l'hub nel vano, 2 viti nella base |
