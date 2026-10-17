@@ -65,6 +65,10 @@ T14: Geek Out e ritorno. T15: pagina dei comandi aperta finché non lo ripremi (
 | SELECT | Options |
 | START | BPM: Beat on/off · con la MK4: Fill tenuto |
 | MENU | menu · tenuto 2 s esce |
+| levetta sinistra | pitch bend · modulazione (a molla) |
+| levetta destra | su/giù Chord Voicing · destra/sinistra Bass Voicing |
+| L3 · R3 | Mod · Split/Octave |
+| L2 · R2 | Tap tempo · Fill tenuto |
 
 ## I controlli
 

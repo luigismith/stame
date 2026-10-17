@@ -632,15 +632,9 @@ static void t_flip(void)
     CHECK(!gest_held(&H.gest, ENC_BASS_VOICING));
     CHECK_EQ(count(G_PRESS, ENC_BASS_VOICING), 1);
 
-    /* tasti liberi, assi e X con la Plus (il suo PUSH) senza manopole: nessun evento */
+    /* X con la Plus (il suo PUSH) senza manopole: nessun evento; levette e grilletti in t_levette */
     clear();
     tap(PAD_X);
-    tap(PAD_L3);
-    tap(PAD_R3);
-    pad(PAD_L2, 255);
-    pad(PAD_L2, 0);
-    pad(PAD_LSTICK_X, 32767);
-    pad(PAD_LSTICK_X, 0);
     CHECK_EQ(NEV, 0);
 
     /* ripetizione della croce come MIDI-082: 0, 400 e 600 ms, poi si ferma al rilascio */
@@ -1296,6 +1290,102 @@ static void t_pad_strumento(void)
     CHECK_EQ(count(PNL_SRC_LOST, SRC_MACROPAD), 1);
 }
 
+/* MIDI-138 (Luigi, 17/10/2026: «gli analogici dalla flip? non ti piacevano?»): levetta sinistra = pitch
+ * bend e modulazione, a molla; levetta destra = Chord Voicing (su/giù) e Bass Voicing (destra/sinistra) a
+ * passi con ripetizione; R3 e L3 i pulsanti dei due voicing; L2 Tap tempo, R2 Fill. Zona morta del 20%
+ * e isteresi dei grilletti di PLT-055 */
+static void t_levette(void)
+{
+    reset();
+    clear();
+    /* bend: dentro la zona morta niente; a fondo corsa ±8191; un tremolio piccolo non esce; al centro 0 */
+    pad(PAD_LSTICK_X, 5000);
+    CHECK_EQ(NEV, 0);
+    pad(PAD_LSTICK_X, 32767);
+    CHECK(only(PNL_BEND, 0, 8191));
+    clear();
+    pad(PAD_LSTICK_X, 32740);
+    CHECK_EQ(NEV, 0);
+    pad(PAD_LSTICK_X, -32767);
+    pad(PAD_LSTICK_X, 0);
+    CHECK_EQ(NEV, 2);
+    CHECK(EV[0].type == PNL_BEND && EV[0].b == -8191);
+    CHECK(EV[1].type == PNL_BEND && EV[1].b == 0);
+
+    /* modulazione: in su e in giù è la stessa; al centro torna a 0 */
+    clear();
+    pad(PAD_LSTICK_Y, -32767);
+    pad(PAD_LSTICK_Y, 32767);
+    pad(PAD_LSTICK_Y, 0);
+    CHECK_EQ(NEV, 2);
+    CHECK(EV[0].type == PNL_MOD && EV[0].b == 127);
+    CHECK(EV[1].type == PNL_MOD && EV[1].b == 0);
+
+    /* levetta destra in su (l'asse Y cresce verso il basso): un passo di Chord Voicing subito, poi a
+     * 400 ms e ogni 150 ms; oltre il 90% ogni 50 ms */
+    clear();
+    pad(PAD_RSTICK_Y, -20000);
+    CHECK(only(G_TURN, ENC_CHORD_VOICING, 1));
+    wait_us(650000);
+    CHECK_EQ(count(G_TURN, ENC_CHORD_VOICING), 3);
+    clear();
+    pad(PAD_RSTICK_Y, -32767);
+    wait_us(200000);
+    CHECK_EQ(count(G_TURN, ENC_CHORD_VOICING), 4);
+    /* isteresi: al 43% il passo resta, sotto il 40% si ferma */
+    clear();
+    pad(PAD_RSTICK_Y, -14000);
+    pad(PAD_RSTICK_Y, -10000);
+    wait_us(500000);
+    CHECK_EQ(NEV, 0);
+    pad(PAD_RSTICK_Y, 0);
+
+    /* destra = Bass Voicing su di un'ottava, sinistra = giù */
+    clear();
+    pad(PAD_RSTICK_X, 20000);
+    pad(PAD_RSTICK_X, 0);
+    pad(PAD_RSTICK_X, -20000);
+    pad(PAD_RSTICK_X, 0);
+    CHECK_EQ(NEV, 2);
+    CHECK(EV[0].type == G_TURN && EV[0].a == ENC_BASS_VOICING && EV[0].b == 1);
+    CHECK(EV[1].type == G_TURN && EV[1].a == ENC_BASS_VOICING && EV[1].b == -1);
+
+    /* R3 = Chord Voicing premuto (Split/Octave), L3 = Bass Voicing premuto (Mod) */
+    clear();
+    tap(PAD_R3);
+    tap(PAD_L3);
+    CHECK_EQ(count(G_PRESS, ENC_CHORD_VOICING), 1);
+    CHECK_EQ(count(G_PRESS, ENC_BASS_VOICING), 1);
+
+    /* L2 = Tap tempo, R2 = Fill: premuti sopra 160, lasciati sotto 96 */
+    clear();
+    pad(PAD_L2, 200);
+    pad(PAD_L2, 120);                                         /* fra le due soglie: resta premuto */
+    pad(PAD_L2, 200);
+    pad(PAD_L2, 50);
+    pad(PAD_L2, 200);
+    CHECK_EQ(count(PNL_MACRO, MACRO_TAP_TEMPO), 2);
+    pad(PAD_L2, 0);
+    clear();
+    pad(PAD_R2, 255);
+    pad(PAD_R2, 0);
+    CHECK_EQ(NEV, 2);
+    CHECK(EV[0].type == PNL_MACRO && EV[0].a == MACRO_FILL && EV[0].b == 1);
+    CHECK(EV[1].type == PNL_MACRO && EV[1].a == MACRO_FILL && EV[1].b == 0);
+
+    /* Flip persa con la levetta piegata e R2 tenuto: bend e modulazione a 0, Fill chiuso */
+    pad(PAD_LSTICK_X, 32767);
+    pad(PAD_LSTICK_Y, 32767);
+    pad(PAD_R2, 255);
+    clear();
+    lost(SRC_FLIP);
+    CHECK_EQ(count(PNL_MACRO, MACRO_FILL), 1);
+    int ib = find(PNL_BEND, 0), im = find(PNL_MOD, 0);
+    CHECK(ib >= 0 && EV[ib].b == 0);
+    CHECK(im >= 0 && EV[im].b == 0);
+    connected(SRC_FLIP);
+}
+
 void test_input(void)
 {
     t_revisione();
@@ -1316,6 +1406,7 @@ void test_input(void)
     t_macro_pad();
     t_configurazioni();
     t_pad_strumento();
+    t_levette();
     t_scollegamento();
     t_nomi();
     t_mk4();

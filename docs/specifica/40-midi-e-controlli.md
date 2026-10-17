@@ -742,7 +742,30 @@ layers:
   - **MK4 e pad**: la mappa del 16/10/2026 (MIDI-120, MIDI-130, MIDI-133), più i tasti della Flip;
   - **solo Flip**: lo schema a fuoco di MIDI-092 (il modo tascabile di MIDI-093 è previsto);
   - le legende della pagina dei comandi seguono la configurazione (`30` UI-152);
-  - la MK4 non può prendere le funzioni del pad su **SHIFT + pad** né su **SHIFT + LOOP**: sono comandi della tastiera stessa (SHIFT + Pad 5 accende il suo modo accordi, SHIFT + LOOP apre il suo menu globale; guida della MK4 nel vault).
+  - la MK4 non può prendere le funzioni del pad su **SHIFT + pad** né su **SHIFT + LOOP**: sono comandi della tastiera stessa (SHIFT + Pad 5 accende il suo modo accordi, SHIFT + LOOP apre il suo menu globale; guida della MK4 nel vault);
+  - levette e grilletti della Flip: MIDI-138.
+
+- **MIDI-138** — **Levette e grilletti della Flip** [D, **17/10/2026**, Luigi: «gli analogici dalla flip? non ti piacevano?»]. Fino a questa data levette, L2, R2, L3 e R3 erano liberi, tenuti per il modo tascabile. Le levette sono a molla e analogiche: con il solo pad sono l'unica fonte di bend e modulazione, e la destra dà una manopola ai due voicing, che senza pad non ne hanno una. La mappa vale in ogni configurazione, come il resto dei tasti della Flip (MIDI-137); il modo tascabile, quando ci sarà, la sostituisce (MIDI-094):
+
+| Comando | Evento del pannello (§10.1) | Funzione |
+|---|---|---|
+| **Levetta sinistra**, orizzontale | `PNL_BEND(−8191…8191)`, esce quando cambia di almeno 64 o torna a 0 | **Pitch bend**, a molla come il joystick delle MPK |
+| **Levetta sinistra**, verticale | `PNL_MOD(0…127)`, in su o in giù | **Modulazione**, torna a 0 quando la levetta torna al centro |
+| **Levetta destra**, su/giù | `PNL_ENC_TURN(ENC_CHORD_VOICING, ±1)` | **Chord Voicing**: su = più in alto |
+| **Levetta destra**, destra/sinistra | `PNL_ENC_TURN(ENC_BASS_VOICING, ±1)` | **Bass Voicing**: destra = su di un'ottava |
+| **R3** | `PNL_ENC_DOWN/UP(ENC_CHORD_VOICING)` | Chord Voicing premuto: Split ↔ Octave |
+| **L3** | `PNL_ENC_DOWN/UP(ENC_BASS_VOICING)` | Bass Voicing premuto: Mod, come Y |
+| **L2** | `PNL_MACRO(MACRO_TAP_TEMPO)` alla pressione | **Tap tempo**, come T2 del pad |
+| **R2** | `PNL_MACRO(MACRO_FILL, 1/0)` | **Fill** finché è tenuto, come T4 del pad |
+
+  Regole:
+  - la piattaforma legge gli assi con i limiti di `EVIOCGABS` e li manda già scalati: levette in −32767…32767 con 0 al centro, grilletti in 0…255 (PLT-055). Sulla Flip sono `ABS_X`/`ABS_Y` (sinistra), `ABS_RX`/`ABS_RY` (destra), `ABS_Z`/`ABS_RZ` (L2, R2), già in quelle scale [O, evtest del 17/10/2026];
+  - bend e modulazione hanno la **zona morta del 20%** di PLT-055, poi tutta la corsa; un tremolio sotto i 64 punti di bend non esce;
+  - i passi della levetta destra scattano **oltre il 50%** della corsa, si ripetono a 400 ms e poi ogni **150 ms**, ogni **50 ms oltre il 90%** (come MIDI-093), e si lasciano **sotto il 40%**;
+  - L2 e R2 sono premuti **sopra 160** e lasciati **sotto 96** (PLT-055);
+  - l'asse Y delle levette cresce verso il basso (convenzione di Linux) [V: su = Chord Voicing più in alto, da provare sulla Flip];
+  - con la MK4 bend e modulazione arrivano anche dalle ruote: vale l'ultima mossa;
+  - se la Flip si perde, bend e modulazione tornano a 0 e il Fill di R2 si chiude.
 
 ---
 
@@ -760,7 +783,7 @@ layers:
 | Croce | `ABS_HAT0X`, `ABS_HAT0Y` |
 | Levette | assi ABS 0/1 (sinistra) e 3/4 (destra), limiti letti con `EVIOCGABS` |
 
-- **MIDI-091** — L2 e R2 contano come premuti sopra 128 e rilasciati sotto 64 [D]. Le levette hanno una zona morta pari al 50% della corsa [D].
+- **MIDI-091** — L2 e R2 contano come premuti sopra 160 e rilasciati sotto 96, come PLT-055 [D; allineato il 17/10/2026]. Le levette hanno la zona morta del 20% di PLT-055 per bend e modulazione; i comandi a passi (i voicing di MIDI-138, il modo tascabile) scattano oltre il 50% della corsa e si lasciano sotto il 40% [D].
 
 ### 9.1 Schema a fuoco (sempre attivo)
 
@@ -778,7 +801,10 @@ layers:
 | SELECT | `PNL_ENC_DOWN/UP(ENC_OPTIONS)` | Pulsante di Options |
 | START | `PNL_ENC_DOWN/UP(ENC_BPM)`; con la MK4 `PNL_MACRO(MACRO_FILL, 1/0)` | Pulsante di BPM (beat o metronomo); con la MK4, che ha STOP/PLAY, il **Fill** finché è tenuto (MIDI-137) |
 | MENU | `PNL_MACRO(MACRO_SYSTEM_MENU)` | Menu della piattaforma (`30` UI-129): Panic, Pocket Mode, Quit Stame… |
-| L2, R2, L3, R3, levette | — | Liberi |
+| Levetta sinistra | `PNL_BEND` (orizzontale), `PNL_MOD` (verticale) | Pitch bend e modulazione, a molla (MIDI-138) |
+| Levetta destra | `PNL_ENC_TURN(ENC_CHORD_VOICING)` su/giù, `PNL_ENC_TURN(ENC_BASS_VOICING)` destra/sinistra | I due voicing, a passi con ripetizione (MIDI-138) |
+| L3, R3 | `PNL_ENC_DOWN/UP(ENC_BASS_VOICING)`, `PNL_ENC_DOWN/UP(ENC_CHORD_VOICING)` | Mod, Split/Octave |
+| L2, R2 | `PNL_MACRO(MACRO_TAP_TEMPO)`, `PNL_MACRO(MACRO_FILL, 1/0)` | Tap tempo, Fill finché è tenuto |
 
 **Sempre vivi (17/10/2026).** I tasti della Flip non tacciono mai, con qualunque apparecchio collegato: sono la console di gestione (MIDI-137, al posto delle riserve inerti di MIDI-134). X e START cambiano ruolo secondo la tastiera collegata, come dice la tabella.
 

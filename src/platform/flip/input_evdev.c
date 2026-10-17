@@ -23,6 +23,35 @@ _Static_assert(PAD_SELECT == BTN_SELECT && PAD_START == BTN_START && PAD_MENU ==
 
 static int hat_x, hat_y;
 
+/* levette e grilletti (PLT-055, 40 MIDI-092): asse evdev, codice PAD_* e limiti letti con EVIOCGABS.
+ * Le levette escono in −32767..32767 con 0 al centro, i grilletti in 0..255; zona morta e isteresi
+ * le decide il profilo flip_tasti, che si prova sul PC */
+static const struct { uint16_t abs, pad; uint8_t trigger; } AXIS[6] = {
+    { ABS_X, PAD_LSTICK_X, 0 }, { ABS_Y, PAD_LSTICK_Y, 0 }, { ABS_RX, PAD_RSTICK_X, 0 },
+    { ABS_RY, PAD_RSTICK_Y, 0 }, { ABS_Z, PAD_L2, 1 }, { ABS_RZ, PAD_R2, 1 },
+};
+static int32_t ax_min[6], ax_max[6];
+
+static void axis_limits(int fd)
+{
+    for (int i = 0; i < 6; i++) {
+        struct input_absinfo ai;
+        bool ok = ioctl(fd, EVIOCGABS(AXIS[i].abs), &ai) >= 0 && ai.maximum > ai.minimum;
+        ax_min[i] = ok ? ai.minimum : (AXIS[i].trigger ? 0 : -32767);
+        ax_max[i] = ok ? ai.maximum : (AXIS[i].trigger ? 255 : 32767);
+    }
+}
+
+static int32_t axis_scale(int i, int32_t v)
+{
+    int64_t span = (int64_t)ax_max[i] - ax_min[i];
+    int64_t x = (int64_t)v - ax_min[i];
+    if (x < 0) x = 0;
+    if (x > span) x = span;
+    if (AXIS[i].trigger) return (int32_t)(x * 255 / span);
+    return (int32_t)(x * 65534 / span - 32767);
+}
+
 int pad_open(void)
 {
     for (int i = 0; i < 16; i++) {
@@ -32,6 +61,7 @@ int pad_open(void)
         if (fd < 0) continue;
         if (ioctl(fd, EVIOCGNAME(sizeof name - 1), name) >= 0 && strstr(name, "MIYOO Player1")) {
             log_msg("tasti: %s (%s)", path, name);
+            axis_limits(fd);
             return fd;
         }
         close(fd);
@@ -59,6 +89,7 @@ static void release_all(pad_cb_t cb, void *ctx)
     for (unsigned i = 0; i < sizeof K / sizeof K[0]; i++) cb(ctx, K[i], 0);
     hat(cb, ctx, &hat_x, 0, PAD_LEFT, PAD_RIGHT);
     hat(cb, ctx, &hat_y, 0, PAD_UP, PAD_DOWN);
+    for (int i = 0; i < 6; i++) cb(ctx, AXIS[i].pad, 0);           /* levette al centro, grilletti lasciati */
 }
 
 int pad_read(int fd, pad_cb_t cb, void *ctx)
@@ -76,6 +107,8 @@ int pad_read(int fd, pad_cb_t cb, void *ctx)
             } else if (ev[i].type == EV_ABS) {
                 if (ev[i].code == ABS_HAT0X) hat(cb, ctx, &hat_x, ev[i].value, PAD_LEFT, PAD_RIGHT);
                 else if (ev[i].code == ABS_HAT0Y) hat(cb, ctx, &hat_y, ev[i].value, PAD_UP, PAD_DOWN);
+                else for (int a = 0; a < 6; a++)
+                    if (ev[i].code == AXIS[a].abs) { cb(ctx, AXIS[a].pad, axis_scale(a, ev[i].value)); break; }
             }
         }
     }

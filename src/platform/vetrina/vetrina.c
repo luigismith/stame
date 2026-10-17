@@ -993,7 +993,9 @@ void vet_pad(vet_t *v, uint16_t code, int32_t value, uint32_t now_ms)
     pnl_event_t ev[INP_MAX_OUT];
     v->now_ms = now_ms;
     if (code == PAD_MENU && value != 2) { menu_down = value == 1; menu_down_ms = now_ms; }
-    if (value == 1) user_input(v, now_ms);
+    /* levette e grilletti mandano valori, non 1 e 0: contano come un ingresso oltre metà corsa */
+    bool axis = code >= PAD_L2 && code <= PAD_RSTICK_Y;
+    if (axis ? (code <= PAD_R2 ? value > 160 : (value > 16384 || value < -16384)) : value == 1) user_input(v, now_ms);
     /* i tasti del fuoco aprono la pagina dei comandi e la tengono aperta (UI-142a); dal 17/10/2026 i
      * tasti della Flip non tacciono mai (MIDI-137), quindi anche con la MK4. X solo quando è il PUSH della Plus */
     if (value != 0 && (code == PAD_L1 || code == PAD_R1 || code == PAD_A || (code == PAD_X && plus_present(v)) ||

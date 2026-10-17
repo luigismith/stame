@@ -22,13 +22,15 @@ Stame si adatta a cosa è collegato (17/10/2026). La Flip c'è sempre, e i suoi 
 | fondamentali | tasti della MK4, con la velocity | tasti della MK4 | **T1…T12** del pad: Do…Si, velocity fissa |
 | tipi ed estensioni | pad del banco A | pad del banco A | **M** il tipo, **m1** l'estensione: restano tenuti |
 | gli 8 controlli | K1…K8; SHIFT + K per premere | K1…K8; SHIFT + K | il fuoco: L1/R1 della Flip, **m2** gira e preme |
-| Chord Voicing | M | **nav** (il fuoco parte da lì) | il fuoco |
-| Bass Voicing · Mod | m1 · m1 premuta | il fuoco · Y | il fuoco · m1 premuta |
+| Chord Voicing | M | **nav** (il fuoco parte da lì) | levetta destra, su/giù |
+| Bass Voicing · Mod | m1 · m1 premuta | levetta destra, destra/sinistra · Y | levetta destra · m1 premuta |
+| bend e modulazione | ruote della MPK | ruote della MPK | **levetta sinistra** della Flip |
 | Options | T9 | SELECT | SELECT |
 | Hold | T1 (o X) | **X** | **X** |
-| Fill | T4 (o START) | **START** tenuto | — |
+| Fill | T4 (o START, R2) | **START** o R2 tenuti | **R2** tenuto |
 | Beat on/off | STOP/PLAY | STOP/PLAY | START |
-| Tap, Scene | T2, T5…T8 | — | — |
+| Tap tempo | T2 (o L2) | L2 | L2 |
+| Scene | T5…T8 | — | — |
 | Metronomo, Save Loop | T3, T10 | MENU | MENU |
 | Panic | T12 tenuto, SHIFT + STOP/PLAY | SHIFT + STOP/PLAY, MENU | MENU |
 | batteria | pad del banco B, T11 | pad del banco B, Y + STOP/PLAY | m1 premuta + START |
@@ -193,7 +195,7 @@ Se colleghi solo il pad, il pad suona (17/10/2026). La mano sinistra sta sui tas
 - Con la **Key mode** accesa e nessun tipo, ogni fondamentale suona l'accordo della scala, come sull'Orchid: è il modo più semplice di suonare con il solo pad.
 - **T13 LOCK** funziona come sempre: M, m1 e m2 diventano Sound, Perform e Key (Key premuta = Key mode).
 - I tasti del pad non hanno velocity: suonano a 100.
-- Dalla Flip: **X** = Hold, **START** = Beat on/off, SELECT = Options, Y = Mod, MENU = Panic, Metronome e Save Loop. La batteria a tastiera è **m1 premuta + START**: i dodici tasti suonano il kit.
+- Dalla Flip: **X** = Hold, **START** = Beat on/off, SELECT = Options, Y = Mod, MENU = Panic, Metronome e Save Loop. La **levetta sinistra** fa bend e modulazione, la **destra** i due rivolti; **L2** è il Tap tempo, **R2** il Fill. La batteria a tastiera è **m1 premuta + START**: i dodici tasti suonano il kit.
 - Quando il pad diventa lo strumento, la banda lo dice: «Pad plays notes». Se attacchi la MK4, il pad torna ai comandi appena lo lasci.
 
 ## 8. La MPK mini IV
@@ -249,6 +251,10 @@ I tasti della Flip funzionano **sempre**, qualunque cosa sia collegata (17/10/20
 | SELECT | Options |
 | START | BPM: Beat on/off; con la MK4 (che ha STOP/PLAY), Fill finché lo tieni |
 | MENU | il menu della piattaforma; tenuto 2 s esce da Stame |
+| levetta sinistra | pitch bend (orizzontale) e modulazione (verticale); torna al centro da sola |
+| levetta destra | su/giù = Chord Voicing, destra/sinistra = Bass Voicing; tenuta, il passo si ripete |
+| L3 · R3 (clic delle levette) | Mod · Split/Octave |
+| L2 · R2 | Tap tempo · Fill finché lo tieni |
 
 ### 9.3 Il menu della piattaforma (MENU, o + della MPK)
 
