@@ -46,7 +46,14 @@ Il [manuale](docs/manuale/manuale.md) e il [prontuario](docs/manuale/prontuario.
 
 Salvataggio degli User Sound e caricamento di un banco di fabbrica privato; Waiting Room e lunghezza del loop, slot del loop, uscita morbida e forzata; batteria sui tasti e le altre combinazioni con Mod; MIDI in uscita sul DIN, clock e controllo esterno; Pocket Mode, Learn Pad, pagina di stato della MPK; il case (progettato, non tagliato); l'hardware della fase 2. La lista completa, requisito per requisito, è nella specifica.
 
-## Compilare e installare
+## Installare
+
+Serve una **Miyoo Flip** con [Cirmolo](https://github.com/luigismith/cirmolo) o spruceOS, e la **MPK mini IV** nel preset **DAW** (il macro pad su un hub USB 2.0 semplice, senza Power Delivery, sulla porta USB-C di sopra).
+
+- **Con Cirmolo:** App › Musica › **Installa Stame**, con il Wi-Fi acceso. Scarica l'ultima [release](https://github.com/luigismith/stame/releases), controlla l'archivio e mette Stame in Musica; rilanciandolo si aggiorna.
+- **A mano:** scarica `Stame-<versione>.7z` dalla [release](https://github.com/luigismith/stame/releases) e scompattalo nella radice della scheda SD: crea `App/Stame`. Con spruceOS Stame compare fra le app.
+
+## Compilare e installare dai sorgenti
 
 Servono: una Miyoo Flip con un firmware basato su spruceOS, una Akai MPK mini IV nel preset **DAW**, se si vuole il macro pad su un hub USB 2.0 semplice (senza Power Delivery) sulla porta USB-C di sopra della Flip. Sul PC: la Git Bash di Windows, [Zig](https://ziglang.org/) 0.17 (`zig cc` è il compilatore C, anche per aarch64), gli header di SDL2, Python 3 con `numpy` e `soundfile` per il banco dei campioni.
 
@@ -57,6 +64,7 @@ sh tools/build.sh render        # renderer offline: fotogrammi PNG e WAV della d
 python -I tools/campioni.py     # scarica i campioni CC0 e costruisce build/campioni/stame.smp (una volta)
 sh tools/build.sh pacchetto     # l'app per la Flip in build/pacchetto/App/Stame
 sh tools/deploy.sh              # la copia via SSH (l'indirizzo della Flip in tools/flip.ip, fuori da git)
+sh tools/release.sh 0.1.0       # l'archivio della release: build/release/Stame-0.1.0.7z e il suo SHA-256
 ```
 
 `test` e `portabilita` devono passare prima di ogni commit. Sulla Flip Stame compare in **App › Musica** (**App › Altro** su un menu senza aree). Senza il banco dei campioni i suoni campionati e i kit tacciono; tutto il resto suona.

@@ -46,7 +46,14 @@ The Italian [manual](docs/manuale/manuale.md) and the one-page [quick reference]
 
 Saving User Sounds and loading a private factory bank; Waiting Room and loop length, loop slots, soft and hard exit; drums on the keys and the other Mod combinations; MIDI out on the DIN port, clock and external control; Pocket Mode, Learn Pad, the MPK status page; the case (designed, not cut); phase 2 hardware. The full list, requirement by requirement, is in the specification.
 
-## Build and install
+## Install
+
+You need a **Miyoo Flip** with [Cirmolo](https://github.com/luigismith/cirmolo) or spruceOS, and the **MPK mini IV** on its **DAW** preset (the macro pad on a plain USB 2.0 hub, without Power Delivery, on the top USB-C port).
+
+- **With Cirmolo:** App › Music › **Install Stame**, with Wi-Fi on. It downloads the latest [release](https://github.com/luigismith/stame/releases), checks the archive and puts Stame in Music; run it again to update.
+- **By hand:** download `Stame-<version>.7z` from the [release](https://github.com/luigismith/stame/releases) and unpack it at the root of the SD card: it creates `App/Stame`. On spruceOS Stame shows up among the apps.
+
+## Build and install from source
 
 Needs: a Miyoo Flip with a spruceOS-based firmware, an Akai MPK mini IV in its **DAW** preset, optionally the macro pad on a plain USB 2.0 hub (no Power Delivery) on the Flip's top USB-C port. On the PC: Git Bash on Windows, [Zig](https://ziglang.org/) 0.17 (`zig cc` is the C compiler, also for aarch64), the SDL2 headers, Python 3 with `numpy` and `soundfile` for the sample bank.
 
@@ -57,6 +64,7 @@ sh tools/build.sh render        # offline renderer: PNG frames and WAV of the de
 python -I tools/campioni.py     # downloads the CC0 samples and builds build/campioni/stame.smp (once)
 sh tools/build.sh pacchetto     # the app for the Flip in build/pacchetto/App/Stame
 sh tools/deploy.sh              # copies it over SSH (the Flip's address in tools/flip.ip, not in git)
+sh tools/release.sh 0.1.0       # the release archive: build/release/Stame-0.1.0.7z and its SHA-256
 ```
 
 `test` and `portabilita` must pass before every commit. On the Flip, Stame appears under **App › Musica** (**App › Altro** on a menu without areas). Without the sample bank the sampled sounds and kits stay silent; everything else plays.
