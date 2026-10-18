@@ -7,9 +7,9 @@
 <meta name="description" content="Stame: un synth ad accordi, aperto. Una mano tiene il tipo d'accordo, l'altra suona la fondamentale, ed esce un accordo intero. Cresciuto su una Miyoo Flip, suonato con una Akai MPK mini IV e un macro pad.">
 <meta property="og:title" content="Stame · un synth ad accordi cresciuto su una console">
 <meta property="og:description" content="Un synth ad accordi, aperto: tieni il tipo d'accordo, suona la fondamentale ed esce un accordo intero, con il suo voicing e il suo basso. Gira su una Miyoo Flip con una Akai MPK mini IV e un macro pad a quindici tasti.">
-<meta property="og:image" content="https://luigismith.github.io/stame/sito/img/plancia_notte.png">
+<meta property="og:image" content="https://luigismith.github.io/stame/sito/img/plancia_giorno.png">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#050C0B">
+<meta name="theme-color" content="#CED4C2">
 <link rel="icon" type="image/png" href="sito/favicon.png">
 <link rel="alternate" hreflang="en" href="index.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,7 +35,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     <div class="lingua">
       <a href="index.html" hreflang="en" lang="en">EN</a>
       <a href="index.it.html" aria-current="page" hreflang="it">IT</a>
-      <button type="button" id="tema" aria-label="Passa dal tema Notte al tema Giorno">Notte / Giorno</button>
+      <button type="button" id="tema" aria-label="Passa dal tema Giorno al tema Notte">Giorno / Notte</button>
     </div>
   </div>
 </header>
@@ -91,24 +91,12 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       <h2>Tre apparecchi, uno strumento.</h2>
       <p>La sinistra sui pad, la destra sui tasti, il macro pad a un palmo, la Flip sopra di lui con lo schermo rivolto a chi suona.</p>
     </div>
-    <figure class="foto-grande">
-      <img src="sito/img/postazione.jpg" alt="La postazione su una scrivania: a sinistra la Akai MPK mini IV, a destra il macro pad con tre manopole di metallo in linea con i tasti, sopra il pad la Miyoo Flip aperta" width="1600" height="595">
-      <figcaption>La composizione scelta sul tavolo: MPK mini IV, macro pad in linea con i tasti, Flip aperta sopra il pad così lo schermo non copre mai i tasti.</figcaption>
-    </figure>
-    <div class="galleria">
-      <figure>
-        <img src="sito/img/mk4.jpg" alt="La Akai MPK mini IV vista dall'alto: pad, otto manopole, pulsanti del trasporto e due ottave di tasti" width="1600" height="901">
-        <figcaption><b>Akai MPK mini IV.</b> Gli otto pad sono i tasti accordo dell'originale (Dim, Min, Maj, Sus / 6, m7, M7, 9); i tasti danno la fondamentale; le otto manopole girano Sound, Perform, FX, Key, Bass, Loop, BPM e Volume; il trasporto è il looper.</figcaption>
-      </figure>
-      <figure>
-        <img src="sito/img/pad.jpg" alt="Il macro pad: quindici tasti bianchi in tre file da cinque, due manopole piccole di metallo e una grande a destra" width="1600" height="1129">
-        <figcaption><b>Macro pad.</b> Quindici tasti e tre manopole a scatti, che si premono. I tasti fanno quello che l'originale non ha: Hold, tap tempo, metronomo, fill, quattro scene, Save Loop, batteria sui tasti; la manopola grande è il Chord Voicing. T13 è il Lock, T14 la vista, T15 la pagina dei comandi.</figcaption>
-      </figure>
-      <figure>
-        <img src="sito/img/flip.jpg" alt="La Miyoo Flip aperta, una piccola console a conchiglia con uno schermo da 3,5 pollici, una croce e quattro tasti colorati" width="997" height="1200">
-        <figcaption><b>Miyoo Flip.</b> Il cervello e il display: uno schermo 640×480 su una cerniera, un Cortex-A55 che fa girare il synth a 48 kHz. I suoi comandi funzionano sempre: i tasti spostano il fuoco e aprono la pagina dei comandi e il menu, la levetta sinistra fa bend e modulazione, la destra muove le due finestre del voicing, L2 batte il tempo e R2 tiene il fill.</figcaption>
-      </figure>
+    <div class="schede">
+      <div class="scheda"><h3>Akai MPK mini IV</h3><p>Gli otto pad sono i tasti accordo dell'originale (Dim, Min, Maj, Sus / 6, m7, M7, 9); i tasti danno la fondamentale; le otto manopole girano Sound, Perform, FX, Key, Bass, Loop, BPM e Volume; il trasporto è il looper.</p></div>
+      <div class="scheda"><h3>Macro pad</h3><p>Quindici tasti e tre manopole a scatti, che si premono. I tasti fanno quello che l'originale non ha: Hold, tap tempo, metronomo, fill, quattro scene, Save Loop, batteria sui tasti; la manopola grande è il Chord Voicing. T13 è il Lock, T14 la vista, T15 la pagina dei comandi.</p></div>
+      <div class="scheda"><h3>Miyoo Flip</h3><p>Il cervello e il display: uno schermo 640×480 su una cerniera, un Cortex-A55 che fa girare il synth a 48 kHz. I suoi comandi funzionano sempre: i tasti spostano il fuoco e aprono la pagina dei comandi e il menu, la levetta sinistra fa bend e modulazione, la destra muove le due finestre del voicing, L2 batte il tempo e R2 tiene il fill.</p></div>
     </div>
+    <p class="nota-postazione">Nella console di legno stanno così: la MPK a sinistra, il pad nella sua culla in linea con i tasti, la Flip aperta sopra il pad, così lo schermo non copre mai i tasti. Il rendering è più giù, nella sezione <a href="#case">Case</a>.</p>
   </div>
 </section>
 
@@ -120,12 +108,12 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       <p>Mentre suoni lo schermo mostra quattro cose: l'accordo, il tempo, la tastiera e il controllo che hai appena toccato. Il resto arriva quando lo chiedi.</p>
     </div>
     <div class="galleria">
-      <figure><img src="sito/img/plancia_notte.png" alt="Pagina di gioco, tema Notte: Fa diesis minore settima a grandi punti, 120 BPM a sette segmenti, quattro ottave di tasti con l'accordo acceso, la banda mostra il suono Anther Keys" width="640" height="480" loading="lazy"><figcaption><b>Pagina di gioco, Notte.</b> Il nome dell'accordo a punti, il BPM a sette segmenti, i tasti che suonano in acqua e il basso in ambra.</figcaption></figure>
-      <figure><img src="sito/img/plancia_tocco.png" alt="La banda in fondo mostra REVERB 06 a cifre grandi dopo che si è girata la manopola degli effetti" width="640" height="480" loading="lazy"><figcaption><b>La banda risponde alla mano.</b> Giri una manopola e il suo nome e il suo valore compaiono grandi in fondo, come l'overlay dell'originale, senza coprire l'accordo.</figcaption></figure>
-      <figure><img src="sito/img/plancia_comandi.png" alt="Pagina dei comandi: undici celle con Sound, Perform, FX, Key, Bass, Loop, BPM, Volume, Options, Chord Voicing e Bass Voicing, la cella Sound con il fuoco" width="640" height="480" loading="lazy"><figcaption><b>Pagina dei comandi.</b> Gli undici controlli come celle, aperta con T15 del pad; «S+K1» è SHIFT + K1, la pressione; il case porta i nomi, lo schermo i valori.</figcaption></figure>
+      <figure><img src="sito/img/plancia_giorno.png" alt="Pagina di gioco, tema Giorno: Re maggiore settima a grandi punti, 120 BPM a sette segmenti, il looper che suona, quattro ottave di tasti con l'accordo, il basso e le note del loop, la banda mostra il suono Anther Keys" width="640" height="480" loading="lazy"><figcaption><b>Pagina di gioco.</b> Il nome dell'accordo a punti, il BPM a sette segmenti, i tasti che suonano in acqua, il basso in ambra e le note del loop in viola. È il tema Giorno, quello con cui Stame parte.</figcaption></figure>
+      <figure><img src="sito/img/plancia_tocco.png" alt="La banda in fondo mostra REVERB 04 a cifre grandi dopo che si è girata la manopola degli effetti" width="640" height="480" loading="lazy"><figcaption><b>La banda risponde alla mano.</b> Giri una manopola e il suo nome e il suo valore compaiono grandi in fondo, come l'overlay dell'originale, senza coprire l'accordo.</figcaption></figure>
+      <figure><img src="sito/img/plancia_comandi.png" alt="Pagina dei comandi: undici celle con Sound, Perform, FX, Key, Bass, Loop, BPM, Volume, Options, Chord Voicing e Bass Voicing, il fuoco su Key e FX appena girato" width="640" height="480" loading="lazy"><figcaption><b>Pagina dei comandi.</b> Gli undici controlli come celle, aperta con T15 del pad; «S+K1» è SHIFT + K1, la pressione; il case porta i nomi, lo schermo i valori.</figcaption></figure>
       <figure><img src="sito/img/plancia_drums.png" alt="DRUMS acceso: lo stile Funk alla variazione 3 e la griglia del loop di due battute, cassa, rullante, charleston, aperto e percussioni, con la colonna che suona" width="640" height="480" loading="lazy"><figcaption><b>Il loop che si inventa.</b> Con DRUMS acceso le tre manopole del pad creano la batteria mentre suona: M la densità, m1 lo stile, m2 la variazione; premute, play, la parte, un'idea nuova. Ripremi DRUMS e il loop resta.</figcaption></figure>
       <figure><img src="sito/img/plancia_looper.png" alt="Pannello del looper: PLAY, battuta 2 di 4, una barra a celle per la posizione del loop e le voci OVERDUB, PAUSE e CLEAR" width="640" height="480" loading="lazy"><figcaption><b>Il looper.</b> Un loop di eventi, quattro battute, sovraincisione strato su strato, undo; la cornice diventa rossa mentre registra.</figcaption></figure>
-      <figure><img src="sito/img/plancia_giorno.png" alt="La stessa plancia nel tema Giorno: fondo grigio-verde e inchiostri scuri" width="640" height="480" loading="lazy"><figcaption><b>Tema Giorno.</b> Un LCD riflettente invece del VFD: stessi ruoli, stesse forme, inchiostri al posto dei fosfori.</figcaption></figure>
+      <figure><img src="sito/img/plancia_notte.png" alt="La stessa plancia nel tema Notte: vetro scuro e fosfori" width="640" height="480" loading="lazy"><figcaption><b>Tema Notte.</b> Un VFD invece dell'LCD: stessi ruoli, stesse forme, fosfori al posto degli inchiostri (MENU › Theme).</figcaption></figure>
       <figure><img src="sito/img/plancia_geek.png" alt="Vista Geek Out: le note scritte, le finestre del voicing sulla tastiera, il cartellino di Linneo e i meter in testata" width="640" height="480" loading="lazy"><figcaption><b>Geek Out.</b> Note, intervalli, finestre del voicing, il cartellino di Linneo e i meter: il dettaglio da guardare da vicino.</figcaption></figure>
       <figure><img src="sito/img/plancia_lista.png" alt="Una lista aperta al posto della tastiera, con la voce scelta evidenziata" width="640" height="480" loading="lazy"><figcaption><b>Una lista.</b> Suoni, performance, Beat e opzioni scorrono con la manopola di navigazione della MPK.</figcaption></figure>
       <figure><img src="sito/img/plancia_react.png" alt="Vista React: la zona dell'accordo reagisce alle note con forme grandi" width="640" height="480" loading="lazy"><figcaption><b>React.</b> Una delle sei viste dell'originale, ridisegnata per lo schermo a colori della Flip.</figcaption></figure>
@@ -303,8 +291,7 @@ sh tools/deploy.sh              # la copia via SSH (l'indirizzo della Flip in to
   if (!b) return;
   b.addEventListener('click', function () {
     var r = document.documentElement;
-    var light = window.matchMedia('(prefers-color-scheme: light)').matches;
-    var cur = r.dataset.theme || (light ? 'giorno' : 'notte');
+    var cur = r.dataset.theme || 'giorno';
     var next = cur === 'notte' ? 'giorno' : 'notte';
     r.dataset.theme = next;
     try { localStorage.setItem('stame-tema', next); } catch (e) {}

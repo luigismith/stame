@@ -379,8 +379,8 @@ static void sc_theme_toggle(void)
     sc_run(300);
 }
 
-/* le schermate del manuale stanno nel tema Giorno (Luigi, 15/10/2026: «preferisci modalità chiara»);
- * «notte» è la stessa pagina di gioco nel tema Notte, per confronto */
+/* le schermate del manuale, dei disegni, del sito e dell'identità stanno nel tema Giorno (Luigi, 15/10/2026:
+ * «preferisci modalità chiara»); «notte» è la stessa pagina di gioco nel tema Notte, per confronto */
 static int render_scene(const char *dir)
 {
     /* avvio */
@@ -392,13 +392,13 @@ static int render_scene(const char *dir)
 
     sc_setup();
     if (vet.m.prefs.theme != THEME_LIGHT) sc_theme_toggle();     /* Giorno (il default dal 15/10/2026: si chiede, non si commuta) */
-    if (vet_model(&vet)->music.key_on) { sc_push(3, 60); sc_run(2000); }   /* SHIFT + K4: Key mode spenta, il nome è quello dell'accordo */
+    if (vet_model(&vet)->music.key_on) { sc_push(3, 60); sc_run(3600); }   /* SHIFT + K4: Key mode spenta, il nome è quello dell'accordo; la banda torna a riposo */
     /* pagina di gioco con un accordo */
     sc_chord(true);
     sc_run(400);
     render_to(dir, "gioco");
-    /* il controllo appena toccato: FX (K3 della MPK) */
-    sc_midi(0xB0, 72, 2);
+    /* il controllo appena toccato: FX, K3 della MK4 girata di un passo (8 unità) */
+    sc_daw(26, 8);
     sc_run(150);
     render_to(dir, "tocco");
     sc_run(2000);
@@ -434,7 +434,9 @@ static int render_scene(const char *dir)
     sc_run(2100);                                     /* count-in: una battuta a 120 BPM */
     for (int bar = 0; bar < 4; bar++) {
         sc_chord(true);
-        sc_run(1400);
+        sc_run(700);
+        if (bar == 1) render_to(dir, "rec");          /* mentre registra: cornice e barra rosse */
+        sc_run(700);
         sc_chord(false);
         sc_run(300);
     }
@@ -477,6 +479,33 @@ static int render_scene(const char *dir)
     sc_run(400);
     render_to(dir, "notte");
     sc_chord(false);
+    /* di nuovo Giorno, per i disegni, il sito e l'identità: un nome con l'estensione (Re, pad Maj e M7) */
+    if (vet.m.prefs.theme != THEME_LIGHT) sc_theme_toggle();
+    sc_run(3600);
+    sc_midi(0x99, 42, 100); sc_midi(0x99, 38, 100); sc_run(20); sc_midi(0x90, 62, 100);
+    sc_run(400);
+    render_to(dir, "nome");
+    /* la vista React: R1 della Flip porta il fuoco su Options, la croce a sinistra la gira */
+    for (int i = 0; i < 2 * ENC_COUNT && vet.inp.gest.focus != ENC_OPTIONS; i++) sc_pad(PAD_R1);
+    for (int i = 0; i < VIEW_COUNT && vet_model(&vet)->ctl.view != VIEW_REACT; i++) sc_pad(PAD_LEFT);
+    sc_pad(PAD_B);
+    sc_run(1200);
+    render_to(dir, "react");
+    for (int i = 0; i < VIEW_COUNT && vet_model(&vet)->ctl.view != VIEW_CHORD; i++) sc_pad(PAD_RIGHT);
+    sc_pad(PAD_B);
+    sc_run(3600);
+    /* premi e gira Key (SHIFT + K4 toccata, poi girata di tre passi da 12 unità): Transpose +3 */
+    sc_daw(17, 127);
+    sc_run(20);
+    sc_daw(27, 1);
+    sc_run(400);                                      /* oltre MK4_PUSH_DEBOUNCE_US la manopola gira */
+    for (int i = 0; i < 3; i++) { sc_daw(27, 12); sc_run(60); }
+    sc_run(200);
+    render_to(dir, "transpose");
+    sc_daw(17, 0);
+    sc_run(40);
+    sc_midi(0x80, 62, 0); sc_run(20); sc_midi(0x89, 38, 0); sc_midi(0x89, 42, 0);
+    sc_run(120);
     return 0;
 }
 

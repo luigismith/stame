@@ -1,28 +1,20 @@
 /* stame.css — il sito di Stame: lo stesso vetrino a fluorescenza della plancia (docs/identita/README.md §3).
-   Notte di default (un VFD: vetro scuro e fosfori), Giorno (un LCD riflettente) con prefers-color-scheme:
-   light o con l'interruttore in alto. Due inchiostri: le scritte fisse in sabbia, i valori nei fosfori. */
+   Giorno di default (un LCD riflettente: fondo grigio-verde e inchiostri), Notte (un VFD: vetro scuro e
+   fosfori) solo con l'interruttore in alto. Due inchiostri: le scritte fisse in sabbia, i valori nei fosfori. */
 :root {
-  --bg: #050C0B; --mesh: #0A1614; --panel: #0A1715; --line: #1B302C; --seg-off: #10221F; --bar: #123029;
-  --ghost: #3F655D; --text: #DDFBF1; --dim: #A99F86; --treble: #3FE3CB; --bass: #FFAE4A; --loop: #B996FF;
-  --focus: #A4F06A; --active: #FFDD5E; --warn: #FF6156;
-  --f-display: "DotGothic16", "IBM Plex Mono", ui-monospace, monospace;
-  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
-  color-scheme: dark;
-}
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="notte"]) {
-    --bg: #CED4C2; --mesh: #C8CEBB; --panel: #D9DECE; --line: #A2AA95; --seg-off: #C1C8B4; --bar: #B5BDA7;
-    --ghost: #879180; --text: #141B18; --dim: #424C47; --treble: #005A51; --bass: #853A00; --loop: #4A2894;
-    --focus: #285C00; --active: #634A00; --warn: #9E160C;
-    color-scheme: light;
-  }
-}
-:root[data-theme="giorno"] {
   --bg: #CED4C2; --mesh: #C8CEBB; --panel: #D9DECE; --line: #A2AA95; --seg-off: #C1C8B4; --bar: #B5BDA7;
   --ghost: #879180; --text: #141B18; --dim: #424C47; --treble: #005A51; --bass: #853A00; --loop: #4A2894;
   --focus: #285C00; --active: #634A00; --warn: #9E160C;
+  --f-display: "DotGothic16", "IBM Plex Mono", ui-monospace, monospace;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
   color-scheme: light;
+}
+:root[data-theme="notte"] {
+  --bg: #050C0B; --mesh: #0A1614; --panel: #0A1715; --line: #1B302C; --seg-off: #10221F; --bar: #123029;
+  --ghost: #3F655D; --text: #DDFBF1; --dim: #A99F86; --treble: #3FE3CB; --bass: #FFAE4A; --loop: #B996FF;
+  --focus: #A4F06A; --active: #FFDD5E; --warn: #FF6156;
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -118,6 +110,7 @@ pre code { background: none; border: 0; padding: 0; }
 .scheda.active h3 { color: var(--active); }
 .scheda p, .scheda li { font-size: 0.95rem; }
 .scheda ul { margin: 0; padding-left: 1.1em; }
+.nota-postazione { margin-top: 16px; color: var(--dim); font-size: 0.95rem; }
 
 /* lo stato: celle che si accendono */
 .celle { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }

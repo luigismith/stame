@@ -8,7 +8,7 @@ Dove sta nel codice:
 - **case**: `hardware/case/` (misure, generatore dei pezzi, modello 3D);
 - **suono**: `assets/suoni/` (logo sonoro e sessione di SoundCraft).
 
-![La plancia, tema Notte](img/plancia_notte.png)
+![La plancia, tema Giorno](img/plancia_giorno.png)
 
 ## 1. La storia
 
@@ -70,31 +70,31 @@ Matrice è stato disegnato per Stame: 78 glifi, larghezza da 1 a 5 punti, due ri
 
 ### 3.3 Palette
 
-Due temi, due tecnologie di display dell'epoca. **Notte** (default) è un VFD: vetro scuro e fosfori. **Giorno** è un LCD riflettente: fondo grigio-verde e inchiostri scuri. Stessi ruoli, stesse forme.
+Due temi, due tecnologie di display dell'epoca. **Giorno** (il default dal 15/10/2026) è un LCD riflettente: fondo grigio-verde e inchiostri scuri. **Notte** è un VFD: vetro scuro e fosfori. Stessi ruoli, stesse forme.
 
-| Token | Ruolo | Notte | Giorno |
+| Token | Ruolo | Giorno | Notte |
 |---|---|---|---|
-| `bg` | vetro | `#050C0B` | `#CED4C2` |
-| `mesh` | maglia del vetro | `#0A1614` | `#C8CEBB` |
-| `panel` | intestazioni e liste | `#0A1715` | `#D9DECE` |
-| `line` | separatori | `#1B302C` | `#A2AA95` |
-| `seg_off` | segmenti e punti spenti | `#10221F` | `#C1C8B4` |
-| `bar` | barre e celle | `#123029` | `#B5BDA7` |
-| `ghost` | accordo passato, legende dei comandi | `#3F655D` | `#879180` |
-| `text` | valori accesi | `#DDFBF1` | `#141B18` |
-| `dim` | scritte stampate (sabbia) | `#A99F86` | `#424C47` |
-| `treble` | accordo, note treble, finestra del voicing | `#3FE3CB` | `#005A51` |
-| `bass` | basso | `#FFAE4A` | `#853A00` |
-| `loop` | looper | `#B996FF` | `#4A2894` |
-| `focus` | fuoco, primo movimento, MPK STAME | `#A4F06A` | `#285C00` |
-| `active` | evidenze, transpose, LOCK | `#FFDD5E` | `#634A00` |
-| `warn` | registrazione, clip, avvisi | `#FF6156` | `#9E160C` |
-| `kb_white` / `kb_black` | tasti spenti | `#183632` / `#08110F` | `#E3E7D8` / `#252D29` |
-| `in_key` | granelli di polline | `#6FA597` | `#424C47` |
+| `bg` | vetro | `#CED4C2` | `#050C0B` |
+| `mesh` | maglia del vetro | `#C8CEBB` | `#0A1614` |
+| `panel` | intestazioni e liste | `#D9DECE` | `#0A1715` |
+| `line` | separatori | `#A2AA95` | `#1B302C` |
+| `seg_off` | segmenti e punti spenti | `#C1C8B4` | `#10221F` |
+| `bar` | barre e celle | `#B5BDA7` | `#123029` |
+| `ghost` | accordo passato, legende dei comandi | `#879180` | `#3F655D` |
+| `text` | valori accesi | `#141B18` | `#DDFBF1` |
+| `dim` | scritte stampate (sabbia) | `#424C47` | `#A99F86` |
+| `treble` | accordo, note treble, finestra del voicing | `#005A51` | `#3FE3CB` |
+| `bass` | basso | `#853A00` | `#FFAE4A` |
+| `loop` | looper | `#4A2894` | `#B996FF` |
+| `focus` | fuoco, primo movimento, MPK STAME | `#285C00` | `#A4F06A` |
+| `active` | evidenze, transpose, LOCK | `#634A00` | `#FFDD5E` |
+| `warn` | registrazione, clip, avvisi | `#9E160C` | `#FF6156` |
+| `kb_white` / `kb_black` | tasti spenti | `#E3E7D8` / `#252D29` | `#183632` / `#08110F` |
+| `in_key` | granelli di polline | `#424C47` | `#6FA597` |
 
 Contrasti (WCAG, controllati da `tests/unit/test_plancia.c`, T-UI-20): ogni token di testo ha almeno 4,5:1 sul vetro e sui pannelli, i ruoli almeno 3:1 sui tasti bianchi, `ghost` fra 2 e 3,5:1, i segmenti spenti fra 1,05 e 1,6:1 (si intuiscono, non si leggono).
 
-![Tema Giorno](img/plancia_giorno.png)
+![Tema Notte](img/plancia_notte.png)
 
 ### 3.4 Elementi propri
 
@@ -105,7 +105,7 @@ Contrasti (WCAG, controllati da `tests/unit/test_plancia.c`, T-UI-20): ogni toke
 - **Barre a celle.** Livello, giro del looper, volume e voicing sono barre di celle: si accendono, non si riempiono.
 - **La banda.** In fondo al vetrino, una riga che risponde alla mano: il controllo appena toccato in grande, con un segno giallo a sinistra; a riposo il suono, un gradino più piccolo. Le funzioni secondarie (premi e gira) hanno l'etichetta in negativo, come il tasto tenuto.
 
-![Il controllo appena toccato: Reverb 06](img/plancia_tocco.png)
+![Il controllo appena toccato: Reverb 04](img/plancia_tocco.png)
 
 ![La pagina dei comandi, con L1/R1 della Flip](img/plancia_comandi.png)
 

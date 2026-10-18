@@ -15,14 +15,11 @@ The name comes from the flower: the stamen carries the pollen, the pistil receiv
 > **Status:** phase 1, *showcase 0.1* running on the Flip: it plays, it loops, it has a demo. Phase 2 will move the same core to dedicated hardware. Independent project: this repository holds no presets, firmware or sounds of other instruments.
 
 <p align="center">
-  <img src="docs/sito/img/postazione.jpg" width="100%" alt="The rig: the MPK mini IV on the left, the macro pad in line with the keys on the right, the Miyoo Flip open above the pad">
-</p>
-<p align="center">
-  <img src="docs/sito/img/plancia_notte.png" width="32%" alt="Play page, Night theme">
+  <img src="docs/sito/img/plancia_giorno.png" width="32%" alt="Play page, Day theme">
   <img src="docs/sito/img/plancia_tocco.png" width="32%" alt="The band shows the control just touched">
   <img src="docs/sito/img/plancia_comandi.png" width="32%" alt="Controls page">
   <img src="docs/sito/img/plancia_looper.png" width="32%" alt="Looper">
-  <img src="docs/sito/img/plancia_giorno.png" width="32%" alt="Day theme">
+  <img src="docs/sito/img/plancia_notte.png" width="32%" alt="Night theme">
   <img src="docs/sito/img/plancia_geek.png" width="32%" alt="Geek Out view">
 </p>
 
@@ -38,7 +35,7 @@ The Italian [manual](docs/manuale/manuale.md) and the one-page [quick reference]
 
 - **The sound.** Two engines (Sound and Bass) on sixteen voices at 48 kHz, three synth models that follow the original — VA, FM and a physical-model Reed Piano — plus a Stame addition, the **SMP sampler**, which plays a 94 MB bank of CC0 samples: pianos (Kawai grand, two uprights, TX81Z FM piano and Clavisynth), harpsichords, four pipe-organ stops, recorders from soprano to bass, ocarina, harmonicas, tenor sax and saxello, didgeridoo, harp, strumstick, đàn tranh, psaltery, three lamellophones, vibraphone, marimba, balafon, xylophone, glockenspiel, tubular bells, hand chimes, wine glasses. Two FX slots per engine, delay, reverb. A hundred and thirteen sounds (71 synth, 42 sampled) and twenty-four basses, designed for Stame, from glass pads to acid lines.
 - **Performances:** Strum, Strum 2 Octaves, Slop, Arpeggiate (1 and 2 octaves), Pattern, Harp, with a Lock. **Beat:** nineteen patterns with four sampled kits (Studio, Jazz, 808, Techno) and a synthesized CR-78-style kit, and drums that invent themselves: with DRUMS on, the pad's three knobs give density, groove and variation to a two-bar loop that changes while it plays. **Looper:** a loop of events, four bars with a count-in, overdub, pause, undo, clear.
-- **The panel.** A 640×480 «calm» panel: chord, tempo, keyboard and the control just touched; the eleven controls and the detail arrive on request. Six views, two themes (Night, a VFD; Day, a reflective LCD), a dot-matrix font and seven-segment digits drawn for Stame. See [docs/identita](docs/identita/README.md).
+- **The panel.** A 640×480 «calm» panel: chord, tempo, keyboard and the control just touched; the eleven controls and the detail arrive on request. Six views, two themes (Day, a reflective LCD, the default; Night, a VFD), a dot-matrix font and seven-segment digits drawn for Stame. See [docs/identita](docs/identita/README.md).
 - **The demo.** Twenty seconds without input and Stame plays its six original pieces in turn («Acacia», «Felce», «Pistillo», «Alga», «Cicuta», «Torba»), showing every gesture on the panel: chords, bass, loop and overdubs, a drum loop played on the keys, sampled piano, vibraphone, kalimba, sax, organ and bells, the two themes, a ritardando.
 - **The core is portable.** `src/core`, `src/dsp`, `src/ui`, `src/gfx` and `src/ui_flip` are plain C11: no heap, no I/O, no SDL in the audio path. Everything platform-specific lives in `src/platform/`. The portability check compiles the core as freestanding Cortex-M7 code, so phase 2 stays honest.
 

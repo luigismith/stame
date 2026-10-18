@@ -15,14 +15,11 @@ Il nome viene dal fiore: lo stame porta il polline, il pistillo lo riceve; Stame
 > **Stato:** fase 1, *vetrina 0.1* che gira sulla Flip: suona, fa i loop, ha una demo. La fase 2 porterà lo stesso nucleo su hardware dedicato. Progetto indipendente: nel repository non ci sono preset, firmware né suoni di altri strumenti.
 
 <p align="center">
-  <img src="docs/sito/img/postazione.jpg" width="100%" alt="La postazione: la MPK mini IV a sinistra, il macro pad in linea con i tasti a destra, la Miyoo Flip aperta sopra il pad">
-</p>
-<p align="center">
-  <img src="docs/sito/img/plancia_notte.png" width="32%" alt="Pagina di gioco, tema Notte">
+  <img src="docs/sito/img/plancia_giorno.png" width="32%" alt="Pagina di gioco, tema Giorno">
   <img src="docs/sito/img/plancia_tocco.png" width="32%" alt="La banda mostra il controllo appena toccato">
   <img src="docs/sito/img/plancia_comandi.png" width="32%" alt="Pagina dei comandi">
   <img src="docs/sito/img/plancia_looper.png" width="32%" alt="Looper">
-  <img src="docs/sito/img/plancia_giorno.png" width="32%" alt="Tema Giorno">
+  <img src="docs/sito/img/plancia_notte.png" width="32%" alt="Tema Notte">
   <img src="docs/sito/img/plancia_geek.png" width="32%" alt="Vista Geek Out">
 </p>
 
@@ -38,7 +35,7 @@ Il [manuale](docs/manuale/manuale.md) e il [prontuario](docs/manuale/prontuario.
 
 - **Il suono.** Due motori (Sound e Bass) su sedici voci a 48 kHz, tre modelli di sintesi che seguono l'originale — VA, FM e un Reed Piano a modello fisico — più un'aggiunta di Stame, il **campionatore SMP**, che suona un banco di 94 MB di campioni CC0: pianoforti (Kawai a coda, due verticali, FM piano e Clavisynth del TX81Z), clavicembali, quattro registri d'organo a canne, flauti dolci dal soprano al basso, ocarina, armoniche, sax tenore e saxello, didgeridoo, arpa, strumstick, đàn tranh, salterio, tre lamellofoni, vibrafono, marimba, balafon, xilofono, glockenspiel, campane tubolari, campane a mano, bicchieri. Due slot di effetti per motore, delay, riverbero. Centotredici suoni (71 di sintesi, 42 campionati) e ventiquattro bassi, progettati per Stame, dai pad di vetro alle linee acid.
 - **Performance:** Strum, Strum 2 Octaves, Slop, Arpeggiate (1 e 2 ottave), Pattern, Harp, con il Lock. **Beat:** diciannove pattern con quattro kit a campioni (Studio, Jazz, 808, Techno) e un kit sintetizzato in stile CR-78, e la batteria che si inventa: con DRUMS acceso le tre manopole del pad danno densità, stile e variazione a un loop di due battute che cambia mentre suona. **Looper:** un loop di eventi, quattro battute con count-in, sovraincisione, pausa, undo, clear.
-- **La plancia.** Una plancia «calma» a 640×480: accordo, tempo, tastiera e il controllo appena toccato; gli undici controlli e il dettaglio arrivano a richiesta. Sei viste, due temi (Notte, un VFD; Giorno, un LCD riflettente), un carattere a punti e cifre a sette segmenti disegnati per Stame. Vedi [docs/identita](docs/identita/README.md).
+- **La plancia.** Una plancia «calma» a 640×480: accordo, tempo, tastiera e il controllo appena toccato; gli undici controlli e il dettaglio arrivano a richiesta. Sei viste, due temi (Giorno, un LCD riflettente, il default; Notte, un VFD), un carattere a punti e cifre a sette segmenti disegnati per Stame. Vedi [docs/identita](docs/identita/README.md).
 - **La demo.** Venti secondi senza ingressi e Stame suona a giro i suoi sei brani originali («Acacia», «Felce», «Pistillo», «Alga», «Cicuta», «Torba»), mostrando ogni gesto sulla plancia: accordi, basso, loop e sovraincisioni, un loop di batteria suonato sui tasti, piano, vibrafono, kalimba, sax, organo e campane campionati, i due temi, un ritardando.
 - **Il nucleo è portabile.** `src/core`, `src/dsp`, `src/ui`, `src/gfx` e `src/ui_flip` sono C11 puro: niente heap, niente I/O, niente SDL nel percorso audio. Tutto ciò che è specifico della piattaforma sta in `src/platform/`. Il controllo di portabilità compila il nucleo come codice freestanding per Cortex-M7, così la fase 2 resta onesta.
 

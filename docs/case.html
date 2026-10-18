@@ -9,7 +9,7 @@
 <meta property="og:description" content="A birch console that holds an MPK mini IV, a macro pad and a Miyoo Flip: renders, assembly, cutting sheets.">
 <meta property="og:image" content="https://luigismith.github.io/stame/sito/img/case/render_eroe.jpg">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#050C0B">
+<meta name="theme-color" content="#CED4C2">
 <link rel="icon" type="image/png" href="sito/favicon.png">
 <link rel="alternate" hreflang="it" href="case.it.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,7 +35,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     <div class="lingua">
       <a href="case.html" aria-current="page" hreflang="en">EN</a>
       <a href="case.it.html" hreflang="it" lang="it">IT</a>
-      <button type="button" id="tema" aria-label="Switch between Night and Day theme">Night / Day</button>
+      <button type="button" id="tema" aria-label="Switch between Day and Night theme">Day / Night</button>
     </div>
   </div>
 </header>
@@ -164,8 +164,7 @@ python -I hardware/case/rendering.py   # Blender renders (Cycles, GPU)</code></p
   if (!b) return;
   b.addEventListener('click', function () {
     var r = document.documentElement;
-    var light = window.matchMedia('(prefers-color-scheme: light)').matches;
-    var cur = r.dataset.theme || (light ? 'giorno' : 'notte');
+    var cur = r.dataset.theme || 'giorno';
     var next = cur === 'notte' ? 'giorno' : 'notte';
     r.dataset.theme = next;
     try { localStorage.setItem('stame-tema', next); } catch (e) {}

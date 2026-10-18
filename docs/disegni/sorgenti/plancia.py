@@ -1,11 +1,11 @@
 # Disegno SVG della plancia 640x480 della Flip, secondo docs/specifica/30-interfaccia.md §4 (UI-140..UI-160).
 # Coordinate in pixel dello schermo. Font: monospazio al posto di Spleen (stesse classi S/M/L/XL).
 
-T = {  # tema Dark, UI-128
-    'bg': '#0E1114', 'panel': '#161A1F', 'line': '#2A3038', 'bar': '#26303A', 'text': '#E8ECF0',
-    'dim': '#8A949E', 'ghost': '#56606B', 'treble': '#38C8F0', 'bass': '#FF9A2E', 'loop': '#B48CFF',
-    'focus': '#3BE01E', 'active': '#FFD23F', 'warn': '#FF5252', 'kb_white': '#4A525C', 'kb_black': '#15181C',
-    'in_key': '#8A949E',
+T = {  # tema Giorno, il default (UI-128): gli stessi colori di src/ui_flip/tema.c
+    'bg': '#CED4C2', 'panel': '#D9DECE', 'line': '#A2AA95', 'bar': '#B5BDA7', 'text': '#141B18',
+    'dim': '#424C47', 'ghost': '#879180', 'treble': '#005A51', 'bass': '#853A00', 'loop': '#4A2894',
+    'focus': '#285C00', 'active': '#634A00', 'warn': '#9E160C', 'kb_white': '#E3E7D8', 'kb_black': '#252D29',
+    'in_key': '#424C47',
 }
 MONO = "Consolas, 'DejaVu Sans Mono', 'Courier New', monospace"
 FS = {'XS': 10.5, 'S': 14.2, 'M': 21, 'L': 28.5}
@@ -343,7 +343,7 @@ def plancia_svg(stato, width='100%'):
 
 
 def plancia_img(nome, width='100%'):
-    """Fotogramma vero della plancia, scritto da stame-render (vetrina del 14/10/2026) in img/."""
+    """Fotogramma vero della plancia, scritto da stame-render --scene (tema Giorno, 18/10/2026) in img/."""
     import base64
     import os
     p = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'img', nome + '.png')
@@ -365,14 +365,14 @@ def _p2():
         _zone_note('Z3', 'Tempo e loop · 224×216', 'BPM a sette segmenti alti 50 px e un riquadro per movimento. Il looper compare solo quando lavora: stato, battuta, barra a celle, menu a tre voci; cornice rossa mentre registra.'),
         _zone_note('Z4', 'Tastiera · 640×144', '4 ottave che seguono le finestre: treble, basso e loop (striscia viola) sui tasti. I puntini sono i granelli di polline: le note della tonalità. Girando un voicing compaiono sopra i <b>filamenti</b> con le antere.'),
         _zone_note('Z5', 'Comandi · a richiesta', 'Con L1/R1, croce, A o X della Flip, al posto della tastiera: gli 11 controlli dell\'originale con fuoco, LED, LOCK e legenda. Si chiude da sola dopo 5 s o con B. Qui si aprono anche liste e menu.'),
-        _zone_note('Z6', 'Banda · 640×96', 'Il <b>controllo appena toccato</b>, in grande, con un segno giallo a sinistra: è l\'overlay dell\'originale. A riposo, il suono. Avvisi e richiesta della tonalità passano davanti. I nomi dei comandi sono incisi sulla mascherina, non qui.'),
+        _zone_note('Z6', 'Banda · 640×96', 'Il <b>controllo appena toccato</b>, in grande, con un segno a sinistra nel colore delle evidenze: è l\'overlay dell\'originale. A riposo, il suono. Avvisi e richiesta della tonalità passano davanti. I nomi dei comandi sono incisi sulla mascherina, non qui.'),
     ])
     return f"""
 <h2>La plancia sulla Flip</h2>
-<p class="sub">Schermo 640×480, tema Notte (VFD). <b>Plancia calma</b>: mentre si suona, quattro cose leggibili a un braccio; i comandi e il dettaglio a richiesta. Stato d'esempio: Si m7 con il basso, tonalità Fa♯ minore, looper in riproduzione con le note registrate (viola), MPK collegata.</p>
+<p class="sub">Schermo 640×480, tema Giorno (un LCD riflettente, quello con cui Stame parte). <b>Plancia calma</b>: mentre si suona, quattro cose leggibili a un braccio; i comandi e il dettaglio a richiesta. Stato d'esempio: Re maggiore settima con il basso, looper in riproduzione con le note registrate (viola), MPK e macro pad collegati.</p>
 <div style="display:flex;gap:7mm">
  <div style="flex:0 0 168mm">{plancia_img('principale')}
-  <div class="muted" style="font-size:7.6pt;margin-top:1.2mm">Fotogramma vero del renderer della plancia (<code>stame-render</code>, plancia calma del 15/10/2026), lo stesso codice che gira sulla Flip. Identità: <code>docs/identita/README.md</code>; requisiti: <code>30-interfaccia.md</code> §4.</div>
+  <div class="muted" style="font-size:7.6pt;margin-top:1.2mm">Fotogramma vero del renderer della plancia (<code>stame-render --scene</code>, 18/10/2026), lo stesso codice che gira sulla Flip. Identità: <code>docs/identita/README.md</code>; requisiti: <code>30-interfaccia.md</code> §4.</div>
  </div>
  <div style="flex:1">{notes}</div>
 </div>
@@ -385,14 +385,14 @@ def _p3():
 <h2>La plancia in altri stati</h2>
 <p class="sub">La banda risponde a ciò che tocchi; liste, menu e pagina dei comandi prendono il posto della tastiera. Accordo e tempo non si muovono mai. Fotogrammi veri della vetrina.</p>
 <div style="display:flex;gap:6mm;margin-bottom:3mm">
- {fig('tocco', '<b>Hai appena girato FX.</b> La banda mostra «REVERB 06» in grande per 3,4 s, con il segno giallo a sinistra, poi torna al suono.')}
- {fig('comandi', '<b>Pagina dei comandi</b> (L1/R1 della Flip): le 11 celle al posto della tastiera, il fuoco in lime; in fondo il valore del controllo che giri.')}
- {fig('lista', '<b>Lista dei suoni</b> (tocco di T1, oppure fuoco su Sound + A): la voce scelta sta nella riga centrale, la spunta segna il suono attivo; in fondo i tasti della Flip.')}
+ {fig('tocco', '<b>Hai appena girato FX</b> (K3 della MPK). La banda mostra «REVERB 04» in grande per 3,4 s, con il segno a sinistra, poi torna al suono.')}
+ {fig('comandi', '<b>Pagina dei comandi</b> (T15 del pad, o L1/R1 della Flip): le 11 celle al posto della tastiera, il fuoco in verde su Key; FX appena girato, acceso nella sua cella e in grande nella banda.')}
+ {fig('lista', '<b>Lista dei suoni</b> (SHIFT + K1, oppure fuoco su Sound + A): la voce scelta in negativo, la spunta segna il suono attivo; si scorre con la manopola di navigazione.')}
 </div>
 <div style="display:flex;gap:6mm">
  {fig('rec', '<b>Registrazione del loop.</b> Cornice rossa sulla zona del tempo, barra a celle rossa, menu a tre voci.')}
- {fig('transpose', '<b>Funzione secondaria</b> (T4 tenuto + gira K4): etichetta in negativo e valore in giallo; la tonalità e il nome seguono il transpose.')}
- {fig('giorno', '<b>Tema Giorno</b> (MENU › Theme › Light): un LCD riflettente, stessi ruoli e stesse forme del tema Notte.')}
+ {fig('transpose', '<b>Funzione secondaria</b> (premi e gira Key: SHIFT + K4 girata): etichetta in negativo, «Trans +3» in alto; la tastiera e il nome dell’accordo seguono il transpose.')}
+ {fig('notte', '<b>Tema Notte</b> (MENU › Theme › Dark): un VFD, vetro scuro e fosfori; stessi ruoli e stesse forme del tema Giorno.')}
 </div>
 """
 

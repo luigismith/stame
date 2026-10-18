@@ -7,9 +7,9 @@
 <meta name="description" content="Stame: an open chord synth. One hand holds the chord type, the other plays the root, and a whole chord comes out. Grown on a Miyoo Flip, played on an Akai MPK mini IV and a macro pad.">
 <meta property="og:title" content="Stame · a chord synth grown on a handheld">
 <meta property="og:description" content="An open chord synth: hold a chord type, play the root and a whole chord comes out, voiced, with its bass. Running on a Miyoo Flip with an Akai MPK mini IV and a fifteen-key macro pad.">
-<meta property="og:image" content="https://luigismith.github.io/stame/sito/img/plancia_notte.png">
+<meta property="og:image" content="https://luigismith.github.io/stame/sito/img/plancia_giorno.png">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#050C0B">
+<meta name="theme-color" content="#CED4C2">
 <link rel="icon" type="image/png" href="sito/favicon.png">
 <link rel="alternate" hreflang="it" href="index.it.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,7 +35,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     <div class="lingua">
       <a href="index.html" aria-current="page" hreflang="en">EN</a>
       <a href="index.it.html" hreflang="it" lang="it">IT</a>
-      <button type="button" id="tema" aria-label="Switch between Night and Day theme">Night / Day</button>
+      <button type="button" id="tema" aria-label="Switch between Day and Night theme">Day / Night</button>
     </div>
   </div>
 </header>
@@ -91,24 +91,12 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       <h2>Three devices, one instrument.</h2>
       <p>Left hand on the pads, right hand on the keys, the macro pad a palm away, the Flip above it with the screen facing you.</p>
     </div>
-    <figure class="foto-grande">
-      <img src="sito/img/postazione.jpg" alt="The rig on a desk: the Akai MPK mini IV on the left, the macro pad with three metal knobs on the right in line with the keys, the Miyoo Flip open above the pad" width="1600" height="595">
-      <figcaption>The composition chosen on the desk: MPK mini IV, macro pad in line with the keys, Flip open above the pad so the screen never covers the keys.</figcaption>
-    </figure>
-    <div class="galleria">
-      <figure>
-        <img src="sito/img/mk4.jpg" alt="Akai MPK mini IV seen from above: pads, eight knobs, transport buttons and two octaves of keys" width="1600" height="901">
-        <figcaption><b>Akai MPK mini IV.</b> The eight pads are the original's chord buttons (Dim, Min, Maj, Sus / 6, m7, M7, 9); the keys give the root; the eight knobs turn Sound, Perform, FX, Key, Bass, Loop, BPM and Volume; the transport is the looper.</figcaption>
-      </figure>
-      <figure>
-        <img src="sito/img/pad.jpg" alt="The macro pad: fifteen white keys in three rows of five, two small metal knobs and one large one on the right" width="1600" height="1129">
-        <figcaption><b>Macro pad.</b> Fifteen keys and three detented, pushable knobs. The keys do what the original lacks: Hold, tap tempo, metronome, fill, four scenes, Save Loop, drums on the keys; the big knob is the Chord Voicing dial. T13 is the Lock, T14 the View, T15 the Page.</figcaption>
-      </figure>
-      <figure>
-        <img src="sito/img/flip.jpg" alt="The Miyoo Flip, open, a small clamshell console with a 3.5-inch screen, a d-pad and four coloured buttons" width="997" height="1200">
-        <figcaption><b>Miyoo Flip.</b> The brain and the display: a 640×480 screen on a hinge, a Cortex-A55 running the synth at 48 kHz. Its own controls always work: the buttons move a focus and open the controls page and the menu, the left stick bends and modulates, the right one moves the two voicing windows, L2 taps the tempo and R2 holds a fill.</figcaption>
-      </figure>
+    <div class="schede">
+      <div class="scheda"><h3>Akai MPK mini IV</h3><p>The eight pads are the original's chord buttons (Dim, Min, Maj, Sus / 6, m7, M7, 9); the keys give the root; the eight knobs turn Sound, Perform, FX, Key, Bass, Loop, BPM and Volume; the transport is the looper.</p></div>
+      <div class="scheda"><h3>Macro pad</h3><p>Fifteen keys and three detented, pushable knobs. The keys do what the original lacks: Hold, tap tempo, metronome, fill, four scenes, Save Loop, drums on the keys; the big knob is the Chord Voicing dial. T13 is the Lock, T14 the View, T15 the Page.</p></div>
+      <div class="scheda"><h3>Miyoo Flip</h3><p>The brain and the display: a 640×480 screen on a hinge, a Cortex-A55 running the synth at 48 kHz. Its own controls always work: the buttons move a focus and open the controls page and the menu, the left stick bends and modulates, the right one moves the two voicing windows, L2 taps the tempo and R2 holds a fill.</p></div>
     </div>
+    <p class="nota-postazione">In the wooden console they sit like this: the MPK on the left, the pad in its cradle in line with the keys, the Flip open above the pad, so the screen never covers the keys. The rendering is further down, in the <a href="#case">Case</a> section.</p>
   </div>
 </section>
 
@@ -120,12 +108,12 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       <p>While you play, the screen shows four things: the chord, the tempo, the keyboard and the control you just touched. Everything else arrives when you ask for it.</p>
     </div>
     <div class="galleria">
-      <figure><img src="sito/img/plancia_notte.png" alt="Play page, Night theme: F sharp minor seventh in large dots, 120 BPM in seven-segment digits, four octaves of keys with the chord lit, the band shows the sound Anther Keys" width="640" height="480" loading="lazy"><figcaption><b>Play page, Night.</b> The chord name in dots, the BPM in seven segments, the keys that sound in teal and the bass in amber.</figcaption></figure>
-      <figure><img src="sito/img/plancia_tocco.png" alt="The band at the bottom shows REVERB 06 in large digits after the FX knob was turned" width="640" height="480" loading="lazy"><figcaption><b>The band answers the hand.</b> Turn a knob and its name and value appear large at the bottom, like the original's overlay, without covering the chord.</figcaption></figure>
-      <figure><img src="sito/img/plancia_comandi.png" alt="Controls page: eleven cells with Sound, Perform, FX, Key, Bass, Loop, BPM, Volume, Options, Chord Voicing and Bass Voicing, the Sound cell focused" width="640" height="480" loading="lazy"><figcaption><b>Controls page.</b> The eleven controls as cells, opened with T15 of the pad; «S+K1» is SHIFT + K1, the push; the case carries the names, the screen the values.</figcaption></figure>
+      <figure><img src="sito/img/plancia_giorno.png" alt="Play page, Day theme: D major seventh in large dots, 120 BPM in seven-segment digits, the looper playing, four octaves of keys with the chord, the bass and the loop notes, the band shows the sound Anther Keys" width="640" height="480" loading="lazy"><figcaption><b>Play page.</b> The chord name in dots, the BPM in seven segments, the keys that sound in teal, the bass in amber and the loop notes in violet. This is the Day theme, the one Stame starts in.</figcaption></figure>
+      <figure><img src="sito/img/plancia_tocco.png" alt="The band at the bottom shows REVERB 04 in large digits after the FX knob was turned" width="640" height="480" loading="lazy"><figcaption><b>The band answers the hand.</b> Turn a knob and its name and value appear large at the bottom, like the original's overlay, without covering the chord.</figcaption></figure>
+      <figure><img src="sito/img/plancia_comandi.png" alt="Controls page: eleven cells with Sound, Perform, FX, Key, Bass, Loop, BPM, Volume, Options, Chord Voicing and Bass Voicing, the focus on Key and FX just turned" width="640" height="480" loading="lazy"><figcaption><b>Controls page.</b> The eleven controls as cells, opened with T15 of the pad; «S+K1» is SHIFT + K1, the push; the case carries the names, the screen the values.</figcaption></figure>
       <figure><img src="sito/img/plancia_drums.png" alt="DRUMS on: the Funk groove at variation 3 and the grid of the two-bar loop, kick, snare, hat, open hat and percussion, with the playing column marked" width="640" height="480" loading="lazy"><figcaption><b>The loop that invents itself.</b> With DRUMS on, the pad's three knobs build the drums while they play: M density, m1 groove, m2 variation; pressed, play, part, a new idea. Press DRUMS again and the loop stays.</figcaption></figure>
       <figure><img src="sito/img/plancia_looper.png" alt="Looper panel: PLAY, bar 2 of 4, a cell bar for the loop position and the OVERDUB, PAUSE and CLEAR entries" width="640" height="480" loading="lazy"><figcaption><b>The looper.</b> A loop of events, four bars, overdub layer by layer, undo; the frame turns red while it records.</figcaption></figure>
-      <figure><img src="sito/img/plancia_giorno.png" alt="The same panel in the Day theme: grey-green background with dark inks" width="640" height="480" loading="lazy"><figcaption><b>Day theme.</b> A reflective LCD instead of a VFD: same roles, same shapes, inks instead of phosphors.</figcaption></figure>
+      <figure><img src="sito/img/plancia_notte.png" alt="The same panel in the Night theme: dark glass and phosphors" width="640" height="480" loading="lazy"><figcaption><b>Night theme.</b> A VFD instead of the LCD: same roles, same shapes, phosphors instead of inks (MENU › Theme).</figcaption></figure>
       <figure><img src="sito/img/plancia_geek.png" alt="Geek Out view: the notes written out, the voicing windows on the keyboard, the Linnaeus tag and the meters in the header" width="640" height="480" loading="lazy"><figcaption><b>Geek Out.</b> Notes, intervals, voicing windows, the Linnaeus tag and the meters: the detail you look at from up close.</figcaption></figure>
       <figure><img src="sito/img/plancia_lista.png" alt="A list open in place of the keyboard, with the selected entry highlighted" width="640" height="480" loading="lazy"><figcaption><b>A list.</b> Sounds, performances, beats and options scroll with the MPK's navigation knob.</figcaption></figure>
       <figure><img src="sito/img/plancia_react.png" alt="React view: the chord zone reacts to the notes with large shapes" width="640" height="480" loading="lazy"><figcaption><b>React.</b> One of the six views of the original, redrawn for the Flip's colour screen.</figcaption></figure>
@@ -303,8 +291,7 @@ sh tools/deploy.sh              # copies it over SSH (the Flip's address in tool
   if (!b) return;
   b.addEventListener('click', function () {
     var r = document.documentElement;
-    var light = window.matchMedia('(prefers-color-scheme: light)').matches;
-    var cur = r.dataset.theme || (light ? 'giorno' : 'notte');
+    var cur = r.dataset.theme || 'giorno';
     var next = cur === 'notte' ? 'giorno' : 'notte';
     r.dataset.theme = next;
     try { localStorage.setItem('stame-tema', next); } catch (e) {}
