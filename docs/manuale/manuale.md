@@ -61,7 +61,7 @@ Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 
 
 | Controllo | Gira | Premi | Tieni 1 s | Premi e gira |
 |---|---|---|---|---|
-| **Sound** | i 113 suoni: 71 di sintesi (Glass Pollen, Night Greenhouse, Anther Keys, Slow Stamen, Fern Pluck, Copper Reed, Orbit Choir, Moss Strings, Dew Mallet, Tape Fern, Seed Organ, Sun Room, Linnaeus Lead, Petal Brass, Root Drone, Vetro Pad, Moonflower, Thistle Lead, Lichen Organ, Nectar EP, Ivy Pluck, Bramble Brass, Cocoon Pad, Spore Bells, Rootstock, Birch Keys, Pollen Choir, Reed Marsh, Clover Strings, Frost Pad, Cactus Pluck, Heliotrope, Underbrush, Dandelion, Sundew, Lotus Flute, Pine Organ e, cupi e techno, Nightshade, Belladonna, Mandrake Stab, Dub Moss, Acid Nettle, Hogweed Hoover, Cypress Saw, Mycelium, Puffball Pulse, Charred Keys, Charcoal Organ, Tar Drone, Wolfsbane Lead, Datura Bells, Bog Rumble, Blackthorn Sync, Ironwood Perc, Burdock Chords e, ancora più cupi, gravi e acidi, Hemlock Acid, Aconite Square, Mandragora Acid, Yew Shadow, Black Hellebore, Deadnettle Dub, Peat Choir, Spleenwort Organ, Bitterroot Lead, Witchgrass Pulse, Mire Bells, Undertow, Tar Pit Keys, Nightjar Brass, Gravel Stab, Ink Cap Drone) e 42 campionati (Grand Piano, Upright Piano, FM Piano, Vibraphone, Marimba, Glockenspiel, Tubular Bells, Concert Harp, Kalimba, Harpsichord, Pipe Organ, Alto Recorder, Tenor Sax, TX Piano, Clavisynth, Knight Upright, Italian Cembalo, Lute Stop, Grand Organ, Flute Organ, Full Organ, Sop. Recorder, Tenor Recorder, Bass Recorder, Ocarina, Harmonica, Chromatic Harp, Saxello, Didgeridoo, Strumstick, Dan Tranh, Bowed Psaltery, Pluck Psaltery, Mbira, Nyunga Nyunga, Kenya Kalimba, Hand Chimes, Tube Glock, Bowed Vibes, Balafon, Xylophone, Wine Glasses); ogni suono porta il suo Perform | lista dei suoni per nome | previsto: Save / Save As / Delete | — |
+| **Sound** | i 150 suoni: 99 di sintesi (Glass Pollen, Night Greenhouse, Anther Keys, Slow Stamen, Fern Pluck, Copper Reed, Orbit Choir, Moss Strings, Dew Mallet, Tape Fern, Seed Organ, Sun Room, Linnaeus Lead, Petal Brass, Root Drone, Vetro Pad, Moonflower, Thistle Lead, Lichen Organ, Nectar EP, Ivy Pluck, Bramble Brass, Cocoon Pad, Spore Bells, Rootstock, Birch Keys, Pollen Choir, Reed Marsh, Clover Strings, Frost Pad, Cactus Pluck, Heliotrope, Underbrush, Dandelion, Sundew, Lotus Flute, Pine Organ e, cupi e techno, Nightshade, Belladonna, Mandrake Stab, Dub Moss, Acid Nettle, Hogweed Hoover, Cypress Saw, Mycelium, Puffball Pulse, Charred Keys, Charcoal Organ, Tar Drone, Wolfsbane Lead, Datura Bells, Bog Rumble, Blackthorn Sync, Ironwood Perc, Burdock Chords e, ancora più cupi, gravi e acidi, Hemlock Acid, Aconite Square, Mandragora Acid, Yew Shadow, Black Hellebore, Deadnettle Dub, Peat Choir, Spleenwort Organ, Bitterroot Lead, Witchgrass Pulse, Mire Bells, Undertow, Tar Pit Keys, Nightjar Brass, Gravel Stab, Ink Cap Drone e, dal 18/10, Steel Petal, Clav Vine, Ebow Fern, Solina Sedge, Pizzicato Moss, Toy Thicket, Nylon Bramble e i ventuno di sintesi fra i venticinque che sorprendono, §4.1) e 51 campionati (Grand Piano, Upright Piano, FM Piano, Vibraphone, Marimba, Glockenspiel, Tubular Bells, Concert Harp, Kalimba, Harpsichord, Pipe Organ, Alto Recorder, Tenor Sax, TX Piano, Clavisynth, Knight Upright, Italian Cembalo, Lute Stop, Grand Organ, Flute Organ, Full Organ, Sop. Recorder, Tenor Recorder, Bass Recorder, Ocarina, Harmonica, Chromatic Harp, Saxello, Didgeridoo, Strumstick, Dan Tranh, Bowed Psaltery, Pluck Psaltery, Mbira, Nyunga Nyunga, Kenya Kalimba, Hand Chimes, Tube Glock, Bowed Vibes, Balafon, Xylophone, Wine Glasses, Hothouse Piano, Seedling Box, Harmonium Moss, Sitar Tranh, Harp Rain, Drunk Glasses, Throat Song, Rain Marimba, Megaphone Moss); ogni suono porta il suo Perform | lista dei suoni per nome | previsto: Save / Save As / Delete | — |
 | **Perform** | la quantità del modo: Strum, Strum 2 Oct, Slop e Harp 1…10; Arpeggiate e Arp 2 Oct il tipo 1…6; Pattern il numero 1…13; 0 = spento | lista dei modi | **Lock**: il Perform non cambia più al cambio di suono (la cella mostra LOCK) | — |
 | **FX** | intensità 0…10 dell'effetto principale del suono (REVERB, CHORUS, ENSEMBLE, PHASER, FLANGER, DRIVE, TREMOLO, DELAY) | mostra l'effetto | **Lock** dell'effetto | — |
 | **Key** | la tonalità (accende la Key mode) | Key mode on/off | previsto: scelta rapida | **Transpose** ±12 |
@@ -74,6 +74,40 @@ Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 
 | **Bass Voicing** (m1) | ottava del basso | il modificatore **Mod**: Mod + Loop (REC) = uscita forzata dal loop (Clear); Mod + Bass = basso on/off, come Bass da solo; Mod + BPM = batteria a tastiera, che oggi ha il suo tasto T11 | — | — |
 
 Liste: la voce in cima è Exit; la manopola di navigazione scorre, premuta sceglie, − chiude (senza MPK: croce, A e B della Flip). Una lista si chiude da sola dopo 10 secondi, e si chiude anche toccando un altro controllo. Ogni controllo toccato accende la **banda** in fondo allo schermo con il suo nome e valore in grande: è l'overlay dell'originale, che qui non copre l'accordo.
+
+### 4.1 I suoni che sorprendono (126–150)
+
+Dal 126 al 150 ogni suono fa una cosa che non ti aspetti. Sono fatti con il motore di sempre (matrice, LFO, inviluppi, filtro, campioni), senza trucchi fuori dal synth. Provali con un accordo tenuto.
+
+| N. | Suono | Cosa fa |
+|---|---|---|
+| 126 | Tanpura Root | un bordone fisso (Do2) suona sotto ogni accordo: cambi accordo e il bordone resta |
+| 127 | Drunk Glasses | bicchieri di vetro, ma ogni nota è stonata a caso e sta da un'altra parte nello stereo |
+| 128 | Octave Hopper | l'accordo salta su e giù di un'ottava, a tempo, tutte le note insieme |
+| 129 | Siren Thorn | un oscillatore in sync spazzato da un LFO: una sirena che sale e scende |
+| 130 | Geiger Garden | il filtro cambia a caso nove volte al secondo, come un contatore Geiger |
+| 131 | Wind Chords | niente oscillatori: solo rumore, e un passa-banda che segue la nota; accordi di vento |
+| 132 | Rewind Fern | sale piano e si spegne di colpo al rilascio: sembra suonato al contrario |
+| 133 | Mimosa | risponde al tocco: una nota leggera sboccia in un secondo, una forte parte subito (come la mimosa pudica) |
+| 134 | Bloom Cycle | il timbro FM si apre e si richiude una volta sola, in dieci secondi, poi resta |
+| 135 | Upside Down | la tastiera a rovescio: in alto il suono è scuro e a sinistra, in basso chiaro e a destra |
+| 136 | Zap Nettle | ogni colpo parte due ottave sopra e cade sulla nota: lo zap |
+| 137 | Slide Whistle | ogni nota arriva da un'ottava sotto, scivolando: il fischietto a coulisse |
+| 138 | Firefly Pad | il pad lampeggia, tutto l'accordo insieme, come le lucciole |
+| 139 | Everlasting Moss | uno stab con un eco che non finisce quasi più: suona una volta e ascolta |
+| 140 | Rust Chords | FM con rapporti stonati apposta: metallo arrugginito |
+| 141 | Warped Vinyl | intonazione, filtro e volume vanno a caso, piano: il disco deformato |
+| 142 | Throat Song | il didgeridoo con il pitch a scatti, il filtro che fa le vocali e il respiro a tempo: canto di gola |
+| 143 | Rain Marimba | ogni nota cade da un'altra parte, con un volume e un'intonazione un po' diversi: pioggia |
+| 144 | Robot Garden | il pitch a gradini casuali: una voce di robot (meglio con l'arpeggio) |
+| 145 | Wisp Choir | un coro sottile che gira nello stereo, ogni voce per conto suo, in un riverbero infinito: il fuoco fatuo |
+| 146 | Venus Flytrap | scatta e si chiude: più forte lo tocchi, più in fretta; la dionea |
+| 147 | Tape Stop | ogni accordo rallenta, scende di un'ottava e si ferma, come un nastro spento |
+| 148 | Talking Reed | il passa-banda spazza le vocali, tutto l'accordo insieme: un pad che parla |
+| 149 | Megaphone Moss | l'armonica dentro un megafono: stretta, distorta, con un'eco corta |
+| 150 | Corpse Flower | enorme e lento: attacco di un secondo e mezzo, FM al limite del rumore, riverbero al massimo; raro come il fiore |
+
+I dodici prima (114–125) coprono quello che mancava: Hothouse Piano (un pianoforte che diventa pad), Seedling Box (un carillon), Harmonium Moss, Steel Petal (lo steel drum), Clav Vine (il clavinet), Ebow Fern, Sitar Tranh, Harp Rain (una cascata d'arpa in ping-pong), Solina Sedge (la string machine), Pizzicato Moss, Toy Thicket (il pianino giocattolo) e Nylon Bramble (la chitarra di nylon).
 
 ## 5. Il looper, passo per passo
 

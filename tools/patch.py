@@ -481,8 +481,173 @@ SUONI += [
         E2A=90, E2D=64, E2S=127, E2R=104, GAIN=62, REVSEND=90, REVSIZE=127, REVLP=38)),
 ]
 
+# ---- quinta ondata (18/10/2026 sera), Luigi: «con i preset arriviamo a 150, gli ultimi 25 devono essere
+# SORPRENDENTI». Dodici suoni che mancavano (un piano che diventa pad, un carillon, un harmonium, uno steel
+# drum, un clavinet, un e-bow, un sitar, una cascata d'arpa, una string machine, un pizzicato, un pianino
+# giocattolo, una chitarra di nylon) e poi venticinque che fanno una cosa che non ti aspetti: un bordone
+# fisso sotto ogni accordo, bicchieri stonati a caso, salti d'ottava, una sirena in sync, un contatore
+# Geiger sul filtro, accordi di solo vento, il suono al contrario, un pad che risponde al tocco, un timbro
+# che sboccia una volta sola, la tastiera a rovescio, lo zap, il fischietto a coulisse, le lucciole, l'eco
+# che non finisce, la ruggine, il vinile deformato, il canto di gola, la pioggia, il robot, il fuoco fatuo,
+# la dionea che scatta, il nastro che si ferma, il pad che parla, il megafono e il fiore cadavere ----
+L_SINE, L_TRI, L_SQU, L_SAW, L_SAWN, L_RAND, L_SH = range(7)        # forme degli LFO (SND-411)
+L_RESET, L_FREE, L_MONO, L_ONESHOT = range(4)                       # modi (SND-412)
+D_ENV1T, D_ENV2T, D_NOISE = 23, 25, 33                              # altre destinazioni (§8.3)
+BANDPASS = 2
+SUONI += [
+    # 114-125: i dodici che mancavano
+    ('Hothouse Piano', patch(SMP, [], SMPSET=set_idx('piano_kawai'), GVELO=60, FTYPE=1, CUTOFF=70, FVELO=30,
+        E2A=78, E2D=64, E2S=127, E2R=70, GAIN=76, REVSEND=70, REVSIZE=120, **fx(1, CHORUS, 22, 55, 110))),
+    ('Seedling Box', patch(SMP, [], SMPSET=set_idx('glock'), GVELO=70, HIGHPASS=40, E2A=0, E2D=64, E2S=127, E2R=50,
+        GAIN=72, REVSEND=50, REVSIZE=108, **fx(2, DELAY, 1, 36, 44, 80, 127, 30))),
+    ('Harmonium Moss', patch(SMP, [], SMPSET=set_idx('harmonica'), GVELO=20, FTYPE=1, CUTOFF=84,
+        E2A=40, E2D=64, E2S=127, E2R=44, GAIN=74, REVSEND=44, REVSIZE=104, **fx(1, TREMOLO, 84, 30, 20))),
+    ('Steel Petal', patch(FM, [(ENV[3], D_GAIN(3), 118), (ENV[4], D_GAIN(4), 110)], FMALG=2,
+        O1PW=127, O1GAIN=20, O2SEMI=76, O2PW=90, O2GAIN=20, O3SEMI=83, O3PW=60, O3GAIN=0, O4SEMI=95, O4PW=45, O4GAIN=0,
+        E2A=0, E2D=80, E2S=20, E2R=50, E3A=0, E3D=30, E3S=0, E3R=20, E4A=0, E4D=18, E4S=0, E4R=12,
+        GAIN=66, REVSEND=50, REVSIZE=110, **fx(1, CHORUS, 20, 25, 80))),
+    ('Clav Vine', patch(VA, [], O1SHAPE=PULSE, O1PW=18, O2SHAPE=PULSE, O2PW=22, O2SEMI=76, O2GAIN=30, HIGHPASS=50,
+        CUTOFF=60, RESONANCE=30, FENV=50, FVELO=50, FKT=70, E1A=0, E1D=26, E1S=0, E1R=20,
+        E2A=0, E2D=64, E2S=90, E2R=10, GAIN=64, REVSEND=15, **fx(1, PHASER, 40, 40, 60, 50))),
+    ('Ebow Fern', patch(VA, [(LFO[1], D_PITCH, 68)], O1SHAPE=SAW, O1GAIN=50, O2SHAPE=TRI, O2DETUNE=70, O2GAIN=50,
+        O3SHAPE=SAW, O3SEMI=76, O3DETUNE=60, O3GAIN=20, CUTOFF=70, RESONANCE=14, FENV=20,
+        E1A=80, E1D=80, E1S=80, E1R=70, E2A=84, E2D=64, E2S=127, E2R=66, L1SHAPE=L_SINE, L1RATE=72, L1MODE=L_RESET,
+        GAIN=58, REVSEND=66, REVSIZE=116, **fx(1, PHASER, 24, 45, 50, 40), **fx(2, DELAY, 0, 30, 50, 70, 100, 0))),
+    ('Sitar Tranh', patch(SMP, [], SMPSET=set_idx('dan_tranh'), GVELO=80, FTYPE=BANDPASS, CUTOFF=88, RESONANCE=48, FKT=40,
+        E2A=0, E2D=64, E2S=127, E2R=50, GAIN=76, REVSEND=50, REVSIZE=110,
+        **fx(1, DRIVE, 46, 30), **fx(2, DELAY, 2, 24, 42, 64, 110, 20))),
+    ('Harp Rain', patch(SMP, [(RND, D_PAN, 110)], SMPSET=set_idx('harp'), SMPSTART=8, GVELO=90,
+        E2A=0, E2D=64, E2S=127, E2R=60, GAIN=74, REVSEND=55, REVSIZE=116, **fx(2, DELAY, 2, 50, 100, 90, 127, 40))),
+    ('Solina Sedge', patch(VA, [], O1SHAPE=SAW, O1DETUNE=61, O2SHAPE=SAW, O2DETUNE=67, O2GAIN=60,
+        O3SHAPE=SAW, O3SEMI=52, O3DETUNE=64, O3GAIN=36, O4SHAPE=SAW, O4SEMI=76, O4GAIN=18, HIGHPASS=30,
+        CUTOFF=78, RESONANCE=6, FKT=40, E1A=40, E1D=64, E1S=100, E1R=60, E2A=40, E2D=64, E2S=120, E2R=58,
+        GAIN=54, REVSEND=56, REVSIZE=112, **fx(1, ENSEMBLE, 36, 100, 66, 50), **fx(2, PHASER, 20, 36, 40, 60))),
+    ('Pizzicato Moss', patch(VA, [], O1SHAPE=TRI, O1GAIN=64, O2SHAPE=SAW, O2DETUNE=66, O2GAIN=40, NOISE=18,
+        CUTOFF=52, RESONANCE=22, FENV=70, FVELO=50, FKT=70, E1A=0, E1D=14, E1S=0, E1R=12,
+        E2A=0, E2D=30, E2S=0, E2R=22, GAIN=68, REVSEND=36, REVSIZE=104)),
+    ('Toy Thicket', patch(RP, [], RPICKUP=1, RPHEIGHT=50, RPDISTANCE=20, RPDECAY=60, RPRELEASE=20, RPTONE=110,
+        RPVELCURVE=80, RPCLANK=90, RPCLANCURVE=80, RPCKT=60, RPHAMMER=60, RPKEYOFF=40, RPVOL=84,
+        REVSEND=40, REVSIZE=100, **fx(2, DELAY, 1, 20, 30, 80, 80, 30))),
+    ('Nylon Bramble', patch(VA, [], O1SHAPE=TRI, O1GAIN=60, O2SHAPE=SAW, O2DETUNE=70, O2GAIN=30,
+        CUTOFF=58, RESONANCE=18, FENV=58, FVELO=44, FKT=60, E1A=0, E1D=22, E1S=0, E1R=20,
+        E2A=0, E2D=70, E2S=0, E2R=36, GAIN=66, REVSEND=40, REVSIZE=106,
+        **fx(1, CHORUS, 18, 22, 60), **fx(2, DELAY, 1, 14, 20, 70, 80, 20))),
+    # 126-150: i venticinque che sorprendono
+    ('Tanpura Root', patch(VA, [(LFO[1], D_GAIN(4), 90)],                 # l'oscillatore 4 è fisso: un Do2 sotto ogni accordo
+        O1SHAPE=SAW, O1GAIN=50, O2SHAPE=SAW, O2DETUNE=70, O2GAIN=44, O4SHAPE=SAW, O4KT=0, O4SEMI=40, O4GAIN=56,
+        L1SHAPE=L_SINE, L1RATE=20, L1MODE=L_FREE, CUTOFF=58, RESONANCE=24, FENV=16, FKT=30,
+        E1A=60, E1D=64, E1S=90, E1R=70, E2A=56, E2D=64, E2S=127, E2R=80, GAIN=58, REVSEND=70, REVSIZE=120, REVLP=80,
+        **fx(1, DRIVE, 24, 28), **fx(2, DELAY, 0, 20, 40, 60, 90, 0))),
+    ('Drunk Glasses', patch(SMP, [(RND, D_PITCH, 84), (RND, D_PAN, 110), (LFO[1], D_PITCH, 72)],   # ogni nota stonata a caso
+        SMPSET=set_idx('wine_glasses'), GVELO=30, L1SHAPE=L_RAND, L1RATE=28, L1MODE=L_RESET,
+        E2A=50, E2D=64, E2S=127, E2R=80, GAIN=72, REVSEND=80, REVSIZE=127, REVLP=90, **fx(1, CHORUS, 16, 50, 110))),
+    ('Octave Hopper', patch(VA, [(LFO[1], D_PITCH, 109)],               # onda quadra sul pitch: ±6 = un'ottava di salto
+        O1SHAPE=PULSE, O1PW=40, O2SHAPE=SAW, O2DETUNE=68, O2GAIN=40, L1SHAPE=L_SQU, L1RATE=76, L1MODE=L_MONO,
+        CUTOFF=66, RESONANCE=20, FENV=30, FVELO=30, E1A=0, E1D=50, E1S=40, E1R=30, E2A=0, E2D=64, E2S=110, E2R=30,
+        GAIN=60, REVSEND=36, **fx(2, DELAY, 2, 24, 36, 70, 110, 20))),
+    ('Siren Thorn', patch(VA, [(LFO[1], D_OSC(4), 112)],                # sync: l'LFO spazza l'oscillatore sincronizzato
+        O1SHAPE=0, O1GAIN=0, O3SHAPE=SAW, O3GAIN=0, O4SHAPE=SAW, O4SEMI=80, O4SYNC=1, O4GAIN=64,
+        L1SHAPE=L_TRI, L1RATE=36, L1MODE=L_MONO, CUTOFF=90, RESONANCE=10, E2A=4, E2D=64, E2S=118, E2R=36,
+        GAIN=58, REVSEND=36, REVSIZE=110, **fx(1, PHASER, 30, 30, 40, 60), **fx(2, DELAY, 1, 22, 34, 60, 80, 10))),
+    ('Geiger Garden', patch(VA, [(LFO[1], D_CUTOFF, 112), (LFO[2], D_PAN, 100), (LFO[1], D_Q, 86)],   # S&H sul filtro
+        O1SHAPE=SAW, O2SHAPE=PULSE, O2PW=30, O2SEMI=52, O2GAIN=50, L1SHAPE=L_SH, L1RATE=92, L1MODE=L_RESET,
+        L2SHAPE=L_SH, L2RATE=80, L2MODE=L_RESET, CUTOFF=50, RESONANCE=80, FENV=20,
+        E2A=4, E2D=64, E2S=118, E2R=40, GAIN=58, REVSEND=40, REVSIZE=108, **fx(2, DELAY, 2, 26, 40, 70, 120, 20))),
+    ('Wind Chords', patch(VA, [(LFO[1], D_CUTOFF, 68)],                 # solo rumore: il passa-banda segue la nota
+        O1GAIN=0, NOISE=127, PINK=0, FTYPE=BANDPASS, CUTOFF=47, RESONANCE=122, FKT=127,
+        L1SHAPE=L_RAND, L1RATE=40, L1MODE=L_RESET, E2A=60, E2D=64, E2S=127, E2R=70,
+        GAIN=90, REVSEND=70, REVSIZE=120)),
+    ('Rewind Fern', patch(VA, [],                                       # sale piano e si spegne di colpo: suona al contrario
+        O1SHAPE=SAW, O2SHAPE=SAW, O2DETUNE=70, O2GAIN=55, O3SHAPE=PULSE, O3SEMI=76, O3PW=40, O3GAIN=24,
+        CUTOFF=40, RESONANCE=16, FENV=60, FKT=40, E1A=104, E1D=64, E1S=127, E1R=8,
+        E2A=104, E2D=64, E2S=127, E2R=6, GAIN=60, REVSEND=50, REVSIZE=112, **fx(2, DELAY, 1, 40, 56, 80, 110, 20))),
+    ('Mimosa', patch(VA, [(VEL, D_ENV2T, 0), (VEL, D_ENV1T, 0), (VEL, D_CUTOFF, 100)],   # tocco leggero: sboccia piano; forte: subito
+        O1SHAPE=TRI, O1GAIN=60, O2SHAPE=SAW, O2DETUNE=68, O2GAIN=40, O3SHAPE=SAW, O3SEMI=76, O3DETUNE=60, O3GAIN=20,
+        CUTOFF=64, RESONANCE=12, FENV=30, FVELO=40, GVELO=50, E1A=96, E1D=64, E1S=90, E1R=50,
+        E2A=100, E2D=64, E2S=127, E2R=60, GAIN=60, REVSEND=56, REVSIZE=112, **fx(1, CHORUS, 22, 40, 100))),
+    ('Bloom Cycle', patch(FM, [(LFO[2], D_GAIN(2), 118), (LFO[2], D_GAIN(3), 100)], FMALG=0,   # un LFO a colpo solo apre e chiude l'FM
+        O1PW=127, O1GAIN=0, O2SEMI=64, O2PW=30, O2GAIN=0, O3SEMI=76, O3PW=40, O3GAIN=0, O4SEMI=83, O4PW=30, O4GAIN=0, O4FB=30,
+        L2SHAPE=L_SINE, L2RATE=22, L2MODE=L_ONESHOT, CUTOFF=100, E2A=50, E2D=64, E2S=127, E2R=80,
+        GAIN=58, REVSEND=72, REVSIZE=122, **fx(1, CHORUS, 20, 50, 120))),
+    ('Upside Down', patch(VA, [(KEY, D_CUTOFF, 0), (KEY, D_PAN, 0), (KEY, D_Q, 0)],   # in alto scuro e a sinistra, in basso chiaro e a destra
+        O1SHAPE=SAW, O2SHAPE=PULSE, O2PW=40, O2DETUNE=67, O2GAIN=50, O3SHAPE=SAW, O3SEMI=52, O3GAIN=30,
+        CUTOFF=78, RESONANCE=20, FENV=20, FKT=0, E1A=0, E1D=60, E1S=60, E1R=40, E2A=2, E2D=64, E2S=115, E2R=40,
+        GAIN=60, REVSEND=44, REVSIZE=108, **fx(1, ENSEMBLE, 30, 50, 50, 30))),
+    ('Zap Nettle', patch(VA, [(ENV[3], D_PITCH, 127), (ENV[3], D_PITCH, 127)],   # due ottave di caduta a ogni colpo
+        O1SHAPE=SAW, O2SHAPE=PULSE, O2PW=50, O2DETUNE=72, O2GAIN=40, E3A=0, E3D=22, E3S=0, E3R=10,
+        CUTOFF=60, RESONANCE=40, FENV=60, FVELO=40, E1A=0, E1D=30, E1S=0, E1R=20, E2A=0, E2D=40, E2S=0, E2R=30,
+        GAIN=62, REVSEND=40, REVSIZE=106, **fx(1, DRIVE, 30, 30), **fx(2, DELAY, 2, 30, 46, 70, 120, 30))),
+    ('Slide Whistle', patch(VA, [(ENV[3], D_PITCH, 0), (LFO[1], D_PITCH, 76)], GLIDEMODE=3, GLIDE=44,   # ogni nota arriva da sotto
+        O1SHAPE=TRI, O1GAIN=64, NOISE=6, E3A=0, E3D=36, E3S=0, E3R=20, L1SHAPE=L_SINE, L1RATE=74, L1MODE=L_RESET,
+        CUTOFF=74, E2A=10, E2D=64, E2S=120, E2R=30, GAIN=64, REVSEND=46, REVSIZE=108, **fx(2, DELAY, 1, 20, 30, 70, 60, 0))),
+    ('Firefly Pad', patch(VA, [(LFO[1], D_VOLUME, 20), (LFO[1], D_CUTOFF, 100)],   # il pad lampeggia, tutto l'accordo insieme
+        O1SHAPE=SAW, O2SHAPE=SAW, O2DETUNE=70, O2GAIN=50, O3SHAPE=SAW, O3SEMI=76, O3DETUNE=60, O3GAIN=24,
+        L1SHAPE=L_SQU, L1RATE=82, L1MODE=L_MONO, CUTOFF=60, RESONANCE=18, FENV=20, E1A=0, E1D=64, E1S=100, E1R=60,
+        E2A=20, E2D=64, E2S=127, E2R=56, GAIN=60, REVSEND=60, REVSIZE=118,
+        **fx(1, CHORUS, 24, 50, 110), **fx(2, DELAY, 2, 30, 40, 70, 127, 20))),
+    ('Everlasting Moss', patch(VA, [],                                  # l'eco non finisce più
+        O1SHAPE=SAW, O2SHAPE=SAW, O2DETUNE=67, O2GAIN=50, CUTOFF=44, RESONANCE=26, FENV=50, FKT=36,
+        E1A=0, E1D=40, E1S=10, E1R=40, E2A=0, E2D=50, E2S=0, E2R=40, GAIN=62, REVSEND=70, REVSIZE=124, REVLP=60,
+        **fx(1, CHORUS, 14, 36, 80), **fx(2, DELAY, 1, 60, 125, 54, 100, 40))),
+    ('Rust Chords', patch(FM, [(ENV[3], D_GAIN(2), 110), (ENV[3], D_GAIN(3), 100), (LFO[1], D_PAN, 90)], FMALG=1,   # rapporti stonati: metallo
+        O1PW=127, O1GAIN=0, O2SEMI=71, O2DETUNE=90, O2PW=72, O2GAIN=30, O3SEMI=58, O3DETUNE=40, O3PW=60, O3GAIN=30,
+        O4SEMI=85, O4PW=40, O4GAIN=40, O4FB=60, E2A=0, E2D=90, E2S=30, E2R=70, E3A=0, E3D=60, E3S=20, E3R=40,
+        L1SHAPE=L_SINE, L1RATE=30, L1MODE=L_RESET, CUTOFF=86, GAIN=62, REVSEND=62, REVSIZE=120, REVLP=70,
+        **fx(2, DELAY, 0, 24, 40, 50, 100, 10))),
+    ('Warped Vinyl', patch(VA, [(LFO[1], D_PITCH, 86), (LFO[2], D_CUTOFF, 90), (LFO[3], D_VOLUME, 84)],   # il disco deformato
+        O1SHAPE=SAW, O2SHAPE=PULSE, O2PW=40, O2DETUNE=66, O2GAIN=44, O3SHAPE=TRI, O3SEMI=52, O3GAIN=30, NOISE=8, PINK=1,
+        L1SHAPE=L_RAND, L1RATE=30, L1MODE=L_MONO, L2SHAPE=L_RAND, L2RATE=24, L2MODE=L_FREE, L3SHAPE=L_SINE, L3RATE=66, L3MODE=L_FREE,
+        CUTOFF=66, RESONANCE=10, FENV=10, E1A=30, E2A=16, E2D=64, E2S=118, E2R=50, GAIN=60, REVSEND=40, REVLP=70,
+        **fx(1, DRIVE, 26, 26), **fx(2, DELAY, 0, 18, 30, 40, 40, 0))),
+    ('Throat Song', patch(SMP, [(LFO[1], D_PITCH, 80), (LFO[2], D_CUTOFF, 112), (LFO[4], D_VOLUME, 100)], GLIDEMODE=2, GLIDE=20,   # il didgeridoo che canta
+        SMPSET=set_idx('didgeridoo'), L1SHAPE=L_SH, L1RATE=60, L1MODE=L_MONO, L2SHAPE=L_TRI, L2RATE=52, L2MODE=L_MONO,
+        L4SHAPE=L_SINE, L4RATE=68, L4MODE=L_MONO,                      # il respiro ritmico sta sull'LFO 4, il drive dà voce
+        FTYPE=BANDPASS, CUTOFF=58, RESONANCE=60, GVELO=40, E2A=20, E2D=64, E2S=127, E2R=40, GAIN=112, REVSEND=40, REVSIZE=112,
+        **fx(1, DRIVE, 64, 110), **fx(2, DELAY, 2, 20, 30, 60, 90, 20))),
+    ('Rain Marimba', patch(SMP, [(RND, D_PAN, 120), (RND, D_PITCH, 76), (RND, D_VOLUME, 90)],   # gocce sparse nello stereo
+        SMPSET=set_idx('marimba'), GVELO=90, E2A=0, E2D=64, E2S=127, E2R=40, GAIN=78, REVSEND=50, REVSIZE=114,
+        **fx(2, DELAY, 2, 40, 70, 90, 127, 30))),
+    ('Robot Garden', patch(VA, [(LFO[1], D_PITCH, 96), (LFO[2], D_PW(1), 100), (LFO[1], D_CUTOFF, 100)],   # S&H sul pitch: parla
+        O1SHAPE=PULSE, O1PW=64, O2SHAPE=PULSE, O2PW=64, O2SEMI=76, O2GAIN=30, L1SHAPE=L_SH, L1RATE=70, L1MODE=L_MONO,
+        L2SHAPE=L_SH, L2RATE=84, L2MODE=L_FREE, CUTOFF=70, RESONANCE=36, E2A=0, E2D=64, E2S=115, E2R=20,
+        GAIN=60, REVSEND=24, **fx(1, FLANGER, 40, 60, 70, 80), **fx(2, DELAY, 2, 26, 36, 60, 90, 20))),
+    ('Wisp Choir', patch(FM, [(RND, D_PITCH, 78), (RND, D_PAN, 120), (LFO[1], D_PAN, 110), (LFO[2], D_PITCH, 70)], FMALG=4,   # fuoco fatuo
+        O1PW=127, O1GAIN=0, O2SEMI=64, O2PW=50, O2GAIN=0, O3SEMI=76, O3PW=90, O3GAIN=0, O4SEMI=71, O4PW=30, O4GAIN=0, HIGHPASS=70,
+        L1SHAPE=L_SINE, L1RATE=50, L1MODE=L_RESET, L2SHAPE=L_SINE, L2RATE=74, L2MODE=L_RESET, CUTOFF=92,
+        E2A=96, E2D=64, E2S=127, E2R=104, GAIN=58, REVSEND=100, REVSIZE=127, REVLP=100,
+        **fx(1, ENSEMBLE, 30, 80, 50, 40), **fx(2, DELAY, 0, 40, 70, 30, 127, 60))),
+    ('Venus Flytrap', patch(VA, [(ENV[3], D_PITCH, 20), (VEL, D_ENV1T, 10), (VEL, D_Q, 110)],   # scatta e si chiude
+        O1SHAPE=SAW, O2SHAPE=SAW, O2SEMI=52, O2DETUNE=68, O2GAIN=60, O3SHAPE=PULSE, O3PW=30, O3GAIN=30,
+        CUTOFF=30, RESONANCE=70, FENV=90, FVELO=50, FKT=30, E1A=0, E1D=18, E1S=0, E1R=14, E3A=0, E3D=12, E3S=0, E3R=8,
+        E2A=0, E2D=56, E2S=0, E2R=36, GAIN=62, REVSEND=36, REVSIZE=104, **fx(1, DRIVE, 40, 40), **fx(2, DELAY, 1, 22, 30, 60, 80, 20))),
+    ('Tape Stop', patch(VA, [(LFO[1], D_PITCH, 109), (LFO[1], D_CUTOFF, 110), (LFO[1], D_VOLUME, 96)],   # ogni accordo rallenta e si ferma
+        O1SHAPE=SAW, O1SEMI=58, O2SHAPE=SAW, O2SEMI=58, O2DETUNE=68, O2GAIN=50, O3SHAPE=PULSE, O3SEMI=70, O3PW=40, O3GAIN=20,
+        L1SHAPE=L_SAWN, L1RATE=30, L1MODE=L_ONESHOT, CUTOFF=70, RESONANCE=14, E2A=2, E2D=64, E2S=127, E2R=40,
+        GAIN=60, REVSEND=50, REVSIZE=112, **fx(1, CHORUS, 20, 36, 100))),
+    ('Talking Reed', patch(VA, [(LFO[1], D_CUTOFF, 100), (LFO[2], D_Q, 90)],   # il passa-banda fa le vocali
+        O1SHAPE=SAW, O2SHAPE=PULSE, O2PW=30, O2DETUNE=70, O2GAIN=50, FTYPE=BANDPASS, CUTOFF=66, RESONANCE=72, FKT=20,
+        L1SHAPE=L_TRI, L1RATE=34, L1MODE=L_MONO, L2SHAPE=L_SINE, L2RATE=20, L2MODE=L_FREE,
+        E2A=10, E2D=64, E2S=120, E2R=40, GAIN=64, REVSEND=40, REVSIZE=106, **fx(1, DRIVE, 30, 30), **fx(2, DELAY, 1, 20, 30, 60, 80, 20))),
+    ('Megaphone Moss', patch(SMP, [], SMPSET=set_idx('harmonica_chrom'), HIGHPASS=80, FTYPE=BANDPASS, CUTOFF=86, RESONANCE=40,
+        GVELO=60, E2A=4, E2D=64, E2S=127, E2R=20, GAIN=76, REVSEND=16, **fx(1, DRIVE, 90, 40), **fx(2, DELAY, 2, 14, 20, 40, 20, 60))),
+    ('Corpse Flower', patch(FM, [(LFO[1], D_GAIN(2), 96), (LFO[2], D_PAN, 110), (LFO[3], D_PITCH, 70), (RND, D_PITCH, 74)], FMALG=0,   # enorme, lento, raro
+        O1PW=127, O1GAIN=0, O2SEMI=52, O2PW=70, O2GAIN=0, O3SEMI=45, O3PW=50, O3GAIN=0, O4SEMI=40, O4PW=48, O4GAIN=0, O4FB=118,
+        L1SHAPE=L_SINE, L1RATE=12, L1MODE=L_FREE, L2SHAPE=L_SINE, L2RATE=8, L2MODE=L_FREE, L3SHAPE=L_RAND, L3RATE=16, L3MODE=L_FREE,
+        CUTOFF=44, RESONANCE=40, E2A=127, E2D=64, E2S=127, E2R=120, GAIN=56, REVSEND=100, REVSIZE=127, REVLP=36,
+        **fx(1, DRIVE, 36, 24), **fx(2, DELAY, 0, 40, 90, 36, 100, 0))),
+]
+
 # famiglia di ogni suono, per la lista e il dettaglio della cella (UI-152)
 FAMIGLIA = {
+    'Hothouse Piano': 'pad', 'Seedling Box': 'bell', 'Harmonium Moss': 'reed', 'Steel Petal': 'mallet',
+    'Clav Vine': 'keys', 'Ebow Fern': 'pad', 'Sitar Tranh': 'harp', 'Harp Rain': 'harp', 'Solina Sedge': 'strings',
+    'Pizzicato Moss': 'pluck', 'Toy Thicket': 'keys', 'Nylon Bramble': 'pluck',
+    'Tanpura Root': 'drone', 'Drunk Glasses': 'pad', 'Octave Hopper': 'lead', 'Siren Thorn': 'lead',
+    'Geiger Garden': 'lo-fi', 'Wind Chords': 'pad', 'Rewind Fern': 'pad', 'Mimosa': 'pad', 'Bloom Cycle': 'pad',
+    'Upside Down': 'pad', 'Zap Nettle': 'stab', 'Slide Whistle': 'lead', 'Firefly Pad': 'pad',
+    'Everlasting Moss': 'stab', 'Rust Chords': 'bell', 'Warped Vinyl': 'lo-fi', 'Throat Song': 'drone',
+    'Rain Marimba': 'mallet', 'Robot Garden': 'lead', 'Wisp Choir': 'voice', 'Venus Flytrap': 'stab',
+    'Tape Stop': 'lo-fi', 'Talking Reed': 'voice', 'Megaphone Moss': 'reed', 'Corpse Flower': 'drone',
     'Hemlock Acid': 'acid', 'Aconite Square': 'acid', 'Mandragora Acid': 'acid', 'Yew Shadow': 'pad',
     'Black Hellebore': 'drone', 'Deadnettle Dub': 'stab', 'Peat Choir': 'voice', 'Spleenwort Organ': 'organ',
     'Bitterroot Lead': 'lead', 'Witchgrass Pulse': 'pluck', 'Mire Bells': 'bell', 'Undertow': 'pad',
@@ -616,6 +781,15 @@ LIVELLO_DB = {
     'Nightjar Brass': -3.5, 'Gravel Stab': -4.3, 'Ink Cap Drone': -4.2,
     'Hemlock 303': -0.6, 'Square Acid': -1.9, 'Abyss Sub': 4.4, 'Growl Reese': 0.0, 'Detroit Sub': 2.8,
     'Coal FM Bass': 3.6,
+    # quinta ondata, misurata il 18/10/2026 sera (Tanpura, Wind Chords e Tape Stop arrivavano a 0 dBFS: ora no)
+    'Hothouse Piano': 11.2, 'Seedling Box': 7.0, 'Harmonium Moss': 5.4, 'Steel Petal': -0.3, 'Clav Vine': 4.1,
+    'Ebow Fern': -1.2, 'Sitar Tranh': 8.9, 'Harp Rain': 4.2, 'Solina Sedge': 1.6, 'Pizzicato Moss': 2.0,
+    'Toy Thicket': -3.4, 'Nylon Bramble': 1.7,
+    'Tanpura Root': -13.6, 'Drunk Glasses': -0.5, 'Octave Hopper': -2.6, 'Siren Thorn': 2.4, 'Geiger Garden': -0.1,
+    'Wind Chords': -7.0, 'Rewind Fern': -2.5, 'Mimosa': -0.7, 'Bloom Cycle': -2.9, 'Upside Down': -0.4,
+    'Zap Nettle': -0.3, 'Slide Whistle': 4.3, 'Firefly Pad': -1.7, 'Everlasting Moss': 4.7, 'Rust Chords': 3.2,
+    'Warped Vinyl': -5.3, 'Throat Song': -3.4, 'Rain Marimba': -2.7, 'Robot Garden': 0.0, 'Wisp Choir': -2.9,
+    'Venus Flytrap': -3.3, 'Tape Stop': -11.2, 'Talking Reed': -1.7, 'Megaphone Moss': -1.1, 'Corpse Flower': -2.4,
 }
 
 
@@ -639,6 +813,10 @@ PERFORM = {
     'Datura Bells': (STRUM, 2), 'Charred Keys': (STRUM, 1),
     'Hemlock Acid': (PATTERN, 4), 'Aconite Square': (ARP, 5), 'Mandragora Acid': (ARP2, 3),
     'Witchgrass Pulse': (ARP2, 5), 'Mire Bells': (STRUM, 2), 'Tar Pit Keys': (STRUM, 1), 'Gravel Stab': (STRUM, 1),
+    'Seedling Box': (PATTERN, 10), 'Steel Petal': (STRUM, 1), 'Clav Vine': (PATTERN, 6), 'Sitar Tranh': (STRUM, 3),
+    'Harp Rain': (HARP, 5), 'Solina Sedge': (STRUM2, 3), 'Pizzicato Moss': (STRUM, 3), 'Toy Thicket': (PATTERN, 3),
+    'Nylon Bramble': (STRUM, 3), 'Zap Nettle': (ARP, 5), 'Rust Chords': (STRUM, 2), 'Rain Marimba': (PATTERN, 13),
+    'Robot Garden': (ARP2, 5), 'Venus Flytrap': (STRUM, 1),
 }
 
 
