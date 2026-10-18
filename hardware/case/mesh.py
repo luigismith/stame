@@ -17,12 +17,58 @@ def _area(poly):
     return a / 2
 
 
+def area(poly):
+    """area con il segno (positiva se il poligono gira in senso antiorario)"""
+    return _area(poly)
+
+
+def taglia(poly, asse, c, sotto):
+    """la parte del poligono con la coordinata asse (0 = x, 1 = y) <= c (sotto) o >= c
+    (Sutherland-Hodgman); i punti nuovi stanno esattamente sulla linea"""
+    def dentro(p):
+        return p[asse] <= c if sotto else p[asse] >= c
+    out = []
+    for i in range(len(poly)):
+        a, b = poly[i - 1], poly[i]
+        if dentro(b):
+            if not dentro(a):
+                out.append(_incrocio(a, b, asse, c))
+            out.append(b)
+        elif dentro(a):
+            out.append(_incrocio(a, b, asse, c))
+    return [p for i, p in enumerate(out) if not i or p != out[i - 1]]
+
+
+def _incrocio(a, b, asse, c):
+    t = (c - a[asse]) / (b[asse] - a[asse])
+    p = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]
+    p[asse] = c
+    return (p[0], p[1])
+
+
 def ccw(poly):
     return poly if _area(poly) > 0 else poly[::-1]
 
 
 def cw(poly):
     return poly if _area(poly) < 0 else poly[::-1]
+
+
+GRIGLIA = 4      # decimali dei millimetri: 0,1 µm, sopra la risoluzione dei float dell'STL fino a 1 m
+
+
+def pulisci(loop):
+    """punti sulla griglia di 0,1 µm, senza i punti uguali al precedente (gli archi di un rettangolo
+    con raggio pari a metà lato si toccano) né quello di chiusura ripetuto: uno spigolo lungo zero, o
+    due quote che differiscono di un errore di arrotondamento, lascerebbero il guscio aperto"""
+    out = []
+    for x, y in loop:
+        p = (round(x, GRIGLIA), round(y, GRIGLIA))
+        if not out or p != out[-1]:
+            out.append(p)
+    while len(out) > 1 and out[0] == out[-1]:
+        out.pop()
+    return out
 
 
 def cerchio(cx, cy, r, n=40):
@@ -53,8 +99,10 @@ def _segs_cross(p1, p2, p3, p4):
 
 
 def _unisci_fori(outer, holes):
-    """Un poligono solo: ogni foro (orario) si collega all'esterno (antiorario) con un ponte."""
+    """Un poligono solo: ogni foro (orario) si collega all'esterno (antiorario) con un ponte. Il ponte
+    non deve attraversare nessun foro, nemmeno quelli non ancora collegati."""
     poly = list(outer)
+    tutti = [list(h) for h in holes]
     for h in sorted(holes, key=lambda h: -max(p[0] for p in h)):
         hi = max(range(len(h)), key=lambda i: h[i][0])
         hp = h[hi]
@@ -69,12 +117,14 @@ def _unisci_fori(outer, holes):
                 if _segs_cross(hp, p, a, b):
                     ok = False
                     break
-            if ok:
-                for k in range(len(h)):
-                    a, b = h[k], h[(k + 1) % len(h)]
+            for g in (tutti if ok else ()):
+                for k in range(len(g)):
+                    a, b = g[k], g[(k + 1) % len(g)]
                     if _segs_cross(hp, p, a, b):
                         ok = False
                         break
+                if not ok:
+                    break
             if ok:
                 best, bd = i, d
         hr = h[hi:] + h[:hi]
@@ -102,6 +152,83 @@ def triangola(outer, holes=()):
     if atteso > 0 and abs(fatto - atteso) > 0.002 * atteso:
         return _strisce(outer, holes)
     return poly, tris
+
+
+def _x_a(lato, y):
+    """x del lato (basso, alto) alla quota y; esatta agli estremi, così i vertici combaciano"""
+    (x0, y0), (x1, y1) = lato
+    if y == y0:
+        return x0
+    if y == y1:
+        return x1
+    return round(x0 + (x1 - x0) * (y - y0) / (y1 - y0), GRIGLIA)
+
+
+def _cerniera(b, t):
+    """triangoli antiorari fra due catene orizzontali (b in basso, t in alto, x crescenti)"""
+    out, i, j = [], 0, 0
+    while i < len(b) - 1 or j < len(t) - 1:
+        if j == len(t) - 1 or (i < len(b) - 1 and b[i + 1][0] <= t[j + 1][0]):
+            out.append((b[i], b[i + 1], t[j]))
+            i += 1
+        else:
+            out.append((b[i], t[j + 1], t[j]))
+            j += 1
+    return out
+
+
+def strisce_chiuse(outer, holes=()):
+    """Facce e pareti di un profilo con fori che chiudono sempre il guscio, anche con molti fori:
+    strisce fra le quote dei vertici (regola pari-dispari); ogni trapezio ha i lati orizzontali
+    spezzati dove cominciano o finiscono i trapezi vicini, e le pareti sono spezzate alle stesse
+    quote e agli stessi punti. Niente vertici a T: ogni spigolo sta in due triangoli.
+    Torna (facce, anelli): triangoli antiorari della faccia e anelli spezzati per le pareti."""
+    anelli = [ccw(outer)] + [cw(h) for h in holes]
+    lati = []
+    for L in anelli:
+        for i in range(len(L)):
+            a, b = L[i], L[(i + 1) % len(L)]
+            if a[1] != b[1]:
+                lati.append((a, b) if a[1] < b[1] else (b, a))
+    ys = sorted({p[1] for L in anelli for p in L})
+    indice = {y: i for i, y in enumerate(ys)}
+    tagli = {y: set() for y in ys}
+    for L in anelli:
+        for p in L:
+            tagli[p[1]].add(p[0])
+    strisce = []
+    for y0, y1 in zip(ys, ys[1:]):
+        ym = (y0 + y1) / 2
+        attivi = sorted((l for l in lati if l[0][1] <= y0 and l[1][1] >= y1), key=lambda l: _x_a(l, ym))
+        coppie = [(attivi[k], attivi[k + 1]) for k in range(0, len(attivi) - 1, 2)]
+        strisce.append((y0, y1, coppie))
+        for sx, dx in coppie:
+            for y in (y0, y1):
+                tagli[y].add(_x_a(sx, y))
+                tagli[y].add(_x_a(dx, y))
+    ordinati = {y: sorted(v) for y, v in tagli.items()}
+
+    def catena(y, xa, xb):
+        return [(x, y) for x in ordinati[y] if xa <= x <= xb]
+    facce = []
+    for y0, y1, coppie in strisce:
+        for sx, dx in coppie:
+            facce += _cerniera(catena(y0, _x_a(sx, y0), _x_a(dx, y0)), catena(y1, _x_a(sx, y1), _x_a(dx, y1)))
+    spezzati = []
+    for L in anelli:
+        pts = []
+        for i in range(len(L)):
+            a, b = L[i], L[(i + 1) % len(L)]
+            pts.append(a)
+            if a[1] == b[1]:
+                xs = [x for x in ordinati[a[1]] if min(a[0], b[0]) < x < max(a[0], b[0])]
+                pts += [(x, a[1]) for x in sorted(xs, reverse=a[0] > b[0])]
+            else:
+                lato = (a, b) if a[1] < b[1] else (b, a)
+                livelli = ys[indice[lato[0][1]] + 1:indice[lato[1][1]]]
+                pts += [(_x_a(lato, y), y) for y in (livelli if a[1] < b[1] else livelli[::-1])]
+        spezzati.append(pts)
+    return facce, spezzati
 
 
 def _strisce(outer, holes):
@@ -225,13 +352,19 @@ class Mesh:
 
     def _tris(self, p):
         outer, holes, z0, z1, frame = p['outer'], p['holes'], p['z0'], p['z1'], p['frame']
-        poly, tris = triangola(outer, holes)
+        poly, tris = _orecchie(outer, holes)
+        atteso = abs(_area(outer)) - sum(abs(_area(h)) for h in holes)
+        fatto = sum(abs(_area([poly[i], poly[j], poly[k]])) for i, j, k in tris)
+        if atteso > 0 and abs(fatto - atteso) <= 0.002 * atteso:
+            facce = [(poly[i], poly[j], poly[k]) for i, j, k in tris]
+            anelli = [ccw(outer)] + [cw(h) for h in holes]
+        else:                         # le orecchie non bastano (molti fori): strisce, sempre chiuse
+            facce, anelli = strisce_chiuse(outer, holes)
         out = []
-        for i, j, k in tris:
-            a, b, c = poly[i], poly[j], poly[k]
+        for a, b, c in facce:
             out.append(((a[0], a[1], z1), (b[0], b[1], z1), (c[0], c[1], z1)))     # sopra
             out.append(((a[0], a[1], z0), (c[0], c[1], z0), (b[0], b[1], z0)))     # sotto
-        for ring in [ccw(outer)] + [cw(h) for h in holes]:
+        for ring in anelli:
             for i in range(len(ring)):
                 p0, q = ring[i], ring[(i + 1) % len(ring)]
                 out.append(((p0[0], p0[1], z0), (q[0], q[1], z0), (q[0], q[1], z1)))
@@ -245,7 +378,7 @@ class Mesh:
 
     def prisma(self, outer, z0, z1, holes=(), frame=IDENTITA):
         """profilo 2D (con fori) estruso da z0 a z1, nel riferimento frame"""
-        self.prismi.append(dict(outer=list(outer), holes=[list(h) for h in holes], z0=z0, z1=z1, frame=frame))
+        self.prismi.append(dict(outer=pulisci(outer), holes=[pulisci(h) for h in holes], z0=z0, z1=z1, frame=frame))
 
     def box(self, x0, y0, z0, x1, y1, z1, frame=IDENTITA):
         self.prisma(rett(x0, y0, x1, y1), z0, z1, frame=frame)

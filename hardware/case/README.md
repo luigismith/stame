@@ -9,7 +9,7 @@ Un telaio di betulla tiene insieme la MPK mini IV, il macro pad BRIMFORD e la Mi
 Cosa cambia nella bozza 5 (Luigi, 18/10/2026: «deve essere tutto coperto e omogeneo. non mi piace tanto la divisione che hai creato tra mpk e pad, e per il pad vorrei una culla simile a quella che hai fatto per il flip»):
 - **Un piano solo.** Fianchi, retro, costola e parete davanti arrivano tutti a 46 mm. Dentro c'è un piano di acrilico nero in due pezzi, alla stessa quota: la mascherina a sinistra e il piano della Flip a destra. Hub e cavi stanno sotto, coperti; non ci sono più la torre, la mensola e il divisorio.
 - **La mascherina appoggia sulla MK4** e ha un foro per ogni controllo, anche per quelli che Stame non usa (Luigi: «falla che si poggia bene con i fori anche per i controlli non utilizzati»). Sui controlli di Stame ci sono le sue legende; su quelli della MK4 stessa (OCT, ARP, LATCH, NOTE REPEAT, TAP, BANK, DAW) il loro nome, piccolo. Dietro copre la zona dei cavi fino al retro, con la targa di Stame.
-- **La culla del pad** è come quella della Flip: il pad ci sta con la piastra 2 mm sopra il piano e il bordo sale 5 mm oltre la piastra. Sta in piedi sulla base, poggia il pad su sei costole e regge con un dente il bordo del piano della Flip. Davanti ha la tacca per la manopola grande, dietro la finestra per la spina del pad.
+- **La culla del pad** è come quella della Flip: il pad ci sta con la piastra 2 mm sopra il piano e il bordo sale 5 mm oltre la piastra. Dentro segue il contorno vero del pad, misurato il 18/10/2026 sulle foto di Luigi: il lobo davanti dal lato delle manopole, gli angoli, la USB-C sul retro. Sta in piedi sulla base, poggia il pad su sei costole e regge con un dente il bordo del piano della Flip. Davanti ha la tacca per la manopola grande, dietro la finestra per la spina del pad.
 - **Gli appoggi.** Lo strato più interno di fianchi, retro e costola è più basso dove sopra c'è il piano: con una striscia di feltro da 1 mm, il piano ci appoggia alla quota della MK4.
 - **Il cartellino non c'è più**: i tasti del pad hanno le etichette sotto il coperchio, e le manopole del pad hanno la loro legenda sul piano, fra le due culle.
 
@@ -30,7 +30,7 @@ Tutte le misure stanno in `misure.py`, ognuna con la sua fonte: [M] manuale, [O]
 
 Il riferimento del case (x a destra, y verso il musicista, z in su) è sinistrorso. Gli STL e i modelli 3D escono specchiati su y, cioè nel verso fisico giusto: senza lo specchio la culla avrebbe gli intagli dal lato sbagliato.
 
-`manuale.py` usa la suite ArtCraft: VectorCraft converte le pagine SVG in PDF vettoriali, PdfCraft le unisce. Il modello SketchUp si costruisce con lo strumento SketchUp (nel cloud), eseguendo nell'ordine `out/sketchup/parte_0.py`, `parte_1.py`, `parte_2.py` e `scene.py`, poi salvandolo. Ha un livello e una scena per ogni passo del montaggio.
+`manuale.py` usa la suite ArtCraft: VectorCraft converte le pagine SVG in PDF vettoriali, PdfCraft le unisce. Il modello SketchUp si costruisce con lo strumento SketchUp (nel cloud), eseguendo nell'ordine i file `out/sketchup/parte_N.py` (da 0 in su) e `scene.py`, poi salvandolo. Ha un livello e una scena per ogni passo del montaggio.
 
 `rendering.py` prepara le texture in `build/render/` (incisioni dagli SVG, etichette, la faccia della Flip raddrizzata dalla foto, la plancia sullo schermo) e lancia `blender_scena.py` in Blender: betulla con i bordi bruciati dal laser, acrilico nero satinato con le incisioni, PETG con gli strati, alluminio, tasti trasparenti con l'etichetta dentro. La luce da studio è `studio_small_09_2k.hdr` di Poly Haven (CC0), da scaricare in `build/render/`. `--prova` fa una passata veloce. `tools/sito_case.py` porta render, tavole e fogli nel sito (`docs/case.html`).
 
@@ -55,7 +55,7 @@ Il riferimento del case (x a destra, y verso il musicista, z in su) è sinistror
 1. **Misurare** le voci [V] di `misure.py`. I controlli della MK4 e le porte della Flip sono stati rimisurati sulle foto il 17/10/2026 (±1 mm); restano:
    - altezza del pannello della MK4 (37 mm, `MK4['h']`): la mascherina ci appoggia, e il piano della Flip va alla stessa quota;
    - altezza dei pulsanti piccoli della MK4: con la mascherina appoggiata stanno 1-2 mm sotto la sua faccia;
-   - altezza del corpo del pad (`PAD_CORPO`, 16 mm stimati) e quota della sua presa USB-C (`PAD_USB_Z`): decidono le costole e la finestra della culla del pad;
+   - altezza del corpo del pad (`PAD_CORPO`, 11,5 mm dalle foto del 18/10/2026) e quota della sua presa USB-C (`PAD_USB_Z`, 9 mm; la presa è sul retro, a 80 mm dal bordo dei tasti): decidono le costole e la finestra della culla del pad;
    - angolo di apertura della Flip (serve almeno 115°);
    - misure dell'hub (`HUB`).
 
@@ -103,7 +103,7 @@ Le istruzioni con le tavole sono in `out/istruzioni_montaggio.pdf`. In breve:
 
 | | mm |
 |---|---|
-| ingombro | 576,5 × 244 |
+| ingombro | 577,5 × 244 |
 | cima della console (telaio e piano) | 46 |
 | piastra del pad / bordo delle culle | 48 / 53 |
 | altezza con lo schermo aperto | 133 lo schermo (a 65°), 150 la visiera |

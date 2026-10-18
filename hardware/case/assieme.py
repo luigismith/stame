@@ -32,6 +32,7 @@ COLORI = {
     'petg_nero': (48, 48, 52), 'petg_sabbia': (204, 189, 158), 'tpu': (70, 70, 72),
     'mk4': (232, 232, 226), 'mk4_tasti': (247, 247, 242), 'mk4_neri': (34, 34, 36), 'mk4_pad': (82, 82, 86),
     'manopole': (52, 52, 56), 'pad': (38, 38, 42), 'trasparente': (214, 222, 226), 'flip': (64, 66, 72), 'schermo': (14, 44, 40), 'hub': (96, 98, 104),
+    'pad_fondo': (30, 30, 34), 'pad_trasparente': (206, 218, 222), 'pad_satinata': (188, 200, 206), 'alluminio': (196, 198, 202),
 }
 AMBRA = (236, 150, 40)
 
@@ -111,13 +112,25 @@ def apparecchi():
             pads.box(cx - 12.0, cy - 6.0, zt, cx + 12.0, cy + 6.0, zt + 0.6)
         else:
             pads.box(cx - 7.5, cy - 4.0, zt, cx + 7.5, cy + 4.0, zt + 1.5)
-    # ---- macro pad, con i tasti trasparenti e le etichette ----
-    pc = parte('Macro pad', 5, 'pad')
+    # ---- macro pad (foto di Luigi del 18/10/2026): fondo scuro, acrilico trasparente e piastra
+    # satinata sul contorno con il lobo; manopole d'alluminio, la grande con la flangia, le piccole sul
+    # loro dado; i tasti trasparenti con le etichette ----
+    contorno = G.contorno_pad()[0]
     px0, py0 = M.PAD_X0, M.PAD_Y0
-    pz0, pz1 = M.PAD_Z0, M.PAD_Z1
-    pc.prisma(rett(px0, py0, px0 + M.PAD['w'], py0 + M.PAD['d'], 5.0), pz0, pz1)
+    pz1 = M.PAD_Z1
+    z = M.PAD_Z0
+    for nome, h in M.PAD_STRATI:
+        parte(f'Macro pad, {nome}', 5, f'pad_{nome}').prisma(contorno, z, z + h)
+        z += h
+    allu = parte('Manopole del pad', 5, 'alluminio')
     for k, (kx, ky, kr) in M.PAD_KNOB.items():
-        pc.cilindro(px0 + kx, py0 + ky, pz1 + 0.5, pz1 + (14.0 if k != 'M' else 16.0), kr, 24)
+        cx, cy = px0 + kx, py0 + ky
+        if k == 'M':
+            allu.cilindro(cx, cy, pz1, pz1 + 3.0, M.PAD_FLANGIA, 40)
+            allu.cilindro(cx, cy, pz1 + 3.0, pz1 + M.PAD_KNOB_H, kr, 40)
+        else:
+            allu.cilindro(cx, cy, pz1, pz1 + 5.0, kr * 0.62, 6)
+            allu.cilindro(cx, cy, pz1 + 5.5, pz1 + M.PAD_KNOB_H, kr, 32)
     tasti = parte('Interruttori del pad', 5, 'pad')
     caps = parte('Tasti trasparenti', 9, 'trasparente')
     C = M.TASTO_PAD

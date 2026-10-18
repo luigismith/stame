@@ -32,7 +32,7 @@ RADICE = os.path.normpath(os.path.join(QUI, '..', '..'))
 sys.path.insert(0, QUI)
 sys.path.insert(0, os.path.join(RADICE, 'tools'))
 import misure as M                  # noqa: E402
-from mesh import Mesh, rett, cerchio, triangola, sposta, IDENTITA  # noqa: E402
+from mesh import Mesh, rett, cerchio, triangola, sposta, taglia, area, IDENTITA  # noqa: E402
 from matrice import GLIFI           # noqa: E402
 
 OUT = os.path.join(QUI, 'out')
@@ -581,6 +581,16 @@ def _tacche_retro(a, b):
     return out
 
 
+def _tacche_fronte(a, b):
+    """bordo davanti della base da b ad a (x che cala) con le tacche per le linguette della parete
+    davanti: la parete sta sul bordo, quindi le sedi sono tacche aperte come quelle del retro"""
+    g, hw, Y = M.GIOCO, M.LINGUETTA / 2 + M.GIOCO, M.BASE_Y1
+    out = []
+    for c in sorted((c for c in FRONTE_LING if a < c < b), reverse=True):
+        out += [(c + hw, Y), (c + hw, Y - M.PLY - g), (c - hw, Y - M.PLY - g), (c - hw, Y)]
+    return out
+
+
 def base(lato):
     a, b = (M.FIANCO, M.GIUNTA) if lato == 'sx' else (M.GIUNTA, M.LARGHEZZA - M.FIANCO)
     Y = M.BASE_Y1
@@ -590,9 +600,9 @@ def base(lato):
     giunta = _bordo_giunta(Y)
     tacche = _tacche_retro(a, b)
     if lato == 'sx':
-        pts = [(a, 0.0)] + tacche + giunta + [(a, Y)]
+        pts = [(a, 0.0)] + tacche + giunta + _tacche_fronte(a, b) + [(a, Y)]
     else:
-        pts = [(b, 0.0), (b, Y)] + list(reversed(giunta)) + tacche
+        pts = [(b, 0.0), (b, Y)] + _tacche_fronte(a, b) + list(reversed(giunta)) + tacche
     svg.poligono([P(x, y) for x, y in pts])
     # piedini in gomma (segno) e viti delle squadrette dei fianchi
     for x, y in ((M.FIANCO + 25, 20), (M.FIANCO + 25, Y - 20), (M.LARGHEZZA - M.FIANCO - 25, 20),
@@ -603,13 +613,10 @@ def base(lato):
         for y in SQUADRETTE_Y:
             if a < x < b:
                 svg.cerchio(*P(x, y), 1.7)
-    # asole: costola (due strati incollati, linguette insieme) e parete davanti
+    # asole della costola (due strati incollati, linguette insieme); la parete davanti ha le tacche nel bordo
     for yc in COSTOLA_LING:
         if a < M.GIUNTA_PIANO < b:
             asola(svg, *P(M.GIUNTA_PIANO, yc), 2 * M.PLY, M.LINGUETTA)
-    for xc in FRONTE_LING:
-        if a < xc < b:
-            asola(svg, *P(xc, M.FRONTE_Y + M.PLY / 2), M.LINGUETTA, M.PLY)
     # viti del fermo dell'hub
     for x in (M.HUB_X0 - 10.0, M.HUB_X0 + M.HUB['w'] + 0.8 + 10.0):
         if a < x < b:
@@ -657,6 +664,33 @@ def fronte():
 
 
 # ---------------------------------------------------------------------------------------------
+# il macro pad: il suo contorno vero (foto di Luigi del 18/10/2026), per la culla, la tavola e il modello
+
+def contorno_pad(o=0.0):
+    """Contorno del macro pad nel riferimento del case, allargato di o: angoli R 5; davanti, dal lato
+    delle manopole, il lobo che sporge 2 mm negli ultimi 40 mm, con l'angolo R 30 e un gradino fatto
+    di due curve da 1 mm. Torna (punti, mezzi): mezzi sono gli indici dei punti a metà degli angoli
+    (dietro a sinistra, dietro a destra, il lobo, davanti a sinistra), da cui la culla si divide nelle
+    sue quattro pareti."""
+    x0, y0, w, L = M.PAD_X0, M.PAD_Y0, M.PAD['w'], M.PAD_LOBO
+    r, R, g = M.PAD_R, L['r'], 1.0
+    xa = x0 + w - L['lungo']                         # dove comincia il lobo
+    yf, yl = y0 + M.PAD['d'], M.PAD_Y1                # davanti dei tasti, davanti del lobo
+    archi = [((x0 + r, y0 + r), r + o, 180, 270, 8, True),      # dietro a sinistra
+             ((x0 + w - r, y0 + r), r + o, 270, 360, 8, True),  # dietro a destra
+             ((x0 + w - R, yl - R), R + o, 0, 90, 16, True),    # il lobo, davanti a destra
+             ((xa + g, yl - g), g + o, 90, 180, 4, False),      # il gradino: la curva convessa
+             ((xa - g, yf + g), max(g - o, 0.05), 0, -90, 4, False),   # e quella concava
+             ((x0 + r, yf - r), r + o, 90, 180, 8, True)]       # davanti a sinistra
+    pts, mezzi = [], []
+    for c, rr, a0, a1, n, angolo in archi:
+        if angolo:
+            mezzi.append(len(pts) + n // 2)
+        pts += _arco(c, rr, a0, a1, n)
+    return pts, mezzi
+
+
+# ---------------------------------------------------------------------------------------------
 # piano della Flip: acrilico nero come la mascherina, con la culla e la visiera avvitate sopra
 
 def culla_viti():
@@ -690,14 +724,19 @@ def piano_flip():
     def P(x, y):
         return (x - x0 + 1, y - y0 + 1)
     pts = [(x0, y0), (x1, y0), (x1, y1)]
+    fessure = [FESSURA_OTG, FESSURA_FRONTE]
     if SPINA_PAD_TOP > M.Z_PIANO0 - 0.3:            # la spina del pad tocca il piano: una tacca nel bordo
-        pts += [(SPINA_PAD_X + 12.0, y1), (SPINA_PAD_X + 12.0, y1 - 8.0), (SPINA_PAD_X - 12.0, y1 - 8.0),
-                (SPINA_PAD_X - 12.0, y1)]
+        na, nb, ny = SPINA_PAD_X - 12.0, SPINA_PAD_X + 12.0, y1 - 8.0
+        fx, fy, fw, fh = FESSURA_FRONTE
+        if ny - (fy + fh) < 6.0 and fx < nb and fx + fw > na:    # la fessura della Flip è a due passi: una apertura sola
+            na, nb, ny = min(na, fx), max(nb, fx + fw), fy
+            fessure = [FESSURA_OTG]
+        pts += [(nb, y1), (nb, ny), (na, ny), (na, y1)]
     pts.append((x0, y1))
     svg.poligono([P(x, y) for x, y in pts])
     for x, y in culla_viti() + visiera_viti():
         svg.cerchio(*P(x, y), 1.7)
-    for fx, fy, fw, fh in (FESSURA_OTG, FESSURA_FRONTE):
+    for fx, fy, fw, fh in fessure:
         svg.rett(*P(fx, fy), fw, fh, 3.0)
     # le manopole del pad, fra le due culle: dietro i tasti del pad ne resta in vista una striscia
     xa = M.FLIP_X + 24.0
@@ -785,7 +824,7 @@ def tavola():
     svg.rett(*T(M.FLIP_X - M.FLIP['w'] / 2, M.FLIP_Y0 - sch), M.FLIP['w'], sch, 3, 'segno')
     # culla del pad e pad con tasti e manopole
     svg.rett(*T(M.DESTRA_X0 + 0.3, M.CULLA_PAD_Y0), M.DESTRA_X1 - M.DESTRA_X0 - 0.6, M.CULLA_PAD_Y1 - M.CULLA_PAD_Y0, 1, 'taglio')
-    svg.rett(*T(M.PAD_X0, M.PAD_Y0), M.PAD['w'], M.PAD['d'], 5, 'segno')
+    svg.poligono([T(x, y) for x, y in contorno_pad()[0]], 'segno')
     for r in range(3):
         for c in range(5):
             cx = M.PAD_X0 + M.PAD['k0'][0] + c * M.PAD['pitch_x']
@@ -885,43 +924,67 @@ def culla_flip():
     return ms
 
 
+def _sezioni_y(loop, x):
+    """intervalli di y dove la verticale x sta dentro il contorno"""
+    ys = []
+    for i in range(len(loop)):
+        (xa, ya), (xb, yb) = loop[i - 1], loop[i]
+        if (xa - x) * (xb - x) < 0:
+            ys.append(ya + (yb - ya) * (x - xa) / (xb - xa))
+    ys.sort()
+    return [(ys[k], ys[k + 1]) for k in range(0, len(ys) - 1, 2)]
+
+
 def culla_pad():
     """Culla del macro pad (Luigi, 18/10/2026: «per il pad vorrei una culla simile a quella che hai
-    fatto per il flip»). Sta in piedi sulla base e riempie la parte destra davanti, fra costola,
-    fianco e parete davanti. Il pad poggia su sei costole con la piastra 2 mm sopra il piano, come
-    la Flip sul fondo della sua culla, e il bordo sale 5 mm oltre la piastra, come i bordi della
-    culla della Flip. Davanti la tacca per la manopola grande, che sporge; dietro un dente regge il
-    bordo del piano della Flip e una finestra fa passare la spina del pad (a 90°, verso il basso)
-    sotto il piano, verso l'hub. Si stampa in piedi, senza supporti."""
+    fatto per il flip»), sul contorno vero del pad (foto del 18/10/2026). Sta in piedi sulla base e
+    riempie la parte destra davanti, fra costola, fianco e parete davanti; dentro ha la sagoma del pad
+    con 0,5 mm di gioco, lobo compreso. Il pad poggia su sei costole con la piastra 2 mm sopra il piano,
+    come la Flip sul fondo della sua culla, e il bordo sale 5 mm oltre la piastra. Davanti la tacca per
+    la flangia della manopola grande, che sporge dal lobo; dietro un dente regge il bordo del piano della
+    Flip e una finestra fa passare la spina del pad (a 90°, verso il basso). Le pareti vanno dagli
+    angoli della culla a quelli del pad: dove serve un'apertura si taglia solo la parete che la porta.
+    Si stampa in piedi, senza supporti."""
     x0, x1 = M.DESTRA_X0 + 0.3, M.DESTRA_X1 - 0.3
     y0, y1 = M.CULLA_PAD_Y0, M.CULLA_PAD_Y1
-    s = M.CULLA_PAD_PARETE
     z0, zr = M.BASE_T, M.PAD_Z1 + M.CULLA_BORDO
+    dentro, (m0, m1, m2, m3) = contorno_pad(M.CULLA_PAD_GIOCO)
     ms = Mesh('Stame culla del macro pad')
-    ms.box(x0, y0, z0, x0 + s, y1, zr)                                           # fianchi
-    ms.box(x1 - s, y0, z0, x1, y1, zr)
-    # davanti: la manopola M sporge dal pad di quasi 3 mm, sopra la piastra
-    mx = M.PAD_X0 + M.PAD_KNOB['M'][0]
-    ma, mb = mx - M.PAD_KNOB['M'][2] - 2.0, mx + M.PAD_KNOB['M'][2] + 2.0
-    ms.box(x0 + s, y1 - s, z0, x1 - s, y1, M.PAD_Z1)
-    ms.box(x0 + s, y1 - s, M.PAD_Z1, ma, y1, zr)
-    ms.box(mb, y1 - s, M.PAD_Z1, x1 - s, y1, zr)
-    # dietro: finestra per la spina, sotto il piano; sopra il bordo continua
+    retro = [(x0, y0), (x1, y0)] + dentro[m0:m1 + 1][::-1]
+    destra = [(x1, y0), (x1, y1)] + dentro[m1:m2 + 1][::-1]
+    davanti = [(x1, y1), (x0, y1)] + dentro[m2:m3 + 1][::-1]
+    sinistra = [(x0, y1), (x0, y0)] + (dentro[m3:] + dentro[:m0 + 1])[::-1]
+
+    def parete(poly, za, zb, aperture=()):
+        """la parete da za a zb, con le aperture (xa, xb) lasciate vuote"""
+        pezzi = [poly]
+        for a, b in aperture:
+            pezzi = [q for p in pezzi for q in (taglia(p, 0, a, True), taglia(p, 0, b, False))
+                     if len(q) >= 3 and abs(area(q)) > 0.01]
+        for p in pezzi:
+            ms.prisma(p, za, zb)
+    # dietro: la finestra della spina, che esce dal pad 9 mm sopra il fondo e scende verso l'hub
     fa, fb = SPINA_PAD_X - 11.0, SPINA_PAD_X + 11.0
-    zf = M.Z_PIANO0 + 0.5
-    ms.box(x0 + s, y0, z0, fa, y0 + s, zr)
-    ms.box(fb, y0, z0, x1 - s, y0 + s, zr)
-    ms.box(fa, y0, zf, fb, y0 + s, zr)
+    zf = min(SPINA_PAD_TOP + 1.0, zr - 2.0)
+    parete(retro, z0, zf, [(fa, fb)])
+    parete(retro, zf, zr)
+    parete(destra, z0, zr)
+    parete(sinistra, z0, zr)
+    # davanti: sopra la piastra la tacca per la flangia della manopola grande
+    mx = M.PAD_X0 + M.PAD_KNOB['M'][0]
+    parete(davanti, z0, M.PAD_Z1)
+    parete(davanti, M.PAD_Z1, zr, [(mx - M.PAD_FLANGIA - 2.0, mx + M.PAD_FLANGIA + 2.0)])
     # dente per il bordo del piano della Flip, con lo smusso a 45° sotto (si stampa senza supporti)
     d = M.CULLA_DENTE
     za = M.Z_APPOGGIO
     dente = [(y0 - d, za), (y0 - d, za - 2.0), (y0, za - 2.0 - d), (y0, za)]
     for a, b in ((x0, fa), (fb, x1)):
         ms.prisma_x(dente, a, b)
-    # sei costole sotto il pad
+    # sei costole sotto il pad, da parete a parete
     for k in range(1, 7):
         cx = M.PAD_X0 + M.PAD['w'] * k / 7
-        ms.box(cx - 1.2, y0 + s, z0, cx + 1.2, y1 - s, M.PAD_Z0)
+        for ya, yb in _sezioni_y(dentro, cx):
+            ms.box(cx - 1.2, ya - 0.5, z0, cx + 1.2, yb + 0.5, M.PAD_Z0)
     return ms
 
 

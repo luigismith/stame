@@ -9,8 +9,9 @@ Il 17/10/2026 i controlli della MK4 sono stati rimisurati su mk4_vista_alto.jpg:
 due assi (347,5 mm di larghezza, 192 di profondità, ±1 %), con la correzione della prospettiva
 (la fronte è più vicina all'obiettivo); centri dei pulsanti dal colore, delle manopole dal cerchio
 degli anelli rossi, di pad e ruote dai bordi. Incertezza stimata ±1 mm. Le porte della Flip vengono
-da due foto che concordano entro 0,5 mm. Il pad è stato misurato il 17/10/2026 con i tasti 1u come
-metro (±2 %); la sua altezza è [V].
+da due foto che concordano entro 0,5 mm. Il pad è stato rimisurato il 18/10/2026 su dieci foto di
+Luigi (vista dall'alto raddrizzata sui tasti 1u, viste di fianco per le altezze, ±2 %): contorno
+con il lobo davanti, strati, manopole e porte; le altezze vanno confermate con il righello [V].
 
 Composizione (decisa da Luigi il 15/10/2026): MPK mini IV a sinistra; a destra il macro pad in linea
 con i tasti e, dietro, la Flip aperta. Bozza 5 (18/10/2026): un telaio solo con la cima alla stessa
@@ -25,6 +26,14 @@ import math
 # ---- macchine ----
 LASER_BED = (390.0, 390.0)        # AtomStack S10, area utile con margine [D]
 PRINT_BED = (240.0, 240.0)        # Kobra S1, 250 con 5 mm di margine per lato (CASE-003)
+
+# ---- versione tutta stampata (CASE-050…CASE-056; Luigi, 18/10/2026: «per chi non ha il laser») ----
+PIATTO_COMUNE = (210.0, 210.0)    # area utile di una stampante da 220 × 220: Ender-3, Bambu, Kobra, Prusa MK4 (210 in y)
+GIOCO_STAMPA = 0.15               # gioco per lato nelle sedi delle code di rondine stampate
+CODA = dict(collo=8.0, testa=12.0, prof=7.0)   # coda di rondine fra i tasselli, nel piano del pezzo
+TASCA = 0.4                       # profondità delle tasche delle etichette di carta (due strati da 0,2)
+RILIEVO = 0.6                     # rilievo del marchio e del nome sui fianchi stampati (tre strati da 0,2)
+DETTAGLIO_MIN = 0.7               # un'incisione più sottile non si stampa con un ugello da 0,4 mm
 
 # ---- materiali ----
 PLY = 4.0                         # compensato di betulla per pannelli e fianchi [D]
@@ -45,14 +54,31 @@ FLIP_JACK_DX = -6.0
 FLIP_USBC_DX = 6.3
 # tasti sul fianco destro, vicino alla cerniera: fra 6 e 16 mm dal bordo posteriore [D, foto]
 FLIP_TASTI_LATO = (6.0, 16.0)
-# macro pad BRIMFORD: 15 tasti in 3 file da 5 e 3 manopole a destra [O]. Misure dalla foto
-# pad_brimford_luigi.jpg (17/10/2026), con i copritasti 1u come metro (base 18 mm): 7,39 px/mm, e il
-# pulsante AUTOMATION della MK4 nella stessa foto (17,7 mm) dà 7,40 [D, ±2 %]. L'altezza è [V].
-PAD = dict(w=178.0, d=72.0, h=32.0, pitch_x=21.0, pitch_y=22.3, k0=(17.2, 13.3))
-# manopole del pad: centro (x, y dal bordo posteriore) e raggio [D, foto]; m1 è la piccola vicina ai
-# tasti, m2 quella sul bordo, M la grande in basso (specifica 40 §8.10)
-PAD_KNOB = {'m1': (131.4, 16.0, 9.5), 'm2': (164.3, 16.4, 9.5), 'M': (150.0, 59.7, 15.0)}   # M sporge 2 mm davanti
-PAD_USB_X = 148.0                 # presa USB-C sul bordo posteriore del pad, verso le manopole [D]
+# macro pad BRIMFORD: 15 tasti in 3 file da 5 e 3 manopole a destra [O]. Misure dalle dieci foto di
+# Luigi del 18/10/2026 (fuori da git): copritasti 1u come metro (base 18 mm), la vista dall'alto
+# raddrizzata sulla griglia dei 15 tasti (scarto 3 px), le viste di fianco per le altezze; ±2 % sulle
+# misure d'insieme [D]. x dal bordo dei tasti verso le manopole, y dal retro verso il musicista.
+PAD = dict(w=179.0, d=73.5, h=31.5, pitch_x=20.8, pitch_y=21.9, k0=(15.5, 16.0))
+# il lobo davanti, dal lato della manopola grande: negli ultimi 40 mm la piastra sporge 2 mm oltre il
+# bordo davanti dei tasti, con un gradino arrotondato; l'angolo davanti verso le manopole ha R 30, gli
+# altri tre R 5 [D, foto 2, 5, 6, 9]
+PAD_LOBO = dict(sporge=2.0, lungo=40.0, r=30.0)
+PAD_R = 5.0
+PAD_D_TOT = PAD['d'] + PAD_LOBO['sporge']    # 75,5: la profondità sul lobo
+# manopole del pad: centro (x, y dal retro) e raggio del cappello [D, foto]; m1 è la piccola vicina ai
+# tasti, m2 quella sul bordo, M la grande davanti (specifica 40 §8.10). Tutte arrivano 20 mm sopra la
+# piastra; le piccole sono un cappello zigrinato alto 14,5 su un dado da 5, la grande ha una flangia
+# alla base, raggio 17 [D]
+PAD_KNOB = {'m1': (130.0, 19.0, 10.0), 'm2': (165.0, 19.0, 10.0), 'M': (148.0, 61.0, 15.0)}
+PAD_KNOB_H = 20.0
+PAD_FLANGIA = 17.0
+# porte sul retro [D, foto 1 e 10]: la USB-C sotto la seconda colonna di tasti contando dalle manopole;
+# verso il bordo dei tasti un'apertura piccola (≈ 5 mm, un tasto o un interruttore), da lasciare libera
+PAD_USB_X = 80.0
+PAD_PORTA2_X = 38.0
+# strati dal fondo [D, ±1,5]: la fascia scura (distanziali, circuito, fondo nero), l'acrilico
+# trasparente, la piastra satinata con gli interruttori; la faccia della piastra è il riferimento
+PAD_STRATI = (('fondo', 6.0), ('trasparente', 3.5), ('satinata', 2.0))
 HUB = dict(w=85.0, d=32.0, h=15.0)   # hub USB 2.0 [V]
 
 # Controlli della MK4: centro (x dal bordo sinistro, y dal bordo posteriore) [D, foto, rimisurati il
@@ -115,25 +141,25 @@ GIUNTA_PIANO = COSTOLA_X0 + PLY        # 371,5: mascherina e piano della Flip si
 CULLA_PAD_PARETE = 2.7
 CULLA_PAD_GIOCO = 0.5
 DESTRA_X0 = COSTOLA_X1
-DESTRA_X1 = DESTRA_X0 + PAD['w'] + 2 * (CULLA_PAD_PARETE + CULLA_PAD_GIOCO) + 0.6   # 560,5
-LARGHEZZA = DESTRA_X1 + FIANCO    # 576,5
+DESTRA_X1 = DESTRA_X0 + PAD['w'] + 2 * (CULLA_PAD_PARETE + CULLA_PAD_GIOCO) + 0.6   # 561,5
+LARGHEZZA = DESTRA_X1 + FIANCO    # 577,5
 FRONTE_Y = BASE_Y1 - PLY          # 240: parete davanti della parte destra
 # culla del pad: tutta la larghezza fra costola e fianco, fino alla parete davanti; dietro porta il
 # bordo davanti del piano della Flip su un dente (CULLA_DENTE) e lascia passare la spina del pad
 CULLA_PAD_Y1 = FRONTE_Y - 0.3
-CULLA_PAD_Y0 = CULLA_PAD_Y1 - PAD['d'] - 2 * (CULLA_PAD_PARETE + CULLA_PAD_GIOCO)
+CULLA_PAD_Y0 = CULLA_PAD_Y1 - PAD_D_TOT - 2 * (CULLA_PAD_PARETE + CULLA_PAD_GIOCO)
 CULLA_DENTE = 4.0
 PIANO_Y1 = CULLA_PAD_Y0 - 0.3                  # il piano della Flip arriva alla culla del pad
 PAD_X0 = DESTRA_X0 + 0.3 + CULLA_PAD_PARETE + CULLA_PAD_GIOCO
-PAD_Y1 = CULLA_PAD_Y1 - CULLA_PAD_PARETE - CULLA_PAD_GIOCO
-PAD_Y0 = PAD_Y1 - PAD['d']
-# altezze del pad [V]: il corpo (dal fondo alla faccia della piastra di acrilico) e i tasti sopra.
-# Come la Flip, il pad sta 2 mm sopra il piano, e il bordo della culla sale 5 mm oltre la piastra
-PAD_CORPO = 16.0                  # [V]: da misurare prima di stampare la culla
+PAD_Y1 = CULLA_PAD_Y1 - CULLA_PAD_PARETE - CULLA_PAD_GIOCO    # il davanti del lobo
+PAD_Y0 = PAD_Y1 - PAD_D_TOT                                   # il retro, con la USB-C
+# altezze del pad: il corpo (dal fondo alla faccia della piastra satinata) e i tasti sopra. Come la
+# Flip, il pad sta 2 mm sopra il piano, e il bordo della culla sale 5 mm oltre la piastra
+PAD_CORPO = sum(h for _, h in PAD_STRATI)     # 11,5 [D, foto del 18/10]: col righello prima di stampare la culla
 PAD_Z1 = Z_PIANO + 2.0            # 48: la faccia della piastra del pad
-PAD_Z0 = PAD_Z1 - PAD_CORPO       # 32: il pad poggia sulle costole della culla
-PAD_USB_Z = 7.0                   # [V]: centro della presa USB-C sopra il fondo del pad; con la spina a 90°
-                                  # verso il basso, se la spina tocca il piano si apre una tacca nel suo bordo
+PAD_Z0 = PAD_Z1 - PAD_CORPO       # 36,5: il pad poggia sulle costole della culla
+PAD_USB_Z = 9.0                   # [D, ±1,5]: centro della presa USB-C sopra il fondo del pad; la spina a
+                                  # 90° verso il basso arriva sopra il piano: una tacca nel suo bordo
 CULLA_BORDO = 5.0                 # bordi delle due culle sopra il fondo (Flip) o sopra la piastra (pad)
 CULLA_FONDO = 2.0
 CULLA_PARETE = 2.0

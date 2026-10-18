@@ -112,7 +112,7 @@ MINUTERIA = [
 
 VERIFICARE = [
     'MK4: dima su carta (controlli dalle foto, ±1 mm); altezza del pannello (37 mm) e dei pulsanti piccoli',
-    'Macro pad: altezza del corpo (16 mm stimati) e quota della presa USB-C, prima di stampare la culla',
+    'Macro pad (dalle foto del 18/10): corpo 11,5 mm, USB-C sul retro a 80 mm dal bordo dei tasti e 9 dal fondo, prima di stampare la culla',
     'Flip: angolo massimo dello schermo (serve 115°: schermo a 65°); porte e tasti presi dalle foto',
     'Hub: misure reali (fermo dell\'hub) e consumo di MK4 + pad dalla batteria della Flip',
     'Prova di taglio su un ritaglio: potenza, velocità e gioco delle linguette (0,2 mm per lato)',
