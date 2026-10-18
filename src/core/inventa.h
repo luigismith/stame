@@ -16,7 +16,7 @@
 
 enum { INV_KICK, INV_SNARE, INV_HAT, INV_OPEN, INV_PERC, INV_PARTS };
 #define INV_STEPS    32         /* due battute di 4/4 in sedicesimi */
-#define INV_GROOVES  8
+#define INV_GROOVES  10
 #define INV_DENS_MAX 10
 #define INV_VAR_MAX  99
 

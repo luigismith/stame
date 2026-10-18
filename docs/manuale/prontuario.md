@@ -74,11 +74,11 @@ T14: Geek Out e ritorno. T15: pagina dei comandi aperta finché non lo ripremi (
 
 | | Gira | Premi | Tieni | Premi e gira |
 |---|---|---|---|---|
-| Sound | 97 suoni (55 di sintesi, 42 campionati) | lista | prev. Save | — |
+| Sound | 113 suoni (71 di sintesi, 42 campionati) | lista | prev. Save | — |
 | Perform | quantità (0 = off) | lista dei modi | Lock | — |
 | FX | 0…10 | mostra | Lock | — |
 | Key | tonalità | Key mode | prev. scelta rapida | Transpose ±12 |
-| Bass | 18 bassi | basso on/off | prev. modi | — |
+| Bass | 24 bassi | basso on/off | prev. modi | — |
 | Loop | voce del menu | REC / voce | prev. 2 s Save | — |
 | BPM | 60…200 (o T2 Tap) | Beat on/off | lista metriche e Beat | Beat Volume |
 | Volume | 0…99 | batteria | — | Bass Volume |
@@ -87,14 +87,14 @@ T14: Geek Out e ritorno. T15: pagina dei comandi aperta finché non lo ripremi (
 | Bs. Voicing | ottava del basso | Mod | — | — |
 
 Options: Exit · View (React, Chord, Keyboard, Chord+Kb, Notes, Geek Out) · Play Style (Simple, Advanced, Free) · Single Notes (Split, Octave) · Secret Chords (On, Off).
-Lista di BPM: 2/4 · 3/4 · 4/4 · 6/8 · Funk · Bossa · Motorik · Lounge · Shuffle · Halftime · Boom Bap · Disco · Samba · Ballad · Train · Chip · Techno · Dub. Batteria a tastiera (T11): tasti C…B = cassa, rimshot, rullante, battimani, charleston chiuso, tom basso, charleston aperto, tom alto, maracas, conga, campanaccio, piatto; i colpi entrano nel loop al sedicesimo.
+Lista di BPM: 2/4 · 3/4 · 4/4 · 6/8 · Funk · Bossa · Motorik · Lounge · Shuffle · Halftime · Boom Bap · Disco · Samba · Ballad · Train · Chip · Techno · Dub · Acid · Industrial · Minimal · Electro · Trap. Batteria a tastiera (T11): tasti C…B = cassa, rimshot, rullante, battimani, charleston chiuso, tom basso, charleston aperto, tom alto, maracas, conga, campanaccio, piatto; i colpi entrano nel loop al sedicesimo.
 Menu: Exit · Panic · Theme (Giorno di default) · Linnaeus Tag · Legend · Meters · Demo · Play Demo Song · Quit Stame.
 
 ## Drum machine (DRUMS acceso)
 
 K1 Kit (Beat, Studio, Jazz, 808, Techno, Chip) · K2 Roll (tieni il tasto: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32) · K5 Accent 0…10 · i pad del banco B suonano sempre. Prev.: K4 Swing, K3 FX sulla batteria.
 
-**Crea** (le manopole del pad, finché DRUMS è acceso): **M** densità 0…10 · premuta play/stop · **m1** stile (Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro) · premuta la parte di M (tutto, cassa, rullante, charleston, aperto, perc.) · **m2** variazione 0…99 · premuta idea nuova · premuta e girata volume del Beat. Ripremi T11: l'editing si chiude, il loop resta.
+**Crea** (le manopole del pad, finché DRUMS è acceso): **M** densità 0…10 · premuta play/stop · **m1** stile (Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial) · premuta la parte di M (tutto, cassa, rullante, charleston, aperto, perc.) · **m2** variazione 0…99 · premuta idea nuova · premuta e girata volume del Beat. Ripremi T11: l'editing si chiude, il loop resta.
 
 ## Looper
 

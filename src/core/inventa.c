@@ -62,6 +62,19 @@ static const groove_def_t GROOVES[INV_GROOVES] STAME_ROM = {
         "6464646464646464",
         "0000000000000040",
         "0000030000030000" } },
+    /* 18/10/2026, Luigi: «più cupi, più profondi, più grevi, più bassi, più acidi» */
+    { "Acid", KIT_I_808, DRUM_CLAP, { DRUM_RIMSHOT, DRUM_COWBELL, DRUM_TOM_LO },
+      { "9000900290009003",                                  /* cassa in quattro e due spinte */
+        "0000800000008002",
+        "4646464646464646",                                  /* i sedicesimi in levare più forti */
+        "0070007000700070",
+        "0003002000030020" } },
+    { "Industrial", KIT_I_TECHNO, DRUM_SNARE, { DRUM_RIMSHOT, DRUM_COWBELL, DRUM_TOM_LO },
+      { "9002700090027000",                                  /* la cassa che inciampa prima del 2 e del 4 */
+        "0000900030009004",
+        "5050505050505050",
+        "0000000000000000",
+        "0300030003000300" } },                              /* colpi di metallo in levare */
 };
 
 /* quanto la variazione può spostare ogni parte, in quarti: cassa e rullante tengono lo stile, le
@@ -150,8 +163,8 @@ int inv_groove_kit(int groove) { return groove >= 0 && groove < INV_GROOVES ? GR
 int inv_groove_of_beat(int beat)
 {
     /* Provvisorio, Funk, Bossa, Motorik, Lounge, Shuffle, Halftime, Boom Bap, Disco, Samba, Ballad, Train,
-     * Chip, Techno, Dub (beat.c) */
-    static const uint8_t G[BEAT_COUNT] = { 1, 2, 6, 0, 6, 1, 4, 3, 0, 6, 1, 1, 7, 0, 5 };
+     * Chip, Techno, Dub, Acid, Industrial, Minimal, Electro, Trap (beat.c) */
+    static const uint8_t G[BEAT_COUNT] = { 1, 2, 6, 0, 6, 1, 4, 3, 0, 6, 1, 1, 7, 0, 5, 8, 9, 0, 7, 4 };
     return beat >= 0 && beat < BEAT_COUNT ? G[beat] : 0;
 }
 

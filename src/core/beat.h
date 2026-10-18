@@ -12,7 +12,7 @@
 
 enum { BEAT_M_OFF, BEAT_M_METRONOME, BEAT_M_PATTERN };    /* come ui_beat_mode_t */
 enum { METER_2_4, METER_3_4, METER_4_4, METER_6_8 };      /* metriche del metronomo (ACC-206, ACC-208) */
-#define BEAT_COUNT 15                                      /* 0 = provvisorio di ACC-210, 1…14 della vetrina */
+#define BEAT_COUNT 20                                      /* 0 = provvisorio di ACC-210, 1…19 della vetrina */
 #define KIT_COUNT 5                                        /* studio, jazz, 808, techno, Chip (sintesi) */
 
 typedef struct { uint8_t inst, vel; } beat_hit_t;

@@ -50,6 +50,20 @@ static const beat_def_t BEATS[BEAT_COUNT] STAME_ROM = {
                               { DRUM_RIMSHOT, "...x..x....x..x." } } },
     { "Dub", KIT_TECHNO, { { DRUM_KICK, "X...X...X...X..." }, { DRUM_RIMSHOT, "....x.......x..x" },
                            { DRUM_OPEN_HAT, "..x...x...x...x." }, { DRUM_MARACAS, "x.xxx.xxx.xxx.xx" } } },
+    /* 18/10/2026, Luigi: «più cupi, più profondi, più grevi, più bassi, più acidi» */
+    { "Acid", KIT_808, { { DRUM_KICK, "X...X...X...X..." }, { DRUM_CLAP, "....X.......X..." },
+                         { DRUM_CLOSED_HAT, "xx.xxx.xxx.xxx.x" }, { DRUM_OPEN_HAT, "..X...X...X...X." },
+                         { DRUM_RIMSHOT, "......x.......x." } } },
+    { "Industrial", KIT_TECHNO, { { DRUM_KICK, "X..xX...X..xX..." }, { DRUM_SNARE, "....X.......X..." },
+                                  { DRUM_RIMSHOT, "..x...x.x.....x." }, { DRUM_COWBELL, "...x.......x...." },
+                                  { DRUM_CLOSED_HAT, "x.x.x.x.x.x.x.x." } } },
+    { "Minimal", KIT_TECHNO, { { DRUM_KICK, "X...X...X...X..." }, { DRUM_RIMSHOT, "..x..x....x..x.." },
+                               { DRUM_CLOSED_HAT, "..x...x...x...x." }, { DRUM_CLAP, "............X..." },
+                               { DRUM_MARACAS, "x.xxx.xxx.xxx.xx" } } },
+    { "Electro", KIT_808, { { DRUM_KICK, "X.....X...X..X.." }, { DRUM_CLAP, "....X.......X..." },
+                            { DRUM_CLOSED_HAT, "x.x.x.x.x.x.x.x." }, { DRUM_COWBELL, "...x......x....." } } },
+    { "Trap", KIT_808, { { DRUM_KICK, "X......X..X....." }, { DRUM_CLAP, "........X......." },
+                         { DRUM_CLOSED_HAT, "x.x.x.xxx.x.xxxx" } } },
 };
 
 /* i fill (MIDI-133, 16/10/2026): una battuta di riempimento per Beat, nello stesso kit, che suona finché
@@ -84,6 +98,15 @@ static const beat_fill_t FILLS[BEAT_COUNT] STAME_ROM = {
         { DRUM_OPEN_HAT, "..X...X...X...X." }, { DRUM_RIMSHOT, "...x..x.xxxxxxxx" } } },
     { { { DRUM_KICK, "X...X...X...X.X." }, { DRUM_RIMSHOT, "....x.......xxxx" }, { DRUM_OPEN_HAT, "..x...x...x...x." },
         { DRUM_MARACAS, "x.xxx.xxx.xxxxxx" }, { DRUM_TOM_LO, "..........x.x..." } } },
+    { { { DRUM_KICK, "X...X...X...X.X." }, { DRUM_CLAP, "....X.......XXXX" }, { DRUM_CLOSED_HAT, "xx.xxx.xxx.xxxxx" },
+        { DRUM_OPEN_HAT, "..X...X...X....." }, { DRUM_TOM_LO, "..........x.x..." } } },
+    { { { DRUM_KICK, "X..xX...X..xXXXX" }, { DRUM_SNARE, "....X...X.X.XXXX" }, { DRUM_RIMSHOT, "..x...x.xxxxxxxx" },
+        { DRUM_COWBELL, "...x.......x...." }, { DRUM_CLOSED_HAT, "x.x.x.x.x.x....." } } },
+    { { { DRUM_KICK, "X...X...X...X.X." }, { DRUM_RIMSHOT, "..x..x..x.x.xxxx" }, { DRUM_CLOSED_HAT, "..x...x...x...x." },
+        { DRUM_CLAP, "........X...X.XX" }, { DRUM_MARACAS, "x.xxx.xxx.xxxxxx" } } },
+    { { { DRUM_KICK, "X.....X...X.X.X." }, { DRUM_CLAP, "....X...X.X.XXXX" }, { DRUM_CLOSED_HAT, "x.x.x.x.x.x.x.x." },
+        { DRUM_TOM_HI, "..........x.x.x." }, { DRUM_TOM_LO, "...........x.x.x" } } },
+    { { { DRUM_KICK, "X......X..X.X.X." }, { DRUM_CLAP, "........X...XXXX" }, { DRUM_CLOSED_HAT, "xxxxxxxxxxxxxxxx" } } },
 };
 
 static int line_hits(const beat_line_t *lines, int s, beat_hit_t *out, int max)
