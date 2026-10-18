@@ -711,7 +711,8 @@ layers:
   - **K2 = Roll** (cella «ROLL»): un tasto o un pad **tenuto** si ripete sulla griglia del loop (o del trasporto) con la suddivisione scelta: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32 (`mot_roll`, in tick: 96, 48, 32, 24, 16, 12). Il colpo della mano suona subito; la ripetizione salta il punto di griglia che cade a meno di mezza suddivisione dal colpo; ogni ripetizione entra nel loop al suo tick esatto. È lo Strum della batteria;
   - **K5 = Accent** (cella «ACCENT», 0…10, default 10): quanto conta la velocity: `v = 100 + (velocity − 100) × Accent / 10`, quindi 0 = colpi tutti uguali a 100, 10 = la dinamica com'è. Vale per tasti e pad;
   - gli overlay sono `OV_KIT`, `OV_ROLL`, `OV_ACCENT` (`30` UI-025); K3 (FX sulla batteria) e K4 (Swing sulla griglia del loop e dei Beat) sono decisi ma non ancora fatti;
-  - fuori da DRUMS gli encoder tornano quelli dell'Orchid; kit, Roll e Accent restano come sono.
+  - fuori da DRUMS gli encoder tornano quelli dell'Orchid; kit, Roll e Accent restano come sono;
+  - dal 18/10/2026, sotto DRUMS, le tre manopole del pad creano il loop di batteria: MIDI-139.
 
 - **MIDI-136** — **Il pad senza tastiera era lo strumento** [D, 17/10/2026; **tolta il 18/10/2026**]. Dal 17 al 18/10/2026, senza MPK collegata, il pad cambiava mappa: T1–T12 erano le dodici fondamentali, M teneva il tipo d'accordo e m1 l'estensione. Il 18/10/2026 Luigi: «ci ho ripensato. elimina tutto quello che riguarda il funzionamento solo mpk o solo pad». Il pad fa sempre la mappa di MIDI-120.
 
@@ -746,6 +747,22 @@ layers:
   - l'asse Y delle levette cresce verso il basso (convenzione di Linux) [V: su = Chord Voicing più in alto, da provare sulla Flip];
   - con la MK4 bend e modulazione arrivano anche dalle ruote: vale l'ultima mossa;
   - se la Flip si perde, bend e modulazione tornano a 0 e il Fill di R2 si chiude.
+
+- **MIDI-139** — **La batteria che si inventa** [D, **chiesta da Luigi il 18/10/2026**: «la filosofia deve essere quella di utilizzare i 3 encoder del pad per "inventare" in tempo reale i loop di batteria», poi «un tasto per entrare in modalità crea e poi manopole e pressioni sulle manopole. ripremo il tasto per chiudere l'editing»]. Il tasto è **T11 DRUMS** (o Mod + BPM): acceso, oltre alla batteria a tastiera di MIDI-135, le tre manopole del pad creano il loop di batteria di `10` ACC-215; spento, l'editing si chiude, le manopole tornano ai voicing e il loop resta com'è e continua a suonare finché non si sceglie un Beat del menu.
+
+| Manopola | Girata | Premuta |
+|---|---|---|
+| **M** | **Densità** 0…10 della parte scelta, o di tutto: 0 tace, 1 è lo scheletro dello stile, 10 suona tutto | **Play / Stop** del loop (come la pressione di BPM) |
+| **m1** | **Stile** (Groove): Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro | **Parte** che M regola: tutto, cassa, rullante, charleston, aperto, percussioni |
+| **m2** | **Variazione** 0…99: 0 è lo stile com'è, ogni scatto un'idea nuova, tornando indietro si ritrova quella di prima | **Idea nuova**: una variazione a caso, ripetibile (`MACRO_KNOB_CLICK`) |
+
+  Regole:
+  - il primo tocco di una manopola sostituisce il Beat che suonava con il loop inventato, nello stile più vicino (Funk → Funk, Disco → Techno, Boom Bap → Break…); il primo scatto di m1 non cambia stile. Se il Beat era fermo resta fermo: parte con M premuta o con BPM;
+  - la densità di una parte è quella di tutto più uno scarto; portata a 0 la parte resta muta anche se si alza la densità di tutto, finché non la si rialza;
+  - m2 premuta e girata è il volume del Beat; m1 tenuta resta il modificatore Mod (Mod + BPM, Mod + Loop) e in quel caso il suo rilascio non cambia parte;
+  - i cambi valgono dal sedicesimo dopo: il loop non riparte, la battuta e il loop del looper restano allineati; il Fill di T4 e la scelta del kit (K1) valgono anche per il loop inventato;
+  - lo stesso vale per il fuoco della Flip sotto DRUMS: la levetta destra e R3 (Chord Voicing) sono M, L3 e Y (Bass Voicing) sono m1;
+  - sulla plancia la zona dell'accordo mostra la griglia del loop (`30` UI-176) e le celle CH.VOICING e BS.VOICING diventano DENSITY e GROOVE; sul case la legenda delle manopole sotto DRUMS è DENSITY, GROOVE, VARIATION (`60` CASE-045).
 
 ---
 

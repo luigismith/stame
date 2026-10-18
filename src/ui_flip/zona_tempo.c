@@ -32,6 +32,8 @@ uint64_t uf_sig_z3(const ui_model_t *m)
     uint64_t h = UF_H0;
     ui_tempo_t t = m->tempo;
     t.beat_phase = 0;                                  /* la fase conta solo per il lampo */
+    t.inv_step = 0;                                    /* griglia e passo della batteria inventata: zona 2 */
+    memset(t.grid, 0, sizeof t.grid);
     if (m->ctl.view != VIEW_GEEK) t.bar = 0;           /* la battuta si scrive solo in Geek Out */
     h = uf_h(h, &t, sizeof t);
     ui_looper_t lp = m->looper;
@@ -90,9 +92,15 @@ static void geek_line(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, in
         x = uf_label(fb, X0, y + 2, "LOOP", p->c[T_DIM]);
         gfx_text(fb, &GFX_S, x + 6, y, n2, p->c[T_LOOP]);
     } else if (t->beat_mode == BEAT_PATTERN) {
-        ui_fmt_int(n2, sizeof n2, t->beat_index, 2);
-        ui_fmt_cat(buf, sizeof buf, n2, " ");
-        ui_fmt_cat(buf, sizeof buf, buf, t->beat_name);
+        if (t->inv) {                                  /* il loop inventato: stile e variazione (MIDI-139) */
+            ui_fmt_int(n2, sizeof n2, t->variation, 1);
+            ui_fmt_cat(buf, sizeof buf, t->groove_name, " v");
+            ui_fmt_cat(buf, sizeof buf, buf, n2);
+        } else {
+            ui_fmt_int(n2, sizeof n2, t->beat_index, 2);
+            ui_fmt_cat(buf, sizeof buf, n2, " ");
+            ui_fmt_cat(buf, sizeof buf, buf, t->beat_name);
+        }
         x = uf_label(fb, X0, y + 2, "BEAT", p->c[T_DIM]);
         gfx_text_fit(fb, &GFX_S, x + 6, y, buf, p->c[T_TEXT], 104);
     } else if (t->beat_mode == BEAT_METRONOME) {

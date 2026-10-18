@@ -31,6 +31,8 @@ void vet_snd_apply(motore_t *m, const vet_snd_t *e)
     case VS_DRUM_OFF:    mot_drum_off(m, e->a); break;
     case VS_KIT:         mot_kit(m, e->a); break;
     case VS_ROLL:        mot_roll(m, e->a); break;
+    case VS_INV:         mot_inventa(m, e->a, e->b); break;
+    case VS_INV_DENS:    mot_inventa_dens(m, e->a, e->b); break;
     default: break;
     }
 }

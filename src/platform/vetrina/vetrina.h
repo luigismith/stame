@@ -35,7 +35,8 @@ enum { VS_NOTE_ON, VS_NOTE_OFF, VS_CHORD_START, VS_PATCH, VS_PARAM, VS_MASTER, V
        VS_BPM, VS_PERF, VS_BEAT, VS_METER, VS_BEAT_ON, VS_BEAT_VOL, VS_TRANSPOSE, VS_LOOP,
        VS_DRUM,                         /* a = tasto 0…11, b = velocity: batteria a tastiera (ACC-211) */
        VS_METRO, VS_FILL,               /* a = on: metronomo indipendente e Fill del Beat (MIDI-133) */
-       VS_DRUM_OFF, VS_KIT, VS_ROLL };  /* drum machine (MIDI-135): a = tasto rilasciato, kit (0 = del Beat), tick del Roll */
+       VS_DRUM_OFF, VS_KIT, VS_ROLL,    /* drum machine (MIDI-135): a = tasto rilasciato, kit (0 = del Beat), tick del Roll */
+       VS_INV, VS_INV_DENS };           /* batteria che si inventa (MIDI-139): a = stile, b = variazione; a = parte, b = densità */
 typedef struct { uint8_t type, engine, a, b, timed; uint32_t at; } vet_snd_t;   /* engine: 0 Sound, 1 Bass */
 
 /* statistiche del thread audio della piattaforma (PLT-021), scritte dal callback e lette dalla UI:
@@ -119,6 +120,9 @@ typedef struct {
     uint16_t    snd_w, snd_r;
     int16_t     snd_sound, snd_bass, snd_vol, snd_bvol, snd_fx;
     int16_t     snd_bpm, snd_perf, snd_beat, snd_meter, snd_beat_on, snd_beat_vol, snd_tr;
+    int16_t     snd_inv;              /* 0 = Beat del menu, altrimenti 1 + (stile << 8 | variazione) */
+    uint8_t     snd_inv_dens[INV_PARTS];   /* densità mandate + 1 (0 = mai mandata) */
+    inv_t       inv_ui;               /* il loop inventato rifatto per la griglia della plancia */
     uint8_t     snd_fx_idx;           /* parametro dell'effetto principale del suono (SND-601) */
     uint8_t     snd_timed;            /* i comandi messi in coda adesso valgono dal tick snd_at */
     uint32_t    snd_at;

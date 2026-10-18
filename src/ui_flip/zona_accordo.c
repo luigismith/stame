@@ -316,6 +316,50 @@ static void scope_bg(gfx_fb16_t *fb, const uf_pal_t *p, const ui_meters_t *me)
     }
 }
 
+/* ---- la batteria che si inventa (MIDI-139, UI-176): sotto DRUMS la zona mostra il loop di due battute,
+ * una riga per parte e una colonna per sedicesimo; il colpo è più acceso se è più forte, la colonna
+ * che suona è segnata, la parte che M regola ha il nome acceso e quella muta il nome spento ---- */
+
+#define GRID_X0  80
+#define GRID_Y0  84
+#define GRID_STEP 10
+#define GRID_ROW 28
+
+static void drum_grid(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
+{
+    const ui_tempo_t *t = &m->tempo;
+    static const char *const ROW[UI_INV_PARTS] = { "Kick", "Snare", "Hat", "Open", "Perc" };
+    if (!t->inv) {                                       /* prima del primo tocco: che cosa fanno le manopole */
+        static const char *const L[3] = { "M   density   press: play", "m1  groove    press: part",
+                                          "m2  variation press: new idea" };
+        gfx_text(fb, &GFX_M, NAME_X, 76, "Invent a drum loop", p->c[T_TEXT]);
+        for (int i = 0; i < 3; i++) gfx_text(fb, &GFX_S, NAME_X, 128 + 28 * i, L[i], p->c[T_DIM]);
+        return;
+    }
+    char buf[24], n[8];
+    ui_fmt_int(n, sizeof n, t->variation, 1);
+    ui_fmt_cat(buf, sizeof buf, "Variation ", n);
+    gfx_text(fb, &GFX_S, NAME_X, 64, buf, p->c[T_DIM]);
+    int h = GRID_ROW * UI_INV_PARTS;
+    if (t->inv_step < UI_INV_STEPS)                      /* la colonna che suona */
+        gfx_fill(fb, GRID_X0 + t->inv_step * GRID_STEP, GRID_Y0 - 2, GRID_STEP, h + 4, p->c[T_BAR]);
+    for (int s = 0; s <= UI_INV_STEPS; s += 4)           /* battiti; la seconda battuta comincia a 16 */
+        gfx_vline(fb, GRID_X0 + s * GRID_STEP - (s == UI_INV_STEPS), GRID_Y0 - 4, h + 8,
+                  p->c[s % 16 == 0 ? T_DIM : T_LINE]);
+    for (int r = 0; r < UI_INV_PARTS; r++) {
+        int y = GRID_Y0 + r * GRID_ROW;
+        bool focus = t->part == r + 1, muted = t->dens[r] == 0;
+        gfx_text(fb, &GFX_S, NAME_X, y + 6, ROW[r], p->c[focus ? T_ACTIVE : muted ? T_LINE : T_TEXT]);
+        ui_fmt_int(n, sizeof n, t->dens[r], 1);
+        gfx_text_right(fb, &GFX_S, GRID_X0 - 6, y + 6, n, p->c[focus || t->part == 0 ? T_ACTIVE : T_DIM], 0);
+        for (int s = 0; s < UI_INV_STEPS; s++) {
+            int x = GRID_X0 + s * GRID_STEP, v = t->grid[r][s];
+            if (!v) { gfx_fill(fb, x + GRID_STEP / 2 - 1, y + 13, 2, 2, p->c[T_LINE]); continue; }
+            gfx_fill(fb, x + 2, y + 5, GRID_STEP - 3, 18, p->c[v >= 100 ? T_ACTIVE : v >= 75 ? T_TEXT : T_DIM]);
+        }
+    }
+}
+
 /* ---- firma e disegno ---- */
 
 uint64_t uf_sig_z2(const ui_model_t *m)
@@ -327,6 +371,13 @@ uint64_t uf_sig_z2(const ui_model_t *m)
     h = UF_HV(h, m->prefs.pocket);
     h = UF_HV(h, m->prefs.linnaeus);
     h = UF_HV(h, m->tempo.drums_on);
+    if (m->tempo.drums_on) {                              /* la griglia della batteria che si inventa */
+        uint8_t g[6] = { m->tempo.inv, m->tempo.groove, m->tempo.variation, m->tempo.density, m->tempo.part,
+                         m->tempo.inv_step };
+        h = uf_h(h, g, sizeof g);
+        h = uf_h(h, m->tempo.dens, sizeof m->tempo.dens);
+        h = uf_h(h, m->tempo.grid, sizeof m->tempo.grid);
+    }
     /* l'oscilloscopio si muove a 30 fotogrammi al secondo solo se c'è suono: a riposo la zona sta
      * ferma (UI-115, PLT-014); prima ridisegnava per sempre */
     if ((m->ctl.view == VIEW_REACT || m->ctl.view == VIEW_CHORD) && m->meters.scope &&
@@ -344,8 +395,10 @@ void uf_draw_z2(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
     uf_glass(fb, p, 0, 25, ZW, 215);
 
     /* testata: tonalità e transpose (UI-145); con la Key mode spenta non si scrive nulla */
+    if (m->tempo.drums_on && m->tempo.inv)               /* sotto DRUMS lo stile del loop al posto della tonalità */
+        gfx_text(fb, &GFX_L, NAME_X, 30, m->tempo.groove_name, p->c[T_TEXT]);
     if (m->ctl.view != VIEW_REACT) {
-        if (mu->key_on) gfx_text(fb, &GFX_L, NAME_X, 30, mu->key_name, p->c[T_TEXT]);
+        if (mu->key_on && !m->tempo.drums_on) gfx_text(fb, &GFX_L, NAME_X, 30, mu->key_name, p->c[T_TEXT]);
         if (m->tempo.drums_on) {                             /* batteria a tastiera: lo stato vince sul transpose */
             gfx_text_right(fb, &GFX_L, 404, 30, "DRUMS", p->c[T_ACTIVE], 0);
         } else if (mu->transpose) {
@@ -358,6 +411,7 @@ void uf_draw_z2(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
         gfx_text_right(fb, &GFX_L, 404, 30, "DRUMS", p->c[T_ACTIVE], 0);   /* anche in React */
     }
 
+    if (m->tempo.drums_on && m->layer.prompt != PROMPT_SELECT_KEY) { drum_grid(fb, p, m); return; }
     if (m->layer.prompt == PROMPT_SELECT_KEY) {
         gfx_dots_t d = uf_dots(p, T_ACTIVE, true);
         int w = gfx_matrix_w("Select Key", 6);

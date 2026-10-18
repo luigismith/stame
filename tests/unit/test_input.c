@@ -723,7 +723,8 @@ static void t_macro_pad(void)
     pad(MPAD_M1_PUSH, 0);
     CHECK(!gest_held(&H.gest, ENC_BASS_VOICING));
 
-    /* m2 senza Lock: volume del Beat; premuta e girata, volume del basso; premuta da sola, niente */
+    /* m2 senza Lock: volume del Beat; premuta e girata, volume del basso; premuta da sola, un clic
+     * (MACRO_KNOB_CLICK, la «nuova idea» della batteria che si inventa sotto DRUMS, MIDI-139) */
     clear();
     tap(MPAD_M2_CW);
     tap(MPAD_M2_CCW);
@@ -737,7 +738,7 @@ static void t_macro_pad(void)
     CHECK(only(PNL_MACRO, MACRO_BASS_VOL, 1));
     clear();
     tap(MPAD_M2_PUSH);
-    CHECK_EQ(NEV, 0);
+    CHECKM(only(PNL_MACRO, MACRO_KNOB_CLICK, 2), "MIDI-139: m2 premuta da sola è un clic");
     PAD_BRIMFORD.reset(&s);
     CHECK_EQ(PAD_BRIMFORD.on_pad(&s, MPAD_M2_CW, 1, T0, raw, PNL_MAX_OUT), 1);
     CHECK(raw[0].type == PNL_MACRO && raw[0].a == MACRO_BEAT_VOL && raw[0].b == 1);

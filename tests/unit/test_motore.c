@@ -687,8 +687,101 @@ static void test_mappa_133(void)
     CHECK(L.state == LOOP_IDLE && L.n == 0);
 }
 
+/* TV-119 (MIDI-139, ACC-215): la batteria che si inventa. Densità monotona (i colpi di d stanno in d + 1),
+ * 0 tace e 1 è lo scheletro; la variazione è ripetibile, non tocca lo scheletro né le prime tre battute
+ * della seconda battuta; le parti hanno strumenti diversi; il fill aggiunge colpi; nel motore il loop
+ * inventato prende il posto del Beat e un Beat del menu lo spegne */
+static int inv_count(const inv_t *g, const uint8_t *dens, bool fill, int part_inst)
+{
+    beat_hit_t h[8];
+    int tot = 0;
+    for (int s = 0; s < INV_STEPS; s++) {
+        int n = inv_hits(g, dens, s, fill, h, 8);
+        for (int i = 0; i < n; i++) if (part_inst < 0 || h[i].inst == part_inst) tot++;
+    }
+    return tot;
+}
+
+static void test_inventa(void)
+{
+    static inv_t g, g2, base;
+    beat_hit_t h[8], h2[8];
+    for (int gr = 0; gr < INV_GROOVES; gr++) {
+        CHECKM(inv_groove_name(gr)[0] != 0, "stile %d senza nome", gr);
+        CHECK(inv_groove_kit(gr) >= 0 && inv_groove_kit(gr) < KIT_COUNT);
+        inv_build(&base, gr, 0);
+        for (int s = 0; s < 16; s++)                             /* variazione 0: due battute uguali */
+            for (int p = 0; p < INV_PARTS; p++) CHECK_EQ(base.lv[p][s], base.lv[p][s + 16]);
+        for (int var = 0; var <= INV_VAR_MAX; var += 7) {
+            inv_build(&g, gr, var);
+            inv_build(&g2, gr, var);
+            CHECKM(memcmp(&g, &g2, sizeof g) == 0, "TV-119: stile %d, variazione %d non ripetibile", gr, var);
+            for (int a = 0; a < INV_PARTS; a++)                  /* strumenti diversi: la griglia li distingue */
+                for (int b = a + 1; b < INV_PARTS; b++) CHECK(g.inst[a] != g.inst[b]);
+            int skel = 0, bad = 0;
+            for (int p = 0; p < INV_PARTS; p++)
+                for (int s = 0; s < INV_STEPS; s++) {
+                    if (base.lv[p][s] == 144) { skel++; bad += g.lv[p][s] != 144; }   /* lo scheletro resta */
+                    else bad += g.lv[p][s] >= 144;
+                    if (s >= 16 && s < 28) bad += g.lv[p][s] != g.lv[p][s - 16];
+                }
+            CHECKM(skel > 0 && bad == 0, "TV-119: stile %d var %d, scheletro %d, passi sbagliati %d", gr, var, skel, bad);
+            for (int p = 0; p < INV_PARTS; p++) {                /* densità monotona, parte per parte */
+                uint8_t d[INV_PARTS] = { 0 };
+                for (int dv = 0; dv < INV_DENS_MAX; dv++)
+                    for (int s = 0; s < INV_STEPS; s++) {
+                        d[p] = (uint8_t)dv;
+                        int n1 = inv_hits(&g, d, s, false, h, 8);
+                        d[p] = (uint8_t)(dv + 1);
+                        int n2 = inv_hits(&g, d, s, false, h2, 8);
+                        bad += !(n2 >= n1 && (n1 == 0 || (h2[0].inst == h[0].inst && h2[0].vel == h[0].vel)));
+                    }
+            }
+            CHECKM(bad == 0, "TV-119: stile %d var %d, densità non monotona in %d passi", gr, var, bad);
+        }
+        uint8_t zero[INV_PARTS] = { 0 }, one[INV_PARTS] = { 1, 1, 1, 1, 1 }, mid[INV_PARTS] = { 5, 5, 5, 5, 5 };
+        CHECK_EQ(inv_count(&base, zero, false, -1), 0);          /* 0 tace, anche nel fill */
+        CHECK_EQ(inv_count(&base, zero, true, -1), 0);
+        int sk = inv_count(&base, one, false, -1);
+        CHECKM(sk > 0 && sk < inv_count(&base, mid, false, -1), "stile %d: lo scheletro è il meno", gr);
+        CHECK(inv_count(&base, mid, true, -1) > inv_count(&base, mid, false, -1));   /* il fill aggiunge */
+        inv_build(&g, gr, 1);
+        CHECKM(memcmp(g.lv, base.lv, sizeof g.lv) != 0, "TV-119: la variazione 1 dello stile %d non cambia niente", gr);
+    }
+    for (int b = 0; b < BEAT_COUNT; b++) CHECK(inv_groove_of_beat(b) >= 0 && inv_groove_of_beat(b) < INV_GROOVES);
+    for (int var = 0; var <= INV_VAR_MAX; var++) {
+        int n = inv_var_next(var, (uint32_t)var * 31u);
+        CHECK(n != var && n >= 1 && n <= INV_VAR_MAX);
+    }
+    CHECK_EQ(inv_hits(&base, (const uint8_t[INV_PARTS]){ 10, 10, 10, 10, 10 }, INV_STEPS, false, h, 8), 0);
+
+    /* nel motore: tutto a 0 tace, a 5 suona; un Beat del menu spegne il loop inventato */
+    static dsp_t D;
+    static motore_t M;
+    static float l[4800], r[4800];
+    dsp_init(&D, 48000.0f, 1);
+    mot_init(&M, &D, 48000, 1);
+    mot_inventa(&M, 2, 3);
+    CHECK(M.inv_on == 1 && M.inv.groove == 2 && M.inv.var == 3 && M.beat_sel == BEAT_M_PATTERN);
+    for (int p = 0; p < INV_PARTS; p++) mot_inventa_dens(&M, (uint8_t)p, 0);
+    mot_beat_on(&M, true);
+    bool drum = false;
+    for (int i = 0; i < 10; i++) mot_render(&M, l, r, 4800);
+    for (int i = 0; i < DRUM_VOICES; i++) if (M.drums.v[i].on) drum = true;
+    CHECKM(!drum, "MIDI-139: densità 0, silenzio");
+    for (int p = 0; p < INV_PARTS; p++) mot_inventa_dens(&M, (uint8_t)p, 5);
+    for (int i = 0; i < 10; i++) mot_render(&M, l, r, 4800);
+    for (int i = 0; i < DRUM_VOICES; i++) if (M.drums.v[i].on || M.drums.v[i].t > 0.0f) drum = true;
+    CHECKM(drum, "MIDI-139: il loop inventato suona");
+    mot_inventa_dens(&M, INV_KICK, 40);
+    CHECK_EQ(M.inv_dens[INV_KICK], INV_DENS_MAX);
+    mot_beat(&M, BEAT_M_PATTERN, 1);
+    CHECK_EQ(M.inv_on, 0);
+}
+
 void test_motore(void)
 {
+    test_inventa();
     test_looper_revisione();
     test_motore_revisione();
     test_perf_revisione();

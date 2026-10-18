@@ -46,6 +46,8 @@ typedef struct {
 } ui_music_t;
 
 /* ---- 2.2 tempo (UI-022) ---- */
+#define UI_INV_PARTS 5                  /* come INV_PARTS e INV_STEPS di core/inventa.h */
+#define UI_INV_STEPS 32
 typedef enum { BEAT_OFF, BEAT_METRONOME, BEAT_PATTERN } ui_beat_mode_t;
 typedef struct {
     uint16_t bpm;
@@ -61,6 +63,14 @@ typedef struct {
     uint8_t  drums_on;
     uint8_t  metro_on;                  /* metronomo indipendente dal Beat (T3 del pad, MIDI-133) */
     uint8_t  kit, roll, accent;         /* drum machine (40 MIDI-135): kit scelto (0 = del Beat), Roll 0…6, Accent 0…10 */
+    /* la batteria che si inventa (40 MIDI-139): il Beat è il loop inventato; stile, variazione, densità
+     * di tutto, parte che M regola (0 = tutto, 1…5 = cassa, rullante, charleston, aperto, percussioni),
+     * densità di ogni parte, passo che suona (255 = fermo) e la griglia dei colpi (velocity, 0 = niente) */
+    uint8_t  inv, groove, variation, density, part;
+    uint8_t  dens[UI_INV_PARTS];
+    uint8_t  inv_step;
+    uint8_t  grid[UI_INV_PARTS][UI_INV_STEPS];
+    char     groove_name[12];
 } ui_tempo_t;
 
 /* ---- 2.3 looper (UI-023) ---- */
@@ -109,7 +119,8 @@ typedef struct {
 typedef enum { OV_NONE, OV_VOLUME, OV_BASS_VOLUME, OV_BEAT_VOLUME, OV_BATTERY, OV_SOUND, OV_PERFORM,
                OV_ARP, OV_FX, OV_KEY, OV_KEY_TOGGLE, OV_TRANSPOSE, OV_BPM, OV_BASS_SOUND,
                OV_BASS_TOGGLE, OV_VOICING, OV_BASS_VOICING, OV_SINGLE_NOTES, OV_COUNT_IN,
-               OV_SAVED, OV_DRUMS, OV_LOW_BATTERY, OV_KIT, OV_ROLL, OV_ACCENT } ui_ov_kind_t;
+               OV_SAVED, OV_DRUMS, OV_LOW_BATTERY, OV_KIT, OV_ROLL, OV_ACCENT,
+               OV_DENSITY, OV_GROOVE, OV_VARIATION, OV_DRUM_LOOP } ui_ov_kind_t;   /* MIDI-139 */
 typedef struct { uint8_t kind, enc; int16_t value; uint32_t until_ms; } ui_overlay_t;
 
 #define UI_LIST_WIN 9

@@ -21,6 +21,8 @@ void mot_init(motore_t *m, dsp_t *d, uint32_t fs, uint32_t seed)
     m->beat_sel = BEAT_M_PATTERN;
     m->beat = 1;
     m->meter = METER_4_4;
+    inv_build(&m->inv, 0, 0);
+    memset(m->inv_dens, 5, sizeof m->inv_dens);
     memset(m->pre, MOT_NONE, sizeof m->pre);
     memset(m->lp_out, MOT_NONE, sizeof m->lp_out);
 }
@@ -204,7 +206,8 @@ void mot_perf(motore_t *m, uint8_t mode, uint8_t amount)
 /* il kit del Beat scelto (SND-537): il set del banco con quel nome, o la sintesi se manca */
 static void apply_kit(motore_t *m)
 {
-    const char *kit = m->kit_sel ? beat_kit_name(m->kit_sel - 1) : beat_kit(m->beat);
+    const char *kit = m->kit_sel ? beat_kit_name(m->kit_sel - 1)
+                    : m->inv_on ? beat_kit_name(inv_groove_kit(m->inv.groove)) : beat_kit(m->beat);
     drums_set_kit(&m->drums, m->bank, kit ? smp_set_find(m->bank, kit) : NULL);
 }
 
@@ -219,6 +222,7 @@ void mot_beat(motore_t *m, uint8_t mode, uint8_t beat)
 {
     m->beat_sel = mode == BEAT_M_METRONOME ? BEAT_M_METRONOME : BEAT_M_PATTERN;
     m->beat = beat < BEAT_COUNT ? beat : 1;
+    m->inv_on = 0;                                                /* un Beat del menu: il loop inventato tace */
     apply_kit(m);
 }
 
@@ -252,6 +256,19 @@ void mot_kit(motore_t *m, uint8_t sel)
 }
 
 void mot_roll(motore_t *m, uint8_t div_ticks) { m->roll_div = div_ticks; }
+
+void mot_inventa(motore_t *m, uint8_t groove, uint8_t var)
+{
+    if (!m->inv_on || groove != m->inv.groove || var != m->inv.var) inv_build(&m->inv, groove, var);
+    m->inv_on = 1;
+    m->beat_sel = BEAT_M_PATTERN;
+    apply_kit(m);
+}
+
+void mot_inventa_dens(motore_t *m, uint8_t part, uint8_t dens)
+{
+    if (part < INV_PARTS) m->inv_dens[part] = dens > INV_DENS_MAX ? INV_DENS_MAX : dens;
+}
 void mot_transpose(motore_t *m, int8_t t) { m->transpose = t; }
 
 void mot_loop(motore_t *m, int cmd)
@@ -298,8 +315,11 @@ static void tick_run(motore_t *m)
     uint32_t pos = m->tick - m->tr_t0;
     beat_hit_t h[8];
     int n = 0;
-    if (m->beat_on && m->beat_sel == BEAT_M_PATTERN && pos % STEP_TICKS == 0)
-        n = (m->fill ? beat_fill_hits : beat_hits)(m->beat, (int)((pos / STEP_TICKS) % 16u), h, 6);
+    if (m->beat_on && m->beat_sel == BEAT_M_PATTERN && pos % STEP_TICKS == 0) {
+        if (m->inv_on)                                            /* due battute: il passo va da 0 a 31 */
+            n = inv_hits(&m->inv, m->inv_dens, (int)((pos / STEP_TICKS) % INV_STEPS), m->fill != 0, h, 6);
+        else n = (m->fill ? beat_fill_hits : beat_hits)(m->beat, (int)((pos / STEP_TICKS) % 16u), h, 6);
+    }
     /* il metronomo (dal Beat o da T3), e il count-in del looper con qualunque Beat (ACC-223) */
     if ((m->beat_on && m->beat_sel == BEAT_M_METRONOME) || m->metro_on || m->loop.state == LOOP_COUNT_IN)
         n += metro_hits(m->beat_sel == BEAT_M_PATTERN ? METER_4_4 : m->meter, pos, h + n, 8 - n);

@@ -1207,6 +1207,15 @@ Quit Stame     → Back / Quit now
   Durante la procedura la piattaforma intercetta B (passo precedente) e MENU (annulla senza salvare) della Flip; la riga 1 e la riga 2 della legenda viva seguono UI-155. Alla fine compare «Pad map saved» (UI-156) e si torna al menu della piattaforma.
 - Le migliorie musicali (latch, clock in…) non stanno qui: sono nell'appendice delle opzioni, spente di default.
 
+**UI-176** [D, 18/10/2026] **La batteria che si inventa** (`40` MIDI-139, `10` ACC-215). Sotto DRUMS la zona accordo smette di mostrare l'accordo, che non suona, e mostra il loop:
+- prima del primo tocco delle manopole: «Invent a drum loop» in classe M e, in S e `dim`, che cosa fanno M, m1 e m2 girate e premute;
+- dopo: lo stile in classe L al posto della tonalità, «Variation N» in S, poi la **griglia**: cinque righe (Kick, Snare, Hat, Open, Perc) con la densità di ogni parte, e 32 colonne da 10 px, una per sedicesimo delle due battute. Il colpo è un rettangolo pieno in `active` se forte (velocity ≥ 100), `text` se medio, `dim` se fantasma; un passo vuoto è un punto in `line`. Righe verticali in `line` sui battiti, in `dim` all'inizio delle battute; la colonna che suona ha il fondo in `bar`;
+- il nome della parte che M regola è in `active`; quello di una parte muta in `line`; con «tutto» sono accese le densità di tutte le righe;
+- gli overlay: «Density» (con la parte), «Groove» (numero e nome dello stile), «Variation» (numero, «Base» alla 0), «Drum Loop» Play/Stop;
+- nella pagina dei comandi le celle CH.VOICING e BS.VOICING diventano DENSITY (valore, barra, parte) e GROOVE (stile, «Var N»); la cella BPM e la riga di Geek Out scrivono stile e variazione al posto del numero del Beat.
+
+  La griglia la calcola il thread della UI con le stesse funzioni del motore (`inv_build`, `inv_hits`), dagli stessi parametri: non passa dallo snapshot. La zona si ridisegna quando cambia un parametro o il passo che suona.
+
 ---
 
 ## 6. Da dove arrivano le azioni

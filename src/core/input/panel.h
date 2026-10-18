@@ -36,7 +36,8 @@ typedef enum {
     MACRO_DRUMS_TOGGLE,             /* T11: batteria a tastiera on/off (ACC-211) */
     MACRO_BEAT_VOL,                 /* m2 girata: b = scatti con segno sul volume del Beat */
     MACRO_BASS_VOL,                 /* m2 premuta e girata: b = scatti sul volume del basso */
-    MACRO_DRUM_HIT                  /* pad del banco B della MK4 (MIDI-135): b = strumento << 8 | velocity, 0 = rilascio */
+    MACRO_DRUM_HIT,                 /* pad del banco B della MK4 (MIDI-135): b = strumento << 8 | velocity, 0 = rilascio */
+    MACRO_KNOB_CLICK                /* manopola del pad premuta e lasciata senza girarla, se non è un encoder: b = 2 (m2) */
 } macro_t;
 
 typedef enum {

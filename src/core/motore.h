@@ -17,6 +17,7 @@
 #include <stdatomic.h>
 #include "perf.h"
 #include "beat.h"
+#include "inventa.h"
 #include "looper.h"
 #include "../dsp/dsp.h"
 #include "../dsp/drums.h"
@@ -55,6 +56,9 @@ typedef struct {
     uint8_t  metro_on, fill;            /* metronomo indipendente dal Beat e Fill tenuto (MIDI-133) */
     uint8_t  kit_sel;                   /* drum machine (MIDI-135): 0 = il kit del Beat, 1…KIT_COUNT a mano */
     uint8_t  roll_div;                  /* Roll: tick fra due ripetizioni di un tasto tenuto, 0 = spento */
+    uint8_t  inv_on;                    /* il Beat viene dalla batteria che si inventa (MIDI-139) */
+    uint8_t  inv_dens[INV_PARTS];       /* densità delle cinque parti, 0…10 */
+    inv_t    inv;                       /* stile, variazione e priorità del loop inventato */
     uint8_t  drum_held[DRUM_COUNT];     /* velocity dei tasti di batteria tenuti (0 = su) */
     uint32_t drum_t[DRUM_COUNT];        /* tick del colpo che li ha premuti */
     uint32_t tr_t0;                     /* tick della battuta 1 */
@@ -83,6 +87,10 @@ void mot_drum(motore_t *m, uint8_t k, uint8_t vel);
 void mot_drum_off(motore_t *m, uint8_t k);
 void mot_kit(motore_t *m, uint8_t sel);
 void mot_roll(motore_t *m, uint8_t div_ticks);
+/* la batteria che si inventa (MIDI-139, ACC-215): il Beat suona il loop di inventa.h con lo stile e la
+ * variazione dati, finché non si sceglie un Beat del menu (mot_beat); le densità valgono dal passo dopo */
+void mot_inventa(motore_t *m, uint8_t groove, uint8_t var);
+void mot_inventa_dens(motore_t *m, uint8_t part, uint8_t dens);
 void mot_bpm(motore_t *m, uint16_t bpm);        /* 60…200 (ACC-202) */
 void mot_perf(motore_t *m, uint8_t mode, uint8_t amount);
 /* selezione del menu dei Beat: BEAT_M_METRONOME con la metrica, o BEAT_M_PATTERN con l'indice di beat.h */

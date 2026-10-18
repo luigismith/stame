@@ -94,6 +94,8 @@ Menu: Exit · Panic · Theme (Giorno di default) · Linnaeus Tag · Legend · Me
 
 K1 Kit (Beat, Studio, Jazz, 808, Techno, Chip) · K2 Roll (tieni il tasto: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32) · K5 Accent 0…10 · i pad del banco B suonano sempre. Prev.: K4 Swing, K3 FX sulla batteria.
 
+**Crea** (le manopole del pad, finché DRUMS è acceso): **M** densità 0…10 · premuta play/stop · **m1** stile (Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro) · premuta la parte di M (tutto, cassa, rullante, charleston, aperto, perc.) · **m2** variazione 0…99 · premuta idea nuova · premuta e girata volume del Beat. Ripremi T11: l'editing si chiude, il loop resta.
+
 ## Looper
 
 REC → count-in di 1 battuta → 4 battute registrate → PLAY. Poi: ⊕ overdub on/off · LOOP pausa/ripresa · UNDO ultimo strato · SHIFT + UNDO (o CLEAR) via tutto · T10 mette da parte, REC riprende. Con Loop girato si sceglie la voce in Z3 e con Loop premuto (SHIFT + K6) si esegue.

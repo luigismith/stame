@@ -697,6 +697,15 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 
   La sintesi degli strumenti è in `20-suono.md`.
 
+### 10.6 La batteria che si inventa
+- **ACC-215** `[D]` (18/10/2026, `40` MIDI-139) Il Beat può venire da un **generatore** invece che dalla tabella di un Beat (`core/inventa.c`). Il loop è lungo **due battute di 4/4 in sedicesimi** (32 passi) e ha **cinque parti**: cassa, rullante (o battimani o rimshot, secondo lo stile), charleston chiuso, charleston aperto, percussioni.
+  - Ogni **stile** dà a ogni passo di ogni parte una **priorità** da 0 (mai) a 9 (sempre: lo **scheletro** dello stile). Stili: Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro; ognuno ha il suo kit (Techno e Dub il kit techno, Rock e Funk studio, Break, Halftime ed Electro 808, Bossa jazz), salvo un kit scelto a mano (MIDI-135).
+  - La **densità** di una parte, 0…10, fa suonare i passi con priorità ≥ 10 − densità: 0 tace, 1 suona solo lo scheletro, 10 tutto quello che lo stile prevede. I colpi di una densità restano a quella dopo.
+  - La **variazione**, 0…99, sposta le priorità di una quantità pseudocasuale **ripetibile** (dipende solo da stile, variazione, parte e passo): da un livello alla variazione 1 fino a tre livelli, pesata per parte (le percussioni si muovono più di cassa e rullante). Lo scheletro non si sposta; un passo a 0 può prendere una priorità bassa e comparire alle densità alte. La variazione sceglie anche fra tre percussioni dello stile. Nella seconda battuta i primi dodici sedicesimi sono uguali alla prima; gli ultimi quattro hanno una variazione loro e rullante e percussioni più probabili: una piccola chiusa. Alla variazione 0 le due battute sono uguali.
+  - Velocity: 52 + 7 × priorità, più 6 sui battiti. Charleston chiuso e aperto non suonano insieme.
+  - Il **Fill** (T4, MIDI-133) aggiunge tre punti di densità alle parti che suonano e rende più probabili rullante e percussioni negli ultimi quattro sedicesimi della battuta.
+  - Il passo è contato dal tick della battuta 1 del trasporto (ACC-204), quindi resta allineato al looper.
+
 ---
 
 ## 11. Looper
@@ -920,6 +929,7 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 | TV-116 | `UNDO` con il solo strato 0 | comportamento di `CLEAR`, stato `WAITING` |
 | TV-117 | `HARD_EXIT` da `PLAYING` con loop non salvato | stato `IDLE`, loop cancellato, nessuna nota aperta |
 | TV-118 | 2 strati che suonano 15 note treble insieme | 14 note aperte; la più vecchia riceve note-off prima della 15ª |
+| TV-119 | batteria che si inventa (ACC-215): ogni stile, variazioni 0, 7, … 98, densità 0…10 | stessa variazione = stessa griglia; scheletro fermo; i colpi di d restano a d + 1; 0 tace, 1 è lo scheletro; il fill aggiunge colpi; un Beat del menu la spegne |
 
 ---
 

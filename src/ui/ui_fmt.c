@@ -58,6 +58,13 @@ const char *ui_fmt_kit(uint8_t kit)
     return kit < 6 ? N[kit] : "?";
 }
 
+/* la parte che M regola nella batteria che si inventa (MIDI-139): 0 = tutto */
+const char *ui_fmt_part(uint8_t part)
+{
+    static const char *const N[6] = { "All", "Kick", "Snare", "Hat", "Open Hat", "Perc" };
+    return part < 6 ? N[part] : "?";
+}
+
 const char *ui_fmt_roll(uint8_t roll)
 {
     static const char *const N[7] = { "Off", "1/4", "1/8", "1/8T", "1/16", "1/16T", "1/32" };

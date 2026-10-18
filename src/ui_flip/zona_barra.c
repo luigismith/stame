@@ -207,6 +207,22 @@ static void overlay(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
         e.label = "Accent"; e.digits = d;
         e.gauge = v * 100;
         break;
+    case OV_DENSITY:                                          /* batteria che si inventa (MIDI-139) */
+        ui_fmt_int(d, sizeof d, v, 2);
+        e.label = "Density"; e.digits = d; e.text = ui_fmt_part(m->tempo.part);
+        e.gauge = v * 100;
+        break;
+    case OV_GROOVE:
+        ui_fmt_int(d, sizeof d, v, 2);
+        e.label = "Groove"; e.digits = d; e.text = m->tempo.groove_name;
+        break;
+    case OV_VARIATION:
+        ui_fmt_int(d, sizeof d, v, 2);
+        e.label = "Variation"; e.digits = d; e.text = v ? m->tempo.groove_name : "Base";
+        break;
+    case OV_DRUM_LOOP:
+        e.label = "Drum Loop"; e.text = v ? "Play" : "Stop";
+        break;
     default:
         return;
     }

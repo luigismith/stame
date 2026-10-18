@@ -56,6 +56,9 @@ uint64_t uf_sig_cell(const ui_model_t *m, int k)
                       m->plat.pad_link, m->prefs.legend, m->prefs.theme, c->knob_lock, m->plat.mpk_model,
                       m->tempo.drums_on, m->tempo.kit, m->tempo.roll, m->tempo.accent, m->plat.mpk_link };
     h = uf_h(h, f, sizeof f);
+    uint8_t g[5] = { m->tempo.inv, m->tempo.groove, m->tempo.variation, m->tempo.density, m->tempo.part };   /* MIDI-139 */
+    h = uf_h(h, g, sizeof g);
+    h = uf_h(h, m->tempo.dens, sizeof m->tempo.dens);
     if (c->st[k].flags & CF_PRESSED) {
         uint32_t held = m->core_ms - c->st[k].pressed_since_ms;
         uint16_t q = (uint16_t)(held / 33u > 60 ? 60 : held / 33u);
@@ -129,6 +132,21 @@ static void cell_text(const ui_model_t *m, int k, cell_txt_t *t)
             t->title = "ACCENT";
             ui_fmt_int(t->value, sizeof t->value, m->tempo.accent, 2);
             ui_fmt_copy(t->detail, sizeof t->detail, "Velocity");
+        }
+        return;
+    }
+    if (m->tempo.drums_on && (k == ENC_CHORD_VOICING || k == ENC_BASS_VOICING)) {   /* batteria che si inventa (MIDI-139) */
+        if (k == ENC_CHORD_VOICING) {
+            int d = m->tempo.part ? m->tempo.dens[(m->tempo.part - 1) % UI_INV_PARTS] : m->tempo.density;
+            t->title = "DENSITY";
+            ui_fmt_int(t->value, sizeof t->value, d, 2);
+            ui_fmt_copy(t->detail, sizeof t->detail, ui_fmt_part(m->tempo.part));
+            t->gauge = d * 100;
+        } else {
+            t->title = "GROOVE";
+            ui_fmt_copy(t->value, sizeof t->value, m->tempo.groove_name);
+            ui_fmt_int(a, sizeof a, m->tempo.variation, 1);
+            ui_fmt_cat(t->detail, sizeof t->detail, "Var ", a);
         }
         return;
     }
@@ -206,7 +224,11 @@ static void cell_text(const ui_model_t *m, int k, cell_txt_t *t)
         } else {
             ui_fmt_int(t->value, sizeof t->value, m->tempo.bpm, 1);
         }
-        if (m->tempo.beat_mode == BEAT_PATTERN) {
+        if (m->tempo.beat_mode == BEAT_PATTERN && m->tempo.inv) {   /* il loop inventato (MIDI-139) */
+            ui_fmt_int(a, sizeof a, m->tempo.variation, 1);
+            ui_fmt_cat(t->detail, sizeof t->detail, m->tempo.groove_name, " v");
+            ui_fmt_cat(t->detail, sizeof t->detail, t->detail, a);
+        } else if (m->tempo.beat_mode == BEAT_PATTERN) {
             ui_fmt_int(a, sizeof a, m->tempo.beat_index, 2);
             ui_fmt_cat(t->detail, sizeof t->detail, "Beat ", a);
         } else {

@@ -68,12 +68,14 @@ static int mpad_on_pad(void *st, uint16_t code, int32_t value, uint32_t t_us, pn
     if (act == ACT_PUSH) {
         if (down == ((s->knob_down & kb) != 0)) return 0;
         s->knob_down ^= kb;
-        if (down) s->knob_enc[k] = KNOB_ROLE[s->lock][k];         /* il rilascio va al ruolo premuto */
+        if (down) { s->knob_enc[k] = KNOB_ROLE[s->lock][k]; s->knob_turned &= (uint8_t)~kb; }   /* il rilascio va al ruolo premuto */
         if (s->knob_enc[k] != KNOB_VOL) pnl_put(&o, down ? PNL_ENC_DOWN : PNL_ENC_UP, s->knob_enc[k], 0);
+        else if (!down && !(s->knob_turned & kb)) pnl_put(&o, PNL_MACRO, MACRO_KNOB_CLICK, k);   /* MIDI-139 */
     } else if (down) {                                            /* conta solo il KEY_DOWN (MIDI-125) */
         int16_t d = act == ACT_CW ? 1 : -1;
         bool pressed = (s->knob_down & kb) != 0;
         uint8_t role = pressed ? s->knob_enc[k] : KNOB_ROLE[s->lock][k];
+        if (pressed) s->knob_turned |= kb;
         if (role == KNOB_VOL) pnl_put(&o, PNL_MACRO, pressed ? MACRO_BASS_VOL : MACRO_BEAT_VOL, d);
         else pnl_put(&o, PNL_ENC_TURN, role, d);
     }

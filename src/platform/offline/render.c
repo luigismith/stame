@@ -451,6 +451,14 @@ static int render_scene(const char *dir)
     sc_midi(0x90, 62, 110); sc_run(40);
     render_to(dir, "drums");
     sc_midi(0x80, 62, 0);
+    /* la batteria che si inventa (MIDI-139): il Beat suona già; m1 la accende nello stile del Beat, M alza
+     * la densità, m2 cambia variazione, m1 premuta sceglie la cassa */
+    sc_pad(MPAD_M1_CW); sc_run(120);
+    sc_pad(MPAD_M_CW); sc_run(120);
+    sc_pad(MPAD_M_CW); sc_run(120);
+    for (int i = 0; i < 3; i++) { sc_pad(MPAD_M2_CW); sc_run(120); }
+    sc_pad(MPAD_M1_PUSH); sc_run(1500);
+    render_to(dir, "drums_inventa");
     /* la pagina dei comandi sotto DRUMS: le celle KIT, ROLL e ACCENT (MIDI-135) */
     sc_pad(MPAD_T15);
     sc_run(200);

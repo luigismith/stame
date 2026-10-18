@@ -38,6 +38,11 @@ typedef struct {
     uint8_t tap_n;
     uint8_t scene_keep;                 /* una scena ha appena messo suono, Perform ed effetto: snd_sync non li rimette */
     int kit, roll, accent;              /* drum machine (MIDI-135): kit 0 = del Beat, Roll 0…6, Accent 0…10 */
+    uint8_t inv;                        /* il Beat è la batteria che si inventa (MIDI-139) */
+    int groove, variation, density;     /* stile, variazione e densità di tutto (0…10) */
+    int8_t dens_off[INV_PARTS];         /* scarto di ogni parte dalla densità di tutto; −10 = muta */
+    uint8_t part;                       /* parte che M regola: 0 = tutto, 1…INV_PARTS */
+    uint8_t mod_used;                   /* m1 tenuta come Mod (con Loop o BPM): il suo rilascio non cambia parte */
     uint8_t knob_lock;                  /* Lock delle manopole del macro pad (MIDI-131), per la testata */
     uint32_t drum_ms[12];               /* ultimo colpo di ogni tasto, per accendere il tasto sulla plancia */
 } sim_t;
@@ -254,8 +259,8 @@ static void list_select(vet_t *v)
         break;
     case L_BEATS:
         if (i == 0) list_close(v);
-        else if (i < 5) { S.beat_mode = BEAT_METRONOME; S.meter = i - 1; }
-        else { S.beat_mode = BEAT_PATTERN; S.beat = i - 5; }
+        else if (i < 5) { S.beat_mode = BEAT_METRONOME; S.meter = i - 1; S.inv = 0; }
+        else { S.beat_mode = BEAT_PATTERN; S.beat = i - 5; S.inv = 0; }   /* un Beat del menu: il loop inventato tace */
         break;
     case L_OPTIONS:
         if (i == 0) list_close(v);
@@ -336,6 +341,61 @@ static void looper_stop(vet_t *v) { loop_send(v, LOOP_C_STOP); }
 /* drum machine (MIDI-135): suddivisioni del Roll in tick e velocity con l'Accent (0 = colpi uguali, 10 = com'è) */
 static const uint8_t ROLL_TICKS[7] = { 0, 96, 48, 32, 24, 16, 12 };
 
+/* ---- la batteria che si inventa (MIDI-139): sotto DRUMS le tre manopole del pad creano il loop. M gira
+ * la densità (di tutto o della parte scelta) e premuta fa play e stop; m1 gira lo stile e premuta sceglie
+ * la parte; m2 gira la variazione e premuta dà un'idea nuova. Ripremere DRUMS chiude l'editing: il loop
+ * resta com'è e suona finché non si sceglie un Beat del menu ---- */
+static int part_dens(int p) { return clampi(S.density + S.dens_off[p], 0, INV_DENS_MAX); }
+static int part_shown(void) { return S.part ? part_dens(S.part - 1) : S.density; }
+
+/* il primo tocco: il loop inventato prende il posto del Beat, nello stile più vicino a quello che suonava */
+static void inv_activate(void)
+{
+    if (S.inv) return;
+    S.inv = 1;
+    S.groove = inv_groove_of_beat(S.beat + 1);
+    S.beat_mode = BEAT_PATTERN;
+}
+
+static void inv_density(vet_t *v, int d)
+{
+    inv_activate();
+    if (S.part == 0) S.density = clampi(S.density + d, 0, INV_DENS_MAX);
+    else {
+        int p = S.part - 1, e = clampi(part_dens(p) + d, 0, INV_DENS_MAX);
+        S.dens_off[p] = (int8_t)(e == 0 ? -INV_DENS_MAX : e - S.density);   /* a 0 la parte resta muta */
+    }
+    overlay(v, OV_DENSITY, ENC_CHORD_VOICING, part_shown());
+}
+
+static void inv_part(vet_t *v)
+{
+    S.part = (uint8_t)((S.part + 1) % (1 + INV_PARTS));
+    overlay(v, OV_DENSITY, ENC_CHORD_VOICING, part_shown());
+}
+
+static void inv_groove(vet_t *v, int d)
+{
+    bool was = S.inv != 0;
+    inv_activate();
+    if (was) S.groove = wrap(S.groove + d, INV_GROOVES);   /* il primo scatto resta sullo stile di partenza */
+    overlay(v, OV_GROOVE, ENC_BASS_VOICING, S.groove + 1);
+}
+
+static void inv_variation(vet_t *v, int d, bool nuova)
+{
+    inv_activate();
+    S.variation = nuova ? inv_var_next(S.variation, v->now_ms) : clampi(S.variation + d, 0, INV_VAR_MAX);
+    overlay(v, OV_VARIATION, ENC_BASS_VOICING, S.variation);
+}
+
+static void inv_play(vet_t *v)
+{
+    inv_activate();
+    S.beat_on = !S.beat_on;
+    overlay(v, OV_DRUM_LOOP, ENC_CHORD_VOICING, S.beat_on);
+}
+
 /* ---- gesti ---- */
 static void turn(vet_t *v, int enc, int d, bool pressed)
 {
@@ -347,6 +407,8 @@ static void turn(vet_t *v, int enc, int d, bool pressed)
         }
         list_close(v);
     }
+    if (S.drums && enc == ENC_CHORD_VOICING) { inv_density(v, d); return; }   /* M: densità (MIDI-139) */
+    if (S.drums && enc == ENC_BASS_VOICING) { inv_groove(v, d); return; }     /* m1: stile */
     if (S.drums && !pressed) {                          /* drum machine (MIDI-135): kit, Roll e Accent sotto DRUMS */
         if (enc == ENC_SOUND) {
             S.kit = wrap(S.kit + d, KIT_COUNT + 1);
@@ -438,6 +500,12 @@ static void press(vet_t *v, int enc)
         if (enc == v->list_owner) { list_select(v); return; }
         list_close(v);
     }
+    if (S.drums && enc == ENC_CHORD_VOICING) { inv_play(v); return; }       /* M premuta: play e stop (MIDI-139) */
+    if (S.drums && enc == ENC_BASS_VOICING) {                                /* m1 premuta: la parte di M */
+        if (!S.mod_used) inv_part(v);
+        S.mod_used = 0;
+        return;
+    }
     switch (enc) {
     case ENC_SOUND: list_open(v, L_SOUND, ENC_SOUND); break;
     case ENC_PERFORM: list_open(v, L_PERFORM, ENC_PERFORM); break;
@@ -451,12 +519,16 @@ static void press(vet_t *v, int enc)
         overlay(v, OV_BASS_TOGGLE, ENC_BASS, v->acc.bass_on);
         break;
     case ENC_LOOP:
-        if (gest_held(&v->inp.gest, ENC_BASS_VOICING)) loop_send(v, LOOP_C_RESET);   /* Mod + Loop: uscita forzata (ACC-222), anche in overdub */
-        else looper_press(v);
+        if (gest_held(&v->inp.gest, ENC_BASS_VOICING)) {                 /* Mod + Loop: uscita forzata (ACC-222), anche in overdub */
+            loop_send(v, LOOP_C_RESET);
+            S.mod_used = 1;
+        } else looper_press(v);
         break;
     case ENC_BPM:
-        if (gest_held(&v->inp.gest, ENC_BASS_VOICING)) drums_toggle(v);   /* Mod + BPM: DRUMS_TOGGLE (ACC-211) */
-        else S.beat_on = !S.beat_on;                                     /* TRANSPORT_TOGGLE (ACC-205) */
+        if (gest_held(&v->inp.gest, ENC_BASS_VOICING)) {                 /* Mod + BPM: DRUMS_TOGGLE (ACC-211) */
+            drums_toggle(v);
+            S.mod_used = 1;
+        } else S.beat_on = !S.beat_on;                                   /* TRANSPORT_TOGGLE (ACC-205) */
         break;
     case ENC_VOLUME: overlay(v, OV_BATTERY, ENC_VOLUME, 0); break;
     case ENC_OPTIONS: list_open(v, L_OPTIONS, ENC_OPTIONS); break;
@@ -618,6 +690,7 @@ static void handle(vet_t *v, const pnl_event_t *e)
             loop_send(v, LOOP_C_RESET);                 /* anche in overdub, dove Clear è l'Undo dello strato */
             memset(S.sec, 0, sizeof S.sec);
             S.beat_on = 0;
+            S.inv = 0; S.part = 0;                      /* il Beat torna quello del menu (MIDI-139) */
             ain(v, ACC_IN_OPTION_SET, ACC_OPT_TRANSPOSE, 0);
             S.perf_mode = PERF_OFF; S.perf_amount = 0; S.lock_perf = 0;
             S.drums = 0;
@@ -647,13 +720,15 @@ static void handle(vet_t *v, const pnl_event_t *e)
         else if (e->a == MACRO_SCENE_SAVE) scene_save(v, (int)e->b);
         else if (e->a == MACRO_LOOP_EXIT) loop_send(v, LOOP_C_EXIT);
         else if (e->a == MACRO_DRUMS_TOGGLE) drums_toggle(v);
-        else if (e->a == MACRO_BEAT_VOL) {
+        else if (e->a == MACRO_BEAT_VOL && S.drums) inv_variation(v, e->b, false);   /* m2 sotto DRUMS: variazione (MIDI-139) */
+        else if (e->a == MACRO_BEAT_VOL || (e->a == MACRO_BASS_VOL && S.drums)) {   /* m2 premuta sotto DRUMS: volume del Beat */
             S.beat_volume = clampi(S.beat_volume + e->b, 0, 99);
             overlay(v, OV_BEAT_VOLUME, ENC_BPM, S.beat_volume);
         } else if (e->a == MACRO_BASS_VOL) {
             S.bass_volume = clampi(S.bass_volume + e->b, 0, 99);
             overlay(v, OV_BASS_VOLUME, ENC_VOLUME, S.bass_volume);
-        } else if (e->a == MACRO_DRUM_HIT) drum_hit(v, (e->b >> 8) & 0x7F, e->b & 0x7F);   /* pad del banco B (MIDI-135) */
+        } else if (e->a == MACRO_KNOB_CLICK && S.drums) inv_variation(v, 0, true);  /* m2 premuta: un'idea nuova */
+        else if (e->a == MACRO_DRUM_HIT) drum_hit(v, (e->b >> 8) & 0x7F, e->b & 0x7F);   /* pad del banco B (MIDI-135) */
         break;
     case PNL_SRC_CONNECTED:
         if (e->a == SRC_MACROPAD) msg(v, MSG_INFO, "Pad connected", 2000);
@@ -671,6 +746,7 @@ static void handle(vet_t *v, const pnl_event_t *e)
         break;
     case G_RELEASE:
         if (e->a < ENC_COUNT) S.sec[e->a] = 0;
+        if (e->a == ENC_BASS_VOICING) S.mod_used = 0;
         break;
     default: break;
     }
@@ -809,7 +885,7 @@ static void demo_do(vet_t *v, const dstep_t *s)
         break;
     case D_VOICING: turn(v, ENC_CHORD_VOICING, (int)s->c - (int)v->acc.v, false); break;
     case D_BASS: turn(v, ENC_BASS, (int)s->c - S.bass, false); break;
-    case D_BEAT: S.beat_mode = BEAT_PATTERN; S.beat = s->a; break;
+    case D_BEAT: S.beat_mode = BEAT_PATTERN; S.beat = s->a; S.inv = 0; break;
     case D_BPM: turn(v, ENC_BPM, (int)s->c - S.bpm, false); break;
     case D_OPT: ain(v, ACC_IN_OPTION_SET, (uint8_t)s->a, s->b); break;
     case D_TITLE: msg(v, MSG_INFO, song_of(v)->title, 6000); break;
@@ -837,7 +913,7 @@ static void demo_reset(vet_t *v)
     snd_push(v, VS_METRO, 0, 0, 0);
     snd_push(v, VS_FILL, 0, 0, 0);
     S.view = VIEW_CHORD;
-    S.beat_mode = BEAT_PATTERN; S.beat = 0; S.beat_on = 0;
+    S.beat_mode = BEAT_PATTERN; S.beat = 0; S.beat_on = 0; S.inv = 0;
     v->snd_sound = -1;                          /* suono, Perform ed effetto da capo (ACC-162) */
     v->inp.gest.focus = ENC_SOUND;
     v->page_until = v->now_ms;
@@ -1063,6 +1139,7 @@ void vet_init(vet_t *v, uint32_t now_ms)
     S.bpm = 120; S.beat_mode = BEAT_PATTERN; S.beat = 0; S.meter = METER_4_4; S.beat_on = 0;
     S.beat_volume = 72; S.view = VIEW_CHORD;         /* i kit a campioni stanno a −1 dBFS: 72 ≈ −5,5 dB */
     S.accent = 10;                                   /* drum machine: tutta la dinamica (MIDI-135) */
+    S.density = 5;                                   /* batteria che si inventa: a metà (MIDI-139) */
 
     ui_model_t *m = &v->m;
     m->layer.base = BASE_BOOT;
@@ -1138,10 +1215,18 @@ static void snd_sync(vet_t *v)
         snd_push(v, VS_PERF, 0, (uint8_t)S.perf_mode, (uint8_t)S.perf_amount);
         v->snd_perf = (int16_t)perf;
     }
-    int beat = S.beat_mode << 8 | S.beat;
-    if (beat != v->snd_beat) {                      /* i Beat della vetrina sono 1…6 in core/beat */
+    int beat = S.beat_mode << 8 | S.beat, inv = S.inv ? 1 + (S.groove << 8 | S.variation) : 0;
+    bool beat_sent = beat != v->snd_beat || (inv == 0 && v->snd_inv != 0);   /* spento il loop inventato: il Beat del menu */
+    if (beat_sent) {                                /* i Beat della vetrina sono 1…14 in core/beat */
         snd_push(v, VS_BEAT, 0, S.beat_mode == BEAT_METRONOME ? BEAT_M_METRONOME : BEAT_M_PATTERN, (uint8_t)(S.beat + 1));
         v->snd_beat = (int16_t)beat;
+    }
+    if (inv && (inv != v->snd_inv || beat_sent))   /* dopo il VS_BEAT, che lo spegnerebbe (MIDI-139) */
+        snd_push(v, VS_INV, 0, (uint8_t)S.groove, (uint8_t)S.variation);
+    v->snd_inv = (int16_t)inv;
+    for (int p = 0; p < INV_PARTS; p++) {
+        uint8_t d = (uint8_t)part_dens(p);
+        if (d + 1 != v->snd_inv_dens[p]) { snd_push(v, VS_INV_DENS, 0, (uint8_t)p, d); v->snd_inv_dens[p] = (uint8_t)(d + 1); }
     }
     if (S.meter != v->snd_meter) { snd_push(v, VS_METER, 0, (uint8_t)S.meter, 0); v->snd_meter = (int16_t)S.meter; }
     if (S.beat_on != v->snd_beat_on) { snd_push(v, VS_BEAT_ON, 0, (uint8_t)S.beat_on, 0); v->snd_beat_on = (int16_t)S.beat_on; }
@@ -1371,6 +1456,28 @@ static void fill_tempo_looper(vet_t *v, ui_model_t *m)
     t->kit = (uint8_t)S.kit;                              /* drum machine (MIDI-135) */
     t->roll = (uint8_t)S.roll;
     t->accent = (uint8_t)S.accent;
+    t->inv = S.inv;                                       /* batteria che si inventa (MIDI-139) */
+    t->groove = (uint8_t)S.groove;
+    t->variation = (uint8_t)S.variation;
+    t->density = (uint8_t)S.density;
+    t->part = S.part;
+    ui_fmt_copy(t->groove_name, sizeof t->groove_name, inv_groove_name(S.groove));
+    if (S.inv) {
+        ui_fmt_copy(t->beat_name, sizeof t->beat_name, inv_groove_name(S.groove));
+        t->beat_index = 0;
+    }
+    if (v->inv_ui.groove != S.groove || v->inv_ui.var != S.variation || !v->inv_ui.inst[INV_HAT])
+        inv_build(&v->inv_ui, S.groove, S.variation);   /* la stessa griglia che suona il motore */
+    uint8_t dens[INV_PARTS];
+    for (int p = 0; p < INV_PARTS; p++) dens[p] = t->dens[p] = (uint8_t)part_dens(p);
+    for (int s = 0; s < INV_STEPS; s++) {
+        beat_hit_t h[INV_PARTS];
+        int n = inv_hits(&v->inv_ui, dens, s, false, h, INV_PARTS);
+        for (int p = 0; p < INV_PARTS; p++) t->grid[p][s] = 0;
+        for (int i = 0; i < n; i++)
+            for (int p = 0; p < INV_PARTS; p++) if (v->inv_ui.inst[p] == h[i].inst) t->grid[p][s] = h[i].vel;
+    }
+    t->inv_step = 255;
     const mot_snap_t *sn = v->snap;
     if (sn && sn->tr_on) {                                        /* posizione del trasporto vero */
         uint32_t pos = sn->tick - sn->tr_t0;
@@ -1378,6 +1485,7 @@ static void fill_tempo_looper(vet_t *v, ui_model_t *m)
         t->beat = (uint8_t)((pos % bar) / click);
         t->bar = 1 + pos / bar;
         t->beat_phase = (uint16_t)((pos % click) * 65536u / click);
+        if (S.inv && S.beat_on) t->inv_step = (uint8_t)((pos / 24u) % INV_STEPS);
     }
 
     ui_looper_t *lp = &m->looper;

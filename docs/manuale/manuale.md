@@ -104,7 +104,7 @@ Il looper registra **eventi** (note), non audio: cambiando BPM cambia la velocit
 
 ### 6.1 Loop di batteria dalla tastiera
 
-Lo stesso principio degli accordi, per la batteria: **T11 DRUMS** del pad (oppure Mod + BPM, come sull'Orchid) accende la **batteria a tastiera**. I 12 tasti suonano il kit del Beat scelto: Do cassa, Do♯ rimshot, Re rullante, Re♯ battimani, Mi charleston chiuso, Fa tom basso, Fa♯ charleston aperto, Sol tom alto, Sol♯ maracas, La conga, La♯ campanaccio, Si piatto. Se il looper registra o sovraincide, ogni colpo entra nel loop **quantizzato al sedicesimo**, come le note. Pad, basso e Perform restano fermi; un altro T11 torna agli accordi. Sulla plancia: «DRUMS» nella zona accordo e le sigle sui tasti C4…B4, che si accendono al colpo.
+Lo stesso principio degli accordi, per la batteria: **T11 DRUMS** del pad (oppure Mod + BPM, come sull'Orchid) accende la **batteria a tastiera**. I 12 tasti suonano il kit del Beat scelto: Do cassa, Do♯ rimshot, Re rullante, Re♯ battimani, Mi charleston chiuso, Fa tom basso, Fa♯ charleston aperto, Sol tom alto, Sol♯ maracas, La conga, La♯ campanaccio, Si piatto. Se il looper registra o sovraincide, ogni colpo entra nel loop **quantizzato al sedicesimo**, come le note. Pad, basso e Perform restano fermi; un altro T11 torna agli accordi. Sulla plancia: «DRUMS» nella zona accordo, dove al posto dell'accordo c'è il loop di batteria (§6.3), e le sigle sui tasti C4…B4, che si accendono al colpo.
 
 ![Batteria a tastiera: DRUMS, le sigle degli strumenti sui tasti, i colpi registrati nel loop](img/drums.png)
 
@@ -120,6 +120,25 @@ Stessa filosofia dell'Orchid: premi tasti, muovi manopole, il loop di batteria n
   - **K2 ROLL**: tieni un tasto o un pad e il colpo si ripete a tempo: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32. Il primo colpo è il tuo, le ripetizioni entrano nel loop sulla griglia;
   - **K5 ACCENT**: quanto conta la forza del tocco, da 0 (colpi tutti uguali) a 10 (tutta la dinamica).
 - Previsti: K4 Swing sulla griglia, K3 effetto sulla batteria.
+
+### 6.3 Crea: il loop di batteria con le tre manopole del pad
+
+![Crea: lo stile, la variazione e la griglia del loop di due battute; la cassa scelta su M](img/drums_inventa.png)
+
+Con **DRUMS acceso** sei in modalità crea: le tre manopole del pad inventano il loop di batteria mentre suona, e il loop resta a tempo con il looper. Ripremi **T11** per chiudere l'editing: le manopole tornano ai voicing e il loop continua a suonare com'è, finché non scegli un Beat dalla lista.
+
+| Manopola | Girata | Premuta |
+|---|---|---|
+| **M** | **densità**: 0 tace, 1 è lo scheletro dello stile, 10 suona tutto | **play / stop** del loop |
+| **m1** | **stile**: Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro | sceglie la **parte** che M regola: tutto, cassa, rullante, charleston, aperto, percussioni |
+| **m2** | **variazione** 0…99: ogni scatto un'idea nuova, tornando indietro ritrovi quella di prima | un'**idea nuova** a caso |
+
+- Il primo tocco prende il posto del Beat che suonava, nello stile più vicino: se suonava il Funk si comincia dal Funk.
+- Una parte portata a densità 0 tace finché non la rialzi, anche se alzi la densità di tutto: è il modo di togliere la cassa per un break e rimetterla.
+- **T4 Fill** tenuto vale anche qui: più colpi e una chiusa di rullante. **K1 KIT** cambia il kit anche al loop inventato.
+- **m2 premuta e girata** regola il volume del Beat.
+- Il loop dura due battute: la seconda chiude con qualche colpo in più quando la variazione non è 0.
+- Sulla plancia la zona dell'accordo mostra la griglia: una riga per parte con la sua densità, una colonna per sedicesimo, i colpi forti accesi, la colonna che suona segnata.
 
 ## 7. Il macro pad
 
@@ -138,7 +157,7 @@ Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera c
 - **T5…T8 SCENE 1…4**: un tocco richiama suono, basso, Perform, effetto, tonalità e basso acceso/spento; tenuto 1 secondo salva com'è adesso (la banda scrive «Scene 2 saved»). Una scena vuota lo dice. Le scene restano sulla SD (`Saves/stame/scene.txt`).
 - **T9 OPTIONS**: la lista delle opzioni (premi), poi si scorre con la manopola di navigazione.
 - **T10 SAVE LOOP**: ferma il loop e lo tiene da parte (§5).
-- **T11 DRUMS**: la batteria a tastiera (§6.1).
+- **T11 DRUMS**: la batteria a tastiera (§6.1) e la modalità crea delle tre manopole (§6.3).
 - **T12 PANIC** scatta solo dopo 1 secondo: spegne tutte le note; tenuto 3 secondi fa il **Reset** (loop, Beat, transpose, Perform, Hold, metronomo da capo). Sulla MPK: **SHIFT + STOP/PLAY**.
 - **T13 LOCK, a scatto come il Caps Lock.** Un tocco accende, un altro spegne; non si tiene. Le manopole della MPK non hanno scatti, quelle del pad sì: con il Lock acceso le tre manopole del pad diventano gli encoder che hanno bisogno degli scatti, con tutti i loro gesti.
 
