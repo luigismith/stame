@@ -1,4 +1,4 @@
-/* demo_song.c — i brani della demo (demo.h): «Acacia», «Felce», «Pistillo» e «Alga», brani originali di Stame.
+/* demo_song.c — i brani della demo (demo.h): «Acacia», «Felce», «Pistillo», «Alga», «Cicuta» e «Torba», brani originali di Stame.
  *
  * Generato da tools/demo.py: non va modificato a mano. Tick a 96 PPQN dall'inizio di ogni brano.
  */
@@ -1233,11 +1233,212 @@ static const dstep_t SONG_3[] = {
     {  17472, D_END, 0, 0, 0, 0 },
 };
 
+/* Demo song: Cicuta: 128 BPM, 35 battute, 77 passi, 1:06 */
+static const dstep_t SONG_4[] = {
+    {      0, D_TITLE, 0, 0, 0, 0 },
+    {      0, D_THEME, THEME_DARK, 0, 0, 0 },
+    {      0, D_VIEW, VIEW_CHORD, 0, 0, 0 },
+    {      0, D_OPT, ACC_OPT_KEY_ON, 0, 0, 0 },
+    {      0, D_OPT, ACC_OPT_BASS_ON, 0, 0, 0 },
+    {      0, D_OPT, ACC_OPT_SINGLE_NOTES, 1, 0, 0 },
+    {      0, D_OPT, ACC_OPT_BASS_VOICING, 21, 0, 0 },
+    {      0, D_OPT, ACC_OPT_VOICING, 24, 0, 0 },
+    {      0, D_FOCUS, ENC_BPM, 0, 0, 0 },
+    {      0, D_BPM, 0, 0, 128, 0 },                          /* 128 BPM */
+    {     48, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {     48, D_SOUND, 0, 0, 97, 0 },                         /* Hemlock Acid */
+    {     48, D_PERF, PERF_PATTERN, 4, 0, 0 },
+    {    192, D_BEAT, 14, 0, 0, 0 },                          /* Beat: Acid */
+    {    192, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {    192, D_TURN, ENC_BASS_VOICING, 1, 0, 0 },            /* m1: il loop inventato al posto del Beat, stile Acid */
+    {    192, D_TURN, ENC_CHORD_VOICING, -4, 0, 0 },          /* M: densità 1, lo scheletro */
+    {    192, D_PRESS, ENC_CHORD_VOICING, 0, 0, 0 },          /* M premuta: play / stop del loop */
+    {    960, D_TURN, ENC_CHORD_VOICING, 1, 0, 0 },           /* M: densità +1 */
+    {   1728, D_TURN, ENC_CHORD_VOICING, 1, 0, 0 },           /* M: densità +1 */
+    {   1728, D_MACRO, MACRO_BEAT_VOL, 2, 0, 0 },             /* m2: variazione +2 */
+    {   2496, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: la parte di M, fino al charleston */
+    {   2496, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: la parte di M, fino al charleston */
+    {   2496, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: la parte di M, fino al charleston */
+    {   2496, D_TURN, ENC_CHORD_VOICING, 3, 0, 0 },           /* M: più charleston */
+    {   3264, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: di nuovo tutto */
+    {   3264, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: di nuovo tutto */
+    {   3264, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: di nuovo tutto */
+    {   3264, D_TURN, ENC_CHORD_VOICING, 2, 0, 0 },           /* M: densità 5 */
+    {   3600, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {   3648, D_FOCUS, ENC_BASS, 0, 0, 0 },
+    {   3648, D_PRESS, ENC_BASS, 0, 0, 0 },                   /* basso acceso */
+    {   3648, D_CHORD, 0x2, 0x0, 9, 100 },                    /* Am: C3 E3 A3 */
+    {   3672, D_BASS, 0, 0, 18, 0 },                          /* Hemlock 303 */
+    {   4008, D_OFF, 0, 0, 0, 0 },
+    {   4032, D_CHORD, 0x4, 0x4, 5, 92 },                     /* Fmaj7: C3 E3 F3 A3 */
+    {   4392, D_OFF, 0, 0, 0, 0 },
+    {   4416, D_CHORD, 0x2, 0x2, 2, 100 },                    /* Dm7: C3 D3 F3 A3 */
+    {   4776, D_OFF, 0, 0, 0, 0 },
+    {   4800, D_CHORD, 0x2, 0x2, 4, 92 },                     /* Em7: D3 E3 G3 B3 */
+    {   5160, D_OFF, 0, 0, 0, 0 },
+    {   5184, D_CHORD, 0x2, 0x0, 9, 100 },                    /* Am: C3 E3 A3 */
+    {   5544, D_OFF, 0, 0, 0, 0 },
+    {   5568, D_CHORD, 0x4, 0x4, 5, 92 },                     /* Fmaj7: C3 E3 F3 A3 */
+    {   5928, D_OFF, 0, 0, 0, 0 },
+    {   5952, D_CHORD, 0x2, 0x2, 2, 100 },                    /* Dm7: C3 D3 F3 A3 */
+    {   6312, D_OFF, 0, 0, 0, 0 },
+    {   6336, D_CHORD, 0x2, 0x2, 4, 92 },                     /* Em7: D3 E3 G3 B3 */
+    {   6696, D_OFF, 0, 0, 0, 0 },
+    {   6720, D_LOOP, LOOP_C_PRESS, 0, 0, 0 },                /* REC: count-in, poi 4 battute */
+    {   6720, D_VIEW, VIEW_CHORD_KB, 0, 0, 0 },
+    {   7104, D_CHORD, 0x2, 0x0, 9, 96 },                     /* Am: C3 E3 A3 */
+    {   7464, D_OFF, 0, 0, 0, 0 },
+    {   7488, D_CHORD, 0x4, 0x4, 5, 88 },                     /* Fmaj7: C3 E3 F3 A3 */
+    {   7848, D_OFF, 0, 0, 0, 0 },
+    {   7872, D_CHORD, 0x2, 0x2, 2, 96 },                     /* Dm7: C3 D3 F3 A3 */
+    {   8232, D_OFF, 0, 0, 0, 0 },
+    {   8256, D_CHORD, 0x2, 0x2, 4, 88 },                     /* Em7: D3 E3 G3 B3 */
+    {   8616, D_OFF, 0, 0, 0, 0 },
+    {   8640, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {   8640, D_TURN, ENC_CHORD_VOICING, -3, 0, 0 },          /* M: break, densità 2 */
+    {   9408, D_MACRO, MACRO_BEAT_VOL, 3, 0, 0 },             /* m2: variazione +3 */
+    {  10176, D_TURN, ENC_BASS_VOICING, 1, 0, 0 },            /* m1: stile Industrial */
+    {  10176, D_TURN, ENC_CHORD_VOICING, 4, 0, 0 },           /* M: densità 6 */
+    {  10944, D_MACRO, MACRO_BEAT_VOL, 4, 0, 0 },             /* m2: variazione +4 */
+    {  10944, D_TURN, ENC_CHORD_VOICING, 2, 0, 0 },           /* M: densità 8 */
+    {  11664, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {  11664, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {  11664, D_SOUND, 0, 0, 101, 0 },                        /* Black Hellebore */
+    {  11664, D_PERF, PERF_OFF, 0, 0, 0 },
+    {  11712, D_VIEW, VIEW_CHORD, 0, 0, 0 },
+    {  11712, D_CHORD, 0x2, 0x0, 9, 84 },                     /* Am: C3 E3 A3 */
+    {  12096, D_CHORD, 0x2, 0x2, 2, 80 },                     /* Dm7: C3 D3 F3 A3 */
+    {  12864, D_OFF, 0, 0, 0, 0 },
+    {  13248, D_BEATON, 0, 0, 0, 0 },
+    {  13248, D_LOOP, LOOP_C_CLEAR, 0, 0, 0 },                /* Clear */
+    {  13632, D_END, 0, 0, 0, 0 },
+};
+
+/* Demo song: Torba: 116 BPM, 34 battute, 114 passi, 1:11 */
+static const dstep_t SONG_5[] = {
+    {      0, D_TITLE, 0, 0, 0, 0 },
+    {      0, D_THEME, THEME_DARK, 0, 0, 0 },
+    {      0, D_VIEW, VIEW_CHORD, 0, 0, 0 },
+    {      0, D_OPT, ACC_OPT_KEY_ON, 0, 0, 0 },
+    {      0, D_OPT, ACC_OPT_BASS_ON, 0, 0, 0 },
+    {      0, D_OPT, ACC_OPT_SINGLE_NOTES, 1, 0, 0 },
+    {      0, D_OPT, ACC_OPT_BASS_VOICING, 21, 0, 0 },
+    {      0, D_OPT, ACC_OPT_VOICING, 24, 0, 0 },
+    {      0, D_FOCUS, ENC_BPM, 0, 0, 0 },
+    {      0, D_BPM, 0, 0, 116, 0 },                          /* 116 BPM */
+    {     48, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {     48, D_SOUND, 0, 0, 102, 0 },                        /* Deadnettle Dub */
+    {     48, D_PERF, PERF_OFF, 0, 0, 0 },
+    {    192, D_BEAT, 13, 0, 0, 0 },                          /* Beat: Dub */
+    {    192, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {    192, D_TURN, ENC_BASS_VOICING, 1, 0, 0 },            /* m1: il loop inventato, stile Dub */
+    {    192, D_TURN, ENC_CHORD_VOICING, -3, 0, 0 },          /* M: densità 2, one drop */
+    {    192, D_PRESS, ENC_CHORD_VOICING, 0, 0, 0 },          /* M premuta: play / stop del loop */
+    {    960, D_TURN, ENC_CHORD_VOICING, 2, 0, 0 },           /* M: densità 4, steppers */
+    {   1680, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {   1872, D_CHORD, 0x2, 0x2, 0, 96 },                     /* Cm7: C3 D#3 G3 A#3 */
+    {   1896, D_OFF, 0, 0, 0, 0 },
+    {   2064, D_CHORD, 0x2, 0x2, 0, 84 },                     /* Cm7: C3 D#3 G3 A#3 */
+    {   2088, D_OFF, 0, 0, 0, 0 },
+    {   2256, D_CHORD, 0x2, 0x2, 0, 96 },                     /* Cm7: C3 D#3 G3 A#3 */
+    {   2280, D_OFF, 0, 0, 0, 0 },
+    {   2448, D_CHORD, 0x2, 0x2, 0, 84 },                     /* Cm7: C3 D#3 G3 A#3 */
+    {   2472, D_OFF, 0, 0, 0, 0 },
+    {   2640, D_CHORD, 0x2, 0x2, 5, 96 },                     /* Fm7: C3 D#3 F3 G#3 */
+    {   2664, D_OFF, 0, 0, 0, 0 },
+    {   2832, D_CHORD, 0x2, 0x2, 5, 84 },                     /* Fm7: C3 D#3 F3 G#3 */
+    {   2856, D_OFF, 0, 0, 0, 0 },
+    {   3024, D_CHORD, 0x2, 0x2, 7, 96 },                     /* Gm7: D3 F3 G3 A#3 */
+    {   3048, D_OFF, 0, 0, 0, 0 },
+    {   3216, D_CHORD, 0x2, 0x2, 7, 84 },                     /* Gm7: D3 F3 G3 A#3 */
+    {   3240, D_OFF, 0, 0, 0, 0 },
+    {   3408, D_CHORD, 0x2, 0x2, 0, 96 },                     /* Cm7: C3 D#3 G3 A#3 */
+    {   3432, D_OFF, 0, 0, 0, 0 },
+    {   3600, D_CHORD, 0x2, 0x2, 0, 84 },                     /* Cm7: C3 D#3 G3 A#3 */
+    {   3624, D_OFF, 0, 0, 0, 0 },
+    {   3792, D_CHORD, 0x2, 0x2, 0, 96 },                     /* Cm7: C3 D#3 G3 A#3 */
+    {   3816, D_OFF, 0, 0, 0, 0 },
+    {   3984, D_CHORD, 0x2, 0x2, 0, 84 },                     /* Cm7: C3 D#3 G3 A#3 */
+    {   4008, D_OFF, 0, 0, 0, 0 },
+    {   4176, D_CHORD, 0x2, 0x2, 5, 96 },                     /* Fm7: C3 D#3 F3 G#3 */
+    {   4200, D_OFF, 0, 0, 0, 0 },
+    {   4368, D_CHORD, 0x2, 0x2, 5, 84 },                     /* Fm7: C3 D#3 F3 G#3 */
+    {   4392, D_OFF, 0, 0, 0, 0 },
+    {   4560, D_CHORD, 0x2, 0x2, 7, 96 },                     /* Gm7: D3 F3 G3 A#3 */
+    {   4584, D_OFF, 0, 0, 0, 0 },
+    {   4752, D_CHORD, 0x2, 0x2, 7, 84 },                     /* Gm7: D3 F3 G3 A#3 */
+    {   4776, D_OFF, 0, 0, 0, 0 },
+    {   4800, D_LOOP, LOOP_C_PRESS, 0, 0, 0 },                /* REC: count-in, poi 4 battute */
+    {   5328, D_CHORD, 0x2, 0x2, 0, 96 },                     /* Cm7: C3 D#3 G3 A#3 */
+    {   5352, D_OFF, 0, 0, 0, 0 },
+    {   5520, D_CHORD, 0x2, 0x2, 0, 84 },                     /* Cm7: C3 D#3 G3 A#3 */
+    {   5544, D_OFF, 0, 0, 0, 0 },
+    {   5712, D_CHORD, 0x2, 0x2, 0, 96 },                     /* Cm7: C3 D#3 G3 A#3 */
+    {   5736, D_OFF, 0, 0, 0, 0 },
+    {   5904, D_CHORD, 0x2, 0x2, 0, 84 },                     /* Cm7: C3 D#3 G3 A#3 */
+    {   5928, D_OFF, 0, 0, 0, 0 },
+    {   6096, D_CHORD, 0x2, 0x2, 5, 96 },                     /* Fm7: C3 D#3 F3 G#3 */
+    {   6120, D_OFF, 0, 0, 0, 0 },
+    {   6288, D_CHORD, 0x2, 0x2, 5, 84 },                     /* Fm7: C3 D#3 F3 G#3 */
+    {   6312, D_OFF, 0, 0, 0, 0 },
+    {   6480, D_CHORD, 0x2, 0x2, 7, 96 },                     /* Gm7: D3 F3 G3 A#3 */
+    {   6504, D_OFF, 0, 0, 0, 0 },
+    {   6672, D_CHORD, 0x2, 0x2, 7, 84 },                     /* Gm7: D3 F3 G3 A#3 */
+    {   6672, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {   6672, D_SOUND, 0, 0, 108, 0 },                        /* Undertow */
+    {   6672, D_PERF, PERF_OFF, 0, 0, 0 },
+    {   6696, D_OFF, 0, 0, 0, 0 },
+    {   6720, D_FOCUS, ENC_BASS, 0, 0, 0 },
+    {   6720, D_PRESS, ENC_BASS, 0, 0, 0 },                   /* basso acceso */
+    {   6720, D_VIEW, VIEW_CHORD_KB, 0, 0, 0 },
+    {   6720, D_CHORD, 0x2, 0xa, 0, 70 },                     /* Cm9: C3 D3 D#3 G3 A#3 */
+    {   6744, D_BASS, 0, 0, 20, 0 },                          /* Abyss Sub */
+    {   7056, D_OFF, 0, 0, 0, 0 },
+    {   7104, D_CHORD, 0x4, 0x4, 8, 66 },                     /* Abmaj7: C3 D#3 G3 G#3 */
+    {   7440, D_OFF, 0, 0, 0, 0 },
+    {   7488, D_CHORD, 0x2, 0xa, 5, 68 },                     /* Fm9: C3 D#3 F3 G3 G#3 */
+    {   7824, D_OFF, 0, 0, 0, 0 },
+    {   7872, D_CHORD, 0x2, 0x2, 7, 64 },                     /* Gm7: D3 F3 G3 A#3 */
+    {   8208, D_OFF, 0, 0, 0, 0 },
+    {   8256, D_CHORD, 0x2, 0xa, 0, 70 },                     /* Cm9: C3 D3 D#3 G3 A#3 */
+    {   8592, D_OFF, 0, 0, 0, 0 },
+    {   8640, D_CHORD, 0x4, 0x4, 8, 66 },                     /* Abmaj7: C3 D#3 G3 G#3 */
+    {   8976, D_OFF, 0, 0, 0, 0 },
+    {   9024, D_CHORD, 0x2, 0xa, 5, 68 },                     /* Fm9: C3 D#3 F3 G3 G#3 */
+    {   9360, D_OFF, 0, 0, 0, 0 },
+    {   9408, D_CHORD, 0x2, 0x2, 7, 64 },                     /* Gm7: D3 F3 G3 A#3 */
+    {   9744, D_OFF, 0, 0, 0, 0 },
+    {   9792, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {   9792, D_MACRO, MACRO_BEAT_VOL, 5, 0, 0 },             /* m2: variazione +5 */
+    {  10176, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: le percussioni */
+    {  10176, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: le percussioni */
+    {  10176, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: le percussioni */
+    {  10176, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: le percussioni */
+    {  10176, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: le percussioni */
+    {  10176, D_TURN, ENC_CHORD_VOICING, 3, 0, 0 },           /* M: più percussioni */
+    {  10560, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: di nuovo tutto */
+    {  10560, D_TURN, ENC_CHORD_VOICING, 1, 0, 0 },           /* M: densità +1 */
+    {  11280, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {  11280, D_FOCUS, ENC_SOUND, 0, 0, 0 },
+    {  11280, D_SOUND, 0, 0, 107, 0 },                        /* Mire Bells */
+    {  11280, D_PERF, PERF_STRUM, 2, 0, 0 },
+    {  11328, D_VIEW, VIEW_CHORD, 0, 0, 0 },
+    {  11328, D_CHORD, 0x2, 0xa, 0, 80 },                     /* Cm9: C3 D3 D#3 G3 A#3 */
+    {  11712, D_CHORD, 0x4, 0x4, 8, 76 },                     /* Abmaj7: C3 D#3 G3 G#3 */
+    {  12096, D_CHORD, 0x2, 0xa, 0, 72 },                     /* Cm9: C3 D3 D#3 G3 A#3 */
+    {  12864, D_OFF, 0, 0, 0, 0 },
+    {  12864, D_BEATON, 0, 0, 0, 0 },
+    {  12864, D_LOOP, LOOP_C_CLEAR, 0, 0, 0 },                /* Clear */
+    {  13248, D_END, 0, 0, 0, 0 },
+};
+
 const dsong_t vet_demo_songs[] = {
     { "Demo song: Acacia", SONG_0, (uint16_t)(sizeof SONG_0 / sizeof SONG_0[0]), 230992u },
     { "Demo song: Felce", SONG_1, (uint16_t)(sizeof SONG_1 / sizeof SONG_1[0]), 108943u },
     { "Demo song: Pistillo", SONG_2, (uint16_t)(sizeof SONG_2 / sizeof SONG_2[0]), 106203u },
     { "Demo song: Alga", SONG_3, (uint16_t)(sizeof SONG_3 / sizeof SONG_3[0]), 153613u },
+    { "Demo song: Cicuta", SONG_4, (uint16_t)(sizeof SONG_4 / sizeof SONG_4[0]), 66562u },
+    { "Demo song: Torba", SONG_5, (uint16_t)(sizeof SONG_5 / sizeof SONG_5[0]), 71379u },
 };
 
-const uint8_t vet_demo_songs_n = 4;
+const uint8_t vet_demo_songs_n = 6;

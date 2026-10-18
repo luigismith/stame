@@ -1,4 +1,4 @@
-# demo.py — i brani della demo della vetrina: «Acacia», «Felce», «Pistillo» e «Alga», brani originali di Stame.
+# demo.py — i brani della demo della vetrina: «Acacia», «Felce», «Pistillo», «Alga», «Cicuta» e «Torba», brani originali di Stame.
 #
 # Scrive src/platform/vetrina/demo_song.c (passi di demo.h) a partire dalle partiture qui sotto e
 # controlla che ogni nota singola cada nella finestra del voicing di quel momento (ACC-080).
@@ -41,7 +41,8 @@ def leggi_nomi(tabella, rx):
 SOUND = leggi_nomi('vet_sound_info', r'\{\s*"([^"]+)"')     # il nome è la prima stringa di ogni riga
 BASS = leggi_nomi('vet_bass_name', r'"([^"]+)"')
 # i Beat, nell'ordine di core/beat.c dall'1
-FUNK, BOSSA, MOTORIK, LOUNGE, SHUFFLE, HALFTIME, BOOM_BAP, DISCO, SAMBA, BALLAD, TRAIN, CHIP = range(12)
+(FUNK, BOSSA, MOTORIK, LOUNGE, SHUFFLE, HALFTIME, BOOM_BAP, DISCO, SAMBA, BALLAD, TRAIN, CHIP, TECHNO, DUB,
+ ACID, INDUSTRIAL, MINIMAL, ELECTRO, TRAP) = range(19)
 SINGLE_SPLIT, SINGLE_FULL = 0, 1
 # strumenti della batteria a tastiera (ACC-212), nell'ordine dei tasti C…B
 DRUM = {'KK': 0, 'RM': 1, 'SN': 2, 'CP': 3, 'CH': 4, 'TL': 5, 'OH': 6, 'TH': 7, 'MR': 8, 'CG': 9, 'CB': 10, 'CY': 11}
@@ -150,6 +151,23 @@ class Song:
                 body, _, v = tok.partition('@')
                 beat, sigla = body.split(':')
                 self.add(self.at(bar0 + i, float(beat)), 'D_HIT', DRUM[sigla], 0, 0, int(v) if v else vel, sigla)
+
+    # ---- crea: la batteria che si inventa con le tre manopole del pad, con DRUMS acceso (MIDI-139) ----
+    def densita(self, t, d, note=''):
+        self.add(t, 'D_TURN', 'ENC_CHORD_VOICING', d, note=note or f'M: densità {d:+d}')
+
+    def stile(self, t, d, note=''):
+        self.add(t, 'D_TURN', 'ENC_BASS_VOICING', d, note=note or f'm1: stile {d:+d}')
+
+    def variazione(self, t, d, note=''):
+        self.add(t, 'D_MACRO', 'MACRO_BEAT_VOL', d, note=note or f'm2: variazione {d:+d}')
+
+    def parte(self, t, n=1, note=''):
+        for _ in range(n):
+            self.add(t, 'D_PRESS', 'ENC_BASS_VOICING', note=note or 'm1 premuta: la parte di M')
+
+    def play(self, t, note=''):
+        self.add(t, 'D_PRESS', 'ENC_CHORD_VOICING', note=note or 'M premuta: play / stop del loop')
 
     # ---- accordi: "battito:Accordo:durata[@vel]" per battuta, battute separate da | ----
     def chords(self, bar0, text, vel=96, early=0):
@@ -708,12 +726,120 @@ def alga():
     return S, 46
 
 
+# ======================================================================== «Cicuta» (18/10/2026)
+# Acid techno a 128 BPM. La batteria si inventa con le tre manopole del pad (MIDI-139): DRUMS, m1 la
+# accende nello stile del Beat Acid, M parte dallo scheletro e cresce, m2 varia, m1 premuta sceglie i
+# charleston. Poi Hemlock Acid in Pattern con il basso Hemlock 303, il giro nel loop, un break che
+# cambia stile, e il drone di Black Hellebore.
+def cicuta():
+    S = Song('Demo song: Cicuta')
+    at = Song.at
+    GIRO = '1:Am:4@{a} | 1:Fmaj7:4@{b} | 1:Dm7:4@{a} | 1:Em7:4@{b}'
+
+    S.prepara(128, bass_voicing=21, voicing=24)
+    S.sound(48, 'Hemlock Acid', perf=('PATTERN', 4))
+    S.add(at(1), 'D_BEAT', ACID, note='Beat: Acid')
+
+    # ---- 1–9 crea: il loop nasce dallo scheletro ----
+    S.drums_toggle(at(1))
+    S.stile(at(1), 1, 'm1: il loop inventato al posto del Beat, stile Acid')
+    S.densita(at(1), -4, 'M: densità 1, lo scheletro')
+    S.play(at(1))
+    S.densita(at(3), 1)
+    S.densita(at(5), 1)
+    S.variazione(at(5), 2)
+    S.parte(at(7), 3, 'm1 premuta: la parte di M, fino al charleston')
+    S.densita(at(7), 3, 'M: più charleston')
+    S.parte(at(9), 3, 'm1 premuta: di nuovo tutto')
+    S.densita(at(9), 2, 'M: densità 5')
+    S.drums_toggle(at(9, 4.5))                                  # l'editing si chiude, il loop resta
+
+    # ---- 10–17 l'acid in Pattern, il basso 303 ----
+    S.bass(at(10), 'Hemlock 303')
+    S.chords(10, (GIRO + ' | ' + GIRO).format(a=100, b=92), early=24)
+
+    # ---- 18 count-in, 19–22 il giro nel loop ----
+    S.loop_cmd(at(18), 'PRESS', 'REC: count-in, poi 4 battute')
+    S.add(at(18), 'D_VIEW', 'VIEW_CHORD_KB')
+    S.chords(19, GIRO.format(a=96, b=88), early=24)
+
+    # ---- 23–30 il break: crea di nuovo, giù fino a 2, poi Industrial e tutto pieno ----
+    S.drums_toggle(at(23))
+    S.densita(at(23), -3, 'M: break, densità 2')
+    S.variazione(at(25), 3)
+    S.stile(at(27), 1, 'm1: stile Industrial')
+    S.densita(at(27), 4, 'M: densità 6')
+    S.variazione(at(29), 4)
+    S.densita(at(29), 2, 'M: densità 8')
+    S.drums_toggle(at(30, 4.5))
+
+    # ---- 31–34 il drone sopra il loop, poi via tutto ----
+    S.sound(at(30, 4.5), 'Black Hellebore', perf=('OFF', 0))
+    S.add(at(31), 'D_VIEW', 'VIEW_CHORD')
+    S.chords(31, '1:Am:8@84 | 1:Dm7:8@80')
+    S.add(at(35), 'D_BEATON', 0)
+    S.loop_cmd(at(35), 'CLEAR', 'Clear')
+    return S, 36
+
+
+# ======================================================================== «Torba» (18/10/2026)
+# Dub techno a 116 BPM: lo stab di Deadnettle Dub sul levare con il suo eco, il giro nel loop, Undertow e
+# Abyss Sub sotto, e la batteria in stile Dub che si inventa mentre suona.
+def torba():
+    S = Song('Demo song: Torba')
+    at = Song.at
+    STAB = ' | '.join('2.5:{c}:.25@{v} 4.5:{c}:.25@{w}'.format(c=c, v=96, w=84) for c in ('Cm7', 'Cm7', 'Fm7', 'Gm7'))
+    PAD = '1:Cm9:4@70 | 1:Abmaj7:4@66 | 1:Fm9:4@68 | 1:Gm7:4@64'
+
+    S.prepara(116, bass_voicing=21, voicing=24)
+    S.sound(48, 'Deadnettle Dub', perf=('OFF', 0))
+    S.add(at(1), 'D_BEAT', DUB, note='Beat: Dub')
+
+    # ---- 1–4 crea: one drop, poi steppers ----
+    S.drums_toggle(at(1))
+    S.stile(at(1), 1, 'm1: il loop inventato, stile Dub')
+    S.densita(at(1), -3, 'M: densità 2, one drop')
+    S.play(at(1))
+    S.densita(at(3), 2, 'M: densità 4, steppers')
+    S.drums_toggle(at(4, 4.5))
+
+    # ---- 5–12 lo stab sul levare ----
+    S.chords(5, STAB + ' | ' + STAB)
+
+    # ---- 13 count-in, 14–17 lo stab nel loop ----
+    S.loop_cmd(at(13), 'PRESS', 'REC: count-in, poi 4 battute')
+    S.chords(14, STAB)
+
+    # ---- 18–25 Undertow e Abyss Sub sopra il loop ----
+    S.sound(at(17, 4.5), 'Undertow', perf=('OFF', 0))
+    S.bass(at(18), 'Abyss Sub')
+    S.add(at(18), 'D_VIEW', 'VIEW_CHORD_KB')
+    S.chords(18, PAD + ' | ' + PAD, early=48)
+
+    # ---- 26–29 crea: la batteria cambia con il loop che suona ----
+    S.drums_toggle(at(26))
+    S.variazione(at(26), 5)
+    S.parte(at(27), 5, 'm1 premuta: le percussioni')
+    S.densita(at(27), 3, 'M: più percussioni')
+    S.parte(at(28), 1, 'm1 premuta: di nuovo tutto')
+    S.densita(at(28), 1)
+    S.drums_toggle(at(29, 4.5))
+
+    # ---- 30–33 le campane scure, poi via tutto ----
+    S.sound(at(29, 4.5), 'Mire Bells', perf=('STRUM', 2))
+    S.add(at(30), 'D_VIEW', 'VIEW_CHORD')
+    S.chords(30, '1:Cm9:4@80 | 1:Abmaj7:4@76 | 1:Cm9:8@72')
+    S.add(at(34), 'D_BEATON', 0)
+    S.loop_cmd(at(34), 'CLEAR', 'Clear')
+    return S, 35
+
+
 # ======================================================================== uscita
-BRANI = [acacia, felce, pistillo, alga]
+BRANI = [acacia, felce, pistillo, alga, cicuta, torba]
 
 
 def main():
-    out = ['/* demo_song.c — i brani della demo (demo.h): «Acacia», «Felce», «Pistillo» e «Alga», brani originali di Stame.',
+    out = ['/* demo_song.c — i brani della demo (demo.h): «Acacia», «Felce», «Pistillo», «Alga», «Cicuta» e «Torba», brani originali di Stame.',
            ' *',
            ' * Generato da tools/demo.py: non va modificato a mano. Tick a 96 PPQN dall\'inizio di ogni brano.',
            ' */',

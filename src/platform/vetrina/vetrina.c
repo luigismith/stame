@@ -890,6 +890,7 @@ static void demo_do(vet_t *v, const dstep_t *s)
     case D_OPT: ain(v, ACC_IN_OPTION_SET, (uint8_t)s->a, s->b); break;
     case D_TITLE: msg(v, MSG_INFO, song_of(v)->title, 6000); break;
     case D_DRUMS: drums_toggle(v); break;
+    case D_MACRO: { pnl_event_t e = { PNL_MACRO, SRC_MACROPAD, (uint8_t)s->a, s->b, 0 }; handle(v, &e); break; }
     case D_HIT:
         snd_push(v, VS_DRUM, 0, (uint8_t)(s->a % 12), s->d ? s->d : 100);
         S.drum_ms[s->a % 12] = v->now_ms;
@@ -914,6 +915,8 @@ static void demo_reset(vet_t *v)
     snd_push(v, VS_FILL, 0, 0, 0);
     S.view = VIEW_CHORD;
     S.beat_mode = BEAT_PATTERN; S.beat = 0; S.beat_on = 0; S.inv = 0;
+    S.groove = 0; S.variation = 0; S.density = 5; S.part = 0;   /* la batteria che si inventa da capo (MIDI-139) */
+    memset(S.dens_off, 0, sizeof S.dens_off);
     v->snd_sound = -1;                          /* suono, Perform ed effetto da capo (ACC-162) */
     v->inp.gest.focus = ENC_SOUND;
     v->page_until = v->now_ms;
