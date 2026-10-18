@@ -1,6 +1,6 @@
 /* patch.h — la patch da 135 byte (specifica 20, §2; SND-101…SND-110).
  *
- * Indici, intervalli e nomi della tabella Parinfo di Pistil 1.0.2 (= firmware 3.92). Una patch è
+ * Indici, intervalli e nomi della tabella Parinfo dell'editor dell'originale, versione 1.0.2 (= firmware 3.92). Una patch è
  * un array di 135 byte raw, uguale per i tre modelli (VA, Reed Piano, FM).
  */
 #ifndef STAME_DSP_PATCH_H

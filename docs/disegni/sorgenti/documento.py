@@ -77,29 +77,29 @@ def ricetta(titolo, *righe):
 PAGES.append(f"""
 <div style="display:flex;gap:10mm;height:100%">
  <div style="flex:1.05">
-  <div class="muted" style="font-weight:700;letter-spacing:1pt;font-size:8pt">CLONE FEDELE DELL'ORCHID · VERSIONE MIYOO FLIP</div>
+  <div class="muted" style="font-weight:700;letter-spacing:1pt;font-size:8pt">SYNTH AD ACCORDI · VERSIONE MIYOO FLIP</div>
   <h1>Stame</h1>
   <p class="sub big">Come appare sulla Miyoo Flip e come si suona con la Akai MPK mini Plus e il macro pad BRIMFORD.
   Con una bozza del case che tiene tutto insieme. Da leggere con la specifica in <code>docs/specifica/</code>.</p>
   <h3>Quattro idee guida</h3>
   <ol>
-   <li><b>Il comportamento è quello dell'Orchid; lo schermo no.</b> La plancia 640×480 mostra tutto quello che serve,
+   <li><b>Il comportamento è quello dell'originale; lo schermo no.</b> La plancia 640×480 mostra tutto quello che serve,
    o è utile vedere, mentre si suona.</li>
-   <li><b>I pad della MPK sono gli 8 tasti accordo dell'Orchid</b>, nella stessa disposizione, e restano sempre così.</li>
+   <li><b>I pad della MPK sono gli 8 tasti accordo dell'originale</b>, nella stessa disposizione, e restano sempre così.</li>
    <li><b>Manopole della MPK e tasti del pad sono due griglie gemelle.</b> Stessa posizione = stesso encoder:
-   la manopola ruota, il tasto preme, tasto tenuto + manopola = premere e ruotare. Come un encoder dell'Orchid,
+   la manopola ruota, il tasto preme, tasto tenuto + manopola = premere e ruotare. Come un encoder dell'originale,
    diviso in due.</li>
-   <li><b>Tutto in un case</b>: MPK davanti, pad a destra dove sull'Orchid stanno le manopole del voicing,
+   <li><b>Tutto in un case</b>: MPK davanti, pad a destra dove sull'originale stanno le manopole del voicing,
    Flip dietro come schermo.</li>
   </ol>
   <h3>Cosa c'è in queste pagine</h3>
   <table>
    <tr><td>2–3</td><td>La plancia sulla Flip</td></tr>
    <tr><td>4</td><td>MPK mini Plus: si suona</td></tr>
-   <tr><td>5</td><td>Macro pad: i pulsanti dell'Orchid e le manopole del voicing</td></tr>
+   <tr><td>5</td><td>Macro pad: i pulsanti dell'originale e le manopole del voicing</td></tr>
    <tr><td>6</td><td>Tasti della Flip</td></tr>
    <tr><td>7</td><td>I quattro gesti degli encoder</td></tr>
-   <tr><td>8</td><td>Ogni controllo dell'Orchid, gesto per gesto</td></tr>
+   <tr><td>8</td><td>Ogni controllo dell'originale, gesto per gesto</td></tr>
    <tr><td>9</td><td>Ricette</td></tr>
    <tr><td>10–12</td><td>Il case (bozza 2): la console, la tavola d'insieme e la mascherina, i pezzi e il cablaggio</td></tr>
    <tr><td>13</td><td>Preparazione e punti da verificare</td></tr>
@@ -118,14 +118,14 @@ for body in PLANCIA_PAGINE:
 # 4 — MPK
 PAGES.append(f"""
 <h2>MPK mini Plus — si suona</h2>
-<p class="sub">Banco A sempre attivo. La mano sinistra sta sui pad come sui tasti accordo dell'Orchid, la destra sulla tastiera e sulle manopole.</p>
+<p class="sub">Banco A sempre attivo. La mano sinistra sta sui pad come sui tasti accordo dell'originale, la destra sulla tastiera e sulle manopole.</p>
 {mpk_svg('A')}
 {legend()}
 <div class="cols" style="margin-top:1mm">
  <div>
   <h3>Accordi</h3>
   <ul>
-   <li><b>Fila alta</b>: Dim · Min · Maj · Sus. <b>Fila bassa</b>: 6 · m7 · M7 · 9. Come i tasti a sinistra dell'Orchid.</li>
+   <li><b>Fila alta</b>: Dim · Min · Maj · Sus. <b>Fila bassa</b>: 6 · m7 · M7 · 9. Come i tasti a sinistra dell'originale.</li>
    <li>Tipo (ed estensione) con la sinistra, un tasto con la destra. Più tipi insieme = Secret Chords, se attivi.</li>
   </ul>
  </div>
@@ -149,7 +149,7 @@ PAGES.append(f"""
 
 # 5 — macro pad
 PAGES.append(f"""
-<h2>Macro pad — i pulsanti dell'Orchid e le manopole del voicing</h2>
+<h2>Macro pad — i pulsanti dell'originale e le manopole del voicing</h2>
 <p class="sub">BRIMFORD CusKeyboard0227: 12 tasti 4×3 e 3 manopole premibili, collegato con il cavo USB-C. Per Stame è una tastiera USB: lo legge da evdev, in esclusiva.</p>
 <div class="cols">
  <div style="flex:0.8">{pad_svg('100%')}</div>
@@ -168,7 +168,7 @@ PAGES.append(f"""
  </div>
 </div>
 <div class="cols" style="margin-top:2mm">
- <div class="note"><b>Perché il pad a destra.</b> Sull'Orchid le manopole del voicing stanno a destra, accanto alla tastiera: qui la manopola grande
+ <div class="note"><b>Perché il pad a destra.</b> Sull'originale le manopole del voicing stanno a destra, accanto alla tastiera: qui la manopola grande
  sta sotto la mano che suona i tasti. La sinistra resta sui pad degli accordi. Per «tasto + manopola» si usano due mani: la destra sul tasto,
  la sinistra sulla manopola della MPK.</div>
  <div class="box"><b>Codici da programmare</b> (una volta, dal PC): T1–T12 = F13–F24; M = KP7 / KP8 / KP9 (antiorario / premuta / orario);
@@ -219,7 +219,7 @@ PAGES.append(f"""
 # 7 — gesti
 PAGES.append(f"""
 <h2>I quattro gesti degli encoder</h2>
-<p class="sub">Ogni encoder dell'Orchid si <b>ruota</b>, si <b>preme</b>, si <b>tiene premuto</b> (1 s; Loop anche 2 s) e si <b>preme e ruota</b>.
+<p class="sub">Ogni encoder dell'originale si <b>ruota</b>, si <b>preme</b>, si <b>tiene premuto</b> (1 s; Loop anche 2 s) e si <b>preme e ruota</b>.
 Con il pad i quattro gesti diventano naturali: manopola della MPK + tasto del pad nella stessa posizione.</p>
 <div class="cols">
  <div>
@@ -234,12 +234,12 @@ Con il pad i quattro gesti diventano naturali: manopola della MPK + tasto del pa
   <h3>Nel tempo</h3>
   {tk_timeline_svg()}
   <h3>Le manopole del pad</h3>
-  <p style="margin:0">M e m1 sono encoder veri: si girano e si premono, come i due dial dell'Orchid. m2 è la manopola delle liste:
+  <p style="margin:0">M e m1 sono encoder veri: si girano e si premono, come i due dial dell'originale. m2 è la manopola delle liste:
   gira = scorre, premuta = conferma.</p>
  </div>
  <div>
   <h3>Combinazioni con Bass Voicing tenuto</h3>
-  <p style="margin:0">Sull'Orchid si tiene premuto il Bass Voicing e si preme un altro pulsante. Qui: <b>m1 tenuta</b> (o {k('Y')}) +</p>
+  <p style="margin:0">Sull'originale si tiene premuto il Bass Voicing e si preme un altro pulsante. Qui: <b>m1 tenuta</b> (o {k('Y')}) +</p>
   <ul>
    <li>T6 Loop (o {k('REC')}) = <b>uscita hard dal loop</b></li>
    <li>T7 BPM (o {k('PLAY')}) = <b>batteria da suonare</b> sulla tastiera</li>
@@ -272,7 +272,7 @@ ROWS = [
 rows = ''.join(f'<tr><td><b>{a}</b></td><td>{b}</td><td class="muted">{c}</td><td>{d}</td><td class="muted">{e}</td><td>{f}</td><td class="muted">{g}</td><td>{h}</td></tr>'
                for a, b, c, d, e, f, g, h in ROWS)
 PAGES.append(f"""
-<h2>Ogni controllo dell'Orchid, gesto per gesto</h2>
+<h2>Ogni controllo dell'originale, gesto per gesto</h2>
 <p class="sub">K = manopola della MPK · T = tasto del pad · M, m1, m2 = manopole del pad. Dalla sola Flip si arriva sempre a tutto con fuoco + croce / A.</p>
 <table>
  <tr><th>Controllo</th><th>Ruotare</th><th>→ effetto</th><th>Premere</th><th>→ effetto</th><th>Tenere</th><th>→ effetto</th><th>Premere e ruotare</th></tr>

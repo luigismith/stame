@@ -2,7 +2,7 @@
  *
  * Un Beat è una battuta di 4/4 su griglia di 1/16 (24 tick), in loop finché suona, e ha un kit: il
  * set del banco di campioni che suona i suoi colpi (SND-537), oppure nessuno per il kit sintetizzato
- * «Chip». La specifica dà un solo pattern provvisorio per tutti i Beat dell'Orchid (ACC-210,
+ * «Chip». La specifica dà un solo pattern provvisorio per tutti i Beat dell'originale (ACC-210,
  * contenuto ignoto); i Beat della vetrina sono pattern di Stame. Il metronomo clicca sui battiti con
  * l'accento sul primo (ACC-207, TV-112).
  */

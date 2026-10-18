@@ -20,8 +20,8 @@
 | blocco | 16 frame stereo consecutivi. |
 
 **Etichette.** Le fonti di studio usano un sistema diverso; qui vale questa corrispondenza:
-- manuale di Pistil, articoli del supporto, post e video ufficiali → `[M]`;
-- codice e tabelle di Pistil 1.0.2 e del firmware 3.92 (analisi di terzi), catture MIDI, test di utenti, recensioni → `[O]`;
+- manuale dell'editor dell'originale, articoli del supporto, post e video ufficiali → `[M]`;
+- codice e tabelle dell'editor 1.0.2 dell'originale e del firmware 3.92 (analisi di terzi), catture MIDI, test di utenti, recensioni → `[O]`;
 - ricostruzioni → `[D]`;
 - valori scelti da Stame in assenza di dati → `[V]`, sempre con il rimando alla questione aperta (`QA-SND-nn`) che dice come verificarli.
 
@@ -33,8 +33,8 @@
 
 ### 1.1 Formato e temporizzazione
 
-- **SND-001** Il `dsp` **DEVE** lavorare in virgola mobile a 32 bit (`float`), stereo, con frequenza di campionamento `fs` passata a `dsp_init`. Default per la Flip: **48 000 Hz** `[V → QA-SND-01]`. La frequenza dell'hardware originale non è nota; Pistil dalla 0.1.12 è indipendente dalla frequenza `[M]`, quindi tutti i coefficienti **DEVONO** essere calcolati da `fs` e il modulo **DEVE** funzionare anche a 44 100 Hz.
-- **SND-002** Il rendering **DEVE** avvenire a **blocchi di 16 frame**, con due buffer separati per canale: `dsp_render16(dsp, float L[16], float R[16], …)`. È la stessa granularità di `msynthesizer::generate16(float*, float*)` di Pistil `[O]`. Lo strato `platform` chiama la funzione più volte per riempire un periodo ALSA (multiplo di 16, vedi `50-piattaforma-flip.md`).
+- **SND-001** Il `dsp` **DEVE** lavorare in virgola mobile a 32 bit (`float`), stereo, con frequenza di campionamento `fs` passata a `dsp_init`. Default per la Flip: **48 000 Hz** `[V → QA-SND-01]`. La frequenza dell'hardware originale non è nota; l'editor dell'originale dalla 0.1.12 è indipendente dalla frequenza `[M]`, quindi tutti i coefficienti **DEVONO** essere calcolati da `fs` e il modulo **DEVE** funzionare anche a 44 100 Hz.
+- **SND-002** Il rendering **DEVE** avvenire a **blocchi di 16 frame**, con due buffer separati per canale: `dsp_render16(dsp, float L[16], float R[16], …)`. È la stessa granularità di `msynthesizer::generate16(float*, float*)` dell'editor dell'originale `[O]`. Lo strato `platform` chiama la funzione più volte per riempire un periodo ALSA (multiplo di 16, vedi `50-piattaforma-flip.md`).
 - **SND-003** Gli eventi in ingresso (§1.4) **DEVONO** essere applicati al confine di blocco, nell'ordine di arrivo. Il jitter massimo (16 frame = 0,33 ms a 48 kHz) è accettato `[D]`.
 - **SND-004** Il percorso audio **NON DEVE** allocare memoria, fare I/O, prendere lock o chiamare funzioni di sistema. Tutto lo stato del `dsp` sta in una struttura `dsp_t` allocata dal chiamante una volta sola.
 - **SND-005** A parità di build, di `fs` e di sequenza di eventi l'uscita **DEVE** essere identica bit per bit. I generatori casuali (rumore, sorgente RANDOM, S&H) usano un PRNG interno (xorshift32) con seme impostabile da `dsp_init` e reimpostabile con `dsp_reseed`.
@@ -103,12 +103,12 @@ size_t dsp_scope_read(dsp_t *d, float *dst, size_t max); /* copia dell'uscita pe
 ### 1.5 Frequenza di controllo e smoothing
 
 - **SND-040** Inviluppi, LFO, matrice di modulazione e conversioni dei parametri **DEVONO** essere calcolati una volta per blocco e per voce (3 kHz di frequenza di controllo a 48 kHz) `[D]`. Ampiezza del VCA, cutoff e guadagni degli oscillatori **DEVONO** essere interpolati linearmente dentro il blocco.
-- **SND-041** I parametri continui modificati da `dsp_setpar` (cutoff, risonanza, guadagni, pan, mandate, parametri degli FX) **DEVONO** essere filtrati con un passa-basso a un polo con costante di tempo di 5 ms `[V → QA-SND-28]`. I parametri RP lo sono con 20 ms `[O: Pistil 0.1.12 ha introdotto lo smoothing di HEIGHT]`. Gli enum cambiano al confine di blocco, senza smoothing. Al caricamento di una patch i parametri delle voci valgono subito (le voci passano in coda e ripartono con la patch nuova, SND-112), mentre quelli di FX, delay e riverbero scorrono con i 5 ms: un salto del tap o del guadagno di un effetto in suono faceva clic (16/10/2026).
+- **SND-041** I parametri continui modificati da `dsp_setpar` (cutoff, risonanza, guadagni, pan, mandate, parametri degli FX) **DEVONO** essere filtrati con un passa-basso a un polo con costante di tempo di 5 ms `[V → QA-SND-28]`. I parametri RP lo sono con 20 ms `[O: l'editor dell'originale ha introdotto lo smoothing di HEIGHT nella 0.1.12]`. Gli enum cambiano al confine di blocco, senza smoothing. Al caricamento di una patch i parametri delle voci valgono subito (le voci passano in coda e ripartono con la patch nuova, SND-112), mentre quelli di FX, delay e riverbero scorrono con i 5 ms: un salto del tap o del guadagno di un effetto in suono faceva clic (16/10/2026).
 
 ### 1.6 Livelli
 
 - **SND-045** Ogni voce lavora con picco nominale ±1. La somma delle voci di un motore **DEVE** essere scalata di −12 dB (×0,25) prima degli FX, per lasciare spazio a 16 voci `[V → QA-SND-28]`.
-- **SND-046** L'uscita master **DEVE** passare da un soft clipper senza latenza: lineare fino a ±0,89 (−1 dBFS), poi curva cubica fino a ±1 `[V → QA-SND-23]`. Il binario di Pistil contiene un probabile compressore a 3 bande (`mbcpr3band`) dal ruolo ignoto `[O]`: Stame non lo implementa finché il ruolo non è chiarito.
+- **SND-046** L'uscita master **DEVE** passare da un soft clipper senza latenza: lineare fino a ±0,89 (−1 dBFS), poi curva cubica fino a ±1 `[V → QA-SND-23]`. Il binario dell'editor dell'originale contiene un probabile compressore a 3 bande (`mbcpr3band`) dal ruolo ignoto `[O]`: Stame non lo implementa finché il ruolo non è chiarito.
 
 ---
 
@@ -116,14 +116,14 @@ size_t dsp_scope_read(dsp_t *d, float *dst, size_t max); /* copia dell'uscita pe
 
 ### 2.1 Il blocco da 135 byte
 
-- **SND-101** Una patch **DEVE** essere un array di 135 byte raw, uguale per i tre modelli, con gli indici, i range e gli enum della §2.2 `[O: tabella Parinfo di Pistil 1.0.2 = blocco del firmware 3.92]`. In C: `typedef struct { uint8_t p[135]; } snd_patch_t;` più un `enum` con gli indici (`SND_P_VER = 0`, …, `SND_P_RPTSTEREO = 134`).
+- **SND-101** Una patch **DEVE** essere un array di 135 byte raw, uguale per i tre modelli, con gli indici, i range e gli enum della §2.2 `[O: tabella Parinfo dell'editor 1.0.2 dell'originale = blocco del firmware 3.92]`. In C: `typedef struct { uint8_t p[135]; } snd_patch_t;` più un `enum` con gli indici (`SND_P_VER = 0`, …, `SND_P_RPTSTEREO = 134`).
 - **SND-102** Ogni byte **DEVE** essere ≤ 127. Al caricamento i valori fuori range vengono limitati (`clamp`) al massimo del parametro, senza errore.
 - **SND-103** Tutti i campi **DEVONO** essere conservati anche quando non sono usati dal modello attivo: oscillatori in RP, campi RP in VA, SHAPE in FM, P1–P6 di un FX con tipo OFF o intensità 0. I preset contano su slot FX "parcheggiati" (tipo scelto, intensità a 0) e l'interruttore FX alterna il tipo lasciando i valori `[O]`.
 - **SND-104** `VER` (idx 0) **DEVE** valere 2 in ogni patch scritta da Stame. Una patch con `VER = 0` (formato vecchio) **DEVE** essere caricata così com'è, segnalando all'interfaccia che è "legacy": nel formato 0 l'elenco delle sorgenti della matrice era probabilmente diverso `[D]` `[V → QA-SND-25]`.
 
 ### 2.2 Mappa dei byte
 
-Fonte: Parinfo di Pistil 1.0.2 = firmware 3.92 `[O]`. "Def" è il default della tabella Parinfo; "INIT" è il valore scritto dalla patch INIT del modello (§2.5). Dove non diversamente indicato il range è 0–127.
+Fonte: Parinfo dell'editor 1.0.2 dell'originale = firmware 3.92 `[O]`. "Def" è il default della tabella Parinfo; "INIT" è il valore scritto dalla patch INIT del modello (§2.5). Dove non diversamente indicato il range è 0–127.
 
 | Idx | Nome | Range | Def | Significato e codifica |
 |---:|---|---|---:|---|
@@ -134,8 +134,8 @@ Fonte: Parinfo di Pistil 1.0.2 = firmware 3.92 `[O]`. "Def" è il default della 
 | 4 | GLIDE | | 0 | Tempo di glide (§4.1). 0 = spento. |
 | 5 | GLIDEMODE | 0–3 | 0 | 0 = POLY, 1 = POLY LEGATO, 2 = MONO, 3 = MONO LEGATO. |
 | 6 | BENDRANGE | 0–12 | 2 | Semitoni del pitch bend. |
-| 7 | UNISON | 0–4 | 0 | Unisono; nessun controllo in Pistil (§5.5). |
-| 8 | UDETUNE | | 0 | Detune dell'unisono; nessun controllo in Pistil. |
+| 7 | UNISON | 0–4 | 0 | Unisono; nessun controllo nell'editor dell'originale (§5.5). |
+| 8 | UDETUNE | | 0 | Detune dell'unisono; nessun controllo nell'editor dell'originale. |
 | 9 | HPKT | | 0 | Keytrack del passa-alto di tastiera. |
 | 10–14 | O1SHAPE, O1SEMI, O1DETUNE, O1PW, O1GAIN | | 1, 64, 64, 64, 64 | Oscillatore 1. SHAPE 0–3: OFF, SAW, PULSE, TRI. SEMI e DETUNE bipolari (64 = 0). In FM: PW = livello dell'operatore, GAIN = sensibilità alla velocity. |
 | 15–19 | O2… | | 0, 64, 64, 64, 0 | Oscillatore 2, come sopra. |
@@ -148,7 +148,7 @@ Fonte: Parinfo di Pistil 1.0.2 = firmware 3.92 `[O]`. "Def" è il default della 
 | 34 | PINK | 0–1 | 0 | 0 = WHITE, 1 = PINK. |
 | 35–39 | E1A, E1H, E1D, E1S, E1R | | 0, 0, 64, 64, 64 | Inviluppo 1 (filtro). |
 | 40–44 | E2A … E2R | | 0, 0, 64, 127, 64 | Inviluppo 2 (ampiezza). |
-| 45–49 | E3A … E3R | | 0, 0, 64, 127, 64 | Inviluppo 3; Pistil chiama "DELAY" il secondo stadio (§8.1). |
+| 45–49 | E3A … E3R | | 0, 0, 64, 127, 64 | Inviluppo 3; l'editor dell'originale chiama "DELAY" il secondo stadio (§8.1). |
 | 50–54 | E4A … E4R | | 0, 0, 64, 127, 64 | Inviluppo 4, come il 3. |
 | 55–57 | L1SHAPE, L1RATE, L1MODE | 0–6, 0–127, 0–3 | 0, 0, 0 | LFO 1. SHAPE: SINE, TRI, SQU, SAW, SAW−, RAND, S&H. MODE: RESET, FREE, MONO, ONESHOT. |
 | 58–60 | L2… | | 0, 0, 0 | LFO 2. |
@@ -199,10 +199,10 @@ Servono all'interfaccia e agli editor; il `dsp` le espone come funzioni pure.
 
 | Grandezza | Formula | Fonte |
 |---|---|---|
-| Percentuale stile Pistil | `floor(raw * 100 / 127)` | `[O]` 92 → 72 %, 63 → 49 % |
-| Bipolare stile Pistil | `(raw − 64) / 1.28` % (±50 %) | `[M]` matrice ±50 % |
-| Display Orchid per Reverb e FX | `d = round(raw / 12.7)`; `d = 0` → "Off", altrimenti due cifre "01"–"10" | `[O]` 92 → 07, 63 → 05, 13 → 01, 0 → Off |
-| Display Orchid per Filter | raw a tre cifre, "000"–"127" | `[O]` |
+| Percentuale come nell'editor dell'originale | `floor(raw * 100 / 127)` | `[O]` 92 → 72 %, 63 → 49 % |
+| Bipolare come nell'editor dell'originale | `(raw − 64) / 1.28` % (±50 %) | `[M]` matrice ±50 % |
+| Display dell'originale per Reverb e FX | `d = round(raw / 12.7)`; `d = 0` → "Off", altrimenti due cifre "01"–"10" | `[O]` 92 → 07, 63 → 05, 13 → 01, 0 → Off |
+| Display dell'originale per Filter | raw a tre cifre, "000"–"127" | `[O]` |
 | Normalizzazione verso un host | `raw / 127`; enum `indice / (n − 1)`; BENDRANGE `/ 12` | `[O]` |
 | Tempo libero del delay in % | `round((raw − 3) / 124 * 100)` per raw ≥ 3 | `[O]` |
 
@@ -210,7 +210,7 @@ Servono all'interfaccia e agli editor; il `dsp` le espone come funzioni pure.
 
 ### 2.4 Patch INIT
 
-- **SND-110** Stame **DEVE** avere tre patch INIT, una per modello (`INIT - VA`, `INIT - REED PIANO`, `INIT - FM`), con i valori scritti dal frontend di Pistil 1.0.2 `[O]`:
+- **SND-110** Stame **DEVE** avere tre patch INIT, una per modello (`INIT - VA`, `INIT - REED PIANO`, `INIT - FM`), con i valori scritti dal frontend dell'editor 1.0.2 dell'originale `[O]`:
   - VER 2, MODEL scelto, FMALG 0, HIGHPASS / GLIDE / HPKT 0, GLIDEMODE POLY, BENDRANGE 2, UNISON e UDETUNE 0;
   - OSC1: SAW, SEMI / DETUNE / PW / GAIN 64; OSC2–4: OFF, SEMI / DETUNE / PW 64, GAIN 0;
   - O4KT KEYTRACK, O4SYNC 0, O4FB 0, NOISE 0, WHITE;
@@ -222,9 +222,9 @@ Servono all'interfaccia e agli editor; il `dsp` le espone come funzioni pure.
   - campi RP: in `INIT - REED PIANO` HEIGHT 64, DISTANCE 64, KT 64, NORMAL, DECAY 110, RELEASE 32, TONE 64, VELCURVE 90, CLANK 32, CLANCURVE 32, CKT 32, TREMOLO 0, TREMRATE 80, VOL 64, HAMMER 16, KEYOFF 16, STEREO 0; negli altri due INIT i default Parinfo.
 - **SND-111** All'avvio, se mancano i banchi di preset (§2.7), il Sound **DEVE** caricare `INIT - VA` e il Bass una patch di basso di Stame (§9).
 
-### 2.5 File `.inc` di Pistil
+### 2.5 File `.inc` dell'editor dell'originale
 
-- **SND-120** Stame **DEVE** leggere e scrivere i file `.inc` di Pistil `[M: 5 file reali distribuiti dal produttore]`. Formato esatto in scrittura:
+- **SND-120** Stame **DEVE** leggere e scrivere i file `.inc` dell'editor dell'originale `[M: 5 file reali distribuiti dal produttore]`. Formato esatto in scrittura:
   - ASCII senza BOM, **135 righe** separate da **CRLF**, **senza** a capo dopo l'ultima;
   - riga *i*: `0x` + due cifre esadecimali **maiuscole** + `,` + TAB + `//` + indice decimale + spazio + `TREBLE_` + nome (§2.2);
   - dimensione sempre **3414 byte**;
@@ -239,15 +239,15 @@ Servono all'interfaccia e agli editor; il `dsp` le espone come funzioni pure.
 ```
 
 - **SND-121** In lettura il parser **DEVE** essere tollerante: accetta LF o CRLF, esadecimale minuscolo, spazi al posto del TAB, a capo finale, prefissi `TREBLE_` o `BASS_`. Il valore viene preso dall'esadecimale e l'indice dalla posizione della riga; se il commento riporta un indice diverso dalla posizione, il file viene rifiutato. Un file con meno di 135 righe valide viene rifiutato.
-- **SND-122** Lettura e riscrittura di un `.inc` valido scritto da Pistil **DEVONO** dare un file identico byte per byte (test T-SND-20).
+- **SND-122** Lettura e riscrittura di un `.inc` valido scritto dall'editor dell'originale **DEVONO** dare un file identico byte per byte (test T-SND-20).
 
 ### 2.6 Maschera FX lock
 
-- **SND-125** Con il flag `DSP_LOAD_FXLOCK`, `dsp_load_patch` **NON DEVE** sovrascrivere: FX1TYPE, FX1P1–P6, FX2TYPE, FX2P1–P6, REVSEND, REVSIZE, REVLP, REVHP, FTYPE, CUTOFF, RESONANCE, FENV, FVELO, FKT `[O: elenco letterale di shouldSkipFxParameter in Pistil]`. Che l'FX lock dell'Orchid usi la stessa maschera non è verificato `[V → QA-SND-22]`.
+- **SND-125** Con il flag `DSP_LOAD_FXLOCK`, `dsp_load_patch` **NON DEVE** sovrascrivere: FX1TYPE, FX1P1–P6, FX2TYPE, FX2P1–P6, REVSEND, REVSIZE, REVLP, REVHP, FTYPE, CUTOFF, RESONANCE, FENV, FVELO, FKT `[O: elenco letterale di shouldSkipFxParameter nell'editor dell'originale]`. Che l'FX lock dell'originale usi la stessa maschera non è verificato `[V → QA-SND-22]`.
 
 ### 2.7 Banchi di preset su disco
 
-- **SND-130** Il repository e i pacchetti distribuiti di Stame **NON DEVONO** contenere i valori dei preset di fabbrica dell'Orchid. Se l'utente li possiede, li mette in una cartella dati (percorso in `50-piattaforma-flip.md`) e Stame li carica a runtime.
+- **SND-130** Il repository e i pacchetti distribuiti di Stame **NON DEVONO** contenere i valori dei preset di fabbrica dell'originale. Se l'utente li possiede, li mette in una cartella dati (percorso in `50-piattaforma-flip.md`) e Stame li carica a runtime.
 - **SND-131** Un banco è una cartella con un indice testuale `bank.idx` e un `.inc` per voce. Ogni riga dell'indice: `NN<TAB>Nome<TAB>file.inc<TAB>perform_mode<TAB>perform_amount` (gli ultimi due campi sono definiti in `10-accordi-e-performance.md`; per i bassi valgono 0). Banchi previsti:
   - `sound/`: 70 slot di fabbrica, numerati 01–70;
   - `bass/`: 12 slot di fabbrica, numerati 01–12;
@@ -358,7 +358,7 @@ Valida per VA e FM; per RP vedi §7.3.
 
 ### 5.5 Unisono
 
-- **SND-270** UNISON e UDETUNE **DEVONO** essere conservati ma ignorati dal suono: nessun preset li usa e Pistil non li espone `[O]` `[V → QA-SND-19]`. La sorgente di matrice UNISON vale 0.
+- **SND-270** UNISON e UDETUNE **DEVONO** essere conservati ma ignorati dal suono: nessun preset li usa e l'editor dell'originale non li espone `[O]` `[V → QA-SND-19]`. La sorgente di matrice UNISON vale 0.
 
 ---
 
@@ -378,7 +378,7 @@ Inviluppi, LFO, matrice, filtro e amplificatore sono quelli comuni (§4, §8) `[
 ### 6.2 Operatori
 
 - **SND-300** 4 operatori sinusoidali in modulazione di fase. Frequenza dell'operatore *i* come in SND-201 (SEMI e DETUNE dell'oscillatore *i*), quindi i rapporti sono in semitoni temperati: +12 = 2:1, +19 ≈ 2,997:1 `[D]`. O4KT = FIXED vale anche in FM (SND-202).
-- **SND-301** Campi riusati in FM `[O: etichette del frontend di Pistil]`:
+- **SND-301** Campi riusati in FM `[O: etichette del frontend dell'editor dell'originale]`:
   - `OnPW` = **livello** dell'operatore (GAIN);
   - `OnGAIN` = **sensibilità alla velocity** (VELOCITY);
   - `O4FB` = feedback dell'operatore 4;
@@ -391,7 +391,7 @@ Inviluppi, LFO, matrice, filtro e amplificatore sono quelli comuni (§4, §8) `[
 
 ### 6.3 Algoritmi
 
-Il testo del manuale descrive 8 routing con l'OSC 4 come portante `[M]`, ma i preset di fabbrica sono compatibili con una numerazione **speculare** (portante OP1) per gli algoritmi "1", "2", "5", "6", mentre "8" si comporta come 4 portanti in parallelo `[D]`. La fonte giusta sono i diagrammi `FM1.png`–`FM8.png` dentro Pistil, non ancora visti.
+Il testo del manuale descrive 8 routing con l'OSC 4 come portante `[M]`, ma i preset di fabbrica sono compatibili con una numerazione **speculare** (portante OP1) per gli algoritmi "1", "2", "5", "6", mentre "8" si comporta come 4 portanti in parallelo `[D]`. La fonte giusta sono i diagrammi `FM1.png`–`FM8.png` dentro l'editor dell'originale, non ancora visti.
 
 - **SND-310** Stame **DEVE** implementare questa tabella, definita in un solo punto del codice per poterla correggere `[V → QA-SND-11]`:
 
@@ -464,7 +464,7 @@ Modello fisico di piano elettrico a lamelle anni '60, con campioni dei rumori me
 
 ### 7.3 Cosa resta attivo in RP
 
-Le fonti divergono: il manuale dice che spariscono oscillatori, filtro e parte della tastiera e restano inviluppi, LFO, Reverb e FX `[M]`; Pistil 1.0.2 nasconde anche inviluppi, LFO, NOISE, KEYBOARD e matrice `[O]`.
+Le fonti divergono: il manuale dice che spariscono oscillatori, filtro e parte della tastiera e restano inviluppi, LFO, Reverb e FX `[M]`; l'editor 1.0.2 dell'originale nasconde anche inviluppi, LFO, NOISE, KEYBOARD e matrice `[O]`.
 
 - **SND-360** In RP Stame **DEVE** applicare `[V → QA-SND-15]`:
   - **sì**: GAIN, PAN, BENDRANGE, GLIDEMODE, matrice e LFO limitati alle destinazioni PITCH, VOLUME e PAN, FX1, FX2, REVSEND;
@@ -475,7 +475,7 @@ Le fonti divergono: il manuale dice che spariscono oscillatori, filtro e parte d
 
 ## 7b. Modello SMP: il campionatore di Stame
 
-Aggiunta di Stame, decisa il 15/10/2026 (Luigi: «se possibile scarica e aggiungi dei samples magari di strumenti noti»; regola «tutto l'Orchid, e di più»). L'Orchid non ha un campionatore: il modello esiste solo nelle patch di Stame (MODEL = 3) e non altera gli altri tre. `src/dsp/smp.c`, `tools/campioni.py`, test T-SND-50…54 (`tests/unit/test_smp.c`).
+Aggiunta di Stame, decisa il 15/10/2026 (Luigi: «se possibile scarica e aggiungi dei samples magari di strumenti noti»; regola «tutto l'originale, e di più»). L'originale non ha un campionatore: il modello esiste solo nelle patch di Stame (MODEL = 3) e non altera gli altri tre. `src/dsp/smp.c`, `tools/campioni.py`, test T-SND-50…54 (`tests/unit/test_smp.c`).
 
 ### 7b.1 Schema
 
@@ -508,7 +508,7 @@ Aggiunta di Stame, decisa il 15/10/2026 (Luigi: «se possibile scarica e aggiung
   - hold a 1 per `T_hold(H)`;
   - decay esponenziale verso `S = raw / 127` con tempo `T_dec(D)` per −60 dB;
   - release esponenziale verso 0 con `T_dec(R)`, dal livello corrente.
-- **SND-402** Per ENV3 ed ENV4 Pistil chiama il secondo stadio **DELAY** invece di HOLD `[O]`. Default di Stame: è un HOLD come per ENV1 ed ENV2 `[V → QA-SND-16]`. Il codice **DEVE** prevedere la variante DADSR (ritardo prima dell'attacco), attivabile con un flag.
+- **SND-402** Per ENV3 ed ENV4 l'editor dell'originale chiama il secondo stadio **DELAY** invece di HOLD `[O]`. Default di Stame: è un HOLD come per ENV1 ed ENV2 `[V → QA-SND-16]`. Il codice **DEVE** prevedere la variante DADSR (ritardo prima dell'attacco), attivabile con un flag.
 - **SND-403** Le destinazioni `ENVnT` scalano tutti i tempi dell'inviluppo *n* per `2^(4m)`, con `m` la modulazione (§8.3): positivo = più lento `[V → QA-SND-18]`. Le destinazioni `ENVnS` agiscono sul sustain in raw.
 
 ### 8.2 LFO
@@ -602,13 +602,13 @@ Aggiunta di Stame, decisa il 15/10/2026 (Luigi: «se possibile scarica e aggiung
 
 ### 10.2 Regole comuni degli slot
 
-- **SND-505** Gli effetti leggono i parametri direttamente dalla patch del motore (come `mfx::update` di Pistil `[O]`): un `dsp_setpar` su un parametro FX ha effetto dal blocco successivo, con lo smoothing di SND-041. Gli LFO di chorus, ensemble, flanger e tremolo avanzano **per campione** (fase del blocco più rate·i), come il coefficiente del phaser: fermi per 16 campioni facevano saltare il ritardo di lettura fino a 5 campioni per blocco, cioè bande laterali a ±3 kHz a −44 dB (misura del 16/10/2026).
-- **SND-506** Con intensità 0 (P2, oppure P1 per il TREMOLO) ogni effetto **DEVE** essere inudibile: sull'Orchid il display mostra "Off" e i preset usano slot parcheggiati con intensità 0 `[O]`.
+- **SND-505** Gli effetti leggono i parametri direttamente dalla patch del motore (come `mfx::update` dell'editor dell'originale `[O]`): un `dsp_setpar` su un parametro FX ha effetto dal blocco successivo, con lo smoothing di SND-041. Gli LFO di chorus, ensemble, flanger e tremolo avanzano **per campione** (fase del blocco più rate·i), come il coefficiente del phaser: fermi per 16 campioni facevano saltare il ritardo di lettura fino a 5 campioni per blocco, cioè bande laterali a ±3 kHz a −44 dB (misura del 16/10/2026).
+- **SND-506** Con intensità 0 (P2, oppure P1 per il TREMOLO) ogni effetto **DEVE** essere inudibile: sull'originale il display mostra "Off" e i preset usano slot parcheggiati con intensità 0 `[O]`.
 - **SND-507** Un cambio di tipo **DEVE** fare una dissolvenza incrociata di 10 ms tra il vecchio e il nuovo effetto. I buffer del nuovo effetto si azzerano a pezzi (al massimo 4096 campioni per blocco) prima di essere usati, per non sforare il tempo di un blocco.
 
 ### 10.3 Tipi di FX1 e FX2
 
-Etichette dei parametri `[O: frontend di Pistil 1.0.2]`; descrizioni `[M]`; algoritmi e scale `[V → QA-SND-20]`. `d = P / 127`.
+Etichette dei parametri `[O: frontend dell'editor 1.0.2 dell'originale]`; descrizioni `[M]`; algoritmi e scale `[V → QA-SND-20]`. `d = P / 127`.
 
 | Tipo (raw) | P1 | P2 (intensità) | P3 | P4 | P5 | P6 | Algoritmo di Stame |
 |---|---|---|---|---|---|---|---|
@@ -621,11 +621,11 @@ Etichette dei parametri `[O: frontend di Pistil 1.0.2]`; descrizioni `[M]`; algo
 | TREMOLO (6) | RATE | DEPTH | PHASE: fase L/R 0–180° | | | | `g = 1 − d2·(1 − cos φ)/2`, fase iniziale 0: con RATE 0 il guadagno resta 1, quindi inudibile |
 | DELAY (7, solo FX2) | TIME | MIX | FEEDBACK | FILTER | SPREAD | HP | §10.4 |
 
-- **SND-510** La scelta "fase iniziale 0, guadagno 1" del tremolo **DEVE** essere mantenuta: rende inudibili sia gli slot con DEPTH 0 sia quelli con RATE 0, come richiedono gli slot parcheggiati dei preset `[D]`. Quale dei due sia davvero l'intensità sull'Orchid è da verificare `[V → QA-SND-20]`.
+- **SND-510** La scelta "fase iniziale 0, guadagno 1" del tremolo **DEVE** essere mantenuta: rende inudibili sia gli slot con DEPTH 0 sia quelli con RATE 0, come richiedono gli slot parcheggiati dei preset `[D]`. Quale dei due sia davvero l'intensità sull'originale è da verificare `[V → QA-SND-20]`.
 
 ### 10.4 Delay
 
-- **SND-520** TIME (`FX2P1`): raw 0 = **1/4**, 1 = **1/8**, 2 = **1/16** al BPM corrente; raw 3–127 = tempo libero `t_delay_free` `[O]` per la codifica, `[V → QA-SND-08]` per i millisecondi. Il delay segue il BPM dell'Orchid `[D: la routine BPM del firmware aggiorna il delay]` e `[M]`.
+- **SND-520** TIME (`FX2P1`): raw 0 = **1/4**, 1 = **1/8**, 2 = **1/16** al BPM corrente; raw 3–127 = tempo libero `t_delay_free` `[O]` per la codifica, `[V → QA-SND-08]` per i millisecondi. Il delay segue il BPM, come sull'originale `[D: la routine BPM del firmware aggiorna il delay]` e `[M]`.
 - **SND-521** Buffer di 2 s per canale (copre 1/4 fino a 30 BPM). Un cambio di tempo o di BPM **DEVE** essere morbido: il tempo di lettura scorre verso il nuovo valore con una costante di 50 ms, come un nastro `[M: delay "più morbidi" dal firmware 3.90]` `[V]`.
 - **SND-522** MIX: `y = x + d2 · wet` (il dry resta sempre a 1) `[V → QA-SND-08]`.
 - **SND-523** FEEDBACK: guadagno `d3`; a 127 vale 1,0 e le ripetizioni sono infinite `[M]`. Nel loop c'è un soft clip `tanh` che impedisce la crescita oltre ±1.
@@ -650,18 +650,18 @@ Etichette dei parametri `[O: frontend di Pistil 1.0.2]`; descrizioni `[M]`; algo
 
 ## 11. Controlli esposti e macro
 
-Sull'Orchid si regola solo l'intensità degli effetti e il filtro; il tipo degli effetti lo decide il preset e si cambia in Pistil `[M]`. Le macro scrivono sempre parametri della patch, così il salvataggio di un User Sound (suono + Perform + FX + filtro `[M]`) non richiede stato extra.
+Sull'originale si regola solo l'intensità degli effetti e il filtro; il tipo degli effetti lo decide il preset e si cambia nel suo editor `[M]`. Le macro scrivono sempre parametri della patch, così il salvataggio di un User Sound (suono + Perform + FX + filtro `[M]`) non richiede stato extra.
 
 - **SND-600** Il `dsp` (o il `core`, che poi chiama `dsp_setpar`) **DEVE** offrire queste macro sul motore **Sound**; il motore Bass non ha macro FX `[D]`.
 
 | Macro | Parametro scritto | Range | Display (§2.3) | Fonte |
 |---|---|---|---|---|
 | Reverb | REVSEND (114) | 0–127 | 0–10 / Off | `[O]` |
-| FX1 | FX1P2, oppure FX1P1 se FX1TYPE = TREMOLO | 0–127 | 0–10 / Off | `[O]` Pistil; Orchid `[V → QA-SND-20]` |
+| FX1 | FX1P2, oppure FX1P1 se FX1TYPE = TREMOLO | 0–127 | 0–10 / Off | `[O]` nell'editor dell'originale; sull'originale `[V → QA-SND-20]` |
 | FX2 | FX2P2, oppure FX2P1 se FX2TYPE = TREMOLO | 0–127 | 0–10 / Off | come sopra |
 | Filter | CUTOFF (68) | 0–127 | 000–127 | `[O]` |
 | FX1 on/off, FX2 on/off | FXnTYPE: 0 ↔ ultimo tipo non nullo (CHORUS se non ce n'è uno); P1–P6 restano | — | — | `[O]` |
-| Filter on/off | FTYPE: 0 ↔ LOWPASS | — | — | `[O]` Pistil; Orchid `[V → QA-SND-21]` |
+| Filter on/off | FTYPE: 0 ↔ LOWPASS | — | — | `[O]` nell'editor dell'originale; sull'originale `[V → QA-SND-21]` |
 | FX principale | la macro dello slot "principale" (SND-601) | 0–127 | 0–10 / Off | `[M]` |
 | FX lock | flag `DSP_LOAD_FXLOCK` ai cambi di suono (§2.6) | on/off | LED | `[M]` |
 | Volume master | `dsp_set_master_volume` | 0–99 | 0–99 | `[M]` |
@@ -675,7 +675,7 @@ Sull'Orchid si regola solo l'intensità degli effetti e il filtro; il tipo degli
 
 ## 12. Preset di fabbrica: nomi e categorie
 
-Solo nomi e categorie; i valori sono dati privati (§2.7). Il motore (VA, FM, RP) viene dal firmware 3.92 `[O]`; la categoria è una sintesi di Stame dal carattere del suono `[D]`. Nessuna fonte ufficiale assegna categorie ai singoli suoni, a parte LEAD / BASS / DRUM nel Sound Sampler dello shop `[M]`. Tutti i suoni sono attribuiti a Kevin Parker `[M]`.
+Solo nomi e categorie; i valori sono dati privati (§2.7). Il motore (VA, FM, RP) viene dal firmware 3.92 `[O]`; la categoria è una sintesi di Stame dal carattere del suono `[D]`. Nessuna fonte ufficiale assegna categorie ai singoli suoni, a parte LEAD / BASS / DRUM nel Sound Sampler dello shop `[M]`. Tutti i suoni sono attribuiti a uno stesso autore `[M]`.
 
 - **SND-650** La lista dei Sound **DEVE** usare questi numeri e queste grafie, maiuscole e apostrofi compresi (es. "Raphael's Defeat", "90s Hit", "Upsidedown", "Whoops A Daisy", "Plumerai La Tete", "SNES") `[O]`.
 
@@ -685,7 +685,7 @@ Totale: 48 VA, 16 FM, 6 RP `[O]`.
 
 | N | Nome | Motore | Categoria |
 |---:|---|---|---|
-| 01 | Orchid EP | RP | piano elettrico |
+| 01 | EP | RP | piano elettrico |
 | 02 | Ghost | VA | pad / pluck |
 | 03 | Analog Flower | VA | pluck |
 | 04 | Cherry Blossom | VA | pad |
@@ -712,7 +712,7 @@ Totale: 48 VA, 16 FM, 6 RP `[O]`.
 | 25 | Space Harpsi | VA | tastiera (clavicembalo) |
 | 26 | Organ With Fifth | FM | organo |
 | 27 | Fighter Jet | VA | lead / pad |
-| 28 | Orchid Forest | FM | tastiera |
+| 28 | Forest | FM | tastiera |
 | 29 | Rise And Shine | VA | brass / pad |
 | 30 | Shouting | VA | lead / brass |
 | 31 | Nebula Swamp | VA | pluck |
@@ -758,7 +758,7 @@ Totale: 48 VA, 16 FM, 6 RP `[O]`.
 
 ### 12.2 I 12 bassi
 
-Nomi dal firmware `[O]`; motore e parametri non noti; carattere dedotto solo dal nome `[D]`. Lo shop scrive "ORC808" e "Rezdist Bass" `[M]`: Stame usa le grafie del firmware.
+Nomi dal firmware `[O]`; motore e parametri non noti; carattere dedotto solo dal nome `[D]`. Lo shop scrive due di questi nomi in un'altra grafia `[M]`: Stame usa quelle del firmware.
 
 | N | Nome | Carattere [D] |
 |---:|---|---|
@@ -767,7 +767,7 @@ Nomi dal firmware `[O]`; motore e parametri non noti; carattere dedotto solo dal
 | 03 | Klub bass | basso da club |
 | 04 | PBass | basso elettrico tipo Precision |
 | 05 | Thriller | basso synth anni '80 |
-| 06 | Orch808 | sub tipo 808 |
+| 06 | 808 | sub tipo 808 |
 | 07 | RP chill bass | Reed Piano morbido |
 | 08 | Fuzzy | basso distorto |
 | 09 | Fifth Organ Bass | organo con quinta |
@@ -777,7 +777,7 @@ Nomi dal firmware `[O]`; motore e parametri non noti; carattere dedotto solo dal
 
 ### 12.3 User Sound
 
-- **SND-655** 30 slot User Sound, "U01"–"U30", dopo i 70 di fabbrica; ognuno salva la patch del Sound (FX e filtro compresi) e il Perform `[M]`. Gli indici MIDI corrispondenti sono 70–99 `[O]`. Gli slot per bassi utente esistono in Pistil ma non sono confermati sull'Orchid `[O]`: Stame non li prevede nella modalità fedele.
+- **SND-655** 30 slot User Sound, "U01"–"U30", dopo i 70 di fabbrica; ognuno salva la patch del Sound (FX e filtro compresi) e il Perform `[M]`. Gli indici MIDI corrispondenti sono 70–99 `[O]`. Gli slot per bassi utente esistono nell'editor dell'originale ma non sono confermati sull'originale `[O]`: Stame non li prevede nella modalità fedele.
 
 ---
 
@@ -798,7 +798,7 @@ Dettagli della piattaforma (RK3566, 4 × Cortex-A55, frequenze, affinità dei th
 | **Totale caso peggiore** | **~3800** | ≈ 182 Mcicli/s ≈ 10 % di un core a 1,8 GHz |
 
 - **SND-700** Nel caso peggiore (16 voci VA con 4 oscillatori attivi, ENSEMBLE in FX1 e DELAY in FX2 su entrambi i motori, riverbero attivo) il `dsp` **DEVE** usare al massimo il **30 %** di un core A55 della Flip, misurato con il benchmark T-SND-40. Il margine copre l'errore della stima.
-- **SND-701** Il `dsp` **DEVE** usare `float` a 32 bit; niente fixed-point e niente `double` nel percorso audio. Motivi: l'A55 ha FPU e NEON, l'originale gira su un Cortex-M7 con FPU, e Pistil rende in `float` `[O]`. Lo stesso codice deve poter girare su un futuro hardware dedicato.
+- **SND-701** Il `dsp` **DEVE** usare `float` a 32 bit; niente fixed-point e niente `double` nel percorso audio. Motivi: l'A55 ha FPU e NEON, l'originale gira su un Cortex-M7 con FPU, e il suo editor rende in `float` `[O]`. Lo stesso codice deve poter girare su un futuro hardware dedicato.
 - **SND-702** Il codice di riferimento **DEVE** essere C11 scalare portabile. Una versione NEON (4 voci per vettore `float32x4_t`, layout SoA delle voci) **PUÒ** esistere in `dsp/neon/`, attivata da `STAME_DSP_NEON`, con risultati entro −90 dB dalla versione scalare (T-SND-41).
 - **SND-703** Il thread audio **DEVE** girare con flush-to-zero dei denormali (FPCR.FZ su AArch64, impostato da `platform`; dal 15/10/2026 lo fa il callback di `audio.c` a ogni periodo). In più le linee con feedback (filtri, riverbero, delay) **DOVREBBERO** azzerare gli stati sotto 1e−15 una volta per blocco, per non dipendere dal flag.
 - **SND-704** Memoria statica indicativa: 16 voci + 4 slot di coda ≤ 2 KB ciascuno; delay 2 motori × 2 canali × 2 s × 48 kHz × 4 B ≈ 1,5 MB; linee di chorus, ensemble, flanger e phaser 4 slot × 2 canali × 4096 campioni ≈ 128 KB; riverbero ≤ 256 KB; tabelle (seno 2048 punti, curve 128 punti) ≤ 32 KB. Totale < 2,5 MB. Per l'hardware futuro: l'originale ha circa 564 KB di RAM interna `[O]`, quindi i suoi buffer di delay sono certamente più piccoli `[D]` (QA-SND-08).
@@ -834,7 +834,7 @@ Dettagli della piattaforma (RK3566, 4 × Cortex-A55, frequenze, affinità dei th
 | T-SND-16 | Delay a 120 BPM, TIME 0/1/2 | ritardo 500/250/125 ms ±1 campione |
 | T-SND-17 | Delay FEEDBACK 127, 60 s | ripetizioni che non decadono più di 1 dB ciascuna e picco ≤ 1,0 |
 | T-SND-18 | Intensità 0 su tutti i tipi FX | uscita identica al bypass entro −90 dB (SND-506) |
-| T-SND-20 | `.inc`: lettura e riscrittura di file di prova nel formato Pistil | identità byte per byte, 3414 byte |
+| T-SND-20 | `.inc`: lettura e riscrittura di file di prova nel formato dell'editor dell'originale | identità byte per byte, 3414 byte |
 | T-SND-21 | `.inc` con LF, minuscole, spazi | caricato; indice incoerente → rifiutato |
 | T-SND-22 | `dsp_load_patch` con FX lock | i 24 campi della maschera restano invariati |
 | T-SND-30 | Pool: 17 note sul Sound | la 17ª ruba secondo SND-023 |
@@ -849,7 +849,7 @@ Dettagli della piattaforma (RK3566, 4 × Cortex-A55, frequenze, affinità dei th
 
 ### 14.4 Confronto con l'originale e calibrazione delle curve
 
-- **SND-820** Ogni default `[V]` di §3 **DEVE** avere un test di calibrazione: una serie di `.inc` che cambia un solo parametro (raw 0, 16, 32, …, 112, 127) su una patch semplice (un oscillatore SAW, filtro aperto, nessun FX), da suonare in Pistil standalone a 48 kHz e, quando possibile, sull'Orchid (uscita cuffie). Pistil sembra usare lo stesso DSP dell'hardware, ma la bit-identità non è provata `[D]` (QA-SND-32).
+- **SND-820** Ogni default `[V]` di §3 **DEVE** avere un test di calibrazione: una serie di `.inc` che cambia un solo parametro (raw 0, 16, 32, …, 112, 127) su una patch semplice (un oscillatore SAW, filtro aperto, nessun FX), da suonare nell'editor standalone dell'originale a 48 kHz e, quando possibile, sull'originale (uscita cuffie). L'editor sembra usare lo stesso DSP dell'hardware, ma la bit-identità non è provata `[D]` (QA-SND-32).
 - **SND-821** Misure da ricavare: frequenza di taglio a −3 dB (rumore bianco), tempi degli inviluppi (soglie −3 dB e −60 dB), frequenza degli LFO (LFO → PITCH), tempo del glide, millisecondi del delay libero, RT60 del riverbero, livelli in dB di GAIN e del volume master. I risultati sostituiscono le tabelle di `dsp/curves.c` (SND-150).
 - **SND-822** Criteri di confronto preset per preset, sulla stessa sequenza di note: spettro medio a 1/3 d'ottava entro ±3 dB tra 100 Hz e 10 kHz; inviluppo RMS (finestre di 10 ms) entro ±1 dB e tempi entro ±10 %; intonazione entro ±1 cent; per gli effetti modulati, frequenza della modulazione entro ±5 %.
 
@@ -859,7 +859,7 @@ Dettagli della piattaforma (RK3566, 4 × Cortex-A55, frequenze, affinità dei th
 
 | ID | Questione | Default attuale | Come verificarla |
 |---|---|---|---|
-| QA-SND-01 | Frequenza di campionamento, profondità in bit, DAC e oversampling dell'Orchid | 48 kHz, `float` | Spettro dall'uscita cuffie di una SAW acuta (immagini e alias); sigla del DAC dal teardown |
+| QA-SND-01 | Frequenza di campionamento, profondità in bit, DAC e oversampling dell'originale | 48 kHz, `float` | Spettro dall'uscita cuffie di una SAW acuta (immagini e alias); sigla del DAC dal teardown |
 | QA-SND-02 | Criterio di voice stealing e priorità tra accordi e basso nel pool da 16 | SND-023 | Più di 16 note via MIDI sul canale 1 con un basso tenuto sul canale 2 |
 | QA-SND-03 | Il basso è monofonico? Polifonia via MIDI sul canale 2 | 1 voce | Due note sovrapposte sul canale 2 |
 | QA-SND-04 | Curve di cutoff, risonanza, passa-alto di tastiera e keytrack; pendenza e topologia del filtro | SVF 12 dB, curve di §3 | Calibrazione SND-820 con rumore bianco |
@@ -869,28 +869,28 @@ Dettagli della piattaforma (RK3566, 4 × Cortex-A55, frequenze, affinità dei th
 | QA-SND-08 | Delay: tempo libero in ms, tempo massimo (RAM dell'originale), significato di SPREAD e HP, MIX con o senza dry | §3, §10.4 | Impulsi nel delay con ogni parametro isolato |
 | QA-SND-09 | Algoritmo e grandezza del riverbero | FDN 8 linee | RT60 e densità degli echi da un impulso |
 | QA-SND-10 | Catena: riverbero a mandata o in serie; mandata prima o dopo gli FX; riverbero unico | mandata dopo FX2, unico | patch con DRIVE in FX2 e Reverb al massimo: coda distorta = serie, pulita = mandata |
-| QA-SND-11 | Topologia reale degli 8 algoritmi FM | SND-310 | Diagrammi `FM1.png`–`FM8.png` nel popup ROUTING di Pistil |
-| QA-SND-12 | Curva del livello degli operatori, indice di modulazione, scala del feedback, effetto di GAINn e PWn in FM | SND-302–304, SND-315 | Operatore singolo e coppia modulatore/portante a livelli noti in Pistil; prove con la matrice |
+| QA-SND-11 | Topologia reale degli 8 algoritmi FM | SND-310 | Diagrammi `FM1.png`–`FM8.png` nel popup ROUTING dell'editor dell'originale |
+| QA-SND-12 | Curva del livello degli operatori, indice di modulazione, scala del feedback, effetto di GAINn e PWn in FM | SND-302–304, SND-315 | Operatore singolo e coppia modulatore/portante a livelli noti nell'editor dell'originale; prove con la matrice |
 | QA-SND-13 | SHAPE in FM ignorato o forma d'onda dell'operatore | ignorato | Stessa patch FM con SHAPE diversi |
 | QA-SND-14 | Frequenza di riferimento di O4 FIXED | C4 + SEMI | Patch con il solo OSC4 FIXED |
 | QA-SND-15 | Modello RP: curve, rumori campionati; filtro, inviluppi, LFO e matrice in RP | §7, SND-360 | Registrazioni con un parametro RP alla volta; patch RP con CUTOFF basso; LFO → PITCH su una patch RP |
 | QA-SND-16 | ENV3/ENV4: secondo stadio HOLD o DELAY | HOLD | ENV3 → PITCH con H alto: il salto arriva dopo l'attacco (hold) o prima (delay)? |
 | QA-SND-17 | LFO: FREE per voce o per motore; MONO; differenza RAND / S&H; valore finale di ONESHOT | SND-411, SND-412 | Accordi con LFO → PITCH in ciascun modo |
 | QA-SND-18 | Matrice: curva della quantità, scala di ogni destinazione, sorgente 14 "?", UNISON | SND-420, tabella di §8.3 | Ogni destinazione con quantità note, misurata |
-| QA-SND-19 | UNISON e UDETUNE | ignorati | `.inc` con UNISON 1–4 in Pistil |
+| QA-SND-19 | UNISON e UDETUNE | ignorati | `.inc` con UNISON 1–4 nell'editor dell'originale |
 | QA-SND-20 | Algoritmi e scale degli FX; intensità del Tremolo su P1 o P2; DRIVE POST | §10.3 | Alzare P1 e P2 di un Tremolo separatamente; misure di ogni tipo |
-| QA-SND-21 | Regola dell'effetto "principale" dell'encoder FX; Filter on/off sull'Orchid | SND-601, FTYPE 0 ↔ LP | Prove sull'hardware; byte +0x26 e +0x27 dei record preset (non decodificati) |
-| QA-SND-22 | Maschera dell'FX lock sull'Orchid | maschera di Pistil | Cambio di suono con lock attivo e filtro modificato |
+| QA-SND-21 | Regola dell'effetto "principale" dell'encoder FX; Filter on/off sull'originale | SND-601, FTYPE 0 ↔ LP | Prove sull'hardware; byte +0x26 e +0x27 dei record preset (non decodificati) |
+| QA-SND-22 | Maschera dell'FX lock sull'originale | maschera dell'editor dell'originale | Cambio di suono con lock attivo e filtro modificato |
 | QA-SND-23 | Ruolo di `mbcpr3band` (compressore master o della batteria?) | non implementato, soft clip | Misure di dinamica sull'uscita con accordi forti e deboli |
-| QA-SND-24 | Parametri dei 12 bassi di fabbrica | patch di Stame | Lettura in Pistil, modalità B |
-| QA-SND-25 | Semantica di VER 0 (sorgenti della matrice) | caricata così com'è | Patch VER 0 aperta in Pistil |
+| QA-SND-24 | Parametri dei 12 bassi di fabbrica | patch di Stame | Lettura nell'editor dell'originale, modalità B |
+| QA-SND-25 | Semantica di VER 0 (sorgenti della matrice) | caricata così com'è | Patch VER 0 aperta nell'editor dell'originale |
 | QA-SND-26 | Curve di velocity (GVELO, FVELO, OnGAIN); velocity con Velocity Sense spento | SND-220, 100 | Note a velocity diverse, misura del livello |
 | QA-SND-27 | Fase iniziale degli oscillatori VA e degli operatori FM; PW su SAW e TRI | casuale VA, 0 FM; PW ignorato | Note ripetute registrate: forma d'onda all'attacco |
 | QA-SND-28 | Curve di volume (GAIN, GAIN dell'oscillatore, master, basso), headroom e saturazione del mixer | §3, SND-045, SND-265 | Misure di livello in dB |
 | QA-SND-29 | Scala del DETUNE (±1 semitono?) | ±1 semitono | Battimenti tra due oscillatori con DETUNE noti |
 | QA-SND-30 | Chi specifica la sintesi del kit di batteria e i Drum FX | `10-accordi-e-performance.md` | Decisione tra le sezioni |
 | QA-SND-31 | Comportamento esatto di POLY LEGATO | SND-204 | Note legate con inviluppo lento |
-| QA-SND-32 | Bit-identità tra Pistil e l'hardware | non assunta | Stesso preset registrato da Pistil e dall'Orchid, confronto SND-822 |
+| QA-SND-32 | Bit-identità tra l'editor dell'originale e l'hardware | non assunta | Stesso preset registrato dall'editor e dall'originale, confronto SND-822 |
 
 ## Dipendenze da altre sezioni
 

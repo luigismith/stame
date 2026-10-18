@@ -4,7 +4,7 @@ Questa sezione descrive come Stame gira sulla **Miyoo Flip** come app nativa: ha
 
 Il comportamento musicale (accordi, suono, interfaccia, mappa MIDI) sta nelle sezioni 10–40. Qui si definisce solo **dove** e **come** quel comportamento viene eseguito.
 
-> **Etichette in questa sezione.** Quasi nessun dato riguarda l'Orchid, quindi `[V]` indica un **default da verificare sulla Flip o sulla MPK mini Plus**. Ogni `[V]` rimanda a un test di piattaforma `T-PLT-nn` (§16) oppure a un test della guida alla Plus (`Plus §18 test n`). `[O]` = osservato o verificato sulla Flip; `[M]` = documentazione ufficiale (kernel Linux, spruceOS, PJRC, Akai); `[D]` = dedotto o proposto.
+> **Etichette in questa sezione.** Quasi nessun dato riguarda l'originale, quindi `[V]` indica un **default da verificare sulla Flip o sulla MPK mini Plus**. Ogni `[V]` rimanda a un test di piattaforma `T-PLT-nn` (§16) oppure a un test della guida alla Plus (`Plus §18 test n`). `[O]` = osservato o verificato sulla Flip; `[M]` = documentazione ufficiale (kernel Linux, spruceOS, PJRC, Akai); `[D]` = dedotto o proposto.
 
 ---
 
@@ -114,7 +114,7 @@ int  ui_flip_render(ui_flip_state_t *st, const ui_model_t *v, uint16_t fb[640 * 
 
 - **PLT-005** `[D]` La piattaforma **DEVE** parlare con il nucleo solo attraverso questa API e attraverso eventi semantici: `key(nota, velocity)`, `button(id, giù/su)`, `encoder(id, delta)`, `push(id)`, messaggi MIDI già interpretati (3 byte + porta + istante), `battery(percento)`, `device(connesso/perso)`.
 - **PLT-006** `[D]` `stame_t` **DEVE** avere un solo proprietario: il thread audio. Gli altri thread **NON DEVONO** leggerlo né scriverlo; ricevono snapshot e blob attraverso le code del §4.
-- **PLT-007** `[D]` `stame_render` **DEVE** accettare qualunque `n` multiplo di 16 fino a `max_frames` e lavorare internamente a blocchi di 16 campioni `[D]` (come il DSP di Pistil, vedi `20-suono.md`). Gli eventi ricevuti prima della chiamata si applicano all'inizio del primo blocco.
+- **PLT-007** `[D]` `stame_render` **DEVE** accettare qualunque `n` multiplo di 16 fino a `max_frames` e lavorare internamente a blocchi di 16 campioni `[D]` (come il DSP dell'editor dell'originale, vedi `20-suono.md`). Gli eventi ricevuti prima della chiamata si applicano all'inizio del primo blocco.
 - **PLT-008** `[D]` L'uscita del nucleo **DEVE** essere stereo, `float` non interlacciato, nominalmente in [−1, +1]. La conversione nel formato dell'hardware (S16, interlacciato) spetta alla piattaforma.
 
 ---
@@ -183,7 +183,7 @@ Il backend SDL2 resta per: la prima nota (F4, §15), il simulatore su PC e i cas
 - **PLT-023** `[D]` Se l'apertura ALSA fallisce (dispositivo occupato, parametri rifiutati), l'app **DEVE** passare da sola al backend SDL e scriverlo nel registro e in un avviso a schermo di 3 secondi.
 - **PLT-024** `[V]` T-PLT-01, T-PLT-02 Il dispositivo di default **DEVE** essere `hw:0,0` (scheda del codec interno, cercata per nome in `/proc/asound/cards` e non per numero fisso). Il valore si può forzare in `piattaforma.txt` (`alsa_device=`).
 - **PLT-025** `[V]` T-PLT-05 Stame **DEVE** aprire il PCM in modo esclusivo solo dopo l'uscita di PyUI. Se esiste un `asound.conf` con dmix, si usa comunque `hw` diretto.
-- **PLT-026** `[D]` Stame **NON DEVE** toccare il mixer ALSA (`Playback Path`, volumi di sistema): li gestisce spruce, che cambia uscita quando si inseriscono le cuffie `[O]`. Il volume di Stame è digitale, nel nucleo, come sull'Orchid. `[V]` T-PLT-15: il cambio di uscita deve funzionare anche con il PCM `hw` aperto da Stame.
+- **PLT-026** `[D]` Stame **NON DEVE** toccare il mixer ALSA (`Playback Path`, volumi di sistema): li gestisce spruce, che cambia uscita quando si inseriscono le cuffie `[O]`. Il volume di Stame è digitale, nel nucleo, come sull'originale. `[V]` T-PLT-15: il cambio di uscita deve funzionare anche con il PCM `hw` aperto da Stame.
 
 ### 5.2 Parametri
 
@@ -195,7 +195,7 @@ Il backend SDL2 resta per: la prima nota (F4, §15), il simulatore su PC e i cas
 | Periodi nel buffer | **2** (buffer 512 frame, 10,7 ms) | 3 | [V] T-PLT-03 |
 | `start_threshold` | 1 periodo | — | [D] |
 | `avail_min` | 1 periodo | — | [D] |
-| Rendering interno | blocchi da 16 campioni | — | [D] da Pistil, vedi `20-suono.md` |
+| Rendering interno | blocchi da 16 campioni | — | [D] dall'editor dell'originale, vedi `20-suono.md` |
 
 - **PLT-027** `[D]` Sample rate, periodo e numero di periodi **DEVONO** essere letti da `piattaforma.txt` e negoziati con `HW_REFINE`/`HW_PARAMS`. Il valore ottenuto **DEVE** essere scritto nel registro. Il periodo effettivo **DEVE** essere un multiplo di 16; se il driver ne impone uno diverso, la piattaforma rende a blocchi di 16 in un buffer intermedio statico.
 - **PLT-028** `[D]` Ciclo del thread audio (pseudocodice):
@@ -232,7 +232,7 @@ loop:
 | **Totale** | **circa 8–22 ms, media circa 13 ms** | [D]; [V] T-PLT-04 |
 | Confronto: SDL con 1024 campioni | circa 25–65 ms | [D] |
 
-La latenza dell'Orchid originale è sconosciuta (`Orchid - hardware e distinta per il clone`, tabella delle piattaforme).
+La latenza dell'originale è sconosciuta (le note private sull'hardware, tabella delle piattaforme).
 
 - **PLT-031** `[D]` La latenza tasto → suono **DEVE** stare sotto i **25 ms al 95° percentile** e **DOVREBBE** avere una mediana sotto i **15 ms** `[V]` T-PLT-04.
 - **PLT-032** `[D]` La piattaforma **DEVE** stimare la latenza interna per ogni Note On: `t_lettura` (marca del thread midi-in) → istante in cui il primo campione della nota esce dal DAC (posizione nel periodo + ritardo riportato da `SNDRV_PCM_IOCTL_DELAY`). L'istogramma va nel registro in modalità debug.
@@ -282,7 +282,7 @@ La latenza dell'Orchid originale è sconosciuta (`Orchid - hardware e distinta p
 - **PLT-048** `[D]` Il thread midi-out **DEVE** essere l'**unico** a scrivere sui fd MIDI (così non serve un mutex). Legge `q_midi_out` (dal nucleo) e `q_ui_out` (dalla UI) e scrive ogni messaggio con una sola `write()`.
 - **PLT-049** `[D]` Ogni messaggio del nucleo porta l'istante del campione a cui appartiene. Il thread midi-out **DOVREBBE** spedirlo all'istante in cui quel campione esce dal DAC (istante del campione + latenza di uscita stimata), con `clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME)`. Così clock e note in uscita restano allineati al suono. Jitter atteso del clock sotto 1 ms `[V]` T-PLT-04.
 - **PLT-050** `[D]` Il clock MIDI (24 PPQN, `FA`/`FC`) **DEVE** essere generato dal nucleo sul tempo dei campioni, non da un timer della piattaforma. Porte e regole stanno in `40-midi-e-controlli.md`.
-- **PLT-051** `[M]` `CLAUDE.md` del progetto: se in futuro Stame espone una porta MIDI con un nome (client del sequencer ALSA, gadget USB), il nome **NON DEVE** iniziare con «orchid» e il SysEx **NON DEVE** usare l'ID `00 22 0C`.
+- **PLT-051** `[M]` `CLAUDE.md` del progetto: se in futuro Stame espone una porta MIDI con un nome (client del sequencer ALSA, gadget USB), il nome **NON DEVE** iniziare con il nome dell'originale e il SysEx **NON DEVE** usare l'ID `00 22 0C`.
 
 ---
 
@@ -326,7 +326,7 @@ La latenza dell'Orchid originale è sconosciuta (`Orchid - hardware e distinta p
 - **PLT-059** `[O]` Il video **DEVE** usare SDL2 caricata a runtime con `dlopen` da `/mnt/SDCARD/App/PyUI/dll/libSDL2-2.0.so`, con una finestra KMSDRM a schermo intero alla risoluzione corrente e `SDL_RenderSetLogicalSize(640, 480)`.
 - **PLT-060** `[D]` Se quel percorso non esiste, la piattaforma **DEVE** provare `libSDL2-2.0.so.0` e `libSDL2.so` nei percorsi di sistema, poi uscire con un messaggio chiaro nel registro.
 - **PLT-061** `[D]` SDL **DEVE** essere inizializzata solo con `SDL_INIT_VIDEO` (più `SDL_INIT_AUDIO` se si usa il backend di riserva) e con `SDL_HINT_NO_SIGNAL_HANDLERS = "1"`, così i segnali li gestisce Stame (§12.2).
-- **PLT-062** `[D]` Sulla Flip **NON** si emula l'OLED 128×128 dell'Orchid (decisione di Luigi del 13/10/2026: «il display non deve essere clonato da orchid, ma visto che più grande, deve contenere tutto ciò che serve e/o è utile vedere in tempo reale»). `ui_flip` disegna la **plancia nativa** 640×480 descritta in `30-interfaccia.md` su un framebuffer software, che la piattaforma passa a SDL senza scalare (`SDL_HINT_RENDER_SCALE_QUALITY = "0"`).
+- **PLT-062** `[D]` Sulla Flip **NON** si emula l'OLED 128×128 dell'originale (decisione di Luigi del 13/10/2026: «il display non deve essere clonato dall'originale, ma visto che più grande, deve contenere tutto ciò che serve e/o è utile vedere in tempo reale»). `ui_flip` disegna la **plancia nativa** 640×480 descritta in `30-interfaccia.md` su un framebuffer software, che la piattaforma passa a SDL senza scalare (`SDL_HINT_RENDER_SCALE_QUALITY = "0"`).
 - **PLT-063** `[D]` Il framebuffer **DEVE** passare a SDL come texture streaming 640×480 aggiornata solo quando cambia, con il caricamento limitato ai rettangoli modificati se il costo si vede (`SDL_UpdateTexture` con `SDL_Rect`); la presentazione **DOVREBBE** usare il vsync e non superare i 60 Hz `[V]` T-PLT-11.
 
 ---
@@ -337,7 +337,7 @@ La latenza dell'Orchid originale è sconosciuta (`Orchid - hardware e distinta p
 
 | Percorso sulla SD | Contenuto | Scritto da |
 |---|---|---|
-| `/mnt/SDCARD/Saves/stame/impostazioni.txt` | impostazioni globali dello strumento (menu Settings dell'Orchid) | nucleo → blob → thread UI |
+| `/mnt/SDCARD/Saves/stame/impostazioni.txt` | impostazioni globali dello strumento (menu Settings dell'originale) | nucleo → blob → thread UI |
 | `/mnt/SDCARD/Saves/stame/stato.txt` | stato dell'ultima sessione: preset corrente, tonalità, BPM, viste | nucleo → blob → thread UI |
 | `/mnt/SDCARD/Saves/stame/preset/u<NNN>.stp` | preset utente (formato in `20-suono.md`: blocco da 135 byte per motore, con intestazione) | idem |
 | `/mnt/SDCARD/Saves/stame/loop/l<NN>.stl` | loop salvati (formato in `10-accordi-e-performance.md`) | idem |
@@ -453,7 +453,7 @@ stame/
   "label": "Stame",
   "icon": "icon.png",
   "launch": "launch.sh",
-  "description": "Synth ad accordi, clone dell'Orchid. Collega la MPK mini Plus alla porta USB-C di sopra.",
+  "description": "Synth ad accordi. Collega la MPK mini Plus alla porta USB-C di sopra.",
   "devices": ["MIYOO_FLIP"]
 }
 ```
@@ -516,14 +516,14 @@ STAME_SAVES="$SAVES" exec ./stame >> "$LOG" 2>&1
 
 ## 14. Portabilità verso Teensy 4.1
 
-Obiettivo: riusare `core`, `dsp`, `ui`, `gfx` e `ui_flip` sul Teensy 4.1 con Audio Shield senza modificarli, riscrivendo solo lo strato di piattaforma (circa il 10–20% del codice `[D]`, `Orchid - hardware e distinta per il clone` B5).
+Obiettivo: riusare `core`, `dsp`, `ui`, `gfx` e `ui_flip` sul Teensy 4.1 con Audio Shield senza modificarli, riscrivendo solo lo strato di piattaforma (circa il 10–20% del codice `[D]`, le note private sull'hardware B5).
 
 ### 14.1 Dati del bersaglio
 
-| Voce | Teensy 4.1 | Orchid originale (riferimento) | Etichetta |
+| Voce | Teensy 4.1 | Originale (riferimento) | Etichetta |
 |---|---|---|---|
 | CPU | Cortex-M7 600 MHz, FPU (`float` a singola precisione veloce) | STM32H723, M7 550 MHz | [M] PJRC, ST |
-| RAM | 1 MB: **RAM1** 512 KB (ITCM + DTCM, veloce, ci va anche il codice per default) + **RAM2** 512 KB (OCRAM, `DMAMEM`) | 564 KB in blocchi separati, il più grande circa 320 KB | [M] PJRC; [D] Orchid |
+| RAM | 1 MB: **RAM1** 512 KB (ITCM + DTCM, veloce, ci va anche il codice per default) + **RAM2** 512 KB (OCRAM, `DMAMEM`) | 564 KB in blocchi separati, il più grande circa 320 KB | [M] PJRC; [D] originale |
 | Flash | 8 MB; PSRAM opzionale fino a 16 MB | 1 MB | [M] |
 | Audio | Audio Library a 16 bit, 44,1 kHz, blocchi da 128 campioni (riducibili a 64 o 32) | sconosciuto | [M]/[D] |
 | Cicli per campione | 13 605 a 44,1 kHz | 11 458 a 48 kHz | [D] |
@@ -534,14 +534,14 @@ Obiettivo: riusare `core`, `dsp`, `ui`, `gfx` e `ui_flip` sul Teensy 4.1 con Aud
 - **PLT-098** `[D]` Budget di RAM del nucleo, controllato in compilazione con `_Static_assert` su `stame_mem_required` per la configurazione massima:
   - `fast` ≤ **128 KB** (stato delle voci, accordi, looper, interfaccia, code): sul Teensy va in DTCM;
   - `bulk` ≤ **320 KB** (riverbero, delay, chorus, buffer lunghi): sul Teensy va in RAM2 (`DMAMEM`);
-  - totale ≤ **448 KB**, in linea con la stima di 350–400 KB per l'Orchid `[D]`.
+  - totale ≤ **448 KB**, in linea con la stima di 350–400 KB per l'originale `[D]`.
   Un delay lungo **DEVE** poter usare campioni a 16 bit (1 s stereo a 48 kHz in float vale 384 KB e non entrerebbe).
 - **PLT-099** `[D]` Le tabelle costanti **DEVONO** essere `static const` e marcate con la macro `STAME_ROM` (vuota sulla Flip, `PROGMEM` sul Teensy, dove i dati costanti finiscono altrimenti in RAM1).
 - **PLT-100** `[D]` Solo `float` a 32 bit nel percorso audio: niente `double`, costanti con il suffisso `f`, funzioni `sinf`/`expf`/`powf` o tabelle (`-Wdouble-promotion` attivo). Niente VLA, niente ricorsione, stack del rendering ≤ 8 KB.
 - **PLT-101** `[D]` Sample rate come parametro (44 100 o 48 000): ogni costante di tempo si calcola all'init o al cambio di parametro, e le tabelle sono dimensionate per 48 kHz.
 - **PLT-102** `[D]` Il periodo della piattaforma **DEVE** essere un multiplo di 16 (Flip 256, Teensy 128, 64 o 32): il nucleo rende sempre a blocchi di 16.
 - **PLT-103** `[D]` Niente dipendenze dal sistema nel nucleo: casualità da un PRNG interno (xorshift32) con seme dato dalla piattaforma; tempo dal conteggio dei campioni; salvataggi come blob (§9).
-- **PLT-104** `[D]` Budget di CPU per il Teensy: con 16 voci ed effetti il `dsp` **DOVREBBE** stare sotto il **50%** della CPU a 600 MHz (circa 6 800 cicli per campione a 44,1 kHz). Si verifica al prototipo P0 (pronto quando: CPU sotto il 60%, nessun buco audio, latenza sotto i 10 ms) `[D]` `Orchid - hardware e distinta per il clone`. Sulla Flip non si misura: lì serve solo come vincolo di progetto.
+- **PLT-104** `[D]` Budget di CPU per il Teensy: con 16 voci ed effetti il `dsp` **DOVREBBE** stare sotto il **50%** della CPU a 600 MHz (circa 6 800 cicli per campione a 44,1 kHz). Si verifica al prototipo P0 (pronto quando: CPU sotto il 60%, nessun buco audio, latenza sotto i 10 ms) `[D]` le note private sull'hardware. Sulla Flip non si misura: lì serve solo come vincolo di progetto.
 - **PLT-105** `[D]` Le code SPSC **DEVONO** funzionare anche tra un interrupt e il `loop()` su un solo core (barriere di memoria di `<stdatomic.h>`, nessun lock).
 
 ### 14.3 Cosa cambia sul Teensy (fuori da questa specifica)
@@ -560,7 +560,7 @@ Callback audio (`AudioStream::update()` con conversione float → int16), driver
 | Fase | Contenuto | Pronto quando |
 |---|---|---|
 | **F0 — Repo e toolchain** | struttura del §10.2, `build.sh` (target `test`, `portabilita`), `stame_base.h`, `spsc.h` con test, runner dei test | `build.sh test` e `build.sh portabilita` passano sul PC; un «ciao» aarch64 compilato con Zig |
-| **F1 — Nucleo sul PC** | accordi, Secret Chords, nomi, voicing, Split/Octave, key mode, play style, parser MIDI e mappa MPK, blob (sezioni 10 e 40) | tutti i test unitari passano; i comportamenti `[V]` dell'Orchid hanno un default e un test |
+| **F1 — Nucleo sul PC** | accordi, Secret Chords, nomi, voicing, Split/Octave, key mode, play style, parser MIDI e mappa MPK, blob (sezioni 10 e 40) | tutti i test unitari passano; i comportamenti `[V]` dell'originale hanno un default e un test |
 | **F2 — Primo suono offline** | pool di voci, un motore (VA) con il basso, `stame-render`, primi test golden | un WAV da uno script di accordi ascoltato da Luigi; golden stabili |
 | **F3 — Simulatore su PC** | `ui`, `gfx` e `ui_flip` con la plancia, `platform/pc` (SDL2, tastiera, WinMM con la MPK sul PC) | si suona dal PC con la MPK; plancia uguale alle immagini di riferimento |
 | **F4 — Prima nota sulla Flip** | verifiche T-PLT-01, 02, 05, 06, 10 e Plus §18 test 1, 2, 25, 26, 27; backend SDL, poi ALSA diretto con tono di prova; rawmidi con la Plus; una voce | una nota dalla MPK sulla Flip; latenza misurata (T-PLT-04); 10 minuti senza underrun a 256×2 o configurazione aggiornata |
@@ -620,7 +620,7 @@ Luigi ha chiesto di vedere sulla Flip la nuova identità della plancia (`docs/id
 | Input letto sia da SDL sia da evdev | tasti «già premuti» | solo evdev (PLT-052) | [O] |
 | SDL di sistema con SONAME standard assente | `dlopen` fallisce | percorso di PyUI e alternative (PLT-059, 060) | [O] |
 | SDL audio con 512 campioni | underrun | ALSA diretto; con SDL 1024 (PLT-030) | [O] |
-| Altoparlante debole sotto 250–300 Hz | il basso dell'Orchid quasi sparisce all'altoparlante | per suonare: cuffie. Un eventuale esaltatore psicoacustico dei bassi va solo in appendice di `20-suono.md`, spento per default | [O]; rimedio [D] |
+| Altoparlante debole sotto 250–300 Hz | il basso dell'originale quasi sparisce all'altoparlante | per suonare: cuffie. Un eventuale esaltatore psicoacustico dei bassi va solo in appendice di `20-suono.md`, spento per default | [O]; rimedio [D] |
 | Spegnimento brusco | file scritti a metà, cartelle illeggibili sulla SD | scritture atomiche (PLT-067); spegnere sempre dal menu; in caso di danni `chkdsk /f` dal PC | [O] |
 | `spruce/flags` cancellata dagli aggiornamenti, `/tmp` svuotata al riavvio | dati persi | tutto sotto `Saves/` (PLT-064) | [O] |
 | «Text file busy» | il binario non si sovrascrive | chiudere l'app prima del deploy (PLT-094) | [O] |
@@ -641,7 +641,7 @@ Luigi ha chiesto di vedere sulla Flip la nuova identità della plancia (`docs/id
 
 1. **Parametri reali del PCM** (formati, periodo minimo, 44,1 o 48 kHz): default 48 kHz, S16_LE, 256 × 2 `[V]` T-PLT-02, T-PLT-03. Se il driver non regge 256, si ricalcola il budget del §5.3.
 2. **Underrun con 512 campioni in SDL**: non si sa se dipendevano dal driver o dallo scheduling di SDL. Lo dice T-PLT-03; se il driver non regge periodi piccoli, la latenza obiettivo (PLT-031) va rivista.
-3. **Latenza reale tasto → suono** e jitter: stime soltanto `[V]` T-PLT-04. La latenza dell'Orchid è sconosciuta, quindi non c'è un valore «fedele» da copiare.
+3. **Latenza reale tasto → suono** e jitter: stime soltanto `[V]` T-PLT-04. La latenza dell'originale è sconosciuta, quindi non c'è un valore «fedele» da copiare.
 4. **Root e `SCHED_FIFO`**: si presume che le app girino come root `[V]` T-PLT-06.
 5. **PCM libero e dmix**: si presume che il PCM sia libero dopo l'uscita di PyUI `[V]` T-PLT-05; da verificare anche il cambio di uscita cuffie/altoparlante con il PCM aperto `[V]` T-PLT-15.
 6. **Sospensione e coperchio**: comportamento di spruce sconosciuto `[V]` T-PLT-07.
@@ -651,7 +651,7 @@ Luigi ha chiesto di vedere sulla Flip la nuova identità della plancia (`docs/id
 10. **Consumo della MPK** dalla porta OTG e durata della batteria `[V]` Plus §18 test 1, T-PLT-09.
 11. **Dimensione dei blob dei loop** (proposta 32 KB) e dei preset: dipende dai formati di `10-accordi-e-performance.md` e `20-suono.md`.
 12. ~~Preset di fabbrica privati~~: **decisi il 13/10/2026**, caricati da `Saves/stame/privato/` (PLT-069).
-13. **Impostazione «Audio Output» dell'Orchid** (Auto, Headphones, Speakers, Both): sulla Flip l'uscita la sceglie spruce e Stame non tocca il mixer (PLT-026). Proposta: voce mostrata ma senza effetto sulla Flip; da concordare con `30-interfaccia.md`.
+13. **Impostazione «Audio Output» dell'originale** (Auto, Headphones, Speakers, Both): sulla Flip l'uscita la sceglie spruce e Stame non tocca il mixer (PLT-026). Proposta: voce mostrata ma senza effetto sulla Flip; da concordare con `30-interfaccia.md`.
 14. **Applicazione degli eventi con offset in campioni** (PLT-033): spenta per default; si accende se il jitter si sente.
 15. **tinyalsa incluso o ioctl scritte a mano**: da decidere in F4; non cambia l'interfaccia `plat_audio`.
 16. **Compilazione di prova Cortex-M7 con Zig** `[V]` T-PLT-16.

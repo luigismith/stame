@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Stame</title>
-<meta name="description" content="Stame: un clone fedele e aperto dell'Orchid, il synth ad accordi, cresciuto su una Miyoo Flip e suonato con una Akai MPK mini IV e un macro pad.">
+<meta name="description" content="Stame: un synth ad accordi, aperto. Una mano tiene il tipo d'accordo, l'altra suona la fondamentale, ed esce un accordo intero. Cresciuto su una Miyoo Flip, suonato con una Akai MPK mini IV e un macro pad.">
 <meta property="og:title" content="Stame · un synth ad accordi cresciuto su una console">
-<meta property="og:description" content="Un clone fedele e aperto dell'Orchid, il synth ad accordi, che gira su una Miyoo Flip con una Akai MPK mini IV e un macro pad a quindici tasti.">
+<meta property="og:description" content="Un synth ad accordi, aperto: tieni il tipo d'accordo, suona la fondamentale ed esce un accordo intero, con il suo voicing e il suo basso. Gira su una Miyoo Flip con una Akai MPK mini IV e un macro pad a quindici tasti.">
 <meta property="og:image" content="https://luigismith.github.io/stame/sito/img/plancia_notte.png">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#050C0B">
@@ -50,14 +50,14 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       <div class="specie">STAMEN HARMONICUM · TRIANDRIA</div>
     </div>
     <div>
-      <h1>Un clone fedele e aperto dell'<em>Orchid</em>, il synth ad accordi, cresciuto su una console.</h1>
-      <p class="intro">Tieni un tasto accordo, premi un tasto, ed esce un accordo con il suo voicing e il suo basso. Stame fa quello che fa l'Orchid — strum, arpeggi, pattern, beat, un looper — su una <strong>Miyoo Flip</strong>, suonata con una <strong>Akai MPK mini IV</strong> e un <strong>macro pad</strong> a quindici tasti. E poi, con più tasti e più potenza dell'originale, qualcosa in più.</p>
+      <h1>Un synth <em>ad accordi</em>, aperto, cresciuto su una console.</h1>
+      <p class="intro">Una mano tiene il tipo d'accordo (Dim, Min, Maj, Sus) e le estensioni (6, m7, M7, 9), l'altra suona la fondamentale, ed esce un accordo intero, con il suo voicing e il suo basso. Con le performance (strum, arpeggio, pattern, arpa), un Beat e un looper di eventi costruisci i loop mentre suoni: tutto si suona, niente si programma a passi. Stame fa tutto questo su una <strong>Miyoo Flip</strong>, suonata con una <strong>Akai MPK mini IV</strong> e un <strong>macro pad</strong> a quindici tasti. E poi, con più tasti, più manopole e più potenza dell'originale, qualcosa in più.</p>
       <div class="bottoni">
         <a class="bottone primo" href="https://github.com/luigismith/stame">Sorgenti su GitHub</a>
         <a class="bottone" href="#prova">Compilare e installare</a>
         <a class="bottone" href="https://github.com/luigismith/stame/blob/main/docs/manuale/manuale.md">Manuale</a>
       </div>
-      <p class="stato">Fase 1 · <b>vetrina 0.1</b> sulla Flip · fase 2: hardware dedicato · progetto indipendente, non affiliato a Telepathic Instruments</p>
+      <p class="stato">Fase 1 · <b>vetrina 0.1</b> sulla Flip · fase 2: hardware dedicato</p>
     </div>
   </div>
 </section>
@@ -70,13 +70,13 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     </div>
     <div class="due">
       <div class="prosa">
-        <p>L'<a href="https://telepathicinstruments.com/">Orchid</a> di Telepathic Instruments è un piccolo synth con otto tasti accordo a sinistra e un'ottava di tasti a destra. Tieni <em>Min</em> e premi Fa♯: esce un Fa♯ minore, nel registro che scegli con una manopola, con una nota di basso sotto. Aggiungi un'estensione (6, m7, M7, 9), lascia che una performance lo suoni per te (strum, arpeggio, pattern, arpa), accendi un beat, registra un loop, sovraincidi. È uno strumento per chi sente gli accordi prima di saperli chiamare per nome.</p>
+        <p>Stame nasce da un piccolo synth con otto tasti accordo a sinistra e un'ottava di tasti a destra. Tieni <em>Min</em> e premi Fa♯: esce un Fa♯ minore, nel registro che scegli con una manopola, con una nota di basso sotto. Aggiungi un'estensione (6, m7, M7, 9), lascia che una performance lo suoni per te (strum, arpeggio, pattern, arpa), accendi un beat, registra un loop, sovraincidi. È uno strumento per chi sente gli accordi prima di saperli chiamare per nome.</p>
         <p>Stame riproduce quel comportamento: la logica degli accordi, i Secret Chords, le finestre del voicing, la Key mode e il transpose, il basso, le performance, il beat e il looper, il MIDI. È descritto in una <a href="https://github.com/luigismith/stame/blob/main/docs/specifica/00-panoramica.md">specifica funzionale</a> scritta dal manuale pubblico e dall'osservazione, prima della prima riga di codice, e non contiene nessun dato di fabbrica dell'originale. Il nucleo è C11 puro, senza heap e senza I/O: lo stesso motore passerà all'hardware dedicato della fase 2.</p>
-        <p>Dove l'Orchid ha otto encoder e un OLED 128×128, Stame ha una tastiera, un macro pad e uno schermo a colori 640×480. La regola è semplice: tutto quello che fa l'Orchid, Stame lo fa, e quel comportamento non si altera. Poi, siccome ci sono più tasti, più manopole e più CPU, fa qualcosa in più: un campionatore, kit di batteria a campioni, un Lock delle manopole, un tasto per la vista.</p>
+        <p>Dove l'originale ha otto encoder e un OLED 128×128, Stame ha una tastiera, un macro pad e uno schermo a colori 640×480. La regola è semplice: tutto quello che fa l'originale, Stame lo fa, e quel comportamento non si altera. Poi, siccome ci sono più tasti, più manopole e più CPU, fa qualcosa in più: un campionatore, kit di batteria a campioni, un Lock delle manopole, un tasto per la vista.</p>
       </div>
       <div class="prosa">
         <h3>Il nome, la serra, il botanico</h3>
-        <p>In un fiore lo <strong>stame</strong> porta il polline e il pistillo lo riceve. L'editor dell'Orchid si chiama <em>Pistil</em>: Stame è l'altra metà.</p>
+        <p>In un fiore lo <strong>stame</strong> porta il polline e il pistillo lo riceve: Stame è la parte che dà.</p>
         <p>Il resto dell'identità viene da una serra degli anni Settanta, gli anni di <em>The Secret Life of Plants</em> e di <em>Plantasia</em> di Mort Garson, musica per Moog «per le piante e per chi le ama». Stame è il synth che quella serra avrebbe avuto: una console di legno con un display che si accende come un vetrino al microscopio.</p>
         <p>E da <strong>Linneo</strong>, che nel 1735 classificò le piante contando gli stami: uno, <em>Monandria</em>; due, <em>Diandria</em>; tre, <em>Triandria</em>. Stame ne tiene la regola: <strong>una nota è uno stame</strong>. Una triade è Triandria, un accordo di settima Tetrandria, e la schermata d'avvio dice <em>Stamen harmonicum</em>, classe Triandria. Il nome dell'accordo è scritto a punti, come su un display a fluorescenza.</p>
       </div>
@@ -98,11 +98,11 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     <div class="galleria">
       <figure>
         <img src="sito/img/mk4.jpg" alt="La Akai MPK mini IV vista dall'alto: pad, otto manopole, pulsanti del trasporto e due ottave di tasti" width="1600" height="901">
-        <figcaption><b>Akai MPK mini IV.</b> Gli otto pad sono i tasti accordo dell'Orchid (Dim, Min, Maj, Sus / 6, m7, M7, 9); i tasti danno la fondamentale; le otto manopole girano Sound, Perform, FX, Key, Bass, Loop, BPM e Volume; il trasporto è il looper.</figcaption>
+        <figcaption><b>Akai MPK mini IV.</b> Gli otto pad sono i tasti accordo dell'originale (Dim, Min, Maj, Sus / 6, m7, M7, 9); i tasti danno la fondamentale; le otto manopole girano Sound, Perform, FX, Key, Bass, Loop, BPM e Volume; il trasporto è il looper.</figcaption>
       </figure>
       <figure>
         <img src="sito/img/pad.jpg" alt="Il macro pad: quindici tasti bianchi in tre file da cinque, due manopole piccole di metallo e una grande a destra" width="1600" height="1129">
-        <figcaption><b>Macro pad.</b> Quindici tasti e tre manopole a scatti, che si premono. I tasti fanno quello che l'Orchid non ha: Hold, tap tempo, metronomo, fill, quattro scene, Save Loop, batteria sui tasti; la manopola grande è il Chord Voicing. T13 è il Lock, T14 la vista, T15 la pagina dei comandi.</figcaption>
+        <figcaption><b>Macro pad.</b> Quindici tasti e tre manopole a scatti, che si premono. I tasti fanno quello che l'originale non ha: Hold, tap tempo, metronomo, fill, quattro scene, Save Loop, batteria sui tasti; la manopola grande è il Chord Voicing. T13 è il Lock, T14 la vista, T15 la pagina dei comandi.</figcaption>
       </figure>
       <figure>
         <img src="sito/img/flip.jpg" alt="La Miyoo Flip aperta, una piccola console a conchiglia con uno schermo da 3,5 pollici, una croce e quattro tasti colorati" width="997" height="1200">
@@ -121,7 +121,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     </div>
     <div class="galleria">
       <figure><img src="sito/img/plancia_notte.png" alt="Pagina di gioco, tema Notte: Fa diesis minore settima a grandi punti, 120 BPM a sette segmenti, quattro ottave di tasti con l'accordo acceso, la banda mostra il suono Anther Keys" width="640" height="480" loading="lazy"><figcaption><b>Pagina di gioco, Notte.</b> Il nome dell'accordo a punti, il BPM a sette segmenti, i tasti che suonano in acqua e il basso in ambra.</figcaption></figure>
-      <figure><img src="sito/img/plancia_tocco.png" alt="La banda in fondo mostra REVERB 06 a cifre grandi dopo che si è girata la manopola degli effetti" width="640" height="480" loading="lazy"><figcaption><b>La banda risponde alla mano.</b> Giri una manopola e il suo nome e il suo valore compaiono grandi in fondo, come l'overlay dell'Orchid, senza coprire l'accordo.</figcaption></figure>
+      <figure><img src="sito/img/plancia_tocco.png" alt="La banda in fondo mostra REVERB 06 a cifre grandi dopo che si è girata la manopola degli effetti" width="640" height="480" loading="lazy"><figcaption><b>La banda risponde alla mano.</b> Giri una manopola e il suo nome e il suo valore compaiono grandi in fondo, come l'overlay dell'originale, senza coprire l'accordo.</figcaption></figure>
       <figure><img src="sito/img/plancia_comandi.png" alt="Pagina dei comandi: undici celle con Sound, Perform, FX, Key, Bass, Loop, BPM, Volume, Options, Chord Voicing e Bass Voicing, la cella Sound con il fuoco" width="640" height="480" loading="lazy"><figcaption><b>Pagina dei comandi.</b> Gli undici controlli come celle, aperta con T15 del pad; «S+K1» è SHIFT + K1, la pressione; il case porta i nomi, lo schermo i valori.</figcaption></figure>
       <figure><img src="sito/img/plancia_drums.png" alt="DRUMS acceso: lo stile Funk alla variazione 3 e la griglia del loop di due battute, cassa, rullante, charleston, aperto e percussioni, con la colonna che suona" width="640" height="480" loading="lazy"><figcaption><b>Il loop che si inventa.</b> Con DRUMS acceso le tre manopole del pad creano la batteria mentre suona: M la densità, m1 lo stile, m2 la variazione; premute, play, la parte, un'idea nuova. Ripremi DRUMS e il loop resta.</figcaption></figure>
       <figure><img src="sito/img/plancia_looper.png" alt="Pannello del looper: PLAY, battuta 2 di 4, una barra a celle per la posizione del loop e le voci OVERDUB, PAUSE e CLEAR" width="640" height="480" loading="lazy"><figcaption><b>Il looper.</b> Un loop di eventi, quattro battute, sovraincisione strato su strato, undo; la cornice diventa rossa mentre registra.</figcaption></figure>
@@ -260,7 +260,7 @@ sh tools/deploy.sh              # la copia via SSH (l'indirizzo della Flip in to
       <h2>Prima la specifica, poi il codice.</h2>
     </div>
     <div class="schede">
-      <div class="scheda"><span class="etichetta">docs/specifica</span><h3>La specifica funzionale</h3><p>Sette sezioni: panoramica, accordi e performance, suono, interfaccia, MIDI e controlli, la piattaforma Flip, il case. Ogni requisito ha un ID e un'etichetta di fonte: [M] manuale, [O] osservato, [D] dedotto, [V] da verificare su un Orchid vero. Le questioni aperte sono elencate, non nascoste.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/specifica/00-panoramica.md">Si parte dalla panoramica</a></p></div>
+      <div class="scheda"><span class="etichetta">docs/specifica</span><h3>La specifica funzionale</h3><p>Sette sezioni: panoramica, accordi e performance, suono, interfaccia, MIDI e controlli, la piattaforma Flip, il case. Ogni requisito ha un ID e un'etichetta di fonte: [M] manuale, [O] osservato, [D] dedotto, [V] da verificare sull'originale. Le questioni aperte sono elencate, non nascoste.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/specifica/00-panoramica.md">Si parte dalla panoramica</a></p></div>
       <div class="scheda"><span class="etichetta">docs/manuale</span><h3>Manuale e prontuario</h3><p>Come si suona la vetrina sulla Flip: la postazione, gli accordi, ogni controllo con i suoi gesti, il looper passo per passo, i Beat, il macro pad con Hold, scene, fill, Lock / View / Page, la drum machine dal vivo, le pagine e il menu della Flip, cosa fare quando qualcosa è rosso.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/manuale/manuale.md">Manuale</a> · <a href="https://github.com/luigismith/stame/blob/main/docs/manuale/prontuario.md">Prontuario</a></p></div>
       <div class="scheda"><span class="etichetta">docs/identita</span><h3>L'identità</h3><p>La storia, il marchio, i due temi, il carattere a punti disegnato per Stame, le cifre a sette segmenti, la tavola botanica, il logo sonoro dell'avvio. La stessa lingua sullo schermo e sul case.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/identita/README.md">Leggila</a></p></div>
       <div class="scheda"><span class="etichetta">hardware/case</span><h3>Il case</h3><p>Una console di compensato di betulla con una mascherina di acrilico nero inciso sopra la MPK, un piano nero solo, una culla per il pad e una per la Flip, che tiene lo schermo a 65°. Generato da una tabella di misure: SVG e DXF per il laser, STL per la stampante, un modello SketchUp e le istruzioni di montaggio.</p><p><a href="#case">Bozza 5</a> · <a href="https://github.com/luigismith/stame/blob/main/hardware/case/README.md">README</a> · <a href="https://github.com/luigismith/stame/blob/main/docs/specifica/60-case.md">Specifica</a></p></div>
@@ -284,7 +284,7 @@ sh tools/deploy.sh              # la copia via SSH (l'indirizzo della Flip in to
       </table>
     </div>
     <div class="prosa" style="margin-top:20px">
-      <p>Stame è un progetto indipendente, non affiliato a Telepathic Instruments e non approvato da loro. «Orchid» e «Pistil» sono nomi loro. Il repository non contiene nessun dato di fabbrica dell'originale: niente preset, niente firmware, nessun campione dei suoi suoni. Il comportamento è descritto dal manuale pubblico e dall'ascolto, e ogni requisito dice da dove viene. Se hai un Orchid, le questioni aperte segnate [V] nella specifica sono quelle a cui solo tu puoi rispondere.</p>
+      <p>Il repository non contiene nessun dato di fabbrica dell'originale: niente preset, niente firmware, nessun campione dei suoi suoni. Il comportamento è descritto dal manuale pubblico e dall'ascolto, e ogni requisito dice da dove viene. Se hai l'originale, le questioni aperte segnate [V] nella specifica sono quelle a cui solo tu puoi rispondere.</p>
     </div>
   </div>
 </section>

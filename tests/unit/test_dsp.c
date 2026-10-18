@@ -516,7 +516,7 @@ static void test_determinism(void)
     }
 }
 
-/* T-SND-20, T-SND-21: file .inc di Pistil */
+/* T-SND-20, T-SND-21: file .inc dell'editor dell'originale */
 static void test_inc(void)
 {
     static char a[4096], b[4096], c[8192];

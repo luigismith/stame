@@ -26,5 +26,3 @@ Third-party material, each under its own licence:
 - Spleen bitmap font (third_party/spleen): BSD 2-Clause, Copyright (c) 2018-2024 Frederic Cambus.
 - Samples of the sound bank built by tools/campioni.py: CC0 1.0, from the Versilian Community
   Sample Library (VCSL) and the Sonic Pi sample set; the list is in assets/campioni/FONTI.md.
-- "Orchid" is a trademark of Telepathic Instruments. Stame is an independent project, not
-  affiliated with or endorsed by Telepathic Instruments.

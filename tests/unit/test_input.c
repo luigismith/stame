@@ -895,14 +895,17 @@ static void t_scollegamento(void)
     CHECK_EQ(count(G_PRESS, ENC_KEY), 1);
 }
 
-/* T-MIDI-15: nessun nome esposto comincia con "orchid", in nessuna grafia */
-static bool starts_orchid(const char *s)
+/* T-MIDI-15: nessun nome esposto comincia con il nome dell'originale, in nessuna grafia. Il prefisso
+ * riservato è scritto in esadecimale: il repository non lo nomina */
+static const char RISERVATO[7] = { 0x6F, 0x72, 0x63, 0x68, 0x69, 0x64, 0 };
+
+static bool starts_riservato(const char *s)
 {
     while (*s == ' ') s++;
     for (int i = 0; i < 6; i++) {
         char c = s[i];
         if (c >= 'A' && c <= 'Z') c = (char)(c - 'A' + 'a');
-        if (c != "orchid"[i]) return false;
+        if (c != RISERVATO[i]) return false;
     }
     return true;
 }
@@ -910,14 +913,19 @@ static bool starts_orchid(const char *s)
 static void t_nomi(void)
 {
     mpk_state_t s;
+    char su[10], mi[7];                                   /* " PREFISSO 1" e "Prefisso" */
+    su[0] = ' ';
+    for (int i = 0; i < 6; i++) { su[1 + i] = (char)(RISERVATO[i] - 'a' + 'A'); mi[i] = RISERVATO[i]; }
+    su[7] = ' '; su[8] = '1'; su[9] = 0;
+    mi[0] = (char)(mi[0] - 'a' + 'A'); mi[6] = 0;
     MPK_STAME.reset(&s);
-    CHECK(starts_orchid(" ORCHID 1") && starts_orchid("Orchid"));
-    CHECK(!starts_orchid(MPK_STAME.name));
-    CHECK(!starts_orchid(FLIP_TASTI.name));
-    CHECK(!starts_orchid(PAD_BRIMFORD.name));
-    CHECK(!starts_orchid(mpk_profile_name(&s)));
+    CHECK(starts_riservato(su) && starts_riservato(mi));
+    CHECK(!starts_riservato(MPK_STAME.name));
+    CHECK(!starts_riservato(FLIP_TASTI.name));
+    CHECK(!starts_riservato(PAD_BRIMFORD.name));
+    CHECK(!starts_riservato(mpk_profile_name(&s)));
     s.factory = 1;
-    CHECK(!starts_orchid(mpk_profile_name(&s)));
+    CHECK(!starts_riservato(mpk_profile_name(&s)));
 }
 
 /* MPK mini IV nel preset DAW (§8.9b): i messaggi sono quelli catturati il 15/10/2026 */

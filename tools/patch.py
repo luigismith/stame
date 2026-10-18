@@ -2,9 +2,9 @@
 
 Ogni suono è descritto per nome di parametro (colonna "Nome" di §2.2) a partire dalla patch INIT
 del suo modello. Lo script scrive:
-  - assets/patch/sound/ e assets/patch/bass/: un .inc di Pistil per suono e l'indice bank.idx (SND-131);
+  - assets/patch/sound/ e assets/patch/bass/: un .inc per suono, nel formato dell'editor dell'originale, e l'indice bank.idx (SND-131);
   - src/platform/vetrina/patch_vetrina.c: le stesse patch come tabelle per la vetrina.
-Sono patch di Stame, progettate sul carattere del nome: nessun preset dell'Orchid.
+Sono patch di Stame, progettate sul carattere del nome: nessun preset dell'originale.
 
     python -I tools/patch.py
 """
@@ -621,7 +621,7 @@ LIVELLO_DB = {
 
 # Perform di default di ogni suono (ACC-162; colonne perform_mode e perform_amount di bank.idx, SND-131).
 # Modi di ACC-160: 0 Off, 1 Strum, 2 Strum 2 Oct, 3 Slop, 4 Arpeggiate, 5 Arp 2 Oct, 6 Pattern, 7 Harp.
-# Scelte di Stame per i suoi suoni, non dati dell'Orchid. I bassi non hanno performance (ACC-142).
+# Scelte di Stame per i suoi suoni, non dati dell'originale. I bassi non hanno performance (ACC-142).
 OFF, STRUM, STRUM2, SLOP, ARP, ARP2, PATTERN, HARP = range(8)
 PERFORM = {
     'Glass Pollen': (HARP, 3), 'Anther Keys': (STRUM, 2), 'Fern Pluck': (ARP, 6), 'Copper Reed': (STRUM, 3),

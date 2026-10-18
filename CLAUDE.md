@@ -1,15 +1,16 @@
 # Stame
 
-Clone fedele dell'Orchid (ORC—1) di Telepathic Instruments. Fase 1: app nativa per la **Miyoo Flip**, suonata con la **Akai MPK mini IV** (MK4, dal 15/10/2026; prima la Plus) e il macro pad BRIMFORD. Fase 2: hardware dedicato (probabilmente Teensy 4.1 + Audio Shield).
+Strumento ad accordi che rifà fedelmente uno strumento esistente, «l'originale». Fase 1: app nativa per la **Miyoo Flip**, suonata con la **Akai MPK mini IV** (MK4, dal 15/10/2026; prima la Plus) e il macro pad BRIMFORD. Fase 2: hardware dedicato (probabilmente Teensy 4.1 + Audio Shield).
 
-- Nota di progetto nel second brain: `10-Progetti/Stame - clone fedele dell'Orchid.md`.
+- Nota di progetto nel second brain: la nota di Stame in `10-Progetti/`.
 - Specifica funzionale: `docs/specifica/`. Si parte da `00-panoramica.md`. Le convenzioni (ID dei requisiti, etichette [M]/[O]/[D]/[V]) sono in `CONVENZIONI.md`.
 
 ## Regole
-- **Separato da OpenOrc / Cirmolo:** niente codice, cartelle o confronti in comune.
-- **La fedeltà all'originale è il minimo:** tutto quello che fa l'Orchid, Stame lo fa, e quel comportamento non si altera. Con più tasti, controlli e potenza Stame può fare di più: le aggiunte si implementano (Luigi, 15/10/2026), purché non tolgano niente all'originale e, se sono uno stato, si vedano sulla plancia (Lock, View e Page del macro pad sono le prime).
+- **L'originale nel repo non si nomina** (Luigi, 18/10/2026): codice, commenti, documenti, sito e commit dicono «l'originale» e descrivono il principio; il nome sta solo nelle note private.
+- **Separato da Cirmolo e dagli altri progetti di Luigi:** niente codice, cartelle o confronti in comune.
+- **La fedeltà all'originale è il minimo:** tutto quello che fa l'originale, Stame lo fa, e quel comportamento non si altera. Con più tasti, controlli e potenza Stame può fare di più: le aggiunte si implementano (Luigi, 15/10/2026), purché non tolgano niente all'originale e, se sono uno stato, si vedano sulla plancia (Lock, View e Page del macro pad sono le prime).
 - **Nucleo portabile:** `core`, `dsp` e `gfx` in C11 puro, senza SDL, ALSA, malloc o lock nel percorso audio. Tutto ciò che è specifico della piattaforma sta in `platform/`.
-- Il clone **non** deve usare l'ID SysEx `00 22 0C` né un nome di porta MIDI che inizi con "orchid".
+- Stame **non** deve usare l'ID SysEx `00 22 0C`, che non è suo, né un nome di porta MIDI che inizi con il nome dell'originale (T-MIDI-15).
 - I preset di fabbrica 3.92 sono dati privati: non vanno messi nel repo.
 - **Miyoo Flip:** mai forzare la porta USB-C OTG in modalità host senza prima spiegare il rischio e chiedere l'ok.
 - **MPK mini Plus:** niente SysEx sui programmi senza backup e senza l'ok di Luigi. Sulla MK4 la prova dei LED dei pad (CASE-033) si fa solo con Luigi presente, senza SysEx.

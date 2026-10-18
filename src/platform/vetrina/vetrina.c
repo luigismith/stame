@@ -13,7 +13,7 @@
 #define LIST_IDLE_MS 10000u       /* UI-076 */
 #define PAGE_MS      5000u        /* UI-142a: la pagina dei comandi si chiude da sola */
 
-/* ---- dati della vetrina (nessun preset dell'Orchid): suoni e bassi in patch_vetrina.c (tools/patch.py) ---- */
+/* ---- dati della vetrina (nessun preset dell'originale): suoni e bassi in patch_vetrina.c (tools/patch.py) ---- */
 #define SOUNDS vet_sound_info
 #define BASSES vet_bass_name
 /* i Beat della vetrina sono quelli di core/beat.c dall'indice 1 (lo 0 è il provvisorio di ACC-210) */

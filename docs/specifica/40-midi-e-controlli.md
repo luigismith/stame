@@ -1,10 +1,10 @@
 # 40 — MIDI e controlli
 
 Questa sezione descrive come Stame **parla MIDI** e come **riceve i comandi** di chi suona:
-- il MIDI in uscita e in ingresso dell'Orchid, replicato in modo fedele (canali, note, CC di stato, clock, trasporto, ingresso);
+- il MIDI in uscita e in ingresso dell'originale, replicato in modo fedele (canali, note, CC di stato, clock, trasporto, ingresso);
 - i vincoli su identità, SysEx e nomi delle porte;
 - la **Akai MPK mini Plus** come superficie di controllo, con il programma "STAME";
-- il **macro pad BRIMFORD** (15 tasti e 3 manopole), che dà agli encoder dell'Orchid i pulsanti che la MPK non ha (profilo `pad_brimford`, §8.10);
+- il **macro pad BRIMFORD** (15 tasti e 3 manopole), che dà agli encoder dell'originale i pulsanti che la MPK non ha (profilo `pad_brimford`, §8.10);
 - i tasti fisici della **Miyoo Flip**, sia insieme alla MPK sia senza;
 - lo **strato di input logico**, che separa i controller dal nucleo;
 - hot-plug, disconnessione, note appese e panic.
@@ -12,10 +12,10 @@ Questa sezione descrive come Stame **parla MIDI** e come **riceve i comandi** di
 Il comportamento musicale (accordi, Play Style, looper, beat) sta in `10-accordi-e-performance.md`. Qui si definisce solo **cosa entra e cosa esce** e in che forma.
 
 **Etichette** (da `CONVENZIONI.md`)
-- `[M]` manuale o documentazione ufficiale: per l'Orchid il manuale v4.1, il supporto Telepathic e le note di firmware; per la MPK la User Guide v1.2 e la knowledge base Akai.
-- `[O]` osservato: per l'Orchid le catture MIDI e l'analisi statica del firmware 3.92 pubblicate da un utente (RSMR); per la MPK le catture di terzi (algo-synth #420), il codice dell'estensione Bitwig e le prove fatte sulla Flip.
+- `[M]` manuale o documentazione ufficiale: per l'originale il manuale v4.1, il supporto del costruttore e le note di firmware; per la MPK la User Guide v1.2 e la knowledge base Akai.
+- `[O]` osservato: per l'originale le catture MIDI e l'analisi statica del firmware 3.92 pubblicate da un utente (RSMR); per la MPK le catture di terzi (algo-synth #420), il codice dell'estensione Bitwig e le prove fatte sulla Flip.
 - `[D]` dedotto o ricostruito: scelta di progetto o inferenza.
-- `[V]` da verificare: è il valore di default scelto per ora. Il test è indicato come **VO-n** (da fare su un Orchid vero) o **VM-n** (da fare sulla MPK di Luigi collegata alla Flip; VM-n è il test n del §18 della guida alla Plus) o **VP-n** (da fare sul macro pad BRIMFORD collegato alla Flip). Elenco completo in [Questioni aperte](#questioni-aperte).
+- `[V]` da verificare: è il valore di default scelto per ora. Il test è indicato come **VO-n** (da fare sull'originale) o **VM-n** (da fare sulla MPK di Luigi collegata alla Flip; VM-n è il test n del §18 della guida alla Plus) o **VP-n** (da fare sul macro pad BRIMFORD collegato alla Flip). Elenco completo in [Questioni aperte](#questioni-aperte).
 
 ---
 
@@ -24,7 +24,7 @@ Il comportamento musicale (accordi, Play Style, looper, beat) sta in `10-accordi
 | Dentro questa sezione | Fuori (sezione) |
 |---|---|
 | Formato e ordine dei messaggi MIDI, canali, clock, trasporto, SysEx, nomi | Quale accordo o quale nota suonare (`10`) |
-| Mappa dei controlli MPK e Flip verso le funzioni dell'Orchid | Disegno di overlay, menu e messaggi a schermo (`30`) |
+| Mappa dei controlli MPK e Flip verso le funzioni dell'originale | Disegno di overlay, menu e messaggi a schermo (`30`) |
 | Eventi logici del pannello e riconoscimento dei gesti | Thread, ALSA rawmidi, evdev, budget di latenza (`50`) |
 | Hot-plug, panic, note appese | Mappa dei 135 parametri usata dagli NRPN (`20`) |
 
@@ -44,7 +44,7 @@ Il comportamento musicale (accordi, Play Style, looper, beat) sta in `10-accordi
             │               └─────────────────────────────┐                   ▼
             │                                             │        ┌──────────────────────┐
             │                                             └───────▶│ midi_in (semantica   │
-            │                                                      │ dell'ingresso Orchid)│
+            │                                                      │ dell'originale)      │
             │                                                      ├──────────────────────┤
             │   midi_out_msg_t (con timestamp in campioni)         │ gesti → nucleo       │
             └──────────────────────────────────────────────────────│ (accordi, looper, UI)│
@@ -56,8 +56,8 @@ Il comportamento musicale (accordi, Play Style, looper, beat) sta in `10-accordi
   1. `platform/flip` legge byte grezzi (rawmidi) e eventi evdev, e li traduce in byte MIDI o in codici portabili `PAD_*`;
   2. `core/midi_parse` trasforma i byte in messaggi MIDI completi (`midi_msg_t`);
   3. un **profilo controller** trasforma i messaggi del controller in **eventi del pannello** (`pnl_event_t`, §10.1);
-  4. il **riconoscitore dei gesti** del nucleo trasforma gli eventi del pannello nei gesti dell'Orchid (premere, ruotare, tenere, premere e ruotare: §10.3).
-- **MIDI-002** — Il nucleo musicale (accordi, performance, looper, interfaccia) NON DEVE vedere byte MIDI né codici evdev dei controller: riceve solo `pnl_event_t`. L'unica eccezione è l'ingresso MIDI musicale (§5), che passa da `core/midi_in` con la semantica dell'Orchid [D].
+  4. il **riconoscitore dei gesti** del nucleo trasforma gli eventi del pannello nei gesti dell'originale (premere, ruotare, tenere, premere e ruotare: §10.3).
+- **MIDI-002** — Il nucleo musicale (accordi, performance, looper, interfaccia) NON DEVE vedere byte MIDI né codici evdev dei controller: riceve solo `pnl_event_t`. L'unica eccezione è l'ingresso MIDI musicale (§5), che passa da `core/midi_in` con la semantica dell'originale [D].
 - **MIDI-003** — Parser, profili e riconoscitore dei gesti DEVONO essere C11 puro, senza SDL, ALSA, evdev né `malloc`: tabelle `const` e stato statico. Così lo stesso profilo MPK gira sulla Flip e sull'hardware dedicato [D].
 - **MIDI-004** — Tra il thread di input e il nucleo DEVE esserci una coda SPSC lock-free a dimensione fissa (default 256 eventi [D]). Se la coda è piena:
   - più `PNL_ENC_TURN` consecutivi dello stesso encoder DEVONO essere fusi sommando gli scatti;
@@ -73,11 +73,11 @@ Il comportamento musicale (accordi, Play Style, looper, beat) sta in `10-accordi
 
 ---
 
-## 3. MIDI in uscita (replica dell'Orchid)
+## 3. MIDI in uscita (replica dell'originale)
 
 ### 3.1 Flussi e canali
 
-- **MIDI-010** — Stame DEVE produrre tre flussi MIDI, come l'Orchid [M]:
+- **MIDI-010** — Stame DEVE produrre tre flussi MIDI, come l'originale [M]:
 
 | Flusso | Contenuto | Canale di default |
 |---|---|---|
@@ -86,14 +86,14 @@ Il comportamento musicale (accordi, Play Style, looper, beat) sta in `10-accordi
 | **Chord** | L'accordo in blocco, **qualunque sia la performance** | **Off** [M, dal firmware 3.90] |
 
 - **MIDI-011** — Ogni flusso DEVE poter andare su un canale da 1 a 16 oppure su **Off**, da Options > Audio and MIDI > MIDI Channels [M]. Le scelte DEVONO restare salvate allo spegnimento [D]. Due flussi POSSONO condividere un canale (§3.2, registro).
-- **MIDI-012** — Tutte le destinazioni fisiche (§3.6) DEVONO ricevere gli stessi dati: sull'Orchid DIN e USB portano gli stessi messaggi [M].
+- **MIDI-012** — Tutte le destinazioni fisiche (§3.6) DEVONO ricevere gli stessi dati: sull'originale DIN e USB portano gli stessi messaggi [M].
 
 ### 3.2 Note On e Note Off
 
 - **MIDI-013** — Formato [O]:
   - Note On `9n kk vv` con `vv` da 1 a 127;
   - Note Off **sempre** `8n kk 00`: Stame NON DEVE mai trasmettere un Note On con velocity 0 al posto del Note Off;
-  - Stame NON DEVE usare il running status in uscita: ogni messaggio porta il suo status byte [D, le catture dell'Orchid mostrano sempre lo status].
+  - Stame NON DEVE usare il running status in uscita: ogni messaggio porta il suo status byte [D, le catture dell'originale mostrano sempre lo status].
 - **MIDI-014** — Ordine dei messaggi nello stesso istante:
   - Note On: **Chord → Bass → Performance**. L'ordine Chord prima di Performance è osservato [O]; la posizione del Bass è scelta [V VO-8];
   - Note Off: **Performance → Bass → Chord**. Performance prima di Chord è osservato [O]; il Bass [V VO-8].
@@ -103,8 +103,8 @@ Il comportamento musicale (accordi, Play Style, looper, beat) sta in `10-accordi
   - al rilascio decrementa; trasmette il Note Off **solo** quando il contatore torna a zero;
   - un Note Off con contatore già a zero NON DEVE essere trasmesso.
 
-  Così due flussi sullo stesso canale non producono note spezzate, e non esce mai un Note Off doppio. L'Orchid 3.92 manda un secondo Note Off sul ch3 alla pressione successiva [O]; le note del 3.90 lo danno per corretto [M]. Stame segue l'intenzione dichiarata e **non** copia il difetto.
-- **MIDI-017** — Stame PUÒ offrire un'opzione di debug "Doppio Note Off 3.92", spenta per default, che riproduce il difetto sul flusso Chord per i confronti con un Orchid vero (Appendice A).
+  Così due flussi sullo stesso canale non producono note spezzate, e non esce mai un Note Off doppio. Con il firmware 3.92 l'originale manda un secondo Note Off sul ch3 alla pressione successiva [O]; le note del 3.90 lo danno per corretto [M]. Stame segue l'intenzione dichiarata e **non** copia il difetto.
+- **MIDI-017** — Stame PUÒ offrire un'opzione di debug "Doppio Note Off 3.92", spenta per default, che riproduce il difetto sul flusso Chord per i confronti con l'originale (Appendice A).
 - **MIDI-018** — Dalla tastiera le note singole sono **monofoniche** [M]: sul flusso Performance esce al massimo una nota singola alla volta. La logica (quale tasto vince) sta in `10`.
 - **MIDI-019** — Il numero di nota trasmesso DEVE essere l'altezza effettivamente suonata dal motore, compreso l'effetto di voicing, Split/Octave e transpose. Dal 3.90 le ottave mostrate a schermo coincidono con quelle MIDI [M]; la convenzione scelta per Stame è Do centrale = nota 60 = "C4" [V VO-13].
 
@@ -114,7 +114,7 @@ Il comportamento musicale (accordi, Play Style, looper, beat) sta in `10-accordi
 
 ### 3.4 CC di stato
 
-- **MIDI-021** — Stame DEVE trasmettere i CC di stato dell'Orchid [O]:
+- **MIDI-021** — Stame DEVE trasmettere i CC di stato dell'originale [O]:
 
 | CC | Quando esce | Valore |
 |---|---|---|
@@ -131,12 +131,12 @@ Il comportamento musicale (accordi, Play Style, looper, beat) sta in `10-accordi
 
 ### 3.5 Messaggi mai trasmessi
 
-- **MIDI-023** — Come l'Orchid, Stame NON DEVE trasmettere [O]: Program Change, Pitch Bend, Aftertouch di canale e polifonico, CC 1, 7, 64 e qualunque CC musicale, Continue (`FB`), Song Position Pointer, MTC, Active Sensing, System Reset, Channel Mode (CC 120–127, salvo il panic del §7). In particolare pitch wheel, mod wheel e pedale della MPK agiscono sul suono interno ma **non** vengono inoltrati (l'inoltro è un'opzione dell'Appendice A).
+- **MIDI-023** — Come l'originale, Stame NON DEVE trasmettere [O]: Program Change, Pitch Bend, Aftertouch di canale e polifonico, CC 1, 7, 64 e qualunque CC musicale, Continue (`FB`), Song Position Pointer, MTC, Active Sensing, System Reset, Channel Mode (CC 120–127, salvo il panic del §7). In particolare pitch wheel, mod wheel e pedale della MPK agiscono sul suono interno ma **non** vengono inoltrati (l'inoltro è un'opzione dell'Appendice A).
 - **MIDI-024** — Il looper registra eventi, non audio [M]. In riproduzione i suoi eventi DEVONO uscire sui tre flussi esattamente come se fossero suonati dal vivo [V VO-9; nel 3.92 il loop manda almeno le note del basso, O]. I beat di batteria e il metronomo NON DEVONO produrre MIDI [V VO-10].
 
 ### 3.6 Destinazioni fisiche sulla Flip
 
-Sulla Flip la porta USB-C OTG fa da **host** per la MPK, quindi Stame non può presentarsi a un computer come dispositivo USB-MIDI [D]. L'equivalente dell'uscita DIN dell'Orchid è il **DIN OUT della MPK**, raggiunto attraverso la sua porta 2.
+Sulla Flip la porta USB-C OTG fa da **host** per la MPK, quindi Stame non può presentarsi a un computer come dispositivo USB-MIDI [D]. L'equivalente dell'uscita DIN dell'originale è il **DIN OUT della MPK**, raggiunto attraverso la sua porta 2.
 
 - **MIDI-025** — Destinazioni:
 
@@ -158,7 +158,7 @@ Sulla Flip la porta USB-C OTG fa da **host** per la MPK, quindi Stame non può p
 
 ### 4.1 Principi
 
-- **MIDI-030** — Stame DEVE trasmettere il **MIDI clock** (`F8`) a **24 PPQN**, **solo mentre il trasporto è in moto** [O]. Come l'Orchid dal 3.60, il clock esce e basta: in ingresso il clock NON DEVE avere effetto (il clock in è un'opzione dell'Appendice A) [M].
+- **MIDI-030** — Stame DEVE trasmettere il **MIDI clock** (`F8`) a **24 PPQN**, **solo mentre il trasporto è in moto** [O]. Come l'originale dal 3.60, il clock esce e basta: in ingresso il clock NON DEVE avere effetto (il clock in è un'opzione dell'Appendice A) [M].
 - **MIDI-031** — La MPK non manda clock MIDI, nemmeno con Seq Play [O]: **Stame è sempre il master**.
 - **MIDI-032** — Gli istanti dei tick DEVONO essere calcolati dal contatore dei campioni audio, sulla stessa griglia di beat, looper e performance. Requisiti [D]:
   - nessuna deriva cumulativa rispetto all'audio;
@@ -195,16 +195,16 @@ Il trasporto ha due stati: **FERMO** (nessun `F8`) e **IN MOTO** (`F8` continui)
 
 ### 4.4 Destinazioni del clock
 
-- **MIDI-037** — Clock e trasporto DEVONO uscire sul DIN (porta 2), come l'uscita DIN dell'Orchid [D: il manuale dice che DIN e USB portano gli stessi dati; V VO-11].
+- **MIDI-037** — Clock e trasporto DEVONO uscire sul DIN (porta 2), come l'uscita DIN dell'originale [D: il manuale dice che DIN e USB portano gli stessi dati; V VO-11].
 - **MIDI-038** — Clock e trasporto DOVREBBERO uscire anche sulla **porta 1** della MPK (opzione "Clock alla MPK", attiva per default) [D]. Con il clock della Plus su **External**, arpeggiatore, sequencer e **Clock Out analogico** seguono Stame [M UG p.7; V VM-5, VM-6].
 
 ---
 
-## 5. MIDI in ingresso (replica dell'Orchid)
+## 5. MIDI in ingresso (replica dell'originale)
 
-L'Orchid riceve MIDI solo via USB [M]. Sulla Flip l'equivalente è il **DIN IN della MPK**, che arriva sulla porta 2 [M UG p.7].
+L'originale riceve MIDI solo via USB [M]. Sulla Flip l'equivalente è il **DIN IN della MPK**, che arriva sulla porta 2 [M UG p.7].
 
-- **MIDI-040** — La porta 2 della MPK (DIN IN) DEVE essere trattata come l'ingresso MIDI dell'Orchid, con la semantica di questo paragrafo. È attiva per default [D: rischio di anello se il DIN OUT torna nel DIN IN attraverso un thru esterno, decisione D-4 nelle Questioni aperte].
+- **MIDI-040** — La porta 2 della MPK (DIN IN) DEVE essere trattata come l'ingresso MIDI dell'originale, con la semantica di questo paragrafo. È attiva per default [D: rischio di anello se il DIN OUT torna nel DIN IN attraverso un thru esterno, decisione D-4 nelle Questioni aperte].
 - **MIDI-041** — Note [M]:
   - note sul **ch1**: suonano il motore Sound in modo **polifonico**, **senza** motore degli accordi né Perform;
   - note sul **ch2**: suonano il motore Bass;
@@ -232,8 +232,8 @@ L'Orchid riceve MIDI solo via USB [M]. Sulla Flip l'equivalente è il **DIN IN d
 
 ## 6. Identità, SysEx e nomi
 
-- **MIDI-050** — Stame NON DEVE usare l'ID SysEx del produttore **`00 22 0C`** (Telepathic Instruments) [M tabella midi.org; O], né in uscita né come intestazione riconosciuta: i SysEx in ingresso con quell'ID DEVONO essere ignorati senza risposta.
-- **MIDI-051** — Nessun nome esposto da Stame (porta ALSA, client del sequencer, sessione RTP-MIDI, nome Bluetooth, stringhe USB, nome di file di preset scambiati con altri) PUÒ cominciare con **"orchid"**, confrontando in minuscolo dopo aver tolto gli spazi iniziali. L'updater ufficiale prende le porte proprio con quel prefisso [M, JavaScript della pagina firmware]. Il nome da usare è **"Stame"** [D].
+- **MIDI-050** — Stame NON DEVE usare l'ID SysEx del produttore **`00 22 0C`** (quello dell'originale) [M tabella midi.org; O], né in uscita né come intestazione riconosciuta: i SysEx in ingresso con quell'ID DEVONO essere ignorati senza risposta.
+- **MIDI-051** — Nessun nome esposto da Stame (porta ALSA, client del sequencer, sessione RTP-MIDI, nome Bluetooth, stringhe USB, nome di file di preset scambiati con altri) PUÒ cominciare con il **nome dell'originale**, confrontando in minuscolo dopo aver tolto gli spazi iniziali. L'updater ufficiale prende le porte proprio con quel prefisso [M, JavaScript della pagina firmware]. Il nome da usare è **"Stame"** [D].
 - **MIDI-052** — A un Identity Request (`F0 7E <7F o il proprio device ID> 06 01 F7`) ricevuto dall'ingresso MIDI (§5), Stame DEVE rispondere sul DIN con [D]:
 
 ```
@@ -243,27 +243,27 @@ F0 7E 7F 06 02  7D  53 54  01 00  <maj> <min> <patch> 00  F7
 
   - `7D` = ID per uso non commerciale, da usare nei prototipi [M midi.org]; un prodotto vero richiede un ID MMA proprio;
   - famiglia `53 54` ("ST"); membro `01 00` = versione per la Flip;
-  - device ID della risposta `7F`, come l'Orchid [O].
-- **MIDI-053** — Stame PUÒ implementare un SysEx proprio con la stessa struttura di quello dell'Orchid [D]:
+  - device ID della risposta `7F`, come l'originale [O].
+- **MIDI-053** — Stame PUÒ implementare un SysEx proprio con la stessa struttura di quello dell'originale [D]:
   - trama `F0 7D 53 54 <cmd> <payload…> <cs> F7`;
   - checksum `cs = (−Σ byte da 7D all'ultimo byte di payload) & 0x7F`;
   - risposta `F0 7D 53 54 7E <cmd> <val> F7`, senza checksum.
 
   Comandi proposti: scelta di Sound e di Bass, voicing di accordo e di basso, scrittura di un parametro (motore, indice, valore), interrogazioni, dump completo e ripristino. Nessun comando può cancellare o scrivere la memoria permanente senza una conferma a schermo.
-- **MIDI-054** — Stame NON DEVE cercare la compatibilità con Pistil né con l'updater ufficiale (trame "Tlp" `F0 54 6C 70 …`), che DEVONO essere ignorate [D].
+- **MIDI-054** — Stame NON DEVE cercare la compatibilità con l'editor dell'originale né con l'updater ufficiale (trame "Tlp" `F0 54 6C 70 …`), che DEVONO essere ignorate [D].
 
 ---
 
 ## 7. Note appese, cambi di canale e panic
 
 - **MIDI-060** — Se si cambia il canale di un flusso, o lo si mette su Off, mentre ci sono note accese, Stame DEVE mandare subito i Note Off di quelle note **sul canale vecchio** e azzerare le voci relative nel registro [D].
-- **MIDI-061** — Nessun cambio di selettore (Sound, Perform, Key, Play Style, modalità del basso, basso on/off, voicing) può lasciare una nota senza Note Off. Il registro (MIDI-016) è la fonte di verità: ogni nota che il nucleo smette di suonare DEVE passare da un rilascio esplicito. Sull'Orchid 3.84 cambiare i selettori mentre si suona lascia note appese [O]: è un difetto e Stame NON DEVE copiarlo.
+- **MIDI-061** — Nessun cambio di selettore (Sound, Perform, Key, Play Style, modalità del basso, basso on/off, voicing) può lasciare una nota senza Note Off. Il registro (MIDI-016) è la fonte di verità: ogni nota che il nucleo smette di suonare DEVE passare da un rilascio esplicito. Sull'originale, con il firmware 3.84, cambiare i selettori mentre si suona lascia note appese [O]: è un difetto e Stame NON DEVE copiarlo.
 - **MIDI-062** — **Panic.** Comandi: PUSH + Stop sulla MPK (§8.5), T12 del macro pad tenuto 1 s (§8.10), voce "Panic" del menu di sistema (tasto MENU della Flip, §9), ricollegamento della MPK (§11). Effetto [D]:
   1. per ogni destinazione e ogni (canale, nota) con contatore > 0: Note Off `8n kk 00`; poi registro azzerato;
   2. CC 123 (All Notes Off) e CC 120 (All Sound Off) sui canali dei tre flussi e su quello della CV, se attivi;
   3. motori interni: tutte le voci in rilascio rapido (tempo in `20`), sustain spento, bend al centro.
 
-  L'Orchid non trasmette mai CC 120 o 123 [O]: il panic è una deviazione voluta, solo su comando o al ricollegamento, mai nel funzionamento normale.
+  L'originale non trasmette mai CC 120 o 123 [O]: il panic è una deviazione voluta, solo su comando o al ricollegamento, mai nel funzionamento normale.
 - **MIDI-063** — All'uscita dall'app Stame DEVE: mandare i Note Off di tutte le note nel registro; mandare `FC` se il trasporto è in moto; spegnere i LED del trasporto della MPK; chiudere le porte [D].
 
 ---
@@ -310,7 +310,7 @@ F0 7E 7F 06 02  7D  53 54  01 00  <maj> <min> <patch> 00  F7
 | Canale pad | **10** | Come di fabbrica; separa i pad dalla tastiera |
 | Pad | Modo **Note**, Toggle **Off**; banco A note 36–43, banco B note 44–51 | Velocity disponibile; con il Toggle lo stato del pad si disallineerebbe da quello di Stame |
 | Colori dei pad | Banco A: fila alta (tipi) e fila bassa (estensioni) di due colori diversi; banco B (riserva senza macro pad, §8.5): un terzo colore, B8 (PUSH) di un quarto | Distinguere a colpo d'occhio tipi, estensioni e funzioni. Indici della palette 0–31 da scegliere sull'unità [V VM-12] |
-| Aftertouch dei pad (PadAT) | **Off** | L'Orchid non ha pressione; meno traffico. Forse è un'impostazione globale [V VM-22] |
+| Aftertouch dei pad (PadAT) | **Off** | L'originale non ha pressione; meno traffico. Forse è un'impostazione globale [V VM-22] |
 | Manopole K1–K8 | **Relative**, CC **70–77**, Lo 0, Hi 127; nomi "Sound", "Perform", "FX", "Key", "Bass", "Loop", "BPM", "Volume" (mappa del 13/10/2026, §8.5) | Encoder veri: lo stato resta in Stame e non ci sono salti. Se l'OLED mostri i nomi [V VM-16] |
 | Joystick | **2CC**: X → XCC1 13, XCC2 12; Y → YCC1 3, YCC2 2 | Quattro direzioni distinte. Quale CC sia il verso positivo [V VM-9] |
 | Trasporto (Trpt) | **On/Off** | Serve il rilascio (127 alla pressione, 0 al rilascio) per i gesti "tenuto". Forse globale [V VM-22] |
@@ -345,15 +345,15 @@ Con il programma STAME, sulla porta 1 [O per il programma di fabbrica; D per STA
 | Trasporto | ch1 CC 115 «, 116 », 117 Stop, 118 Play, 119 Rec: 127 alla pressione, 0 al rilascio |
 | Arp, Chords, Scales, Note Repeat, Full Level, Shift, Home, Bank, Prog Select, OCT, Seq Play, Tap, encoder di menu | **Nulla**: l'host non li vede [O] |
 
-### 8.5 Mappa controllo MPK → funzione dell'Orchid
+### 8.5 Mappa controllo MPK → funzione dell'originale
 
 - **MIDI-078** — Il profilo `mpk_stame` DEVE applicare questa mappa [D, sulla base della proposta della guida alla Plus §17.6; **decisa da Luigi il 13/10/2026**; manopole **rimappate il 13/10/2026** per il macro pad, §8.10]:
-  - i pad del **banco A** fanno gli **8 tasti accordo a sinistra dell'Orchid**, nella stessa disposizione: fila alta Dim, Min, Maj, Sus; fila bassa 6, m7, M7, 9. È la regola di Luigi: «se orchid ha 8 pulsanti a sinistra i pad di mpk devono funzionare come quegli otto pulsanti»;
+  - i pad del **banco A** fanno gli **8 tasti accordo a sinistra dell'originale**, nella stessa disposizione: fila alta Dim, Min, Maj, Sus; fila bassa 6, m7, M7, 9. È la regola di Luigi: «se l'originale ha 8 pulsanti a sinistra i pad di mpk devono funzionare come quegli otto pulsanti»;
   - le manopole **K1–K8** ruotano gli otto encoder che il macro pad affianca con i tasti T1–T8, nella stessa posizione: fila alta **K1 Sound, K2 Perform, K3 FX, K4 Key**; fila bassa **K5 Bass, K6 Loop, K7 BPM, K8 Volume**. Chord Voicing e Bass Voicing non hanno più una manopola sulla MPK: stanno sulle manopole M e m1 del macro pad (§8.10) e, senza macro pad, si raggiungono con il fuoco (§9.1);
   - i pad del **banco B** restano i **pulsanti funzione** (Key, Bass, Perform, Chord Voicing, Loop, BPM, Options e PUSH), ma dal 13/10/2026 sono una **riserva** per quando il macro pad non c'è: con il macro pad collegato i pulsanti degli encoder sono T1–T9, M e m1;
   - la **pressione delle manopole**: con la MK4 è **SHIFT + K** (MIDI-130), dal 16/10/2026 l'unica strada (**deciso da Luigi**: «vedo comandi replicati sui vari device... questa cosa non mi piace», ogni comando in una casa sola); con la Plus resta B8 (PUSH) **oppure il tasto X della Flip** (§8.6, decisione del 13/10/2026). I tasti T1–T8 del macro pad non premono più gli encoder: fanno le aggiunte di MIDI-133.
 
-| Controllo MPK | Messaggio | Evento del pannello (§10.1) | Funzione dell'Orchid |
+| Controllo MPK | Messaggio | Evento del pannello (§10.1) | Funzione dell'originale |
 |---|---|---|---|
 | **37 tasti** | ch1 note `kk`, velocity `vv` | `PNL_KEY_DOWN/UP(kk % 12, vv)` | I 12 tasti della tastiera |
 | **Pad A5** (fila alta) | ch10 nota 40 | `PNL_CHORD_DOWN/UP(CHB_DIM)` | Tasto accordo **Dim** |
@@ -393,7 +393,7 @@ Con il programma STAME, sulla porta 1 [O per il programma di fabbrica; D per STA
 | **Pedale** | CC 64 | `PNL_SUSTAIN` | Sustain del Sound, come CC 64 in ingresso sul ch1 (il latch è un'opzione dell'Appendice A) |
 | SHIFT, Arp, Chords, Scales, Bank, OCT, Home, Prog Select, Seq Play, Tap, encoder di menu | nulla | — | Non usabili: lavorano solo dentro la MPK |
 
-Combinazioni dell'Orchid con il **Bass Voicing tenuto** [M]. Il modificatore è la pressione della manopola **m1** del macro pad (§8.10) oppure il tasto **Y** della Flip (§9.1). La MPK da sola non ha più una manopola di Bass Voicing, quindi non lo si tiene con PUSH + manopola. Tenendo il modificatore si preme:
+Combinazioni dell'originale con il **Bass Voicing tenuto** [M]. Il modificatore è la pressione della manopola **m1** del macro pad (§8.10) oppure il tasto **Y** della Flip (§9.1). La MPK da sola non ha più una manopola di Bass Voicing, quindi non lo si tiene con PUSH + manopola. Tenendo il modificatore si preme:
 - T6, Rec o B5 → **uscita hard dal loop**;
 - T7, Play o B6 → **batteria da suonare** ("On drums") [O];
 - T5 o B2 → basso on/off.
@@ -403,10 +403,10 @@ Rispetto alla proposta della guida (§17.6) cambiano due cose:
 - dal 13/10/2026 le manopole seguono la griglia gemella del macro pad (K1 Sound … K8 Volume), e Chord Voicing e Bass Voicing passano alle manopole M e m1 del macro pad.
 
 - **MIDI-079** — Tastiera [D]:
-  - la fondamentale è `kk % 12` (0 = Do); l'ottava fisica e l'ottava della MPK NON DEVONO influire, perché l'Orchid ha un'ottava sola e il registro lo decidono voicing e Split/Octave [M];
+  - la fondamentale è `kk % 12` (0 = Do); l'ottava fisica e l'ottava della MPK NON DEVONO influire, perché l'originale ha un'ottava sola e il registro lo decidono voicing e Split/Octave [M];
   - per ogni classe di nota il profilo DEVE contare i tasti fisici premuti: `PNL_KEY_DOWN` al primo, `PNL_KEY_UP` quando si rilascia l'ultimo. Un secondo tasto della stessa classe non produce eventi;
-  - la velocity passa invariata [V VO-1, curva da confrontare con l'Orchid].
-- **MIDI-080** — Pad del banco A: la velocity dei pad NON DEVE avere effetto, perché i tasti accordo dell'Orchid sono pulsanti in gomma senza velocity [M]; la dinamica dell'accordo viene dal tasto. L'aftertouch dei pad (`A9`, `D9`) DEVE essere ignorato [D].
+  - la velocity passa invariata [V VO-1, curva da confrontare con l'originale].
+- **MIDI-080** — Pad del banco A: la velocity dei pad NON DEVE avere effetto, perché i tasti accordo dell'originale sono pulsanti in gomma senza velocity [M]; la dinamica dell'accordo viene dal tasto. L'aftertouch dei pad (`A9`, `D9`) DEVE essere ignorato [D].
 - **MIDI-081** — Manopole [O/D]:
   - delta = `v < 64 ? v : v − 128` (complemento a due a 7 bit);
   - uno scatto ogni `step` unità accumulate: `step` = 2 per K1–K6 (Sound, Perform, FX, Key, Bass, Loop), 1 per K7 (BPM) e K8 (Volume) [V VM-8];
@@ -432,7 +432,7 @@ Le manopole della MPK non si premono. Con la **MK4** il PUSH è il suo tasto **S
 - **MIDI-084** — Macchina a stati del PUSH [D, ricostruita dalla guida §17.6]. Qui "PUSH giù / su" vuol dire B8 Note On / Note Off oppure X premuto / rilasciato:
 
 ```
-stati: IDLE, ARMED, TARGET(k)            k = manopola 0..7, enc[k] = encoder dell'Orchid
+stati: IDLE, ARMED, TARGET(k)            k = manopola 0..7, enc[k] = encoder dell'originale
 PUSH giù:              IDLE      -> ARMED
 scatto della manopola k (n scatti):
     ARMED              -> emetti PNL_ENC_DOWN(enc[k]); scarta gli n scatti;
@@ -496,7 +496,7 @@ Se sulla MPK è attivo un altro programma (per esempio il PGM1 "MPC" di fabbrica
 
 ### 8.9b MPK mini IV (MK4): i messaggi catturati
 
-Il 15/10/2026 Luigi ha scelto la **MPK mini IV** (MK4, versione bianca e grigia) al posto della Plus, per avere un kit più compatto: l'Orchid ha un'ottava sola e i 37 tasti della Plus non servivano. La mappa e il profilo `mpk_mk4` sono da scrivere; qui ci sono i fatti, catturati sul PC con `tools/midi_ascolta.py` (winmm, tutte le porte) con la MK4 nel preset **DAW**. È un preset di fabbrica in sola lettura, quindi resta sempre uguale e non va programmato [O]:
+Il 15/10/2026 Luigi ha scelto la **MPK mini IV** (MK4, versione bianca e grigia) al posto della Plus, per avere un kit più compatto: l'originale ha un'ottava sola e i 37 tasti della Plus non servivano. La mappa e il profilo `mpk_mk4` sono da scrivere; qui ci sono i fatti, catturati sul PC con `tools/midi_ascolta.py` (winmm, tutte le porte) con la MK4 nel preset **DAW**. È un preset di fabbrica in sola lettura, quindi resta sempre uguale e non va programmato [O]:
 
 | Controllo | Porta | Messaggio | Note |
 |---|---|---|---|
@@ -518,7 +518,7 @@ Le quattro porte su Windows si chiamano «MPK mini IV MIDI Port», «DAW Port»,
 
 | Controllo MK4 | Funzione in Stame |
 |---|---|
-| 25 tasti | i 12 tasti dell'Orchid (nota % 12), come la Plus (MIDI-079) |
+| 25 tasti | i 12 tasti dell'originale (nota % 12), come la Plus (MIDI-079) |
 | Pad, banco A | fila in alto Dim, Min, Maj, Sus; fila in basso 6, m7, M7, 9: stesse note della Plus |
 | Pad, banco B | **otto pad di batteria** con la velocity (MIDI-135, deciso da Luigi il 16/10/2026): fila bassa cassa, rullante, rimshot, battimani; fila alta charleston chiuso, charleston aperto, tom basso, piatto. Una nota del banco B rilascia prima i tasti accordo del banco A, come un cambio di banco (MIDI-089) |
 | K1–K8 | gli 8 encoder (Sound, Perform, FX, Key, Bass, Loop, BPM, Volume). Uno scatto ogni 12 unità per Sound, Key, Bass e Loop, 8 per Perform e FX, 3 per BPM, 2 per Volume [V: da tarare a mano] |
@@ -537,7 +537,7 @@ Le quattro porte su Windows si chiamano «MPK mini IV MIDI Port», «DAW Port»,
 
 ### 8.10 Macro pad BRIMFORD (profilo `pad_brimford`)
 
-Gli encoder dell'Orchid si premono, le manopole della MPK no. Luigi ha aggiunto un **macro pad** che il 13/10/2026 dava agli encoder i loro pulsanti (K1–K8 e T1–T8 come **due griglie gemelle 4×2**). Il **16/10/2026** Luigi ha chiesto di togliere i comandi replicati fra gli apparecchi («studia l'ergonomia migliore per i comandi utilizzando quelli che sono più ergonomicamente funzionali, se restano tasti o manopole libere... assegnamogli nuove feature») e ha deciso: la pressione degli encoder sta tutta su SHIFT + K della MK4, liste, conferma, Back e Menu sulla manopola di navigazione, − e + della MK4, il Lock resta, le riserve tacciono quando c'è l'apparecchio che sostituiscono. Il pad tiene Options, Panic, Lock, View, Page e i due voicing, e i tasti liberi fanno quello che l'Orchid non ha (MIDI-133). Il **17/10/2026** i tasti della Flip hanno smesso di tacere (MIDI-137, al posto delle riserve inerti di MIDI-134). Il 18/10/2026 Luigi ha tolto le mappe per la sola MK4 e per il solo pad: lo strumento è MK4, pad e Flip insieme, e ogni apparecchio fa sempre la sua mappa.
+Gli encoder dell'originale si premono, le manopole della MPK no. Luigi ha aggiunto un **macro pad** che il 13/10/2026 dava agli encoder i loro pulsanti (K1–K8 e T1–T8 come **due griglie gemelle 4×2**). Il **16/10/2026** Luigi ha chiesto di togliere i comandi replicati fra gli apparecchi («studia l'ergonomia migliore per i comandi utilizzando quelli che sono più ergonomicamente funzionali, se restano tasti o manopole libere... assegnamogli nuove feature») e ha deciso: la pressione degli encoder sta tutta su SHIFT + K della MK4, liste, conferma, Back e Menu sulla manopola di navigazione, − e + della MK4, il Lock resta, le riserve tacciono quando c'è l'apparecchio che sostituiscono. Il pad tiene Options, Panic, Lock, View, Page e i due voicing, e i tasti liberi fanno quello che l'originale non ha (MIDI-133). Il **17/10/2026** i tasti della Flip hanno smesso di tacere (MIDI-137, al posto delle riserve inerti di MIDI-134). Il 18/10/2026 Luigi ha tolto le mappe per la sola MK4 e per il solo pad: lo strumento è MK4, pad e Flip insieme, e ogni apparecchio fa sempre la sua mappa.
 
 | Voce | Valore | Etichetta |
 |---|---|---|
@@ -689,14 +689,14 @@ layers:
   - con il Lock spento m2 è il volume del Beat (premuta e girata, del basso: MIDI-133); acceso è Key. Liste, fuoco e conferma stanno sulla **manopola di navigazione della MK4** (scatti e pressione, MIDI-130; dal 16/10/2026 la sola casa della navigazione, con − e +) e, senza MK4, su croce e A della Flip.
 
 - **MIDI-132** — **View e Page** [D, **decisi da Luigi il 15/10/2026**]. Due tasti per guardare la Flip senza allungare la mano fino ai suoi tasti:
-  - **T14 View** emette `PNL_MACRO(MACRO_VIEW_TOGGLE)` alla pressione: la UI passa a **Geek Out** e, al tocco successivo, torna alla vista in uso prima (`30` UI-051: Options → View resta la strada dell'Orchid per le sei viste);
+  - **T14 View** emette `PNL_MACRO(MACRO_VIEW_TOGGLE)` alla pressione: la UI passa a **Geek Out** e, al tocco successivo, torna alla vista in uso prima (`30` UI-051: Options → View resta la strada dell'originale per le sei viste);
   - **T15 Page** emette `PNL_MACRO(MACRO_CONTROLS_PAGE)` alla pressione: la UI apre la **pagina dei comandi** (`30` UI-142a) e la tiene aperta finché non arriva un altro `MACRO_CONTROLS_PAGE` o un `PNL_BACK`; i 5 s dei tasti della Flip non la chiudono;
   - tutti e due agiscono solo alla pressione: tenerli non ripete nulla. Non cambiano suono, trasporto né looper.
 
-- **MIDI-133** — **Le aggiunte sui tasti liberi del macro pad** [D, **decise da Luigi il 16/10/2026** con le domande a scelta multipla: «Hold, Tap tempo, Metronomo, Save Loop», «Scene 1–4 su T5–T8», «Fill del Beat su T4», «m2 = Beat volume, premuta e girata = Bass volume»]. Sono tutte cose che l'Orchid non ha (principio del 15/10/2026: le aggiunte si implementano e, se sono uno stato, si vedono sulla plancia, `30` UI-126):
+- **MIDI-133** — **Le aggiunte sui tasti liberi del macro pad** [D, **decise da Luigi il 16/10/2026** con le domande a scelta multipla: «Hold, Tap tempo, Metronomo, Save Loop», «Scene 1–4 su T5–T8», «Fill del Beat su T4», «m2 = Beat volume, premuta e girata = Bass volume»]. Sono tutte cose che l'originale non ha (principio del 15/10/2026: le aggiunte si implementano e, se sono uno stato, si vedono sulla plancia, `30` UI-126):
   - **T1 Hold**: a scatto. Acceso, il rilascio dei tasti e dei tasti accordo non arriva al motore degli accordi: l'accordo resta a suonare finché non si preme un tasto nuovo (allora escono prima i rilasci trattenuti) o finché il Hold non si spegne. In testata «HOLD». La batteria a tastiera e il Reset lo spengono;
   - **T2 Tap tempo**: ogni tocco è un battito; dal secondo in poi il BPM è la media degli ultimi quattro intervalli (60…200), con l'overlay di BPM; due secondi senza tocchi e si riparte da capo;
-  - **T3 Metronomo**: on/off, **indipendente dal Beat** (`mot_metronome`): clicca sui battiti della metrica in uso, mette in moto il trasporto come il Beat (ACC-204) e non lo riavvia se è già in moto; con il Beat scelto la metrica è 4/4 (ACC-209). In testata «METRO». La voce metronomo della lista di BPM resta quella dell'Orchid;
+  - **T3 Metronomo**: on/off, **indipendente dal Beat** (`mot_metronome`): clicca sui battiti della metrica in uso, mette in moto il trasporto come il Beat (ACC-204) e non lo riavvia se è già in moto; con il Beat scelto la metrica è 4/4 (ACC-209). In testata «METRO». La voce metronomo della lista di BPM resta quella dell'originale;
   - **T4 Fill**: finché è tenuto il Beat suona la sua **battuta di riempimento** (`beat_fill_hits`, una per ciascuno dei 15 Beat, nello stesso kit), al rilascio torna il pattern. In testata «FILL». Il profilo manda il rilascio sintetico se il pad si stacca;
   - **T5–T8 Scene 1–4**: un tocco richiama suono, basso, Perform (modo e amount), intensità dell'effetto, tonalità con la Key mode e basso acceso; tenuto 1 s salva lo stato corrente. Una scena vuota lo dice («Scene 3 empty: hold 1 s to save»). Le scene stanno in `Saves/stame/scene.txt` (chiave=valore, PLT-066: `s1.sound`, `s1.perf`…), lette all'avvio e riscritte a ogni salvataggio dal thread principale;
   - **T10 Save Loop**: l'uscita morbida di ACC-222 (`LOOP_C_EXIT`): il loop si ferma e resta in RAM; il Loop successivo (REC) lo riprende da t = 0 invece di registrarne uno nuovo; Clear da fermo lo svuota;
@@ -705,13 +705,13 @@ layers:
 
 - **MIDI-134** — **Riserve inerti** [D, 16/10/2026; **superata il 17/10/2026** da MIDI-137]. Dal 16 al 17/10/2026 i tasti della Flip che rifacevano il comando di un altro apparecchio tacevano quando quell'apparecchio c'era (croce, A, B e START con la MK4; Y, SELECT, L1 e R1 con il pad). Sulla Flip Luigi è rimasto chiuso nel menu: MENU lo apriva, ma la croce taceva. Il 17/10/2026: «i tasti della flip devono funzionare per la gestione», poi «tutti».
 
-- **MIDI-135** — **La drum machine dal vivo** [D, **decisa da Luigi il 16/10/2026**: «la drum machine deve avere la stessa "filosofia" di orchid... premo tasti, muovo manopole e creo loop di batteria in tempo reale», niente sequencer a passi; scelte con le domande a scelta multipla: pad del banco B, kit/Roll/Accent, Swing, FX sulla batteria]. Si suona e si registra nel looper come gli accordi (ACC-211); sotto **DRUMS** (T11) gli stessi encoder cambiano mestiere, come con il Lock, e le celle della pagina dei comandi lo scrivono (`30` UI-152):
+- **MIDI-135** — **La drum machine dal vivo** [D, **decisa da Luigi il 16/10/2026**: «la drum machine deve avere la stessa "filosofia" dell'originale... premo tasti, muovo manopole e creo loop di batteria in tempo reale», niente sequencer a passi; scelte con le domande a scelta multipla: pad del banco B, kit/Roll/Accent, Swing, FX sulla batteria]. Si suona e si registra nel looper come gli accordi (ACC-211); sotto **DRUMS** (T11) gli stessi encoder cambiano mestiere, come con il Lock, e le celle della pagina dei comandi lo scrivono (`30` UI-152):
   - **pad del banco B della MK4**: otto colpi con la velocity, sempre, anche senza DRUMS (`PNL_MACRO(MACRO_DRUM_HIT, strumento << 8 | velocity)`, velocity 0 al rilascio); fila bassa cassa, rullante, rimshot, battimani, fila alta charleston chiuso e aperto, tom basso, piatto, nell'ordine degli strumenti di `drums.h` (ACC-212);
   - **K1 = Kit** (cella «KIT»): 0 = il kit del Beat scelto, poi Studio, Jazz, 808, Techno, Chip (`mot_kit`); vale per i tasti, i pad e il Beat;
   - **K2 = Roll** (cella «ROLL»): un tasto o un pad **tenuto** si ripete sulla griglia del loop (o del trasporto) con la suddivisione scelta: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32 (`mot_roll`, in tick: 96, 48, 32, 24, 16, 12). Il colpo della mano suona subito; la ripetizione salta il punto di griglia che cade a meno di mezza suddivisione dal colpo; ogni ripetizione entra nel loop al suo tick esatto. È lo Strum della batteria;
   - **K5 = Accent** (cella «ACCENT», 0…10, default 10): quanto conta la velocity: `v = 100 + (velocity − 100) × Accent / 10`, quindi 0 = colpi tutti uguali a 100, 10 = la dinamica com'è. Vale per tasti e pad;
   - gli overlay sono `OV_KIT`, `OV_ROLL`, `OV_ACCENT` (`30` UI-025); K3 (FX sulla batteria) e K4 (Swing sulla griglia del loop e dei Beat) sono decisi ma non ancora fatti;
-  - fuori da DRUMS gli encoder tornano quelli dell'Orchid; kit, Roll e Accent restano come sono;
+  - fuori da DRUMS gli encoder tornano quelli dell'originale; kit, Roll e Accent restano come sono;
   - dal 18/10/2026, sotto DRUMS, le tre manopole del pad creano il loop di batteria: MIDI-139.
 
 - **MIDI-136** — **Il pad senza tastiera era lo strumento** [D, 17/10/2026; **tolta il 18/10/2026**]. Dal 17 al 18/10/2026, senza MPK collegata, il pad cambiava mappa: T1–T12 erano le dodici fondamentali, M teneva il tipo d'accordo e m1 l'estensione. Il 18/10/2026 Luigi: «ci ho ripensato. elimina tutto quello che riguarda il funzionamento solo mpk o solo pad». Il pad fa sempre la mappa di MIDI-120.
@@ -817,7 +817,7 @@ Serve per suonare Stame anche senza la MPK, in viaggio. È più povero dell'orig
 |---|---|---|
 | Levetta sinistra | sceglie la classe di nota: 12 settori da 30°, Do in alto, in senso orario per semitoni; isteresi di 5° ai bordi | Nessun evento da sola |
 | A | `PNL_KEY_DOWN(settore, 100)` alla pressione, `PNL_KEY_UP` al rilascio; se il settore cambia con A premuto: `KEY_UP` del vecchio e `KEY_DOWN` del nuovo | Tasto della tastiera (velocity fissa 100 [D]) |
-| L2, L1, R1, R2 | `PNL_CHORD_DOWN/UP`: Dim, Min, Maj, Sus | Tasti tipo, nello stesso ordine da sinistra a destra dell'Orchid |
+| L2, L1, R1, R2 | `PNL_CHORD_DOWN/UP`: Dim, Min, Maj, Sus | Tasti tipo, nello stesso ordine da sinistra a destra dell'originale |
 | Croce sinistra, giù, destra, su | `PNL_CHORD_DOWN/UP`: 6, m7, M7, 9 | Estensioni |
 | Levetta destra, asse X | `PNL_ENC_TURN(ENC_CHORD_VOICING, ±1)`: un passo oltre il 50% della corsa, ripetuto ogni 150 ms; ogni 50 ms oltre il 90% | Chord Voicing |
 | Levetta destra, asse Y | `PNL_ENC_TURN(ENC_FOCUS, ±1)`, stessa ripetizione | Ruota l'encoder con il fuoco |
@@ -842,7 +842,7 @@ Serve per suonare Stame anche senza la MPK, in viaggio. È più povero dell'orig
 /* core/input/panel.h — C11, nessuna dipendenza */
 #include <stdint.h>
 
-typedef enum {                      /* i controlli rotanti dell'Orchid */
+typedef enum {                      /* i controlli rotanti dell'originale */
     ENC_SOUND, ENC_PERFORM, ENC_FX, ENC_KEY, ENC_BASS, ENC_LOOP,
     ENC_BPM, ENC_VOLUME, ENC_OPTIONS, ENC_CHORD_VOICING, ENC_BASS_VOICING,
     ENC_COUNT,
@@ -924,7 +924,7 @@ Un profilo generico per qualunque tastiera MIDI, con apprendimento dei controlli
 
 ### 10.3 Riconoscimento dei gesti
 
-Gli encoder dell'Orchid hanno quattro gesti [M]: **premere** (commuta), **ruotare** (valore), **tenere premuto** (menu o lock), **premere e ruotare** (funzione secondaria).
+Gli encoder dell'originale hanno quattro gesti [M]: **premere** (commuta), **ruotare** (valore), **tenere premuto** (menu o lock), **premere e ruotare** (funzione secondaria).
 
 - **MIDI-103** — Il riconoscitore DEVE produrre, per ciascun encoder, questi gesti [D]:
 
@@ -1032,7 +1032,7 @@ Per il macro pad le verifiche sono VP-1…VP-7 (in [Questioni aperte](#questioni
 | T-MIDI-12 | MPK: due Do (48 e 60) premuti, rilascio di 48 | Un solo `PNL_KEY_DOWN(0)`; `PNL_KEY_UP(0)` solo al rilascio di 60 |
 | T-MIDI-13 | MPK scollegata con accordo tenuto, poi ricollegata | Rilasci sintetici, suono interno chiuso; al ricollegamento Note Off sul DIN e CC 123 + 120 |
 | T-MIDI-14 | K1 in Absolute (programma di fabbrica), valore da 40 a 44 | Profilo in fabbrica; 2 scatti di Sound con `step` = 2 |
-| T-MIDI-15 | Nomi esposti | Nessuno comincia con "orchid" (anche "Orchid", " ORCHID") |
+| T-MIDI-15 | Nomi esposti | Nessuno comincia con il nome dell'originale (anche con le maiuscole o dopo spazi iniziali) |
 | T-MIDI-16 | Macro pad: F16 giù, poi MPK K4 +2 (uno scatto), poi F16 su | `G_PRESS_TURN(ENC_KEY, +1)` (transpose); nessun `G_PRESS(ENC_KEY)` |
 | T-MIDI-17 | Macro pad: F24 tenuto 0,5 s, poi tenuto 1,2 s | Primo: nessun evento; secondo: un solo `MACRO_PANIC`, a 1 s |
 | T-MIDI-18 | Macro pad: KP5 giù, F18 giù e su, KP5 su | `G_PRESS(ENC_LOOP)` con `ENC_BASS_VOICING` tenuto: uscita hard dal loop |
@@ -1050,9 +1050,9 @@ Per il principio di fedeltà queste opzioni esistono ma partono spente [D].
 - **MIDI-201** — **`FB` alla ripresa** dalla pausa del loop, mantenendo la posizione, al posto di `FA`.
 - **MIDI-202** — **CC di stato come comandi** in ingresso (103, 107, 108, 112, 113): Key, BPM, Perform e volume dalla DAW. BPM sopra 127: CC 112 + CC 113 come MSB/LSB, oppure solo SysEx.
 - **MIDI-203** — **Program Change** in ingresso per il Sound; **CC 7** per il volume master.
-- **MIDI-204** — **Ingresso accordi**: le note di un canale scelto fanno da tastiera dell'Orchid (fondamentale + tasti accordo su note fisse), cosa che l'Orchid non fa.
+- **MIDI-204** — **Ingresso accordi**: le note di un canale scelto fanno da tastiera dell'originale (fondamentale + tasti accordo su note fisse), cosa che l'originale non fa.
 - **MIDI-205** — **Inoltro** di pitch wheel e mod wheel della MPK sul canale Performance.
-- **MIDI-206** — **Latch** con il pedale della MPK (l'Orchid non ha né latch né hold [O]).
+- **MIDI-206** — **Latch** con il pedale della MPK (l'originale non ha né latch né hold [O]).
 - **MIDI-207** — **Zone della tastiera** della MPK: ottava più bassa = solo basso, resto = accordi.
 - **MIDI-208** — **Altre uscite**: interfaccia USB-MIDI class compliant su hub; RTP-MIDI via Wi-Fi verso il computer; gadget USB `f_midi` se il kernel lo permette (senza MPK). Nome sempre "Stame".
 - **MIDI-209** — **Doppio Note Off 3.92** sul flusso Chord, solo per i confronti (MIDI-017).
@@ -1063,7 +1063,7 @@ Per il principio di fedeltà queste opzioni esistono ma partono spente [D].
 
 ## Questioni aperte
 
-### Da verificare su un Orchid vero (VO)
+### Da verificare sull'originale (VO)
 
 | ID | Domanda | Default scelto | Requisiti |
 |---|---|---|---|

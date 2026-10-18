@@ -1,4 +1,4 @@
-/* mpk_stame.c — mappa della MPK mini Plus verso il pannello dell'Orchid (sezione 40, §8.5–§8.8). */
+/* mpk_stame.c — mappa della MPK mini Plus verso il pannello dell'originale (sezione 40, §8.5–§8.8). */
 #include "mpk_stame.h"
 #include "../midi_parse.h"
 

@@ -328,7 +328,7 @@ def plancia(st, width='100%'):
 STATI = {
     'principale': dict(focus='FX', trans='Trans +3'),
     'lista': dict(focus='SOUND', z6='lista', trans='Trans +3', list_title='SOUND', list_pos='3/76',
-                  list_rows=[('01', 'Orchid EP', 'RP  piano elettrico', ''), ('02', 'Ghost', 'VA  pad', ''),
+                  list_rows=[('01', 'Nectar EP', 'RP  piano elettrico', ''), ('02', 'Ghost', 'VA  pad', ''),
                              ('03', 'Analog Flower', 'VA  pluck', '✓'), ('04', 'Cherry Blossom', 'VA  pad', ''),
                              ('05', 'Eraserhead', 'FM  organo', '')]),
     'push_rec': dict(focus='KEY', z6='tk', trans='Trans +3', loop='rec', loop_cell='Rec', loop_det='bar 3/4',
@@ -364,8 +364,8 @@ def _p2():
         _zone_note('Z2', 'Accordo · 416×216', 'Tonalità e transpose; il <b>nome dell\'accordo</b> a punti (Matrice, lettera alta 98 px), con i punti spenti visibili: l\'accordo in acqua, il basso dopo la barra in ambra, come i tasti accesi. Note, intervalli, Play Style e cartellino di Linneo stanno in Geek Out.'),
         _zone_note('Z3', 'Tempo e loop · 224×216', 'BPM a sette segmenti alti 50 px e un riquadro per movimento. Il looper compare solo quando lavora: stato, battuta, barra a celle, menu a tre voci; cornice rossa mentre registra.'),
         _zone_note('Z4', 'Tastiera · 640×144', '4 ottave che seguono le finestre: treble, basso e loop (striscia viola) sui tasti. I puntini sono i granelli di polline: le note della tonalità. Girando un voicing compaiono sopra i <b>filamenti</b> con le antere.'),
-        _zone_note('Z5', 'Comandi · a richiesta', 'Con L1/R1, croce, A o X della Flip, al posto della tastiera: gli 11 controlli dell\'Orchid con fuoco, LED, LOCK e legenda. Si chiude da sola dopo 5 s o con B. Qui si aprono anche liste e menu.'),
-        _zone_note('Z6', 'Banda · 640×96', 'Il <b>controllo appena toccato</b>, in grande, con un segno giallo a sinistra: è l\'overlay dell\'Orchid. A riposo, il suono. Avvisi e richiesta della tonalità passano davanti. I nomi dei comandi sono incisi sulla mascherina, non qui.'),
+        _zone_note('Z5', 'Comandi · a richiesta', 'Con L1/R1, croce, A o X della Flip, al posto della tastiera: gli 11 controlli dell\'originale con fuoco, LED, LOCK e legenda. Si chiude da sola dopo 5 s o con B. Qui si aprono anche liste e menu.'),
+        _zone_note('Z6', 'Banda · 640×96', 'Il <b>controllo appena toccato</b>, in grande, con un segno giallo a sinistra: è l\'overlay dell\'originale. A riposo, il suono. Avvisi e richiesta della tonalità passano davanti. I nomi dei comandi sono incisi sulla mascherina, non qui.'),
     ])
     return f"""
 <h2>La plancia sulla Flip</h2>

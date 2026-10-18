@@ -17,7 +17,7 @@
 #define MIDI_PARSE_MAX_OUT 2      /* uno status che chiude un SysEx può completare anche un messaggio suo (F6) */
 
 /* Porte della MPK (§8.1): la porta 1 (cable 0) va al profilo, la porta 2 (cable 1) all'ingresso
- * MIDI dell'Orchid (MIDI-072). */
+ * MIDI dell'originale (MIDI-072). */
 enum { MIDI_PORT_CTL = 0, MIDI_PORT_DIN = 1 };
 
 typedef struct {

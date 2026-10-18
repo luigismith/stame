@@ -1,4 +1,4 @@
-/* mpk_mk4.c — mappa della MPK mini IV (preset DAW) verso il pannello dell'Orchid (sezione 40, §8.9b).
+/* mpk_mk4.c — mappa della MPK mini IV (preset DAW) verso il pannello dell'originale (sezione 40, §8.9b).
  *
  * Mappa decisa il 15/10/2026 con Luigi: tasti e pad come la Plus (stesse note), manopole K1–K8 sugli
  * 8 encoder, SHIFT = PUSH, manopola di navigazione = liste e fuoco (premuta = conferma, premuta e
@@ -13,7 +13,7 @@
 static const uint8_t KNOB_ENC[8] STAME_ROM = {
     ENC_SOUND, ENC_PERFORM, ENC_FX, ENC_KEY, ENC_BASS, ENC_LOOP, ENC_BPM, ENC_VOLUME
 };
-/* unità relative per scatto dell'Orchid: le manopole non hanno scatti e accelerano [V] (15/10/2026:
+/* unità relative per scatto dell'originale: le manopole non hanno scatti e accelerano [V] (15/10/2026:
  * un gesto «di tre scatti» vale 50–90 unità) */
 static const uint8_t KNOB_STEP[8] STAME_ROM = { 12, 8, 8, 12, 12, 12, 3, 2 };
 /* banco B, note 44–51: otto pad di batteria (MIDI-135), strumenti nell'ordine di drums.h (ACC-212): fila bassa

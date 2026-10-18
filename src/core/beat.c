@@ -15,7 +15,7 @@ static const beat_def_t BEATS[BEAT_COUNT] STAME_ROM = {
     /* ACC-210: il provvisorio della specifica, velocity 110 sui battiti e 80 sugli altri passi */
     { "Provvisorio", NULL, { { DRUM_KICK, "X...X...X...X..." }, { DRUM_SNARE, "....X.......X..." },
                              { DRUM_CLOSED_HAT, "X.x.X.x.X.x.X.x." } } },
-    /* i Beat della vetrina (nomi e pattern di Stame, nessun dato dell'Orchid); i primi 6 dal 14/10,
+    /* i Beat della vetrina (nomi e pattern di Stame, nessun dato dell'originale); i primi 6 dal 14/10,
      * gli altri dal 15/10/2026 con i kit a campioni (SND-537) */
     { "Funk", KIT_STUDIO, { { DRUM_KICK, "X.....X...X..x.." }, { DRUM_SNARE, "....X..x.x..X..x" },
                             { DRUM_CLOSED_HAT, "XxxxXxxxXxxxXxx." }, { DRUM_OPEN_HAT, "..............x." } } },

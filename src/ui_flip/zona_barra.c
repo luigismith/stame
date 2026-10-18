@@ -1,7 +1,7 @@
 /* zona_barra.c — Z6, la banda in fondo alla plancia (UI-154..UI-156): una cosa sola alla volta.
  *
  * Il case porta i nomi dei controlli, lo schermo i valori. La banda mostra in grande il controllo
- * appena toccato, con l'etichetta del suo overlay (UI-065): è l'overlay dell'Orchid, che qui non
+ * appena toccato, con l'etichetta del suo overlay (UI-065): è l'overlay dell'originale, che qui non
  * copre l'accordo. A riposo mostra il suono, anche nella pagina dei comandi: i tasti della Flip
  * sono sei e sempre gli stessi, e la riga che li elencava ripeteva quello che le dita sanno
  * (15/10/2026). Gli avvisi passano davanti a tutto.

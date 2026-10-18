@@ -8,7 +8,7 @@
 
 #include <stdint.h>
 
-typedef enum {                      /* i controlli rotanti dell'Orchid */
+typedef enum {                      /* i controlli rotanti dell'originale */
     ENC_SOUND, ENC_PERFORM, ENC_FX, ENC_KEY, ENC_BASS, ENC_LOOP,
     ENC_BPM, ENC_VOLUME, ENC_OPTIONS, ENC_CHORD_VOICING, ENC_BASS_VOICING,
     ENC_COUNT,
@@ -25,7 +25,7 @@ typedef enum {
     MACRO_VIEW_TOGGLE,              /* Geek Out <-> la vista di prima (T14 del macro pad, MIDI-132) */
     MACRO_CONTROLS_PAGE,            /* apre o chiude la pagina dei comandi della Flip (T15, MIDI-132) */
     MACRO_RESET,                    /* Panic più looper, Beat, transpose e Perform da capo (T12 tenuto 3 s, MIDI-126) */
-    /* le funzioni che l'Orchid non ha, sui tasti liberi del macro pad (MIDI-133, 16/10/2026) */
+    /* le funzioni che l'originale non ha, sui tasti liberi del macro pad (MIDI-133, 16/10/2026) */
     MACRO_HOLD_TOGGLE,              /* T1: l'accordo resta a suonare dopo il rilascio, fino al tasto dopo */
     MACRO_TAP_TEMPO,                /* T2: un tocco del tap tempo */
     MACRO_METRO_TOGGLE,             /* T3: metronomo on/off, indipendente dal Beat */

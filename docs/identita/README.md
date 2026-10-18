@@ -1,6 +1,6 @@
 # Stame — identità
 
-Bozza 2, 15/10/2026: la plancia diventa calma (§3.1). Bozza 1, 14/10/2026. Questo documento fissa il carattere di Stame: la storia, il marchio, la plancia sulla Flip, il case e il suono. Il comportamento resta quello dell'Orchid (sezioni 10–40 della specifica). Qui si decide solo come Stame si presenta.
+Bozza 2, 15/10/2026: la plancia diventa calma (§3.1). Bozza 1, 14/10/2026. Questo documento fissa il carattere di Stame: la storia, il marchio, la plancia sulla Flip, il case e il suono. Il comportamento resta quello della specifica (sezioni 10–40). Qui si decide solo come Stame si presenta.
 
 Dove sta nel codice:
 - **plancia**: `src/ui_flip/` (zone, tema, avvio) e `src/gfx/` (primitive, Matrice, sette segmenti);
@@ -12,7 +12,7 @@ Dove sta nel codice:
 
 ## 1. La storia
 
-**Il nome.** In un fiore lo stame porta il polline e il pistillo lo riceve. L'editor dell'Orchid si chiama Pistil: Stame è l'altra metà del fiore.
+**Il nome.** In un fiore lo stame porta il polline e il pistillo lo riceve: Stame è la parte che dà.
 
 **La serra.** Negli anni Settanta si credeva che le piante crescessero meglio con la musica. Nel 1973 uscì *The Secret Life of Plants*; nel 1976 Mort Garson incise *Plantasia*, musica per Moog «per le piante e per chi le ama». Stame è lo strumento che quella serra avrebbe avuto: un sintetizzatore ad accordi con il pannello di legno e un display che si accende come un vetrino al microscopio.
 
@@ -47,7 +47,7 @@ La scritta **STAME** si compone sempre in Matrice (§3.2): a punti sullo schermo
 Il 15/10/2026 Luigi ha guardato le prime immagini e ha chiesto se servissero davvero tutte quelle informazioni. Non servivano: a un braccio di distanza si leggevano solo il nome dell'accordo e il BPM, e metà dello schermo ripeteva ciò che il case incide accanto ai comandi. Da qui i primi tre principi.
 
 1. **Calma.** Mentre si suona il vetrino mostra quattro cose: l'accordo, il tempo, la tastiera e, in fondo, il controllo appena toccato (a riposo, il suono). Tutto ciò che si vede deve leggersi a 50–70 cm: maiuscole alte almeno 3 mm. Il resto arriva quando serve: le 11 celle dei comandi con i tasti del fuoco della Flip, il dettaglio nella vista Geek Out (specifica 30, UI-140).
-2. **Il case porta i nomi, lo schermo i valori.** La mascherina incide accanto a ogni comando la sua funzione, nello stesso color sabbia delle scritte stampate sul vetro. Lo schermo non ripete le legende: quando giri una manopola, risponde con il nome e il valore in grande, come l'overlay dell'Orchid.
+2. **Il case porta i nomi, lo schermo i valori.** La mascherina incide accanto a ogni comando la sua funzione, nello stesso color sabbia delle scritte stampate sul vetro. Lo schermo non ripete le legende: quando giri una manopola, risponde con il nome e il valore in grande, come l'overlay dell'originale.
 3. **Lo stato tace.** Se va tutto bene la testata è vuota, a parte la batteria. Un problema si accende in rosso solo finché dura.
 4. **Due inchiostri.** Le scritte fisse (titoli delle celle, BPM, BAR, KEY, i nomi dei tasti) sono stampate sul vetro in color sabbia, come la serigrafia di uno strumento d'epoca. I valori che cambiano si accendono nei colori dei fosfori. Così si vede subito cosa è etichetta e cosa è stato.
 5. **I segmenti spenti restano visibili.** Come su un display a fluorescenza (VFD), ogni cifra e ogni lettera del nome dell'accordo mostra anche i suoi punti spenti. Le parole lunghe della banda no: diventerebbero una griglia. Ogni informazione ha un posto fisso (UI-140), e il posto si vede anche quando è vuoto.
@@ -152,7 +152,7 @@ Dettagli, misure e pezzi in `docs/specifica/60-case.md` e `hardware/case/README.
 
 - File: `assets/suoni/stame_avvio.wav` (48 kHz, 16 bit).
 - Sorgente: `assets/suoni/stame_avvio.sc.txt`, il copione per `soundcraft-cli script`, più la sessione `stame_avvio.scraft` da aprire in SoundCraft.
-- **Nella vetrina** suona una volta all'avvio. **Nello Stame vero** sarà un'opzione (*Boot Sound*) spenta per default: prima la fedeltà all'Orchid.
+- **Nella vetrina** suona una volta all'avvio. **Nello Stame vero** sarà un'opzione (*Boot Sound*) spenta per default: prima la fedeltà all'originale.
 
 ## 6. Regole d'uso
 
@@ -160,5 +160,5 @@ Dettagli, misure e pezzi in `docs/specifica/60-case.md` e `hardware/case/README.
 - Nessun nuovo colore: ogni colore ha un ruolo (§3.3). Un'informazione nuova prende il ruolo che le spetta.
 - Le scritte fisse sono sabbia, i valori sono fosfori. Mai il contrario.
 - Il marchio non si deforma e non si colora fuori dai colori della tabella del §2.
-- Niente nomi, loghi o marchi dell'Orchid o di Telepathic Instruments, né sullo schermo né sul case.
+- Niente nomi, loghi o marchi di altri, né sullo schermo né sul case.
 - Ogni grafica nuova passa dal renderer offline (`stame-render`) e dai test dei contrasti prima di arrivare sulla Flip.

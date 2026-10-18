@@ -1,11 +1,11 @@
 # Convenzioni della specifica di Stame
 
-Stame è un clone fedele dell'Orchid (ORC—1) di Telepathic Instruments. Questa specifica descrive la **versione per la Miyoo Flip**, un'app nativa suonata con la **Akai MPK mini Plus**. L'hardware dedicato arriverà dopo. Qui conta solo una cosa: il nucleo deve restare portabile.
+Stame è uno strumento ad accordi fedele a un originale (vedi `00-panoramica.md` per il principio). Questa specifica descrive la **versione per la Miyoo Flip**, un'app nativa suonata con la **Akai MPK mini Plus**. L'hardware dedicato arriverà dopo. Qui conta solo una cosa: il nucleo deve restare portabile.
 
 ## Principi
 1. **Prima la fedeltà all'originale.** Le migliorie (latch, clock in, più scale…) vanno solo in appendice, come opzioni spente per default.
 2. **Nucleo portabile.** `core` (accordi, performance, looper, MIDI logico), `dsp` (sintesi, effetti), `ui`, `gfx` e i renderer (`ui_flip` per la plancia 640×480, `ui_oled` per l'hardware) sono in C11 puro: niente SDL, niente ALSA, niente malloc nel percorso audio. Lo strato `platform/flip` fa da ponte verso SDL2, ALSA ed evdev.
-3. **Separazione da OpenOrc.** Mai citare, confrontare o riusare OpenOrc / Cirmolo.
+3. **Separazione dagli altri progetti.** Mai citare, confrontare o riusare Cirmolo o altri progetti sullo stesso strumento; l'originale si chiama «l'originale», senza il nome.
 
 ## Forma
 - Italiano con tutti gli accenti. Termini tecnici e identificatori restano nella forma originale.
@@ -13,9 +13,9 @@ Stame è un clone fedele dell'Orchid (ORC—1) di Telepathic Instruments. Questa
 - Tabelle e pseudocodice dove servono: lo scopo è poter scrivere codice e test direttamente dalla specifica.
 - Ogni dato di comportamento porta un'etichetta di affidabilità:
   - `[M]` dal manuale o dalla documentazione ufficiale;
-  - `[O]` osservato (video, firmware, utenti, Pistil);
+  - `[O]` osservato (video, firmware, utenti, l'editor dei suoni dell'originale);
   - `[D]` dedotto o ricostruito;
-  - `[V]` **da verificare su un Orchid vero**: è il valore di default scelto per ora, con il riferimento al test.
+  - `[V]` **da verificare sull'originale**: è il valore di default scelto per ora, con il riferimento al test.
 - Ogni sezione chiude con **Questioni aperte** e **Dipendenze da altre sezioni**.
 
 ## Dati privati
@@ -31,4 +31,4 @@ I preset di fabbrica 3.92 sono dati privati: servono solo per studio e non vanno
 | `40-midi-e-controlli.md` | MIDI in/out, clock, SysEx; MPK mini Plus e programma "STAME"; tasti della Flip |
 | `50-piattaforma-flip.md` | app nativa, SDL2/ALSA/evdev, toolchain, budget di latenza e CPU, struttura del codice |
 | `60-case.md` | case della fase 1: disposizione di MPK, macro pad e Flip, collegamenti, parti da stampare |
-| `90-questioni-aperte.md` | verifiche da fare sull'Orchid e sulla MPK, dati mancanti |
+| `90-questioni-aperte.md` | verifiche da fare sull'originale e sulla MPK, dati mancanti |

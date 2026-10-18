@@ -65,7 +65,7 @@ def twin_svg(width='100%'):
         o.append(rect(px - 9.5, py - 9.5, 19, 19, kind2, rx=2, sw=0.7))
         o.append(text(px, py - 1.5, nm, 2.9 if len(nm) < 7 else 2.5, weight='700'))
         o.append(text(px, py + 4.5, f'T{i + 1}', 2.4, color='#555'))
-    o.append(text(115, 71, 'stessa posizione = stesso encoder dell\'Orchid:  manopola = ruotare,  tasto = premere,  tasto tenuto + manopola = premere e ruotare', 2.9, weight='600'))
+    o.append(text(115, 71, 'stessa posizione = stesso encoder dell\'originale:  manopola = ruotare,  tasto = premere,  tasto tenuto + manopola = premere e ruotare', 2.9, weight='600'))
     o.append('</svg>')
     return ''.join(o)
 

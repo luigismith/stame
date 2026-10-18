@@ -4,15 +4,15 @@
 
 # Stame
 
-**Un clone fedele e aperto dell'Orchid, il synth ad accordi, cresciuto su una console.**
+**Uno strumento ad accordi, aperto, cresciuto su una console.**
 
 *[English](README.md) · Italiano* · **Sito:** https://luigismith.github.io/stame/index.it.html
 
-Tieni un tasto accordo, premi un tasto, ed esce un accordo con il suo voicing e il suo basso. L'[Orchid](https://telepathicinstruments.com/) di Telepathic Instruments fa questo, più strum, arpeggi, pattern, un beat e un looper. **Stame** fa lo stesso — tutto, dalle finestre del voicing ai Secret Chords — su una console **Miyoo Flip**, suonata con una **Akai MPK mini IV** e un **macro pad** a quindici tasti. E poi, avendo più tasti, più manopole e più CPU dell'originale, qualcosa in più.
+Tieni un tasto accordo, premi un tasto, ed esce un accordo intero, con il suo voicing e il suo basso. Una mano sceglie il tipo (Dim, Min, Maj, Sus) e le estensioni (6, m7, M7, 9), l'altra la fondamentale; le finestre del voicing spostano l'accordo in alto e in basso, le performance (strum, arpeggi, pattern, arpa) lo fanno muovere, un Beat e un looper a eventi fanno i loop mentre suoni. Tutto si suona, niente si programma a passi. **Stame** lo fa su una console **Miyoo Flip**, suonata con una **Akai MPK mini IV** e un **macro pad** a quindici tasti; e, avendo più tasti, più manopole e più CPU di uno strumento dedicato, fa qualcosa in più.
 
-Il nome viene dal fiore: l'editor dell'Orchid si chiama *Pistil*, lo stame è l'altra metà. Il resto dell'identità viene da una serra degli anni Settanta (*The Secret Life of Plants*, *Plantasia* di Mort Garson) e da Linneo, che classificò le piante contando gli stami. Una nota è uno stame: una triade è *Triandria*, e la schermata d'avvio lo dice.
+Il nome viene dal fiore: lo stame porta il polline, il pistillo lo riceve; Stame è la parte che dà. Il resto dell'identità viene da una serra degli anni Settanta (*The Secret Life of Plants*, *Plantasia* di Mort Garson) e da Linneo, che classificò le piante contando gli stami. Una nota è uno stame: una triade è *Triandria*, e la schermata d'avvio lo dice.
 
-> **Stato:** fase 1, *vetrina 0.1* che gira sulla Flip: suona, fa i loop, ha una demo. La fase 2 porterà lo stesso nucleo su hardware dedicato. Progetto indipendente, non affiliato a Telepathic Instruments; nel repository non c'è nessun dato di fabbrica dell'originale.
+> **Stato:** fase 1, *vetrina 0.1* che gira sulla Flip: suona, fa i loop, ha una demo. La fase 2 porterà lo stesso nucleo su hardware dedicato. Progetto indipendente: nel repository non ci sono preset, firmware né suoni di altri strumenti.
 
 <p align="center">
   <img src="docs/sito/img/postazione.jpg" width="100%" alt="La postazione: la MPK mini IV a sinistra, il macro pad in linea con i tasti a destra, la Miyoo Flip aperta sopra il pad">
@@ -36,10 +36,10 @@ Il [manuale](docs/manuale/manuale.md) e il [prontuario](docs/manuale/prontuario.
 
 ## Cosa c'è dentro
 
-- **Il suono.** Due motori (Sound e Bass) su sedici voci a 48 kHz, tre modelli di sintesi che seguono l'originale — VA, FM e un Reed Piano a modello fisico — più un'aggiunta di Stame, il **campionatore SMP**, che suona un banco di 94 MB di campioni CC0: pianoforti (Kawai a coda, due verticali, FM piano e Clavisynth del TX81Z), clavicembali, quattro registri d'organo a canne, flauti dolci dal soprano al basso, ocarina, armoniche, sax tenore e saxello, didgeridoo, arpa, strumstick, đàn tranh, salterio, tre lamellofoni, vibrafono, marimba, balafon, xilofono, glockenspiel, campane tubolari, campane a mano, bicchieri. Due slot di effetti per motore, delay, riverbero. Novantasette suoni (55 di sintesi, 42 campionati) e diciotto bassi, progettati per Stame, nessun preset dell'originale.
-- **Performance:** Strum, Strum 2 Octaves, Slop, Arpeggiate (1 e 2 ottave), Pattern, Harp, con il Lock. **Beat:** quattordici pattern con quattro kit a campioni (Studio, Jazz, 808, Techno) e un kit sintetizzato in stile CR-78. **Looper:** un loop di eventi, quattro battute con count-in, sovraincisione, pausa, undo, clear.
+- **Il suono.** Due motori (Sound e Bass) su sedici voci a 48 kHz, tre modelli di sintesi che seguono l'originale — VA, FM e un Reed Piano a modello fisico — più un'aggiunta di Stame, il **campionatore SMP**, che suona un banco di 94 MB di campioni CC0: pianoforti (Kawai a coda, due verticali, FM piano e Clavisynth del TX81Z), clavicembali, quattro registri d'organo a canne, flauti dolci dal soprano al basso, ocarina, armoniche, sax tenore e saxello, didgeridoo, arpa, strumstick, đàn tranh, salterio, tre lamellofoni, vibrafono, marimba, balafon, xilofono, glockenspiel, campane tubolari, campane a mano, bicchieri. Due slot di effetti per motore, delay, riverbero. Centotredici suoni (71 di sintesi, 42 campionati) e ventiquattro bassi, progettati per Stame, dai pad di vetro alle linee acid.
+- **Performance:** Strum, Strum 2 Octaves, Slop, Arpeggiate (1 e 2 ottave), Pattern, Harp, con il Lock. **Beat:** diciannove pattern con quattro kit a campioni (Studio, Jazz, 808, Techno) e un kit sintetizzato in stile CR-78, e la batteria che si inventa: con DRUMS acceso le tre manopole del pad danno densità, stile e variazione a un loop di due battute che cambia mentre suona. **Looper:** un loop di eventi, quattro battute con count-in, sovraincisione, pausa, undo, clear.
 - **La plancia.** Una plancia «calma» a 640×480: accordo, tempo, tastiera e il controllo appena toccato; gli undici controlli e il dettaglio arrivano a richiesta. Sei viste, due temi (Notte, un VFD; Giorno, un LCD riflettente), un carattere a punti e cifre a sette segmenti disegnati per Stame. Vedi [docs/identita](docs/identita/README.md).
-- **La demo.** Venti secondi senza ingressi e Stame suona a giro i suoi quattro brani originali («Acacia», «Felce», «Pistillo», «Alga»), mostrando ogni gesto sulla plancia: accordi, basso, loop e sovraincisioni, un loop di batteria suonato sui tasti, piano, vibrafono, kalimba, sax, organo e campane campionati, i due temi, un ritardando.
+- **La demo.** Venti secondi senza ingressi e Stame suona a giro i suoi sei brani originali («Acacia», «Felce», «Pistillo», «Alga», «Cicuta», «Torba»), mostrando ogni gesto sulla plancia: accordi, basso, loop e sovraincisioni, un loop di batteria suonato sui tasti, piano, vibrafono, kalimba, sax, organo e campane campionati, i due temi, un ritardando.
 - **Il nucleo è portabile.** `src/core`, `src/dsp`, `src/ui`, `src/gfx` e `src/ui_flip` sono C11 puro: niente heap, niente I/O, niente SDL nel percorso audio. Tutto ciò che è specifico della piattaforma sta in `src/platform/`. Il controllo di portabilità compila il nucleo come codice freestanding per Cortex-M7, così la fase 2 resta onesta.
 
 ### Specificato, non ancora fatto
@@ -65,10 +65,10 @@ sh tools/deploy.sh              # la copia via SSH (l'indirizzo della Flip in to
 
 | | |
 |---|---|
-| [docs/specifica](docs/specifica/00-panoramica.md) | la specifica funzionale, scritta prima del codice: accordi e performance, suono, interfaccia, MIDI e controlli, la piattaforma Flip, il case. Ogni requisito ha un ID e un'etichetta di fonte ([M] manuale, [O] osservato, [D] dedotto, [V] da verificare su un Orchid vero); le convenzioni in [CONVENZIONI.md](docs/specifica/CONVENZIONI.md) |
+| [docs/specifica](docs/specifica/00-panoramica.md) | la specifica funzionale, scritta prima del codice: accordi e performance, suono, interfaccia, MIDI e controlli, la piattaforma Flip, il case. Ogni requisito ha un ID e un'etichetta di fonte ([M] manuale, [O] osservato, [D] dedotto, [V] da verificare sullo strumento); le convenzioni in [CONVENZIONI.md](docs/specifica/CONVENZIONI.md) |
 | [docs/manuale](docs/manuale/manuale.md) | il manuale d'uso e il [prontuario](docs/manuale/prontuario.md) |
 | [docs/identita](docs/identita/README.md) | l'identità: storia, marchio, temi, caratteri, avvio, logo sonoro |
-| [hardware/case](hardware/case/README.md) | il case, bozza 3: compensato di betulla, acrilico nero inciso, PETG; generato da `genera.py` ([specifica](docs/specifica/60-case.md)) |
+| [hardware/case](hardware/case/README.md) | il case, bozza 5: compensato di betulla, un piano di acrilico nero inciso, PETG; generato da `genera.py` ([specifica](docs/specifica/60-case.md)) |
 | [docs/disegni](docs/disegni/README.md) | i disegni della plancia e dei controlli |
 
 ## Crediti e licenze
@@ -76,4 +76,4 @@ sh tools/deploy.sh              # la copia via SSH (l'indirizzo della Flip in to
 - Stame (codice, specifica, identità, case) è rilasciato con la [licenza MIT](LICENSE), © 2026 Luigi Massari.
 - Il banco dei campioni usa solo campioni **CC0**: la [Versilian Community Sample Library](https://github.com/sgossner/VCSL) e i campioni di [Sonic Pi](https://github.com/sonic-pi-net/sonic-pi/tree/dev/etc/samples) da freesound.org. Ogni file è elencato in [assets/campioni/FONTI.md](assets/campioni/FONTI.md).
 - Il font bitmap [Spleen](third_party/spleen/LICENSE), BSD 2-Clause, © Frederic Cambus.
-- **Orchid** e **Pistil** sono nomi di Telepathic Instruments. Stame è un progetto indipendente, non affiliato a loro e non approvato da loro. Il repository non contiene dati di fabbrica dell'originale (niente preset, niente firmware, nessuna registrazione dei suoi suoni): il comportamento è descritto dal manuale pubblico e dall'ascolto, e ogni requisito dice da dove viene. Se hai un Orchid, le questioni segnate [V] nella specifica sono quelle a cui solo tu puoi rispondere.
+- Il repository non contiene dati di fabbrica di altri strumenti (niente preset, niente firmware, nessuna registrazione): il comportamento è descritto nella specifica, e ogni requisito dice da dove viene.

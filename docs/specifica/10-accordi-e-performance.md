@@ -9,9 +9,9 @@ Seguono `CONVENZIONI.md`. Corrispondenza con le fonti di ricerca:
 - `[M]` manuale operativo v4.1 e v3.1, articoli del supporto ufficiale, changelog del firmware, brevetto (AU/US/EP);
 - `[O]` osservato: video (anche quelli ufficiali), catture MIDI, analisi del firmware 3.92 fatta da terzi, recensioni, utenti;
 - `[D]` dedotto o ricostruito, coerente con tutti i dati noti;
-- `[V]` default scelto per ora, **da verificare su un Orchid vero**; il riferimento `(T-nn)` rimanda alla tabella dei test in §14.
+- `[V]` default scelto per ora, **da verificare sull'originale**; il riferimento `(T-nn)` rimanda alla tabella dei test in §14.
 
-I requisiti di architettura, che non descrivono un comportamento dell'Orchid ma una scelta di progetto di Stame, non portano etichetta.
+I requisiti di architettura, che non descrivono un comportamento dell'originale ma una scelta di progetto di Stame, non portano etichetta.
 
 ### 0.2 Numerazione dei requisiti
 I requisiti sono `ACC-nnn`, a blocchi per paragrafo, con numeri liberi per inserimenti futuri:
@@ -327,7 +327,7 @@ SPLIT:        n = W + ((k - W) mod 12)              # la finestra applicata alla
 | 9 / 30 | F | 5 | | 20 / 41 | C♭ | 11 |
 | 10 / 31 | F# | 6 | | | | |
 
-- **ACC-091** Scale `[M]` (il minore è naturale, Garden Report 03: Fa# minore = F# G# A B C# D E):
+- **ACC-091** Scale `[M]` (il minore è naturale, terzo video ufficiale di aggiornamento: Fa# minore = F# G# A B C# D E):
 
 ```c
 static const uint8_t ACC_SCALE_MAJ[7] = { 0, 2, 4, 5, 7, 9, 11 };
@@ -674,7 +674,7 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 - **ACC-207** Il metronomo DEVE emettere un click per battito (semiminima; in 6/8 per croma) con accento sul primo battito della battuta (in 6/8 accento sulla 1 e sulla 4) `[V]`. Il suono (Beep o Hi Hat) è della sezione suono `[M]`; il motore emette `ACC_ROLE_DRUM` con gli id `CLICK_ACCENT` / `CLICK`.
 
 ### 10.4 Beat
-- **ACC-208** Il menu dei Beat DEVE avere 16 voci: i 4 tempi in chiave (2/4, 3/4, 4/4, 6/8), che selezionano solo la metrica del metronomo, e 12 Beat con nome, in quest'ordine: Saint Germain, Orchid Bossanova, Trap, Disco, Old Skool, Techno, Latin, Millionaire, Bronson, North Soul, Back Beat, Apartment `[O]`. Lo shop parla di 20 Beat: la differenza è aperta (T-29).
+- **ACC-208** Il menu dei Beat DEVE avere 16 voci: i 4 tempi in chiave (2/4, 3/4, 4/4, 6/8), che selezionano solo la metrica del metronomo, e 12 Beat con nome, in quest'ordine: Saint Germain, Bossanova, Trap, Disco, Old Skool, Techno, Latin, Millionaire, Bronson, North Soul, Back Beat, Apartment `[O]`. Lo shop parla di 20 Beat: la differenza è aperta (T-29).
 - **ACC-209** Ogni Beat DEVE essere una tabella costante di eventi di batteria su griglia di 1/16, lunga una battuta di 4/4, in loop finché il Beat suona; il BPM è globale `[O]`. Formato come `acc_pat_ev` con `idx_mask` sostituito dall'id dello strumento.
 - **ACC-210** Il contenuto dei Beat è ignoto: tutti e 12 usano per ora lo stesso pattern provvisorio `[V]` (T-29):
 
@@ -688,7 +688,7 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 
 ### 10.5 Batteria a tastiera
 - **ACC-211** `DRUMS_TOGGLE` (Bass Voicing tenuto + BPM; dal 16/10/2026 anche T11 del macro pad, `40` MIDI-133; la drum machine dal vivo con kit, Roll, Accent e i pad del banco B è in `40` MIDI-135) DEVE alternare la modalità batteria: i tasti suonano un kit fisso, registrabile nel loop e quantizzabile `[O]`. In questa modalità tipi ed estensioni sono ignorati, il basso tace, nessuna performance; `KEY_DOWN` emette un evento `DRUM` con la velocity del tasto `[D]`.
-  - Stame (15/10/2026, Luigi: «lo stesso principio semplice dell'Orchid per creare loop di batteria») `[D]`: il kit è quello del Beat scelto (`20` SND-537), il colpo suona subito e, se il looper registra o sovraincide, entra nel loop con ruolo `DRUM` al **sedicesimo più vicino della griglia del loop** (24 tick contati da t0, l'inizio del giro; sul tick assoluto ogni colpo finiva spostato fino a 60 ms: revisione del 15/10/2026), senza note-off e senza transpose. Un colpo già sentito dal vivo e che la testina raggiungerebbe subito dopo (quantizzato in avanti in overdub, o oltre la fine della registrazione e quindi a t = 0) si segna e si salta una volta: niente flam. Uno quantizzato all'indietro è già dietro la testina e suona dal giro dopo. Alla commutazione gli accordi tenuti si rilasciano; Reset e demo spengono la modalità. Sulla plancia: «DRUMS» nella zona accordo e le sigle degli strumenti sui tasti C4…B4, che si accendono al colpo (`30` UI-150b).
+  - Stame (15/10/2026, Luigi: «lo stesso principio semplice dell'originale per creare loop di batteria») `[D]`: il kit è quello del Beat scelto (`20` SND-537), il colpo suona subito e, se il looper registra o sovraincide, entra nel loop con ruolo `DRUM` al **sedicesimo più vicino della griglia del loop** (24 tick contati da t0, l'inizio del giro; sul tick assoluto ogni colpo finiva spostato fino a 60 ms: revisione del 15/10/2026), senza note-off e senza transpose. Un colpo già sentito dal vivo e che la testina raggiungerebbe subito dopo (quantizzato in avanti in overdub, o oltre la fine della registrazione e quindi a t = 0) si segna e si salta una volta: niente flam. Uno quantizzato all'indietro è già dietro la testina e suona dal giro dopo. Alla commutazione gli accordi tenuti si rilasciano; Reset e demo spengono la modalità. Sulla plancia: «DRUMS» nella zona accordo e le sigle degli strumenti sui tasti C4…B4, che si accendono al colpo (`30` UI-150b).
 - **ACC-212** Mappa provvisoria tasti → strumenti, kit in stile CR-78 `[V]` (T-30):
 
 | k | C | C# | D | D# | E | F | F# | G | G# | A | A# | B |
@@ -935,9 +935,9 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 
 ## 14. Questioni aperte
 
-Tutte le voci confluiscono in `90-questioni-aperte.md`. Per ognuna Stame usa il default indicato finché il test non è fatto. Strumento: Orchid con firmware 3.92, MIDI out su un monitor MIDI (canali 1, 2, 3, con clock), video del display.
+Tutte le voci confluiscono in `90-questioni-aperte.md`. Per ognuna Stame usa il default indicato finché il test non è fatto. Strumento: l'originale con firmware 3.92, MIDI out su un monitor MIDI (canali 1, 2, 3, con clock), video del display.
 
-| Test | Incognita | Default di Stame | Prova sull'Orchid |
+| Test | Incognita | Default di Stame | Prova sull'originale |
 |---|---|---|---|
 | T-01 | Note di Dim + m7 | {0,3,6,10} (ACC-023) | Dim + m7 + C: su ch3 esce B♭ (m7♭5) o A (dim7)? |
 | T-02 | Mappa `v` → W, default dopo il Reset, offset del basso | `W = v+24`, `WB = vb+13`, default 24/23 (ACC-073, ACC-075) | Reset; Maj + C con i default; leggere le note; ripetere a `v` = 1, 12, 13, 60 e `vb` = 0, 48 |
@@ -976,7 +976,7 @@ Tutte le voci confluiscono in `90-questioni-aperte.md`. Per ognuna Stame usa il 
 Altre questioni di progetto:
 - `ACC_TREBLE_MAX` = 14 e il limite del basso vanno confermati con l'allocatore e il budget di CPU della sezione suono.
 - `ACC_LOOP_EVENTS` e `ACC_LOOP_LAYERS` vanno tarati sul budget di memoria della Flip.
-- I nomi dei Beat e i preset sono contenuti di Telepathic Instruments: per una distribuzione pubblica vanno valutati i diritti (vedi `CONVENZIONI.md`, Dati privati).
+- I nomi dei Beat e i preset sono contenuti del costruttore dell'originale: per una distribuzione pubblica vanno valutati i diritti (vedi `CONVENZIONI.md`, Dati privati).
 
 ---
 

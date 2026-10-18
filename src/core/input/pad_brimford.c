@@ -2,7 +2,7 @@
  *
  * Mappa del 16/10/2026 (Luigi: «vedo comandi replicati sui vari device... questa cosa non mi piace»):
  * il pad non rifà più i pulsanti degli encoder né la navigazione, che stanno sulla MK4; tiene Options,
- * Panic, Lock, View, Page e i due voicing, e dà ai tasti liberi le funzioni che l'Orchid non ha.
+ * Panic, Lock, View, Page e i due voicing, e dà ai tasti liberi le funzioni che l'originale non ha.
  */
 #include "pad_brimford.h"
 

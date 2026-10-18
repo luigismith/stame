@@ -1,4 +1,4 @@
-/* inc.c — file .inc di Pistil (specifica 20, §2.5; SND-120…122).
+/* inc.c — file .inc dell'editor dell'originale (specifica 20, §2.5; SND-120…122).
  *
  * Lavora su buffer in memoria: la lettura e la scrittura dei file sono della piattaforma.
  * Solo le funzioni di string.h ammesse da PLT-001.

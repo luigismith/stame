@@ -1,18 +1,18 @@
 # 30 — Interfaccia
 
-Questa sezione descrive cosa si **vede** e come lo si **comanda**: il modello dati dell'interfaccia, il comportamento logico dell'Orchid (viste, overlay, liste, menu, looper, gesti), la **plancia nativa** della Miyoo Flip e, per l'hardware dedicato futuro, la resa al pixel sull'OLED 128×128. Il comportamento musicale (accordi, nomi, looper, performance) è nella sezione 10. I messaggi MIDI della MPK e i codici dei tasti della Flip sono nella sezione 40. Thread, SDL e persistenza sono nella sezione 50.
+Questa sezione descrive cosa si **vede** e come lo si **comanda**: il modello dati dell'interfaccia, il comportamento logico dell'originale (viste, overlay, liste, menu, looper, gesti), la **plancia nativa** della Miyoo Flip e, per l'hardware dedicato futuro, la resa al pixel sull'OLED 128×128. Il comportamento musicale (accordi, nomi, looper, performance) è nella sezione 10. I messaggi MIDI della MPK e i codici dei tasti della Flip sono nella sezione 40. Thread, SDL e persistenza sono nella sezione 50.
 
-**Decisione di Luigi del 13/10/2026**, che regola tutta la sezione: «il display non deve essere clonato da orchid, ma visto che più grande, deve contenere tutto ciò che serve e/o è utile vedere in tempo reale». Quindi:
+**Decisione di Luigi del 13/10/2026**, che regola tutta la sezione: «il display non deve essere clonato dall'originale, ma visto che più grande, deve contenere tutto ciò che serve e/o è utile vedere in tempo reale». Quindi:
 - sulla Flip **non** si emula l'OLED: niente 128×128 ingrandito e niente pannello virtuale. Lo schermo 640×480 a colori ospita una plancia pensata per suonare (§4);
-- il **comportamento** dell'Orchid resta fedele: cosa si apre con quale gesto, il contenuto dei menu, la Waiting Room, i tempi degli overlay (§3). Cambia solo il modo di disegnarlo;
+- il **comportamento** dell'originale resta fedele: cosa si apre con quale gesto, il contenuto dei menu, la Waiting Room, i tempi degli overlay (§3). Cambia solo il modo di disegnarlo;
 - le misure al pixel dell'OLED restano, ma valgono solo per l'hardware dedicato (§7, fase 2).
 
 **Identità visiva (14/10/2026)**, chiesta da Luigi: «un'identità estetica originale, intuitiva, ordinata, stile retro classica futurista, a tema con il device, una lore». La plancia è un **vetrino a fluorescenza**: vetro scuro con la maglia dei VFD, scritte fisse stampate color sabbia, valori accesi nei fosfori, segmenti spenti visibili, nome dell'accordo a punti (Matrice), BPM a sette segmenti. La storia, il marchio dei tre stami, i caratteri, la palette e le regole stanno in `docs/identita/README.md`; qui sotto restano i requisiti che il renderer deve rispettare. Il codice è in `src/gfx/` e `src/ui_flip/`; la vetrina dimostrativa che lo mostra sulla Flip in `src/platform/vetrina/` e `src/platform/flip/` (sezione 50, §11).
 
-**Plancia calma (15/10/2026).** Guardando le prime immagini Luigi ha scritto: «il display è estremamente pieno, sei sicuro che serva avere tutte quelle informazioni?». No: la prima plancia mostrava tutto insieme, ma a 50–70 cm si leggevano solo il nome dell'accordo e il BPM, e metà dello schermo ripeteva ciò che la mascherina del case (sezione 60) incide accanto ai comandi. Quindi, come sull'Orchid, che mostra l'accordo e per 3,4 s il controllo che si gira:
+**Plancia calma (15/10/2026).** Guardando le prime immagini Luigi ha scritto: «il display è estremamente pieno, sei sicuro che serva avere tutte quelle informazioni?». No: la prima plancia mostrava tutto insieme, ma a 50–70 cm si leggevano solo il nome dell'accordo e il BPM, e metà dello schermo ripeteva ciò che la mascherina del case (sezione 60) incide accanto ai comandi. Quindi, come sull'originale, che mostra l'accordo e per 3,4 s il controllo che si gira:
 - mentre si suona si vedono quattro cose: **accordo**, **tempo**, **tastiera** e una **banda** con il controllo appena toccato (a riposo, il suono);
 - **il case porta i nomi, lo schermo i valori**: niente legende fisse;
-- le 11 celle dei comandi compaiono solo quando si usano i tasti della Flip (UI-142a). Il dettaglio (note, intervalli, finestre, Linneo, voci, carico, livelli) sta nella vista **Geek Out**, che sull'Orchid serve proprio a questo.
+- le 11 celle dei comandi compaiono solo quando si usano i tasti della Flip (UI-142a). Il dettaglio (note, intervalli, finestre, Linneo, voci, carico, livelli) sta nella vista **Geek Out**, che sull'originale serve proprio a questo.
 
 La decisione del 13/10/2026 resta: si disegna una plancia nativa e si vede in tempo reale ciò che serve; il resto arriva quando serve.
 
@@ -25,17 +25,17 @@ Le etichette seguono `CONVENZIONI.md`. Le fonti del vault usano un'altra convenz
 |---|---|
 | figure 1 bit del manuale Coda, testo del manuale v4.1, changelog | `[M]` |
 | fotogrammi dei video ufficiali (Quick Start, AMA), foto ufficiali, articolo It's Nice That | `[O]` |
-| video e recensioni di terzi (Loopop, Garden Report, Tom Cosm, Molten, Splice, SOS) | `[O]` |
+| video e recensioni di terzi (link nelle note private) | `[O]` |
 | deduzioni | `[D]` |
 | dato mancante, con valore di default scelto qui | `[V]` con il riferimento al test `V-UI-nn` (§9.1) |
 
 La plancia della Flip non esiste sull'originale: lì `[D]` indica una **scelta di progetto**. I dati sulla Flip verificati sulla console sono `[O]`.
 
 ### 0.2 Sigle delle fonti
-- **MAN**: manuale ufficiale Coda v4.1, comprese le figure 1 bit 640×640 (128×128 ingrandito ×5).
-- **QS**: Quick Start v3.04 (youtu.be/GKf50ib0tho), con i secondi. **QSb**: Quick Start brevi TZyPDD6IKSw e zOk7zvm69Ec.
-- **AMA**: AMA con il prototipo di dicembre 2024 (youtu.be/8AvlFjjgBmk).
-- **LP**: Loopop (youtu.be/pnm52ueo_mI). **GR**: Garden Report 03 (youtu.be/VmaFJIkYsNs). **INT**: It's Nice That su Love and Money.
+- **MAN**: manuale ufficiale v4.1, comprese le figure 1 bit 640×640 (128×128 ingrandito ×5).
+- **QS**: video Quick Start ufficiale v3.04, con i secondi. **QSb**: due Quick Start brevi.
+- **AMA**: AMA con il prototipo di dicembre 2024.
+- **LP**: una recensione video. **GR**: il terzo video ufficiale di aggiornamento. **INT**: un'intervista a chi ha disegnato l'originale. I link sono nelle note private.
 - **FW**: changelog ufficiale del firmware. Il firmware di riferimento è il **3.92**; i dati presi da firmware più vecchi (QS è 3.04) valgono solo se il changelog non li contraddice.
 
 ### 0.3 Coordinate
@@ -43,7 +43,7 @@ La plancia della Flip non esiste sull'originale: lì `[D]` indica una **scelta d
 - **OLED** (solo fase 2): coordinate e tolleranze in §7.1.
 
 ### 0.4 Lingua dei testi a schermo
-I testi dell'Orchid restano **in inglese**, come sull'originale («Volume», «Counting in», «Exit»). Anche i testi della plancia e del menu della piattaforma sono in inglese, per non mescolare due lingue sullo stesso schermo (questione aperta in §9.3).
+I testi dell'originale restano **in inglese** («Volume», «Counting in», «Exit»). Anche i testi della plancia e del menu della piattaforma sono in inglese, per non mescolare due lingue sullo stesso schermo (questione aperta in §9.3).
 
 ---
 
@@ -57,7 +57,7 @@ I testi dell'Orchid restano **in inglese**, come sull'originale («Volume», «C
 | `ui` | nucleo | definizione di `ui_model_t` (§2) e funzioni di formattazione condivise `ui_fmt_*` (UI-029) | C11 |
 | `gfx` | nucleo | primitive su framebuffer software **RGB565** e **1 bit**, font bitmap incorporati, decodifica UTF-8 | C11 |
 | `ui_flip` | nucleo, renderer | la **plancia** 640×480 a colori, disegnata da `ui_model_t` (§4) | C11, `ui`, `gfx` |
-| `ui_oled` | nucleo, renderer (fase 2) | le 6 viste dell'Orchid al pixel su 128×128 a 1 bit (§7) | C11, `ui`, `gfx` |
+| `ui_oled` | nucleo, renderer (fase 2) | le 6 viste dell'originale al pixel su 128×128 a 1 bit (§7) | C11, `ui`, `gfx` |
 | `platform/flip` | piattaforma | completa `ui_model_t` con i dati di piattaforma, presenta il framebuffer con SDL2, legge evdev | SDL2, evdev, ALSA |
 
 **UI-002** [D] `core/ui`, `ui`, `gfx`, `ui_flip` e `ui_oled` NON DEVONO includere header di SDL, ALSA, evdev o del sistema operativo, NON DEVONO allocare memoria dinamica e NON DEVONO leggere l'orologio da soli: il tempo arriva come parametro (millisecondi monotoni, `uint32_t`). Valgono PLT-001 e PLT-002.
@@ -396,7 +396,7 @@ Tutto ciò che segue vale per ogni renderer. Dove un requisito parla di «scherm
 
 ### 3.1 Controlli e gesti
 
-L'Orchid ha 9 encoder infiniti e premibili (Sound, Perform, FX, Key, Bass, Loop, BPM, Volume, Options) e 2 manopole di voicing (Chord Voicing premibile, Bass Voicing premibile e usato come modificatore). Non c'è un tasto SHIFT [M MAN]. L'elenco `enc_id_t` è quello di 40 (MIDI-100).
+L'originale ha 9 encoder infiniti e premibili (Sound, Perform, FX, Key, Bass, Loop, BPM, Volume, Options) e 2 manopole di voicing (Chord Voicing premibile, Bass Voicing premibile e usato come modificatore). Non c'è un tasto SHIFT [M MAN]. L'elenco `enc_id_t` è quello di 40 (MIDI-100).
 
 **UI-100** [M] Gesti di base [M MAN]: **premere** = attiva o disattiva; **ruotare** = valore; **tenere premuto** = menu o lock; **premere e ruotare** = funzione secondaria.
 
@@ -506,7 +506,7 @@ Si scelgono da Options > System > View; la vista attiva ha la spunta [M MAN; O Q
 
 ### 3.5 Overlay
 
-Sull'Orchid un overlay è una schermata temporanea che compare quando si gira o si preme un encoder. Sulla plancia diventa un'**evidenza**: la banda in fondo mostra nome e valore del controllo in grande (UI-154), senza coprire l'accordo; nella pagina dei comandi si accende anche la sua cella.
+Sull'originale un overlay è una schermata temporanea che compare quando si gira o si preme un encoder. Sulla plancia diventa un'**evidenza**: la banda in fondo mostra nome e valore del controllo in grande (UI-154), senza coprire l'accordo; nella pagina dei comandi si accende anche la sua cella.
 
 **UI-065** I contenuti degli overlay sono questi. Le gamme dei valori e i nomi sono delle sezioni 10 e 20; l'impaginazione al pixel sull'OLED è in UI-061..UI-068.
 
@@ -572,7 +572,7 @@ Il manuale dice che si esce anche «ripremendo Options» [M]; dato che premere O
 
 | Lista | Si apre con | Voci | Marcatore | Fonte |
 |---|---|---|---|---|
-| Sound | premere Sound | Exit, «01 Orchid EP» … «70 …», poi «U01» … «U30» (solo gli slot occupati) | ✓ sul suono attivo | [O QS, LP; M FW 3.60] |
+| Sound | premere Sound | Exit, «01 EP» … «70 …», poi «U01» … «U30» (solo gli slot occupati) | ✓ sul suono attivo | [O QS, LP; M FW 3.60] |
 | Perform | premere Perform | Exit, Strum, Strum 2 Octaves, Slop, Arpeggiate, Arp 2 Octaves, Pattern, Harp | ● sul modo attivo; indice per Arpeggiate | [O QS 444-520] |
 | FX | premere FX | Exit, poi gli slot del suono (Reverb, FX1, FX2, Filter) con il nome dell'effetto e il valore («Off» o 1–10) | valore | [O QS 653-664] |
 | Bass | tenere Bass 1 s | Exit, Chords Only, Unison, Bass Single Notes, Solo | ✓ | [M MAN; O QS 810-842, LP 1356] |
@@ -650,9 +650,9 @@ Il comportamento del looper (stati, battute, overdub, undo, salvataggio) è nell
 
 ### 3.8 Altre schermate
 
-**UI-091** [O] All'avvio l'Orchid mostra il logo per circa 4 s, poi la schermata di gioco [O QS 112-118]. Stame NON DEVE usare il logo né il marchio di Telepathic Instruments: serve un logo proprio, in due versioni (a colori per la plancia, bitmap 1 bit 128×128 per l'OLED) [D].
+**UI-091** [O] All'avvio l'originale mostra il logo per circa 4 s, poi la schermata di gioco [O QS 112-118]. Stame NON DEVE usare il logo né il marchio del costruttore dell'originale: serve un logo proprio, in due versioni (a colori per la plancia, bitmap 1 bit 128×128 per l'OLED) [D].
 
-**UI-092** [D] Sulla Flip la schermata d'avvio copre l'inizializzazione di audio e MIDI. Resta al massimo 4 s; finita l'inizializzazione, un tasto qualsiasi la salta. Sull'Orchid toccare i tasti durante il logo può creare problemi [O supporto], sulla Flip no.
+**UI-092** [D] Sulla Flip la schermata d'avvio copre l'inizializzazione di audio e MIDI. Resta al massimo 4 s; finita l'inizializzazione, un tasto qualsiasi la salta. Sull'originale toccare i tasti durante il logo può creare problemi [O supporto], sulla Flip no.
 
 **UI-093** [M] Se il transpose salvato è diverso da zero, dopo l'avvio si vede subito [M FW 3.04].
 
@@ -660,11 +660,11 @@ Il comportamento del looper (stati, battute, overdub, undo, salvataggio) è nell
 
 **UI-096** [M] Tenendo premuto Key compare la richiesta «select key»; si preme la tonica sulla tastiera, tenendo il tipo **Min** per la minore (dal 3.84; dal 3.90 senza ottava nel prompt) [M MAN, FW]. La richiesta resta finché non si preme un tasto, finché non scade la durata di un overlay o finché non si tocca un altro encoder; dopo la scelta compare `OV_KEY` [V V-UI-15].
 
-**UI-097** [O] Bass Voicing tenuto + BPM attiva la batteria da suonare sulla tastiera [O, guida corretta il 13/10/2026; comportamento nella sezione 10]. Si mostra `OV_DRUMS` con «On» / «Off» [V V-UI-09]. Dal 16/10/2026 la strada di tutti i giorni è **T11** del macro pad (`MACRO_DRUMS_TOGGLE`, 40 MIDI-133); Bass Voicing tenuto + BPM resta quella dell'Orchid.
+**UI-097** [O] Bass Voicing tenuto + BPM attiva la batteria da suonare sulla tastiera [O, guida corretta il 13/10/2026; comportamento nella sezione 10]. Si mostra `OV_DRUMS` con «On» / «Off» [V V-UI-09]. Dal 16/10/2026 la strada di tutti i giorni è **T11** del macro pad (`MACRO_DRUMS_TOGGLE`, 40 MIDI-133); Bass Voicing tenuto + BPM resta quella dell'originale.
 
 **UI-098** [D] System > Version mostra «Stame» e la versione («1.0.0»), finché non si preme o gira Options o non arriva `PNL_BACK`.
 
-**UI-099** [V] L'Orchid non ha uno screensaver documentato; l'occhio in pixel art delle foto ufficiali potrebbe essere solo marketing [O INT; D]. Stame NON DEVE avere uno screensaver [V V-UI-24].
+**UI-099** [V] L'originale non ha uno screensaver documentato; l'occhio in pixel art delle foto ufficiali potrebbe essere solo marketing [O INT; D]. Stame NON DEVE avere uno screensaver [V V-UI-24].
 
 ### 3.9 Indicatori
 
@@ -700,7 +700,7 @@ La disposizione dei thread è della sezione 50.
 **UI-140** [D] Principi della plancia (plancia calma, 15/10/2026):
 1. **Niente clone dell'OLED** (decisione di Luigi, in testa alla sezione): si disegna una plancia nativa a colori, che mostra in tempo reale ciò che serve per suonare.
 2. **Mentre si suona, solo ciò che si legge a un braccio.** La Flip sta accanto alla MPK, a circa 50–70 cm. A quella distanza una maiuscola deve essere alta almeno 16 minuti d'arco, cioè circa 3 mm (27 px a 9 px/mm). La pagina di gioco mostra quattro cose: **accordo**, **tempo**, **tastiera** e la **banda** con il controllo appena toccato. Il resto non scompare: arriva quando serve (punti 3 e 4).
-3. **Il case porta i nomi, lo schermo i valori.** La mascherina incide accanto a ogni comando della MPK la sua funzione (sezione 60): sullo schermo niente legende fisse e niente sigle dei controlli. Toccando un controllo, la banda ne mostra nome e valore in grande per la durata dell'overlay (UI-069), come fa l'Orchid.
+3. **Il case porta i nomi, lo schermo i valori.** La mascherina incide accanto a ogni comando della MPK la sua funzione (sezione 60): sullo schermo niente legende fisse e niente sigle dei controlli. Toccando un controllo, la banda ne mostra nome e valore in grande per la durata dell'overlay (UI-069), come fa l'originale.
 4. **Il dettaglio a richiesta.** Le 11 celle dei comandi compaiono solo nella pagina dei comandi (UI-142a), che si apre con i tasti del fuoco della Flip o con T15 del macro pad e si chiude da sola, con B o con un altro T15. Note scritte, intervalli, finestre, Play Style, cartellino di Linneo, attività MIDI, voci, carico e livelli stanno nella vista **Geek Out** (UI-051).
 5. **Lo stato tace.** Quando tutto va bene la testata mostra solo la batteria; un problema (MPK assente, clip, xrun, batteria scarica) compare solo finché dura.
 6. **Posti fissi**: ogni informazione ha un posto che non cambia e nulla compare sopra un'altra. Tastiera e comandi condividono lo stesso rettangolo e se ne vede uno alla volta.
@@ -1089,7 +1089,7 @@ Lista Sound, aperta premendo Sound, con il suono attivo selezionato:
 ```
 +------------------------------------------------------------------------------+
 |SOUND                                                                     4/76|
-|  01    Orchid EP                                    RP  piano elettrico      |
+|  01    EP                                           RP  piano elettrico      |
 |  02    Ghost                                        VA  pad / pluck          |
 |##03####Analog Flower################################VA##pluck#############✓##|
 |  04    Cherry Blossom                               VA  pad                  |
@@ -1148,7 +1148,7 @@ Evidenza di una funzione secondaria (Key premuto e girato), in Z6:
 
 - **Contrasto** (rapporto WCAG): i token di testo (`text`, `dim`, `treble`, `bass`, `loop`, `focus`, `active`, `warn`) DEVONO avere almeno **4,5:1** su `bg` e su `panel`; il testo in negativo almeno 4,5:1 sul suo fondo; i colori dei ruoli almeno **3:1** su `kb_white`. `ghost` è volutamente tenue (2–3,5:1): indica un ricordo, non un dato attivo. `seg_off` sta fra 1,05 e 1,6:1: si intuisce, non si legge. I valori della tabella rispettano queste soglie (T-UI-20, `tests/unit/test_plancia.c`).
 - Colori derivati, calcolati una volta al cambio di tema: `edge` (il bordo dei punti accesi di Matrice, il colore mescolato con `bg`) e `soft`.
-- Nel tema Notte i tasti bianchi sono verde-grigio scuro: i tasti accesi nei colori dei ruoli spiccano come segmenti accesi. Il verde del fuoco richiama l'unico accento verde dell'Orchid [O INT], senza logo né marchio.
+- Nel tema Notte i tasti bianchi sono verde-grigio scuro: i tasti accesi nei colori dei ruoli spiccano come segmenti accesi. Il verde del fuoco richiama l'unico accento verde dell'originale [O INT], senza logo né marchio.
 - Cambiare tema ridisegna tutto subito.
 
 ### 4.13 Disegno e aggiornamento
@@ -1244,7 +1244,7 @@ Gli eventi musicali (`PNL_KEY_*`, `PNL_CHORD_*`, `PNL_BEND`, `PNL_MOD`, `PNL_SUS
 
 | Controllo della MPK | Funzione |
 |---|---|
-| pad del **banco A** | gli 8 tasti accordo dell'Orchid, nella stessa disposizione: fila alta **Dim, Min, Maj, Sus**; fila bassa **6, m7, M7, 9** |
+| pad del **banco A** | gli 8 tasti accordo dell'originale, nella stessa disposizione: fila alta **Dim, Min, Maj, Sus**; fila bassa **6, m7, M7, 9** |
 | **K1 … K8** | rotazione di **Sound, Perform, FX, Key** (fila alta) e **Bass, Loop, BPM, Volume** (fila bassa); con SHIFT tenuto, la pressione (40 MIDI-130; dal 16/10/2026 l'unica strada) |
 | pad del **banco B** (riserva senza macro pad) | pulsanti funzione: **B1 Key, B2 Bass, B3 Perform, B4 Chord Voicing, B5 Loop, B6 BPM, B7 Options, B8 PUSH** |
 | **B8 tenuto, oppure X della Flip tenuto**, + tocco o rotazione di Kn (riserva) | pressione dell'encoder di Kn: premere, tenere, premere e ruotare (MIDI-084) |
@@ -1297,7 +1297,7 @@ Gli eventi musicali (`PNL_KEY_*`, `PNL_CHORD_*`, `PNL_BEND`, `PNL_MOD`, `PNL_SUS
 
 ## 7. Renderer OLED per l'hardware (fase 2)
 
-Questo capitolo **non** fa parte del perimetro della Flip. Descrive `ui_oled`, che disegna le 6 viste dell'Orchid al pixel su un OLED 128×128 a 1 bit per l'hardware dedicato futuro, a partire dallo stesso `ui_model_t`. Le misure vengono da fotogrammi e figure e restano qui, insieme alle loro `[V]`.
+Questo capitolo **non** fa parte del perimetro della Flip. Descrive `ui_oled`, che disegna le 6 viste dell'originale al pixel su un OLED 128×128 a 1 bit per l'hardware dedicato futuro, a partire dallo stesso `ui_model_t`. Le misure vengono da fotogrammi e figure e restano qui, insieme alle loro `[V]`.
 
 ### 7.1 Coordinate e tolleranze
 - Pixel del display: x da 0 a 127, y (riga) da 0 a 127, intervalli inclusivi.
@@ -1305,7 +1305,7 @@ Questo capitolo **non** fa parte del perimetro della Flip. Descrive `ui_oled`, c
 
 ### 7.2 Framebuffer, primitive e font
 
-**UI-010** [M] Il display dell'Orchid è di fatto a **1 bit**: testo, barre e riempimenti hanno la stessa luminanza e i grigi sono retini [M figure MAN; O LP 1442-1461]. Il framebuffer DEVE essere a 1 bit per pixel.
+**UI-010** [M] Il display dell'originale è di fatto a **1 bit**: testo, barre e riempimenti hanno la stessa luminanza e i grigi sono retini [M figure MAN; O LP 1442-1461]. Il framebuffer DEVE essere a 1 bit per pixel.
 
 **UI-011** [D] Formato:
 
@@ -1326,7 +1326,7 @@ Ordine per righe; nel byte il bit 7 è il pixel più a sinistra; 1 = acceso. `di
 
 **UI-014** [O] Il retino al 50% è una scacchiera di 1 px: acceso se `((x + y) & 1) == 0` [O GR 195, LP; fase `[D]`]. Lo usano i tasti che suonano e la parte non suonata dell'anello del looper.
 
-L'Orchid usa un solo stile grafico in tre usi: testo piccolo, una variante sottile per la riga in alto e un font «elastico» per nomi e numeri grandi [O LP, QS, GR]. Il carattere su misura si chiama «Chunky Roll» [O INT]: altezza 14–18 px, aste verticali di 2 px e orizzontali di 1 px. I glifi vanno ridisegnati da zero ricalcando i fotogrammi, senza copiare file di font.
+L'originale usa un solo stile grafico in tre usi: testo piccolo, una variante sottile per la riga in alto e un font «elastico» per nomi e numeri grandi [O LP, QS, GR]. Il carattere è disegnato su misura [O INT]: altezza 14–18 px, aste verticali di 2 px e orizzontali di 1 px. I glifi vanno ridisegnati da zero ricalcando i fotogrammi, senza copiare file di font.
 
 **UI-015** [M] `FONT_SMALL`, proporzionale: cap **11 px**, discendenti **3 px** [M figura «quant»]; x-height 8 px [O; V V-UI-18]; minuscole larghe 5–7 px, spaziatura **1 px** [O ±1; V V-UI-18]; aste verticali 2 px e orizzontali 1 px [O INT].
 
@@ -1459,7 +1459,7 @@ per (x,y) nella maschera dell'anello:
 
 **UI-107** [V] LED di Volume: fisso sopra il 25%; sotto, periodo da 1600 ms (25%) a 200 ms (5% e sotto) in modo lineare, 50% acceso [V V-UI-22]. Gli altri LED sono monocolore [D].
 
-**UI-114** [O] Sull'Orchid si vedono aggiornamenti a bande (tearing) [O QS 964, 1073; GR 187]: circa 30 fps con scrittura per pagine [D]. Stame NON DEVE simulare il tearing; sull'hardware si ridisegna solo quando cambia il modello, a 30 fps per le schermate animate.
+**UI-114** [O] Sull'originale si vedono aggiornamenti a bande (tearing) [O QS 964, 1073; GR 187]: circa 30 fps con scrittura per pagine [D]. Stame NON DEVE simulare il tearing; sull'hardware si ridisegna solo quando cambia il modello, a 30 fps per le schermate animate.
 
 ---
 
@@ -1515,7 +1515,7 @@ T-UI-12 (OLED ingrandito sulla Flip) è ritirato.
 
 ## 9. Questioni aperte
 
-### 9.1 Da verificare su un Orchid vero
+### 9.1 Da verificare sull'originale
 
 La colonna «Vale per» dice se il dato serve anche alla Flip (comportamento o testi) o solo al renderer OLED dell'hardware.
 
@@ -1561,8 +1561,8 @@ La colonna «Vale per» dice se il dato serve anche alla Flip (comportamento o t
 | VF-UI-04 | Tempo di disegno e di caricamento della texture RGB565 (KMSDRM) | ≤ 4 ms tipico (T-PLT-11) |
 
 ### 9.3 Decisioni da confermare con Luigi
-- **Ultimo accordo in grigio** (`CH_GHOST`): sull'Orchid il nome sparisce; sulla plancia resta tenue, perché è un'informazione utile. È un'opzione (Ghost Chord), accesa per default.
-- **Lingua**: testi in inglese come l'Orchid. Spleen copre l'ISO 8859-1, quindi un menu della piattaforma in italiano sarebbe possibile. Le categorie dei Sound della sezione 20 sono in italiano («piano elettrico»): o si traducono in 20, o la cella Sound mescola le lingue.
+- **Ultimo accordo in grigio** (`CH_GHOST`): sull'originale il nome sparisce; sulla plancia resta tenue, perché è un'informazione utile. È un'opzione (Ghost Chord), accesa per default.
+- **Lingua**: testi in inglese come l'originale. Spleen copre l'ISO 8859-1, quindi un menu della piattaforma in italiano sarebbe possibile. Le categorie dei Sound della sezione 20 sono in italiano («piano elettrico»): o si traducono in 20, o la cella Sound mescola le lingue.
 - ~~Tema di default~~: **deciso il 15/10/2026**, Light (Giorno).
 - ~~Plancia con tutto in vista~~: **decisa il 15/10/2026**, plancia calma (UI-140): quattro cose mentre si suona, i comandi a richiesta, il dettaglio in Geek Out. Da provare sulla Flip: la durata della pagina dei comandi (5000 ms) e se il suono a riposo nella banda è utile o è già troppo.
 - ~~Tastiera fissa a 8 ottave~~: **decisa il 13/10/2026**, 4 ottave che seguono le finestre del voicing, con tasti larghi 21 px (UI-150).
@@ -1570,14 +1570,14 @@ La colonna «Vale per» dice se il dato serve anche alla Flip (comportamento o t
 
 ### 9.4 Allineamenti con altre sezioni
 - **Persistenza del nome**: qui 1000 ms (V-UI-02), in 10 ACC-056 500 ms (T-24). Va scelto un solo default.
-- **Rotazione con l'encoder tenuto**: il riconoscitore di 40 (MIDI-103) ignora le rotazioni nello stato `HELD`; la versione precedente di questa sezione le mandava alla lista appena aperta dal tenuto (per esempio Save Sound). Da decidere in 40, eventualmente con una verifica sull'Orchid.
+- **Rotazione con l'encoder tenuto**: il riconoscitore di 40 (MIDI-103) ignora le rotazioni nello stato `HELD`; la versione precedente di questa sezione le mandava alla lista appena aperta dal tenuto (per esempio Save Sound). Da decidere in 40, eventualmente con una verifica sull'originale.
 - ~~Su e giù nelle liste~~ (UI-157): **risolto** in 40 con il flag `PNL_F_VERTICAL` (MIDI-105): con una lista aperta `core/ui` inverte il verso dei comandi verticali.
-- **Batteria**: 50 (PLT-090) avvisa sotto il 15%; qui l'icona diventa `warn` al 15% e gli avvisi dell'Orchid restano al 10% e al 5% (UI-095).
+- **Batteria**: 50 (PLT-090) avvisa sotto il 15%; qui l'icona diventa `warn` al 15% e gli avvisi dell'originale restano al 10% e al 5% (UI-095).
 - ~~Sezione 50~~: **allineata** il 13/10/2026 (PLT-014, albero dei sorgenti, firma di `ui_flip_render`).
 
 ### 9.5 Altre questioni
 - **Font dell'OLED** (fase 2): va disegnato da zero ricalcando i fotogrammi (QS 730, 770, 863, 662.5; LP 161-178, 1220; GR 186-192), in una sessione dedicata con i fotogrammi a piena risoluzione.
-- **Logo di Stame**: da disegnare, in versione a colori per la plancia e bitmap 128×128 a 1 bit, senza richiami al logo TI.
+- **Logo di Stame**: da disegnare, in versione a colori per la plancia e bitmap 128×128 a 1 bit, senza richiami al logo dell'originale.
 - **LED del trasporto della MPK**: se l'host li possa accendere su Linux non è verificato (VM-13). Senza, lo stato si legge solo sulla plancia.
 - **Pressione e rotazione con la croce della Flip**: A tenuto + croce = premere e ruotare (UI-132). Va provato se è comodo con una mano sola; Tn del macro pad + Kn, oppure X + manopola della MPK, sono le alternative.
 - **Macro pad**: la posizione delle tre manopole (VP-5 di 40) decide lo schema di Learn Pad (UI-175); la comodità di Tn + Kn a due mani va provata sul tavolo.

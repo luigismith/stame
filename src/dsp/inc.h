@@ -1,4 +1,4 @@
-/* inc.h — file .inc di Pistil (specifica 20, §2.5). */
+/* inc.h — file .inc dell'editor dell'originale (specifica 20, §2.5). */
 #ifndef STAME_DSP_INC_H
 #define STAME_DSP_INC_H
 #include "patch.h"

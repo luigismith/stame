@@ -2,7 +2,7 @@
 
 Bozza 1, 15/10/2026. Per chi suona, non per chi programma: la specifica sta in `docs/specifica/`, il prontuario da stampare in `prontuario.md`.
 
-Stame è un clone fedele dell'Orchid di Telepathic Instruments: fa tutto quello che fa l'Orchid e, avendo più tasti, più manopole e più potenza, qualcosa in più. Nella fase 1 vive sulla **Miyoo Flip** (schermo e cervello) e si suona con la **Akai MPK mini IV** (tasti, pad e manopole) e un **macro pad** a 15 tasti e 3 manopole. Questo manuale descrive la **vetrina 0.1**, cioè quello che oggi gira sulla Flip; dove la specifica prevede di più, lo dice con un **«previsto»**.
+Stame è uno strumento ad accordi: una mano tiene il tipo d'accordo e le estensioni, l'altra suona la fondamentale, ed esce un accordo intero con il suo voicing e il suo basso; le performance lo fanno muovere, il Beat e il looper fanno i loop mentre suoni. Tutto si suona, niente si programma a passi. E, avendo più tasti, più manopole e più potenza di uno strumento dedicato, Stame fa qualcosa in più. Nella fase 1 vive sulla **Miyoo Flip** (schermo e cervello) e si suona con la **Akai MPK mini IV** (tasti, pad e manopole) e un **macro pad** a 15 tasti e 3 manopole. Questo manuale descrive la **vetrina 0.1**, cioè quello che oggi gira sulla Flip; dove la specifica prevede di più, lo dice con un **«previsto»**.
 
 ## 1. La postazione
 
@@ -48,7 +48,7 @@ Lo stato della MPK e del pad si vede nella testata, in alto: a riposo c'è solo 
 
 ![La lista dei suoni (SHIFT + K1): nome, motore e famiglia](img/lista_suoni.png)
 
-L'Orchid ha nove encoder che si girano e si premono e due manopole di voicing. Su Stame ogni comando ha **una casa sola** (16/10/2026): il **girare** sta sulle manopole K1…K8 della MPK (senza scatti), il **premere** su **SHIFT + K** della stessa MPK (tieni SHIFT e tocchi la manopola: è «premuta»), le **liste** sulla manopola di navigazione con − (Back) e + (Menu) accanto. Il macro pad tiene Options (T9), i due voicing (M, m1) e le cose che l'Orchid non ha (§7). I gesti sono quattro:
+Il principio vuole nove encoder che si girano e si premono e due manopole di voicing. Su Stame ogni comando ha **una casa sola** (16/10/2026): il **girare** sta sulle manopole K1…K8 della MPK (senza scatti), il **premere** su **SHIFT + K** della stessa MPK (tieni SHIFT e tocchi la manopola: è «premuta»), le **liste** sulla manopola di navigazione con − (Back) e + (Menu) accanto. Il macro pad tiene Options (T9), i due voicing (M, m1) e le cose che l'originale non ha (§7). I gesti sono quattro:
 
 | Gesto | Come si fa |
 |---|---|
@@ -73,7 +73,7 @@ Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 
 | **Chord Voicing** (M) | finestra ±1 semitono per scatto | Split ↔ Octave | — | — |
 | **Bass Voicing** (m1) | ottava del basso | il modificatore **Mod**: Mod + Loop (REC) = uscita forzata dal loop (Clear); Mod + Bass = basso on/off, come Bass da solo; Mod + BPM = batteria a tastiera, che oggi ha il suo tasto T11 | — | — |
 
-Liste: la voce in cima è Exit; la manopola di navigazione scorre, premuta sceglie, − chiude (senza MPK: croce, A e B della Flip). Una lista si chiude da sola dopo 10 secondi, e si chiude anche toccando un altro controllo. Ogni controllo toccato accende la **banda** in fondo allo schermo con il suo nome e valore in grande: è l'overlay dell'Orchid, che qui non copre l'accordo.
+Liste: la voce in cima è Exit; la manopola di navigazione scorre, premuta sceglie, − chiude (senza MPK: croce, A e B della Flip). Una lista si chiude da sola dopo 10 secondi, e si chiude anche toccando un altro controllo. Ogni controllo toccato accende la **banda** in fondo allo schermo con il suo nome e valore in grande: è l'overlay dell'originale, che qui non copre l'accordo.
 
 ## 5. Il looper, passo per passo
 
@@ -104,7 +104,7 @@ Il looper registra **eventi** (note), non audio: cambiando BPM cambia la velocit
 
 ### 6.1 Loop di batteria dalla tastiera
 
-Lo stesso principio degli accordi, per la batteria: **T11 DRUMS** del pad (oppure Mod + BPM, come sull'Orchid) accende la **batteria a tastiera**. I 12 tasti suonano il kit del Beat scelto: Do cassa, Do♯ rimshot, Re rullante, Re♯ battimani, Mi charleston chiuso, Fa tom basso, Fa♯ charleston aperto, Sol tom alto, Sol♯ maracas, La conga, La♯ campanaccio, Si piatto. Se il looper registra o sovraincide, ogni colpo entra nel loop **quantizzato al sedicesimo**, come le note. Pad, basso e Perform restano fermi; un altro T11 torna agli accordi. Sulla plancia: «DRUMS» nella zona accordo, dove al posto dell'accordo c'è il loop di batteria (§6.3), e le sigle sui tasti C4…B4, che si accendono al colpo.
+Lo stesso principio degli accordi, per la batteria: **T11 DRUMS** del pad (oppure Mod + BPM) accende la **batteria a tastiera**. I 12 tasti suonano il kit del Beat scelto: Do cassa, Do♯ rimshot, Re rullante, Re♯ battimani, Mi charleston chiuso, Fa tom basso, Fa♯ charleston aperto, Sol tom alto, Sol♯ maracas, La conga, La♯ campanaccio, Si piatto. Se il looper registra o sovraincide, ogni colpo entra nel loop **quantizzato al sedicesimo**, come le note. Pad, basso e Perform restano fermi; un altro T11 torna agli accordi. Sulla plancia: «DRUMS» nella zona accordo, dove al posto dell'accordo c'è il loop di batteria (§6.3), e le sigle sui tasti C4…B4, che si accendono al colpo.
 
 ![Batteria a tastiera: DRUMS, le sigle degli strumenti sui tasti, i colpi registrati nel loop](img/drums.png)
 
@@ -112,7 +112,7 @@ Lo stesso principio degli accordi, per la batteria: **T11 DRUMS** del pad (oppur
 
 ![La pagina dei comandi sotto DRUMS: le celle KIT, ROLL e ACCENT al posto di Sound, Perform e Bass](img/drums_comandi.png)
 
-Stessa filosofia dell'Orchid: premi tasti, muovi manopole, il loop di batteria nasce mentre suoni. Niente da programmare a passi.
+Stessa filosofia degli accordi: premi tasti, muovi manopole, il loop di batteria nasce mentre suoni. Niente da programmare a passi.
 
 - **I pad del banco B** della MPK sono otto pad di batteria con la velocity, sempre, anche senza DRUMS: premi BANK e suoni la batteria sopra gli accordi del loop. Fila bassa cassa, rullante, rimshot, battimani; fila alta charleston chiuso e aperto, tom basso, piatto.
 - Con **DRUMS acceso** tre manopole cambiano mestiere, e le celle lo scrivono:
@@ -144,7 +144,7 @@ Con **DRUMS acceso** sei in modalità crea: le tre manopole del pad inventano il
 
 ![Lock acceso (T13): la testata scrive LOCK SOUND PERFORM KEY e le celle dicono quale manopola fa cosa](img/lock.png)
 
-Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera collegata (dal 16/10/2026) il pad non rifà i comandi della MPK: tiene Options, Panic, Lock, View, Page e i due voicing, e i tasti liberi fanno **quello che l'Orchid non ha**. Fa lo stesso anche senza tastiera.
+Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera collegata (dal 16/10/2026) il pad non rifà i comandi della MPK: tiene Options, Panic, Lock, View, Page e i due voicing, e i tasti liberi fanno **quello che l'originale non ha**. Fa lo stesso anche senza tastiera.
 
 | | col. 1 | col. 2 | col. 3 | col. 4 | col. 5 |
 |---|---|---|---|---|---|
@@ -176,7 +176,7 @@ Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera c
 
 | Comando | Fa |
 |---|---|
-| 25 tasti | i 12 tasti dell'Orchid (conta solo il nome della nota) |
+| 25 tasti | i 12 tasti dell'originale (conta solo il nome della nota) |
 | pad, banco A | Dim Min Maj Sus (sopra) · 6 m7 M7 9 (sotto) |
 | pad, banco B | otto pad di batteria con la velocity (§6.2) |
 | K1…K8 | girano Sound, Perform, FX, Key / Bass, Loop, BPM, Volume |

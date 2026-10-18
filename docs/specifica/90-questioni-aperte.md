@@ -9,7 +9,7 @@
 |---|---|
 | Specifica completa prima del codice; repo in `D:\dev\stame`, privato su GitHub `luigismith/stame` | `00` |
 | Sulla Flip lo schermo **non** clona l'OLED: plancia nativa 640×480 con tutto ciò che serve in tempo reale | `30` §4, PLT-062 |
-| Pad del banco A = gli 8 tasti accordo dell'Orchid, stessa disposizione; pad del banco B = pulsanti funzione | MIDI-078 |
+| Pad del banco A = gli 8 tasti accordo dell'originale, stessa disposizione; pad del banco B = pulsanti funzione | MIDI-078 |
 | Pressione delle manopole con un tasto dedicato della Flip: **X** (oltre a B8) | MIDI-084 |
 | Tasti della Flip: schema a fuoco sempre attivo; modo tascabile opzionale, da MENU | MIDI-092…094 |
 | STOP della MPK come scorciatoia del looper (pressione = stop o pausa, tenuto 1 s = Clear) | MIDI-078, D-2 |
@@ -23,7 +23,7 @@
 | # | Questione | Proposta | Dove |
 |---|---|---|---|
 | 1 | Ultimo accordo in grigio dopo la persistenza («Ghost Chord») | Acceso per default, come opzione | `30` §9.3 |
-| 2 | Lingua dei testi a schermo: inglese come l'Orchid, ma le categorie dei Sound in `20` sono in italiano | Tutto in inglese; tradurre le categorie in `20` | `30` §9.3, `20` |
+| 2 | Lingua dei testi a schermo: inglese come l'originale, ma le categorie dei Sound in `20` sono in italiano | Tutto in inglese; tradurre le categorie in `20` | `30` §9.3, `20` |
 | 3 | ~~Tastiera della plancia fissa a 8 ottave~~ | **Decisa il 13/10/2026**: 4 ottave che seguono le finestre, tasti più grandi (UI-150) | `30` §9.3 |
 | 4 | Ingresso dal DIN IN attivo per default (rischio di anello MIDI) | Attivo, con rilevamento dell'eco | D-4 |
 | 5 | Clock verso la porta 1 della MPK attivo per default | Sì | D-5 |
@@ -36,16 +36,16 @@
 ## 2. Allineamenti tra sezioni ancora aperti
 | Questione | Sezioni | Nota |
 |---|---|---|
-| Persistenza del nome dell'accordo: 1000 ms in `30`, 500 ms in ACC-056 | `10`, `30` | Un solo default; decide il test T-24 sull'Orchid |
-| Rotazione con l'encoder tenuto (stato `HELD`): ignorata in MIDI-103, mandata alla lista aperta nella vecchia `30` | `30`, `40` | Da verificare sull'Orchid (per esempio Save Sound tenuto + rotazione) |
+| Persistenza del nome dell'accordo: 1000 ms in `30`, 500 ms in ACC-056 | `10`, `30` | Un solo default; decide il test T-24 sull'originale |
+| Rotazione con l'encoder tenuto (stato `HELD`): ignorata in MIDI-103, mandata alla lista aperta nella vecchia `30` | `30`, `40` | Da verificare sull'originale (per esempio Save Sound tenuto + rotazione) |
 | Chi specifica la sintesi del kit di batteria e i Drum FX | `10`, `20` | QA-SND-30 |
-| Batteria: avviso al 15% in `50`, avvisi dell'Orchid al 10% e al 5% in `30` | `30`, `50` | Coerenti, ma da tenere allineati |
+| Batteria: avviso al 15% in `50`, avvisi dell'originale al 10% e al 5% in `30` | `30`, `50` | Coerenti, ma da tenere allineati |
 | L2 e R2: premuti sopra 128 e rilasciati sotto 64 in MIDI-091, sopra 160 e sotto 96 in PLT-055; zona morta delle levette 50% in MIDI-091, 20% in PLT-055 | `40`, `50` | Un solo valore; decide T-PLT-10. Servono solo al modo tascabile (fase F5) |
 | Coda dell'ingresso: in MIDI-004 porta eventi del pannello, fonde le rotazioni e fa aspettare il produttore se è piena; in PLT-015/016 porta MIDI grezzo (`q_midi_in`) e scarta, senza mai aspettare | `40`, `50` | Il codice segue `50`: profili e riconoscitore girano nel thread audio (`inp_t`, 14/10/2026). MIDI-004 va riscritto |
 
 ## 3. Verifiche
 
-### 3.1 Su un Orchid vero
+### 3.1 Sull'originale
 Servono per la fedeltà; finché mancano vale il default [V] indicato nella sezione.
 
 | Gruppo | Quante | Dove | Le più importanti |
@@ -79,7 +79,7 @@ Poi: VP-4 scatti persi o accorpati nelle rotazioni veloci; VP-5 posizione delle 
 | Tasti | `30`, `40` | posizione di MENU, SELECT e START; comodità di X + manopola e di A tenuto + croce; levetta a 12 settori del modo tascabile; numerazione evdev del gamepad con il macro pad collegato all'avvio (PLT-053, MIDI-090) |
 
 ## 4. Dati che mancano del tutto
-Senza un Orchid vero o una sua registrazione non si possono ricavare:
+Senza l'originale o una sua registrazione non si possono ricavare:
 - le sequenze dei **13 pattern** e il contenuto dei **Beat** (`10` ha contenuti provvisori);
 - i **parametri dei 12 bassi** (`20` usa patch scritte da Stame);
 - i **tempi esatti** di Strum, Slop e Harp;

@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Stame</title>
-<meta name="description" content="Stame: a faithful, open clone of the Orchid chord synth, grown on a Miyoo Flip and played on an Akai MPK mini IV and a macro pad.">
+<meta name="description" content="Stame: an open chord synth. One hand holds the chord type, the other plays the root, and a whole chord comes out. Grown on a Miyoo Flip, played on an Akai MPK mini IV and a macro pad.">
 <meta property="og:title" content="Stame · a chord synth grown on a handheld">
-<meta property="og:description" content="A faithful, open clone of the Orchid chord synth, running on a Miyoo Flip with an Akai MPK mini IV and a fifteen-key macro pad.">
+<meta property="og:description" content="An open chord synth: hold a chord type, play the root and a whole chord comes out, voiced, with its bass. Running on a Miyoo Flip with an Akai MPK mini IV and a fifteen-key macro pad.">
 <meta property="og:image" content="https://luigismith.github.io/stame/sito/img/plancia_notte.png">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#050C0B">
@@ -50,14 +50,14 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       <div class="specie">STAMEN HARMONICUM · TRIANDRIA</div>
     </div>
     <div>
-      <h1>A faithful, open clone of the <em>Orchid</em> chord synth, grown on a handheld.</h1>
-      <p class="intro">Hold a chord button, press one key, and a voiced chord with its bass comes out. Stame does what the Orchid does — strums, arpeggios, patterns, beats, a looper — on a <strong>Miyoo Flip</strong>, played with an <strong>Akai MPK mini IV</strong> and a fifteen-key <strong>macro pad</strong>. Then, with more keys and more power than the original, a little more.</p>
+      <h1>An open <em>chord</em> synth, grown on a handheld.</h1>
+      <p class="intro">One hand holds a chord type (Dim, Min, Maj, Sus) and the extensions (6, m7, M7, 9), the other plays the root, and out comes a whole chord, voiced, with its bass. Performances (strum, arpeggio, pattern, harp), a Beat and an event looper let you build loops while you play: everything is played, nothing is programmed in steps. Stame does all of it on a <strong>Miyoo Flip</strong>, played with an <strong>Akai MPK mini IV</strong> and a fifteen-key <strong>macro pad</strong>. Then, with more keys, more knobs and more power than the original, a little more.</p>
       <div class="bottoni">
         <a class="bottone primo" href="https://github.com/luigismith/stame">Source on GitHub</a>
         <a class="bottone" href="#prova">Build and install</a>
         <a class="bottone" href="https://github.com/luigismith/stame/blob/main/docs/manuale/manuale.md" hreflang="it">Manual (Italian)</a>
       </div>
-      <p class="stato">Phase 1 · <b>showcase 0.1</b> running on the Flip · phase 2: dedicated hardware · not affiliated with Telepathic Instruments</p>
+      <p class="stato">Phase 1 · <b>showcase 0.1</b> running on the Flip · phase 2: dedicated hardware</p>
     </div>
   </div>
 </section>
@@ -70,13 +70,13 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     </div>
     <div class="due">
       <div class="prosa">
-        <p>The <a href="https://telepathicinstruments.com/">Orchid</a> by Telepathic Instruments is a small synth with eight chord buttons on the left and one octave of keys on the right. Hold <em>Min</em> and press F♯: you get an F♯ minor chord, voiced in a window you choose with a dial, with a bass note under it. Add an extension (6, m7, M7, 9), let a performance play it for you (strum, arpeggio, pattern, harp), start a beat, record a loop, overdub. It is an instrument for people who hear chords before they can name them.</p>
+        <p>Stame grew out of a small synth with eight chord buttons on the left and one octave of keys on the right. Hold <em>Min</em> and press F♯: you get an F♯ minor chord, voiced in a window you choose with a dial, with a bass note under it. Add an extension (6, m7, M7, 9), let a performance play it for you (strum, arpeggio, pattern, harp), start a beat, record a loop, overdub. It is an instrument for people who hear chords before they can name them.</p>
         <p>Stame reproduces that behaviour: the chord logic, the Secret Chords, the voicing windows, Key mode and transpose, the bass, the performances, the beat and the looper, the MIDI. It is described in a <a href="https://github.com/luigismith/stame/blob/main/docs/specifica/00-panoramica.md" hreflang="it">functional specification</a> written from the public manual and from observation, before the first line of code; it holds no factory data of the original. The core is plain C11 — no heap, no I/O — so the same engine can move to dedicated hardware in phase 2.</p>
-        <p>Where the Orchid has eight encoders and a 128×128 OLED, Stame has a keyboard, a macro pad and a 640×480 colour screen. The rule is simple: everything the Orchid does, Stame does, and that behaviour is never altered. Then, because there are more keys, more knobs and more CPU, it does a little more — a sampler, sampled drum kits, a knob Lock, a view key.</p>
+        <p>Where the original has eight encoders and a 128×128 OLED, Stame has a keyboard, a macro pad and a 640×480 colour screen. The rule is simple: everything the original does, Stame does, and that behaviour is never altered. Then, because there are more keys, more knobs and more CPU, it does a little more — a sampler, sampled drum kits, a knob Lock, a view key.</p>
       </div>
       <div class="prosa">
         <h3>The name, the greenhouse, the botanist</h3>
-        <p>In a flower the <strong>stamen</strong> makes the pollen and the pistil receives it. The Orchid's editor is called <em>Pistil</em>; Stame is the other half.</p>
+        <p>In a flower the <strong>stamen</strong> carries the pollen and the pistil receives it: Stame is the part that gives.</p>
         <p>The rest of the identity comes from a greenhouse of the 1970s, the years of <em>The Secret Life of Plants</em> and of Mort Garson's <em>Plantasia</em>, Moog music «for plants and the people who love them». Stame is the synth that greenhouse would have had: a wooden console with a display that lights up like a slide under a microscope.</p>
         <p>And from <strong>Linnaeus</strong>, who in 1735 classified plants by counting their stamens: one, <em>Monandria</em>; two, <em>Diandria</em>; three, <em>Triandria</em>. Stame keeps the rule: <strong>one note is one stamen</strong>. A triad is Triandria, a seventh chord Tetrandria, and the boot screen reads <em>Stamen harmonicum</em>, class Triandria. The chord name is set in dots, like a vacuum fluorescent display.</p>
       </div>
@@ -98,11 +98,11 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     <div class="galleria">
       <figure>
         <img src="sito/img/mk4.jpg" alt="Akai MPK mini IV seen from above: pads, eight knobs, transport buttons and two octaves of keys" width="1600" height="901">
-        <figcaption><b>Akai MPK mini IV.</b> The eight pads are the Orchid's chord buttons (Dim, Min, Maj, Sus / 6, m7, M7, 9); the keys give the root; the eight knobs turn Sound, Perform, FX, Key, Bass, Loop, BPM and Volume; the transport is the looper.</figcaption>
+        <figcaption><b>Akai MPK mini IV.</b> The eight pads are the original's chord buttons (Dim, Min, Maj, Sus / 6, m7, M7, 9); the keys give the root; the eight knobs turn Sound, Perform, FX, Key, Bass, Loop, BPM and Volume; the transport is the looper.</figcaption>
       </figure>
       <figure>
         <img src="sito/img/pad.jpg" alt="The macro pad: fifteen white keys in three rows of five, two small metal knobs and one large one on the right" width="1600" height="1129">
-        <figcaption><b>Macro pad.</b> Fifteen keys and three detented, pushable knobs. The keys do what the Orchid lacks: Hold, tap tempo, metronome, fill, four scenes, Save Loop, drums on the keys; the big knob is the Chord Voicing dial. T13 is the Lock, T14 the View, T15 the Page.</figcaption>
+        <figcaption><b>Macro pad.</b> Fifteen keys and three detented, pushable knobs. The keys do what the original lacks: Hold, tap tempo, metronome, fill, four scenes, Save Loop, drums on the keys; the big knob is the Chord Voicing dial. T13 is the Lock, T14 the View, T15 the Page.</figcaption>
       </figure>
       <figure>
         <img src="sito/img/flip.jpg" alt="The Miyoo Flip, open, a small clamshell console with a 3.5-inch screen, a d-pad and four coloured buttons" width="997" height="1200">
@@ -121,7 +121,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     </div>
     <div class="galleria">
       <figure><img src="sito/img/plancia_notte.png" alt="Play page, Night theme: F sharp minor seventh in large dots, 120 BPM in seven-segment digits, four octaves of keys with the chord lit, the band shows the sound Anther Keys" width="640" height="480" loading="lazy"><figcaption><b>Play page, Night.</b> The chord name in dots, the BPM in seven segments, the keys that sound in teal and the bass in amber.</figcaption></figure>
-      <figure><img src="sito/img/plancia_tocco.png" alt="The band at the bottom shows REVERB 06 in large digits after the FX knob was turned" width="640" height="480" loading="lazy"><figcaption><b>The band answers the hand.</b> Turn a knob and its name and value appear large at the bottom, like the Orchid's overlay, without covering the chord.</figcaption></figure>
+      <figure><img src="sito/img/plancia_tocco.png" alt="The band at the bottom shows REVERB 06 in large digits after the FX knob was turned" width="640" height="480" loading="lazy"><figcaption><b>The band answers the hand.</b> Turn a knob and its name and value appear large at the bottom, like the original's overlay, without covering the chord.</figcaption></figure>
       <figure><img src="sito/img/plancia_comandi.png" alt="Controls page: eleven cells with Sound, Perform, FX, Key, Bass, Loop, BPM, Volume, Options, Chord Voicing and Bass Voicing, the Sound cell focused" width="640" height="480" loading="lazy"><figcaption><b>Controls page.</b> The eleven controls as cells, opened with T15 of the pad; «S+K1» is SHIFT + K1, the push; the case carries the names, the screen the values.</figcaption></figure>
       <figure><img src="sito/img/plancia_drums.png" alt="DRUMS on: the Funk groove at variation 3 and the grid of the two-bar loop, kick, snare, hat, open hat and percussion, with the playing column marked" width="640" height="480" loading="lazy"><figcaption><b>The loop that invents itself.</b> With DRUMS on, the pad's three knobs build the drums while they play: M density, m1 groove, m2 variation; pressed, play, part, a new idea. Press DRUMS again and the loop stays.</figcaption></figure>
       <figure><img src="sito/img/plancia_looper.png" alt="Looper panel: PLAY, bar 2 of 4, a cell bar for the loop position and the OVERDUB, PAUSE and CLEAR entries" width="640" height="480" loading="lazy"><figcaption><b>The looper.</b> A loop of events, four bars, overdub layer by layer, undo; the frame turns red while it records.</figcaption></figure>
@@ -284,7 +284,7 @@ sh tools/deploy.sh              # copies it over SSH (the Flip's address in tool
       </table>
     </div>
     <div class="prosa" style="margin-top:20px">
-      <p>Stame is an independent project, not affiliated with or endorsed by Telepathic Instruments. «Orchid» and «Pistil» are their names. The repository contains no factory data of the original: no presets, no firmware, no sample of its sounds. Its behaviour is described from the public manual and from listening, and every requirement says where it comes from. If you own an Orchid, the open questions marked [V] in the specification are the ones only you can answer.</p>
+      <p>The repository contains no factory data of the original: no presets, no firmware, no sample of its sounds. Its behaviour is described from the public manual and from listening, and every requirement says where it comes from. If you own the original, the open questions marked [V] in the specification are the ones only you can answer.</p>
     </div>
   </div>
 </section>
