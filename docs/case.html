@@ -30,7 +30,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       STAME
     </a>
     <nav aria-label="Sections">
-      <a href="#render">Renders</a><a href="#montaggio">Assembly</a><a href="#pezzi">Parts</a><a href="#prima">Before cutting</a><a href="#file">Files</a><a href="index.html">Home</a>
+      <a href="#render">Renders</a><a href="#montaggio">Assembly</a><a href="#pezzi">Parts</a><a href="#prima">Before cutting</a><a href="#stampata">No laser</a><a href="#file">Files</a><a href="index.html">Home</a>
     </nav>
     <div class="lingua">
       <a href="case.html" aria-current="page" hreflang="en">EN</a>
@@ -112,7 +112,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     </div>
     <div class="due">
       <div class="prosa">
-        <p>Every measurement lives in one file, <code>misure.py</code>, with its source: [M] manual or datasheet, [O] observed, [D] deduced, [V] to verify. The MPK's controls were measured on a photo from above whose scale holds on both axes, to about a millimetre; the macro pad on a photo where its standard 18 mm keycaps are the ruler, confirmed by a button of the MPK in the same frame; the Flip's ports on two photos that agree within half a millimetre.</p>
+        <p>Every measurement lives in one file, <code>misure.py</code>, with its source: [M] manual or datasheet, [O] observed, [D] deduced, [V] to verify. The MPK's controls were measured on a photo from above whose scale holds on both axes, to about a millimetre; the macro pad on ten photos from above and from the side, with its standard 18 mm keycaps as the ruler: the outline with its front lobe, the layers, the knobs, the USB-C socket; the Flip's ports on two photos that agree within half a millimetre.</p>
         <p>Building the 3D model from the parts found real mistakes before any wood was cut: walls overlapping the shelf, screws outside the walls, a cradle covering the shoulder buttons, holes on the mask overlapping, and the engraving on the sides coming out mirrored. Now the generator refuses an engraved part that would read backwards.</p>
       </div>
       <div class="prosa">
@@ -123,6 +123,29 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
           <li>Check the heights: the MPK's panel and small buttons, the pad's body and its USB-C socket, how far the Flip opens (it needs 115°).</li>
         </ul>
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="sezione" id="stampata">
+  <div class="contenitore">
+    <div class="testata">
+      <span class="etichetta">No laser</span>
+      <h2>The same console, all printed.</h2>
+      <p>For whoever has a 3D printer and no laser: the same parts, the same layout, the same assembly. Glued layers become one part; what does not fit on the bed is printed in dovetailed tiles to glue together; the lettering too fine for a 0.4 nozzle is printed on sticker paper and goes into its pockets. A 220 × 220 bed and about 1.3 kg of PETG or PLA are enough.</p>
+    </div>
+    <figure class="foto-grande">
+      <img src="sito/img/case/stampata.png" alt="The all-printed console: sand-coloured frame, black mask and deck, the mark and the name raised on the side, the MPK, the pad in its cradle and the open Flip" width="1320" height="720" loading="lazy">
+      <figcaption>Drawn from the same STL files that get printed: frame in a wood or sand colour, decks and cradles in black.</figcaption>
+    </figure>
+    <div class="galleria larga">
+      <figure><img src="sito/img/case/tasselli.png" alt="The tiles: the base in six, with dovetails on the joints; the left half of the back in two; the mask in two" loading="lazy"><figcaption><b>The tiles.</b> The base in six, the mask in two, the left half of the back in two, with dovetails (0.15 mm of play per side). The sides, the rib and the right half of the back fit diagonally and come already rotated.</figcaption></figure>
+      <figure><img src="sito/img/case/etichette_mascherina.png" alt="The mask's label sheet: the mark, STAME, the names of the knobs and buttons, black with light lettering" loading="lazy"><figcaption><b>The labels.</b> Each group of lettering on the mask and on the Flip's deck has a pocket 0.4 mm deep; the label is printed 1:1 on sticker paper and goes into it. On the sides the mark and the name are raised: with a filament change they come out in another colour.</figcaption></figure>
+    </div>
+    <div class="schede" style="margin-top:16px">
+      <div class="scheda"><span class="etichetta">PDF</span><h3>Instructions for the printed version</h3><p>The parts with their sizes, the settings, how to glue the tiles, the lettering and what changes in the assembly (in Italian).</p><p><a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/stampa3d/istruzioni_stampa3d.pdf">istruzioni_stampa3d.pdf</a></p></div>
+      <div class="scheda"><span class="etichetta">STL</span><h3>Twenty-one files</h3><p>Each one the right way round, the visible face up, within a 210 × 210 mm bed.</p><p><a href="https://github.com/luigismith/stame/tree/main/hardware/case/out/stampa3d">stampa3d</a> · <a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/stampa3d/pezzi.md">list</a></p></div>
+      <div class="scheda"><span class="etichetta">PDF</span><h3>Labels</h3><p>To print at 100 % on sticker paper, with the map of the pockets and a spare set.</p><p><a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/stampa3d/etichette_mascherina.pdf">etichette_mascherina.pdf</a></p></div>
     </div>
   </div>
 </section>
@@ -142,7 +165,8 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     <div class="prosa" style="margin-top:16px">
 <pre><code>python -I hardware/case/genera.py      # parts, cutting sheets, STL
 python -I hardware/case/assieme.py     # 3D model, assembly drawings
-python -I hardware/case/manuale.py     # PDF: instructions, cutting sheets
+python -I hardware/case/stampa3d.py    # the all-printed console
+python -I hardware/case/manuale.py     # PDF: instructions, cutting sheets, printed version
 python -I hardware/case/etichette.py   # the keycap labels
 python -I hardware/case/rendering.py   # Blender renders (Cycles, GPU)</code></pre>
       <p>The scripts, the measurements and the notes are in <a href="https://github.com/luigismith/stame/tree/main/hardware/case" hreflang="it">hardware/case</a>; the requirements in the <a href="https://github.com/luigismith/stame/blob/main/docs/specifica/60-case.md" hreflang="it">specification of the case</a>.</p>

@@ -95,6 +95,16 @@ L'elenco completo, con quantità, materiali e minuteria, è in `hardware/case/RE
 
 Ingombro 577,5 × 244 mm; altezza 46 al telaio, 53 il bordo delle culle, 133 lo schermo aperto, 150 la visiera. Peso stimato con gli apparecchi: circa 2,5 kg [D].
 
+## 7b. La console tutta stampata, per chi non ha il laser
+Luigi, 18/10/2026: «crea anche tutto quello che serve per farla tutta stampata 3d (per chi non ha il laser)». La console di betulla e acrilico resta la prima; questa è la stessa console, con gli stessi pezzi, la stessa disposizione e lo stesso montaggio, fatta solo con una stampante. La genera `hardware/case/stampa3d.py` dalla geometria di `genera.py` (CASE-050), in `hardware/case/out/stampa3d/`.
+- **CASE-060** [D] Ogni pezzo DEVE stare in 210 × 210 mm, l'area utile di una stampante da 220 × 220 (Ender-3, Bambu Lab, Anycubic Kobra; la Prusa MK4 in y). `stampa3d.py --piatto N` rigenera tutto per un altro piatto.
+- **CASE-061** [D] Gli strati incollati del laser diventano un pezzo solo: ogni fianco (quattro strati, 16 mm), ogni metà del retro con il suo strato d'appoggio (8 mm), la costola (8 mm); la base è una lastra sola invece di due metà. Gli strati di uno stesso pezzo si compenetrano di 0,2 mm, così lo slicer li fonde. I fori delle viti delle squadrette nei fianchi scendono 10 mm, per viti autofilettanti da plastica o inserti a caldo.
+- **CASE-062** [D] Quello che non sta sul piatto si divide in tasselli, con tagli dritti che passano ad almeno 1,5 mm da fori, tasche e rilievi: la base in sei, la mascherina in due, la metà sinistra del retro in due. Sui tagli ci sono code di rondine (collo 8, testa 12, profondità 7 mm; nella sede 0,15 mm di gioco per lato), da incollare con colla cianoacrilica o epossidica. I pezzi lunghi che entrano in diagonale con almeno 1,5 mm di margine per lato (i fianchi, la costola, la metà destra del retro) escono già ruotati.
+- **CASE-063** [D] Ogni STL esce nel verso fisico giusto (specchiato quando il piano del pezzo è sinistrorso nel mondo), con la faccia in vista in alto, e ogni guscio è chiuso: quando i fori sono tanti, `mesh.py` estrude a strisce senza vertici a T.
+- **CASE-064** [D] Le incisioni più sottili di 0,7 mm non si stampano con un ugello da 0,4. Sui fianchi il marchio e il nome escono in rilievo di 0,6 mm: con un cambio di filamento alla quota della faccia (16 mm) vengono di un altro colore. La riga «STAMEN HARMONICUM» dei fianchi resta solo sulla console laser.
+- **CASE-065** [D] Sulla mascherina e sul piano della Flip ogni gruppo di scritte ha una tasca profonda 0,4 mm, a 0,6 mm almeno dai fori; le scritte si stampano su carta adesiva, 1:1, nere con le lettere chiare come l'incisione (`etichette_mascherina.pdf`, con la mappa delle tasche e una serie di ricambio). Dove fra due fori non c'è posto per la parete (le quattro scritte fra le file dei pad) l'etichetta si posa sulla faccia.
+- **CASE-066** [D] Colori: telaio color legno o sabbia, piani e culle neri; circa 1,3 kg di PETG o PLA, stimati in `pezzi.md`. `istruzioni_stampa3d.pdf` raccoglie i pezzi, le impostazioni, i tasselli, le scritte e le differenze dal montaggio della console laser.
+
 ## 8. Alternative scartate
 - **Flip dietro la MK4 su un ponte (bozza 2):** lo sguardo cadeva lontano dalla destra e dal pad; Luigi l'ha messa sopra il pad, e lì resta.
 - **Flip a destra del pad:** allunga la console di 100 mm e porta lo schermo fuori dall'asse della mano che lavora sul pad.
@@ -102,7 +112,7 @@ Ingombro 577,5 × 244 mm; altezza 46 al telaio, 53 il bordo delle culle, 133 lo 
 - **Flip in piano sul tavolo, senza piano rialzato:** schermo troppo basso (sguardo a 30° dalla perpendicolare) e niente posto per l'hub.
 - **Torre con mensola e divisorio (bozza 4):** separava la MK4 dal pad e lasciava il pad in un pozzo; Luigi (18/10/2026) vuole tutto coperto e omogeneo.
 - **Mascherina alta sui piedini, che copre i controlli non usati (bozza 4):** Luigi la vuole appoggiata, con un foro per ogni controllo.
-- **Tutto stampato:** 576 mm non stanno nel piano da 250; il legno dà il carattere anni Settanta della console.
+- **Tutto stampato al posto del laser:** 577 mm non stanno nel piano da 250, e il legno dà il carattere anni Settanta della console: la prima resta di betulla e acrilico. Dal 18/10/2026 c'è però anche la versione tutta stampata, in tasselli, per chi non ha il laser (§7b).
 - **Guscio unico che smonta la MK4:** è il lavoro della fase 2, lo strumento dedicato.
 
 ## 9. Prossimi passi
@@ -111,6 +121,7 @@ Ingombro 577,5 × 244 mm; altezza 46 al telaio, 53 il bordo delle culle, 133 lo 
 3. Prova di taglio dei materiali; poi mascherina e piano della Flip.
 4. Stampa di prova delle due culle con la Flip e il pad veri; provare con le mani l'altezza del pad (CASE-014).
 5. Telaio di betulla.
+6. Per la versione stampata (§7b): prima un tassello di prova, per il gioco delle code di rondine sulla stampante che si usa.
 
 ## Questioni aperte
 - [V] Altezza dei pulsanti piccoli della MK4 e posizione dei connettori sul retro; i controlli sono rimisurati sulle foto (17/10/2026), resta la prova della dima.

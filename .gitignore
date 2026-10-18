@@ -8,3 +8,4 @@ __pycache__/
 /tools/flip.ip
 !/assets/suoni/*.wav
 /hardware/case/out/montaggio/pagine/
+/hardware/case/out/stampa3d/pagine/

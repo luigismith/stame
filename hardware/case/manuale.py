@@ -176,6 +176,163 @@ def istruzioni():
     return out
 
 
+MINUTERIA_STAMPA = [
+    'viti M3 × 10 svasate e dadi M3: 4 per la culla della Flip, sotto la Flip',
+    'viti M3 × 10 e dadi M3: 2 per la visiera, 6 per le squadrette nella base',
+    'viti autofilettanti per plastica 3 × 12 (o M3 con inserti a caldo): 6 per le squadrette nei fianchi, 2 per il fermo dell\'hub',
+    'colla cianoacrilica in gel o epossidica bicomponente, per i tasselli e le linguette',
+    'feltro adesivo da 1 mm in strisce sugli appoggi del piano; 6 piedini in gomma da 12 mm sotto la base',
+    'carta adesiva (o vinile da stampa) A4 per le etichette; taglierino e righello',
+    'hub USB 2.0 senza Power Delivery; cavi USB-C a 90° per la MK4 e per il pad; cavi corti',
+]
+
+
+def _pagina_in(cartella, nome, corpo, n, tot, piede):
+    p = os.path.join(cartella, nome + '.svg')
+    with open(p, 'w', encoding='utf-8', newline='\n') as f:
+        f.write(f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}mm" height="{H}mm" viewBox="0 0 {W} {H}">\n')
+        f.write(f'<rect width="{W}" height="{H}" fill="#F6F4EE"/>\n{corpo}\n')
+        f.write(testo(14, H - 8, [f'{piede} · {n}/{tot}'], 3.2, 400, '#777'))
+        f.write('\n</svg>\n')
+    return p
+
+
+def _elenco(x, y, righe, larghezza, size=3.4, passo=4.9, punto='· '):
+    out = []
+    for r in righe:
+        for i, rr in enumerate(a_capo(punto + r, larghezza)):
+            out.append(testo(x + (0 if i == 0 else 2.2), y, [rr], size))
+            y += passo
+    return out, y
+
+
+def istruzioni_stampa3d():
+    """out/stampa3d/istruzioni_stampa3d.pdf (i pezzi, i tasselli, le scritte e il montaggio) ed
+    etichette_mascherina.pdf (le etichette 1:1 e dove vanno)"""
+    import stampa3d as S
+    righe, totale, _ = S.genera()
+    cart = S.OUT3D
+    pag = os.path.join(cart, 'pagine')
+    os.makedirs(pag, exist_ok=True)
+    for n in os.listdir(pag):
+        os.remove(os.path.join(pag, n))
+    piatto = M.PIATTO_COMUNE[0]
+    piede = 'Stame · la console tutta stampata, bozza 5'
+    tot = 3
+    pagine = []
+    # 1: i pezzi
+    telaio = sum(r['grammi'] for r in righe if r['colore'] == 'telaio')
+    corpo = [testo(14, 22, ['Stame — la console tutta stampata'], 11, 700, '#141B18'),
+             testo(14, 31, [f'Per chi non ha il laser · bozza 5, 18/10/2026 · piatto da {piatto:.0f} × {piatto:.0f} mm '
+                            '(stampanti da 220 in su)'], 4.4, 400, '#555'),
+             immagine(ritaglia_in(os.path.join(cart, 'console_stampata.png'), pag), 150, 34, 138, 90),
+             testo(14, 44, ['I pezzi'], 5.2, 700)]
+    y = 51
+    for r in righe:
+        dx, dy, dz = r['dim']
+        q = f' ×{r["quanti"]}' if r['quanti'] > 1 else ''
+        rot = f', ruotato di {r["angolo"]}°' if r['angolo'] else ''
+        corpo.append(testo(14, y, [f'{r["nome"]}.stl{q}'], 3.2, 700))
+        corpo.append(testo(52, y, [f'{dx:.0f} × {dy:.0f} × {dz:.0f} mm{rot}'], 3.2))
+        y += 4.5
+    corpo.append(testo(14, y + 3, a_capo(f'Filamento: circa {virgola(totale / 1000)} kg, di cui {virgola(telaio / 1000)} kg per '
+                                         'il telaio (color legno o sabbia) e il resto in nero.', 62), 3.4, 400, '#333'))
+    corpo.append(testo(150, 134, ['Impostazioni'], 5.2, 700))
+    el, yy = _elenco(150, 141, [
+        'PETG o PLA, ugello 0,4, strati da 0,2; 3 perimetri, 4 strati pieni sopra e sotto, riempimento giroide al 20 %.',
+        'Ogni file esce nel verso giusto, con la faccia in vista in alto; i pezzi lunghi sono già ruotati in diagonale.',
+        'Senza supporti, tranne la visiera (si stampa sul tettuccio).',
+        'Prima un tassello di prova: le code di rondine devono entrare a mano, con 0,15 mm di gioco per lato.'], 70, 3.3, 4.6)
+    corpo += el
+    pagine.append(_pagina_in(pag, '01_pezzi', '\n'.join(corpo), 1, tot, piede))
+    # 2: i tasselli
+    png = os.path.join(pag, 'tasselli.png')
+    svg_png(os.path.join(cart, 'tasselli.svg'), png)
+    corpo = [testo(14, 22, ['I tasselli'], 10, 700, '#141B18'),
+             testo(14, 31, a_capo('Quello che non sta sul piatto si stampa in tasselli a coda di rondine: la base in sei, '
+                                  'la mascherina in due, una metà del retro in due. Il numero è quello del file.', 150), 4.0, 400, '#333'),
+             immagine(png, 10, 42, 180, 150)]
+    el, yy = _elenco(196, 46, [
+        'Prova a secco: ogni coda entra nella sua sede a mano, al massimo con un colpo leggero. Se è dura, carta '
+        'abrasiva fine sui fianchi della coda, non sulla sede.',
+        'Colla cianoacrilica in gel o epossidica bicomponente nelle sedi; unire su un piano dritto (vetro o piano di '
+        'lavoro), premere e tenere fermo con pesi o morsetti finché la colla tira.',
+        'La base: prima le due file da tre, poi le due file insieme. Controllare con una riga che resti piana.',
+        'La mascherina: le due metà con la faccia in vista in giù sul vetro, così la giunta resta a filo.',
+        'Una passata di carta abrasiva sulla giunta della faccia in vista, se serve.'], 46, 3.4, 4.9)
+    corpo += el
+    pagine.append(_pagina_in(pag, '02_tasselli', '\n'.join(corpo), 2, tot, piede))
+    # 3: scritte e montaggio
+    png = os.path.join(pag, 'mappa.png')
+    svg_png(os.path.join(cart, 'etichette_mappa.svg'), png)
+    corpo = [testo(14, 22, ['Scritte e montaggio'], 10, 700, '#141B18'),
+             testo(14, 34, ['Le scritte'], 5.2, 700)]
+    el, y = _elenco(14, 41, [
+        f'Fianchi: il marchio e il nome escono di {virgola(M.RILIEVO)} mm. Per averli in un altro colore, nello slicer un cambio '
+        f'di filamento (pausa, M600) alla quota {virgola(M.FIANCO)} mm, dove comincia il rilievo.',
+        f'Mascherina e piano della Flip: le scritte del laser sono troppo fini per un ugello da 0,4, quindi si stampano su '
+        f'carta. Ogni gruppo ha una tasca profonda {virgola(M.TASCA)} mm; etichette_mascherina.pdf, al 100 %, su carta adesiva '
+        'opaca o vinile da stampa (meglio con una pellicola trasparente sopra).',
+        'Ritagliare con taglierino e righello lungo il bordo grigio; posare con una pinzetta nella tasca con lo stesso '
+        'numero. Quattro scritte fra le file dei pad non hanno la tasca (manca il posto): si posano sulla faccia.'], 70, 3.4, 4.9)
+    corpo += el
+    corpo.append(testo(14, y + 5, ['Il montaggio'], 5.2, 700))
+    el, y = _elenco(14, y + 12, [
+        'Come in istruzioni_montaggio.pdf, passi 1-9, con queste differenze:',
+        'passo 1: la base è già una lastra sola (i tasselli incollati);',
+        'passo 2: ogni metà del retro e la costola sono un pezzo solo, senza strati da incollare; nelle tacche e nelle '
+        'asole con la colla dei tasselli, o a secco se stanno strette;',
+        'passo 3: i fianchi sono un pezzo solo; le squadrette si avvitano con le viti per plastica (o inserti a caldo);',
+        'passi 4-9: uguali.'], 70, 3.4, 4.9)
+    corpo += el
+    corpo.append(testo(150, 34, ['Minuteria'], 5.2, 700))
+    el, _ = _elenco(150, 41, MINUTERIA_STAMPA, 66, 3.3, 4.6)
+    corpo += el
+    corpo.append(immagine(png, 150, 104, 134, 94))
+    pagine.append(_pagina_in(pag, '03_scritte', '\n'.join(corpo), 3, tot, piede))
+    pdfs = []
+    for p in pagine:
+        pdf = p[:-4] + '.pdf'
+        svg_pdf(p, pdf)
+        pdfs.append(pdf)
+    out = os.path.join(cart, 'istruzioni_stampa3d.pdf')
+    unisci(pdfs, out, 'Stame — la console tutta stampata')
+    # le etichette: la pagina da stampare al 100 % e la mappa
+    eti = []
+    for n in ('etichette_mascherina', 'etichette_mappa'):
+        pdf = os.path.join(pag, n + '.pdf')
+        svg_pdf(os.path.join(cart, n + '.svg'), pdf)
+        eti.append(pdf)
+    out_e = os.path.join(cart, 'etichette_mascherina.pdf')
+    unisci(eti, out_e, 'Stame — etichette della mascherina (stampare al 100 %)')
+    return out, out_e
+
+
+def svg_png(svg, png, scala=4):
+    """la pagina SVG in PNG, ritagliata sul disegno (fuori resta solo il bianco)"""
+    from PIL import Image, ImageChops
+    esegui(VC, 'convert', svg, png, '--scale', str(scala))
+    im = Image.open(png).convert('RGB')
+    box = ImageChops.difference(im, Image.new('RGB', im.size, (255, 255, 255))).getbbox()
+    if box:
+        m = 6 * scala
+        im.crop((max(box[0] - m, 0), max(box[1] - m, 0), min(box[2] + m, im.width), min(box[3] + m, im.height))).save(png)
+    return png
+
+
+def virgola(x, d=1):
+    return f'{x:.{d}f}'.replace('.', ',')
+
+
+def ritaglia_in(png, cartella):
+    """come ritaglia(), ma nella cartella data"""
+    from PIL import Image
+    im = Image.open(png)
+    out = os.path.join(cartella, os.path.basename(png))
+    im.crop((0, 150, im.width, im.height)).save(out)
+    return out
+
+
 def taglio():
     cart = os.path.join(OUT, 'taglio')
     svgs = sorted(n for n in os.listdir(cart) if n.startswith('taglio_') and n.endswith('.svg'))
@@ -197,6 +354,8 @@ def main():
     G.genera()
     print(taglio())
     print(istruzioni())
+    for p in istruzioni_stampa3d():
+        print(p)
 
 
 if __name__ == '__main__':

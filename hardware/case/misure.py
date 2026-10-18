@@ -27,7 +27,7 @@ import math
 LASER_BED = (390.0, 390.0)        # AtomStack S10, area utile con margine [D]
 PRINT_BED = (240.0, 240.0)        # Kobra S1, 250 con 5 mm di margine per lato (CASE-003)
 
-# ---- versione tutta stampata (CASE-050…CASE-056; Luigi, 18/10/2026: «per chi non ha il laser») ----
+# ---- versione tutta stampata (CASE-060…CASE-066; Luigi, 18/10/2026: «per chi non ha il laser») ----
 PIATTO_COMUNE = (210.0, 210.0)    # area utile di una stampante da 220 × 220: Ender-3, Bambu, Kobra, Prusa MK4 (210 in y)
 GIOCO_STAMPA = 0.15               # gioco per lato nelle sedi delle code di rondine stampate
 CODA = dict(collo=8.0, testa=12.0, prof=7.0)   # coda di rondine fra i tasselli, nel piano del pezzo

@@ -18,7 +18,8 @@ Cosa cambia nella bozza 5 (Luigi, 18/10/2026: «deve essere tutto coperto e omog
 ```
 python -I hardware/case/genera.py      pezzi (SVG laser, STL), fogli di taglio (SVG, DXF), dima, tavola
 python -I hardware/case/assieme.py     modello 3D (OBJ), dati per SketchUp, tavole del montaggio (PNG)
-python -I hardware/case/manuale.py     PDF: progetti di taglio e istruzioni di montaggio
+python -I hardware/case/stampa3d.py    la console tutta stampata, per chi non ha il laser (out/stampa3d/)
+python -I hardware/case/manuale.py     PDF: progetti di taglio, istruzioni di montaggio, istruzioni della versione stampata
 python -I hardware/case/sketchup.py    codice per costruire il modello in SketchUp (out/sketchup/)
 python -I hardware/case/etichette.py   etichette dei tasti trasparenti del pad (A4, SVG e PDF)
 python -I hardware/case/rendering.py   rendering con Blender 5.2, Cycles su GPU (out/render/)
@@ -49,6 +50,27 @@ Il riferimento del case (x a destra, y verso il musicista, z in su) è sinistror
 | `render/*.jpg` | i rendering: la console, il pad con la Flip, la mascherina |
 | `etichette_pad.pdf`, `.svg` | le etichette dei tasti del pad, A4 al 100 % |
 | `dima_mascherina.svg`, `tavola_insieme.svg` | dima da stampare su carta, tavola dall'alto e di fianco |
+| `stampa3d/` | la console tutta stampata: vedi sotto |
+
+## Senza laser: la console tutta stampata
+
+![La console tutta stampata](out/stampa3d/console_stampata.png)
+
+Per chi non ha il laser c'è la stessa console fatta solo con una stampante 3D (`docs/specifica/60-case.md` §7b). `stampa3d.py` prende i pezzi del laser da `genera.py` e li trasforma:
+- **gli strati incollati diventano un pezzo solo:** ogni fianco, ogni metà del retro con il suo strato d'appoggio, la costola; la base è una lastra sola;
+- **quello che non sta sul piatto si divide in tasselli** con le code di rondine, da incollare: la base in sei, la mascherina in due, la metà sinistra del retro in due. I pezzi lunghi che entrano in diagonale escono già ruotati;
+- **le scritte:** sui fianchi il marchio e il nome sono in rilievo, e con un cambio di filamento vengono di un altro colore. Sulla mascherina e sul piano della Flip le scritte del laser sono troppo fini per un ugello da 0,4: ogni gruppo ha una tasca profonda 0,4 mm, e le etichette si stampano su carta adesiva.
+
+Il piatto di riferimento è 210 × 210 mm, cioè le stampanti da 220 in su; `--piatto N` rigenera tutto per un piatto diverso. In tutto servono circa 1,3 kg di PETG o PLA: il telaio color legno o sabbia, i piani e le culle neri.
+
+| File in `out/stampa3d/` | Cos'è |
+|---|---|
+| `istruzioni_stampa3d.pdf` | i pezzi e le impostazioni, i tasselli, le scritte, le differenze dal montaggio della console laser |
+| `pezzi.md` | l'elenco dei pezzi con le misure, le note e la stima del filamento |
+| `*.stl` | i pezzi, nel verso giusto, con la faccia in vista in alto |
+| `etichette_mascherina.pdf`, `.svg` | le etichette 1:1 da stampare al 100 % su carta adesiva, con la mappa delle tasche |
+| `tasselli.svg` | come si uniscono i tasselli, con i numeri dei file |
+| `console_stampata.png`, `console_stampata_retro.png` | la console montata, davanti e dietro |
 
 ## Prima di tagliare
 

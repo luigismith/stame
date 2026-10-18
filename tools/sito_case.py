@@ -114,7 +114,31 @@ def pagina():
         print('case/etichette.png', im.size)
 
 
+def stampata():
+    """la console tutta stampata (hardware/case/stampa3d.py): il disegno, i tasselli, le etichette"""
+    s3 = os.path.join(CASE, 'stampa3d')
+    im = Image.open(os.path.join(s3, 'console_stampata.png')).convert('RGB').crop((90, 200, 1410, 920))
+    im = im.quantize(colors=128, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
+    im.save(os.path.join(CARTELLA, 'stampata.png'), optimize=True)
+    print('case/stampata.png', im.size)
+    with tempfile.TemporaryDirectory() as tmp:
+        for nome, scala in (('tasselli', 3), ('etichette_mascherina', 5)):
+            png = os.path.join(tmp, nome + '.png')
+            subprocess.run([VC, 'convert', os.path.join(s3, nome + '.svg'), png, '--scale', str(scala)], check=True, capture_output=True)
+            im = Image.open(png).convert('RGB')
+            a = 255 - np.asarray(im.convert('L'))
+            ys, xs = np.nonzero(a > 8)
+            m = 8 * scala
+            im = im.crop((max(xs.min() - m, 0), max(ys.min() - m, 0), min(xs.max() + m, im.width), min(ys.max() + m, im.height)))
+            if nome == 'etichette_mascherina':          # la prima serie, senza quella di ricambio
+                im = im.crop((0, 0, im.width, int(im.height * 0.52)))
+            im = im.quantize(colors=96, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
+            im.save(os.path.join(CARTELLA, nome + '.png'), optimize=True)
+            print(f'case/{nome}.png', im.size)
+
+
 if __name__ == '__main__':
     tavole()
     mascherina()
     pagina()
+    stampata()
