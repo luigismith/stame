@@ -11,7 +11,7 @@
  *
  * Levette e grilletti (17/10/2026, Luigi: «gli analogici dalla flip? non ti piacevano?», MIDI-138):
  *   - levetta sinistra: orizzontale = pitch bend, verticale = modulazione (in su o in giù), a molla
- *     come il joystick delle MPK; con il solo pad sono l'unico bend e l'unica modulazione;
+ *     come il joystick delle MPK;
  *   - levetta destra: su/giù = Chord Voicing, destra/sinistra = Bass Voicing, un passo oltre il 50%
  *     della corsa, ripetuto finché è tenuta (ogni 150 ms, ogni 50 ms oltre il 90%), come MIDI-093;
  *   - R3 = Chord Voicing premuto (Split/Octave), L3 = Bass Voicing premuto (Mod);

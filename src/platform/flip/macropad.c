@@ -32,19 +32,6 @@ static int fds[MAXFD], nfd;
 static uint8_t mods;
 static uint16_t down_as[KEY_MAX + 1];     /* tasto evdev giù → codice MPAD dato alla pressione */
 static int unknown;
-static int diag_n;                        /* righe di diagnosi scritte da quando il pad è aperto */
-
-/* Diagnosi del 17/10/2026 (Luigi: «gli encoder del pad sembrano girare solo in un senso»): nel registro
- * i primi 64 scatti e pressioni di manopola e i codici sconosciuti, con il codice evdev, per vedere se
- * ogni verso arriva e con quale tasto. Solo il thread principale, mai il percorso audio */
-static void diag(uint16_t code, uint16_t m)
-{
-    static const char *const K[9] = { "M antiorario", "M premuta", "M orario", "m1 antiorario", "m1 premuta",
-                                      "m1 orario", "m2 antiorario", "m2 premuta", "m2 orario" };
-    if (diag_n >= 64) return;
-    if (m >= MPAD_M_CCW && m < MPAD_END) { diag_n++; log_msg("pad: evdev %u = %s", code, K[m - MPAD_M_CCW]); }
-    else if (!m) { diag_n++; log_msg("pad: evdev %u sconosciuto", code); }
-}
 
 static uint8_t mod_bit(uint16_t code)
 {
@@ -83,7 +70,6 @@ int macropad_open(void)
     nfd = 0;
     mods = 0;
     unknown = 0;
-    diag_n = 0;
     memset(down_as, 0, sizeof down_as);
     int grab_failed = 0;
     for (int i = 0; i < 32 && nfd < MAXFD; i++) {
@@ -156,7 +142,6 @@ int macropad_read(pad_cb_t cb, void *ctx)
                 if (value == 1) {
                     uint16_t m = map(code);
                     down_as[code] = m;
-                    if (!(mods & (MOD_CTRL | MOD_SHIFT | MOD_ALT))) diag(code, m);
                     if (m) { unknown = 0; cb(ctx, m, 1); }
                     else if (!(mods & (MOD_CTRL | MOD_SHIFT | MOD_ALT))) unknown++;
                 } else if (down_as[code]) {

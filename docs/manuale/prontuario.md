@@ -12,7 +12,7 @@ Una pagina, da stampare. Vetrina 0.1, mappa del 17/10/2026. «prev.» = previsto
 | gira | la manopola K | Sound, Perform, FX, Key / Bass, Loop, BPM, Volume |
 | Mod + … | m1 premuta (Y senza pad) | + REC uscita forzata dal loop (Clear) · + Bass basso on/off · + BPM batteria a tastiera |
 
-Con MPK e pad ogni comando ha una casa: girare e premere sulla MPK, liste sulla manopola nav, le aggiunte sul pad. I tasti della Flip funzionano sempre. Con la sola MK4 o il solo pad: le ultime due sezioni.
+Con MPK e pad ogni comando ha una casa: girare e premere sulla MPK, liste sulla manopola nav, le aggiunte sul pad. I tasti della Flip funzionano sempre. Se manca un apparecchio, gli altri fanno lo stesso mestiere.
 
 ## MPK mini IV (preset DAW)
 
@@ -88,7 +88,7 @@ T14: Geek Out e ritorno. T15: pagina dei comandi aperta finché non lo ripremi (
 
 Options: Exit · View (React, Chord, Keyboard, Chord+Kb, Notes, Geek Out) · Play Style (Simple, Advanced, Free) · Single Notes (Split, Octave) · Secret Chords (On, Off).
 Lista di BPM: 2/4 · 3/4 · 4/4 · 6/8 · Funk · Bossa · Motorik · Lounge · Shuffle · Halftime · Boom Bap · Disco · Samba · Ballad · Train · Chip · Techno · Dub. Batteria a tastiera (T11): tasti C…B = cassa, rimshot, rullante, battimani, charleston chiuso, tom basso, charleston aperto, tom alto, maracas, conga, campanaccio, piatto; i colpi entrano nel loop al sedicesimo.
-Menu: Exit · Panic · Metronome · Save Loop · Theme (Giorno di default) · Linnaeus Tag · Legend · Meters · Demo · Play Demo Song · Quit Stame.
+Menu: Exit · Panic · Theme (Giorno di default) · Linnaeus Tag · Legend · Meters · Demo · Play Demo Song · Quit Stame.
 
 ## Drum machine (DRUMS acceso)
 
@@ -100,18 +100,4 @@ REC → count-in di 1 battuta → 4 battute registrate → PLAY. Poi: ⊕ overdu
 
 ## Testata
 
-batteria sempre · **NO MPK** (lampeggia; non con il pad strumento) · **MPK FACTORY** (solo Plus) · **PAD** rosso = pad non aperto o senza mappa · **POCKET** (prev.) · **LOCK SOUND PERFORM KEY** · **DRUMS** · **HOLD** · **METRO** · **FILL** · **MIN m7** (tipo ed estensione del pad strumento) · **CLIP** 1,5 s · **XRUN** 2 s. In Geek Out: MPK, IN/OUT, VOX, CPU (misurato), livelli, PAD.
-
-## Solo MK4
-
-Come con il pad, più: **nav** = Chord Voicing (il fuoco parte da lì; L1/R1 per Bass Voicing) · **X** Hold · **START** Fill tenuto · **Y** Mod · **SELECT** Options · Y + STOP/PLAY = batteria a tastiera · MENU: Panic, Metronome, Save Loop.
-
-## Solo pad: il pad è lo strumento
-
-| | 1 | 2 | 3 | 4 | 5 |
-|---|---|---|---|---|---|
-| alto | Do | Do♯ | Re | Re♯ | T13 LOCK |
-| mezzo | Mi | Fa | Fa♯ | Sol | T14 VIEW |
-| basso | Sol♯ | La | La♯ | Si | T15 PAGE |
-
-**M** gira = tipo (–, Dim, Min, Maj, Sus), premi = via tipo ed estensione · **m1** gira = estensione (–, 6, m7, M7, 9), premi = Mod · **m2** = il controllo col fuoco (L1/R1 della Flip), premi = premi. Tipo ed estensione restano tenuti e la testata li scrive. Key mode accesa e nessun tipo = accordi della scala. Flip: X Hold · START Beat · m1 premuta + START = batteria a tastiera.
+batteria sempre · **NO MPK** (lampeggia) · **MPK FACTORY** (solo Plus) · **PAD** rosso = pad non aperto o senza mappa · **POCKET** (prev.) · **LOCK SOUND PERFORM KEY** · **DRUMS** · **HOLD** · **METRO** · **FILL** · **CLIP** 1,5 s · **XRUN** 2 s. In Geek Out: MPK, IN/OUT, VOX, CPU (misurato), livelli, PAD.

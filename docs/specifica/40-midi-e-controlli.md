@@ -537,7 +537,7 @@ Le quattro porte su Windows si chiamano «MPK mini IV MIDI Port», «DAW Port»,
 
 ### 8.10 Macro pad BRIMFORD (profilo `pad_brimford`)
 
-Gli encoder dell'Orchid si premono, le manopole della MPK no. Luigi ha aggiunto un **macro pad** che il 13/10/2026 dava agli encoder i loro pulsanti (K1–K8 e T1–T8 come **due griglie gemelle 4×2**). Il **16/10/2026** Luigi ha chiesto di togliere i comandi replicati fra gli apparecchi («studia l'ergonomia migliore per i comandi utilizzando quelli che sono più ergonomicamente funzionali, se restano tasti o manopole libere... assegnamogli nuove feature») e ha deciso: la pressione degli encoder sta tutta su SHIFT + K della MK4, liste, conferma, Back e Menu sulla manopola di navigazione, − e + della MK4, il Lock resta, le riserve tacciono quando c'è l'apparecchio che sostituiscono. Il pad tiene Options, Panic, Lock, View, Page e i due voicing, e i tasti liberi fanno quello che l'Orchid non ha (MIDI-133). Il **17/10/2026** Luigi ha chiesto che i comandi si adattino agli apparecchi collegati: senza tastiera il pad è lo strumento (MIDI-136), e i tasti della Flip non tacciono più (MIDI-137, al posto delle riserve inerti di MIDI-134).
+Gli encoder dell'Orchid si premono, le manopole della MPK no. Luigi ha aggiunto un **macro pad** che il 13/10/2026 dava agli encoder i loro pulsanti (K1–K8 e T1–T8 come **due griglie gemelle 4×2**). Il **16/10/2026** Luigi ha chiesto di togliere i comandi replicati fra gli apparecchi («studia l'ergonomia migliore per i comandi utilizzando quelli che sono più ergonomicamente funzionali, se restano tasti o manopole libere... assegnamogli nuove feature») e ha deciso: la pressione degli encoder sta tutta su SHIFT + K della MK4, liste, conferma, Back e Menu sulla manopola di navigazione, − e + della MK4, il Lock resta, le riserve tacciono quando c'è l'apparecchio che sostituiscono. Il pad tiene Options, Panic, Lock, View, Page e i due voicing, e i tasti liberi fanno quello che l'Orchid non ha (MIDI-133). Il **17/10/2026** i tasti della Flip hanno smesso di tacere (MIDI-137, al posto delle riserve inerti di MIDI-134). Il 18/10/2026 Luigi ha tolto le mappe per la sola MK4 e per il solo pad: lo strumento è MK4, pad e Flip insieme, e ogni apparecchio fa sempre la sua mappa.
 
 | Voce | Valore | Etichetta |
 |---|---|---|
@@ -571,7 +571,7 @@ Gli encoder dell'Orchid si premono, le manopole della MPK no. Luigi ha aggiunto 
 
 La quinta colonna è quella **decisa da Luigi il 15/10/2026**: **T13 Lock** (MIDI-131), **T14 View** e **T15 Page** (MIDI-132). Le prime quattro, fino al 15/10 gemelle delle manopole della MPK, dal 16/10/2026 sono le funzioni di MIDI-133.
 
-- **MIDI-120** — Il profilo `pad_brimford` DEVE applicare questa mappa [D, **13/10/2026**, rifatta il **16/10/2026**] quando c'è una tastiera; senza, il pad è lo strumento di MIDI-136. I codici sono quelli programmati sul macro pad (MIDI-122) o imparati con Learn Pad (MIDI-123); al profilo arrivano già tradotti nei codici portabili `MPAD_*` (MIDI-124):
+- **MIDI-120** — Il profilo `pad_brimford` DEVE applicare questa mappa [D, **13/10/2026**, rifatta il **16/10/2026**] sempre, con o senza tastiera (il pad strumento di MIDI-136 è stato tolto il 18/10/2026). I codici sono quelli programmati sul macro pad (MIDI-122) o imparati con Learn Pad (MIDI-123); al profilo arrivano già tradotti nei codici portabili `MPAD_*` (MIDI-124):
 
 | Comando | Codice (strato 3 di fabbrica) | Evento del pannello (§10.1) | Funzione |
 |---|---|---|---|
@@ -713,39 +713,19 @@ layers:
   - gli overlay sono `OV_KIT`, `OV_ROLL`, `OV_ACCENT` (`30` UI-025); K3 (FX sulla batteria) e K4 (Swing sulla griglia del loop e dei Beat) sono decisi ma non ancora fatti;
   - fuori da DRUMS gli encoder tornano quelli dell'Orchid; kit, Roll e Accent restano come sono.
 
-- **MIDI-136** — **Il pad senza tastiera è lo strumento** [D, **deciso da Luigi il 17/10/2026**: «quando ho solo collegato il macro pad i controlli devono essere ottimizzati per l'uso con macropad», e fra le proposte «il pad è lo strumento»; poi «i controlli devono essere intelligenti, sensati, intuitivi ed ergonomici»]. Senza MPK collegata il profilo `pad_brimford` usa questa mappa; con una tastiera torna quella di MIDI-120. Il pad si tiene con le manopole a destra: la mano sinistra suona le fondamentali, la destra sceglie l'accordo con la manopola grande, la più comoda, perché è il comando che cambia più spesso.
+- **MIDI-136** — **Il pad senza tastiera era lo strumento** [D, 17/10/2026; **tolta il 18/10/2026**]. Dal 17 al 18/10/2026, senza MPK collegata, il pad cambiava mappa: T1–T12 erano le dodici fondamentali, M teneva il tipo d'accordo e m1 l'estensione. Il 18/10/2026 Luigi: «ci ho ripensato. elimina tutto quello che riguarda il funzionamento solo mpk o solo pad». Il pad fa sempre la mappa di MIDI-120.
 
-| Comando | Evento del pannello (§10.1) | Funzione |
-|---|---|---|
-| **T1–T12** | `PNL_KEY_DOWN(0…11, 100)` alla pressione, `PNL_KEY_UP` al rilascio | le **dodici fondamentali** in ordine di lettura: fila alta Do Do♯ Re Re♯, in mezzo Mi Fa Fa♯ Sol, in basso Sol♯ La La♯ Si. Velocity fissa 100 [D], come il modo tascabile (MIDI-093) |
-| **M** girata | `PNL_CHORD_UP` del tipo di prima, poi `PNL_CHORD_DOWN` del nuovo | **tipo d'accordo** tenuto: nessuno, Dim, Min, Maj, Sus (l'ordine dei tasti dell'Orchid, orario verso Sus); agli estremi si ferma |
-| **M** premuta | `PNL_CHORD_UP` di tipo ed estensione | li toglie tutti e due: di nuovo l'accordo della Key mode, con un gesto solo |
-| **m1** girata | come M, sui tasti delle estensioni | **estensione** tenuta: nessuna, 6, m7, M7, 9 |
-| **m1** premuta | `PNL_ENC_DOWN/UP(ENC_BASS_VOICING)` | **Mod**, il modificatore delle combinazioni, come con la tastiera |
-| **m2** girata | `PNL_ENC_TURN(ENC_FOCUS, ±1)` | il **controllo col fuoco** (lo spostano L1 e R1 della Flip) o la lista aperta |
-| **m2** premuta | `PNL_ENC_DOWN/UP(ENC_FOCUS)` | preme il controllo col fuoco o conferma la voce; premuta e girata = premere e ruotare |
-| **T13, T14, T15** | come MIDI-120 | Lock (M, m1, m2 = Sound, Perform, Key, MIDI-131), View, Page (MIDI-132) |
-
-  Regole:
-  - tipo ed estensione sono **tasti accordo tenuti dal pad** (lo stato unito di MIDI-102 li vede premuti): il motore degli accordi li tratta come se una mano li tenesse, quindi una fondamentale suona l'accordo come sull'Orchid, e girando M mentre una fondamentale suona l'accordo cambia come passando da un tasto all'altro;
-  - sono uno **stato** e si vedono: la testata li scrive accesi, per esempio «MIN m7» (`30` UI-126);
-  - quando il pad diventa lo strumento la plancia lo dice una volta: «Pad plays notes» (`30` UI-156);
-  - la mappa cambia **solo con il pad fermo** (nessun tasto né manopola premuti), come il modo tascabile di MIDI-094; lasciando lo strumento tipo ed estensione si rilasciano;
-  - le altre aggiunte del pad (MIDI-133) qui non ci sono: Hold è X della Flip, il pulsante di BPM è START (MIDI-137); Panic, Metronomo e Save Loop stanno nel menu della Flip (`30` UI-129); la batteria a tastiera è Mod + BPM (m1 premuta + START), come sull'Orchid, e allora T1–T12 suonano i dodici pezzi del kit.
-
-- **MIDI-137** — **Configurazioni: i comandi secondo gli apparecchi collegati, la Flip sempre viva** [D, **deciso da Luigi il 17/10/2026**: «i tasti della flip devono funzionare per la gestione»; «quando ho collegato solo la mini i controlli devono essere ottimizzati per la sola mini; mentre quando ho solo collegato il macro pad i controlli devono essere ottimizzati per l'uso con macropad. in entrambe queste configurazioni, i controlli della flip devono funzionare»; con MK4 e pad insieme, «tutti» i tasti della Flip]. Sostituisce MIDI-134. Lo strato di input sa quali apparecchi sono collegati (`input.c`, `cfg_sync`, a ogni collegamento e scollegamento) e lo dice ai profili:
+- **MIDI-137** — **La Flip sempre viva** [D, **deciso da Luigi il 17/10/2026**: «i tasti della flip devono funzionare per la gestione», poi «tutti»; **il 18/10/2026** tolte le mappe per la sola MK4 e per il solo pad: «elimina tutto quello che riguarda il funzionamento solo mpk o solo pad»]. Sostituisce MIDI-134. Lo strato di input sa quale tastiera è collegata (`input.c`, `cfg_sync`, a ogni collegamento e scollegamento) e lo dice al profilo della Flip:
   - i tasti della Flip **non tacciono mai**: lo schema a fuoco di MIDI-092 vale in ogni configurazione, anche dove lo stesso comando c'è su un altro apparecchio. MENU resta la via d'uscita;
   - **X** è **Hold** (`PNL_MACRO(MACRO_HOLD_TOGGLE)`, come T1 del pad); con la **Plus** collegata resta il suo PUSH (§8.6);
   - **START** è il pulsante di **BPM**; con la **MK4** collegata, che ha STOP/PLAY per il Beat, è il **Fill** finché è tenuto (`PNL_MACRO(MACRO_FILL, 1/0)`, come T4). Il ruolo si fissa alla pressione: il rilascio va lì anche se intanto cambia la configurazione;
-  - **solo MK4**: la MK4 fa quello che fa con il pad (MIDI-130, MIDI-135). Quando la configurazione lo diventa, il fuoco va su **Chord Voicing**: la manopola nav è la manopola dei rivolti, e premuta alterna Split e Octave; L1 e R1 portano il fuoco su Bass Voicing e sugli altri controlli. Y è il Mod, SELECT Options, X Hold, START Fill; Panic è anche SHIFT + STOP/PLAY; Metronomo e Save Loop sono nel menu (`30` UI-129); la batteria a tastiera è Mod + STOP/PLAY (Y tenuto), come sull'Orchid. Tap tempo e Scene restano del pad;
-  - **solo pad**: il pad è lo strumento (MIDI-136);
-  - **MK4 e pad**: la mappa del 16/10/2026 (MIDI-120, MIDI-130, MIDI-133), più i tasti della Flip;
+  - MK4, pad e Flip fanno sempre la loro mappa (MIDI-120, MIDI-130, MIDI-133, MIDI-135), anche se manca un apparecchio: non ci sono mappe per la sola MK4 o il solo pad;
   - **solo Flip**: lo schema a fuoco di MIDI-092 (il modo tascabile di MIDI-093 è previsto);
   - le legende della pagina dei comandi seguono la configurazione (`30` UI-152);
   - la MK4 non può prendere le funzioni del pad su **SHIFT + pad** né su **SHIFT + LOOP**: sono comandi della tastiera stessa (SHIFT + Pad 5 accende il suo modo accordi, SHIFT + LOOP apre il suo menu globale; guida della MK4 nel vault);
   - levette e grilletti della Flip: MIDI-138.
 
-- **MIDI-138** — **Levette e grilletti della Flip** [D, **17/10/2026**, Luigi: «gli analogici dalla flip? non ti piacevano?»]. Fino a questa data levette, L2, R2, L3 e R3 erano liberi, tenuti per il modo tascabile. Le levette sono a molla e analogiche: con il solo pad sono l'unica fonte di bend e modulazione, e la destra dà una manopola ai due voicing, che senza pad non ne hanno una. La mappa vale in ogni configurazione, come il resto dei tasti della Flip (MIDI-137); il modo tascabile, quando ci sarà, la sostituisce (MIDI-094):
+- **MIDI-138** — **Levette e grilletti della Flip** [D, **17/10/2026**, Luigi: «gli analogici dalla flip? non ti piacevano?»]. Fino a questa data levette, L2, R2, L3 e R3 erano liberi, tenuti per il modo tascabile. Le levette sono a molla e analogiche: la destra dà una manopola ai due voicing anche quando il pad non c'è. La mappa vale sempre, come il resto dei tasti della Flip (MIDI-137); il modo tascabile, quando ci sarà, la sostituisce (MIDI-094):
 
 | Comando | Evento del pannello (§10.1) | Funzione |
 |---|---|---|

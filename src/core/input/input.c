@@ -33,14 +33,13 @@ static uint16_t bit_pad(int b)
 }
 
 /* Configurazione (MIDI-137, 17/10/2026): i tasti della Flip non tacciono mai, ma X e START cambiano
- * ruolo con la tastiera collegata, e il pad senza tastiera è lo strumento (MIDI-136). Si chiama dopo
- * ogni collegamento, scollegamento o cambio di modello, anche perché il reset dei profili azzera cfg. */
+ * ruolo con la tastiera collegata. Si chiama dopo ogni collegamento, scollegamento o cambio di
+ * modello, anche perché il reset dei profili azzera cfg. */
 static void cfg_sync(inp_t *h)
 {
     bool mpk = (h->connected & (1u << SRC_MPK)) != 0;
     bool mk4 = mpk && h->mpk_model == MPK_MODEL_MK4;
     h->flip.cfg = (uint8_t)((mk4 ? FLIP_CFG_MK4 : 0) | (mpk && !mk4 ? FLIP_CFG_PLUS : 0));
-    h->mpad.want_inst = (uint8_t)!mpk;                         /* il profilo cambia mappa a pad fermo */
 }
 
 /* eventi di un profilo -> gest -> out[k…]; ritorna il nuovo k */

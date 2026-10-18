@@ -5,8 +5,7 @@
  * profili, ognuno prende i suoi (X della Flip va a mpk_stame come PUSH); poi gest. In uscita gli
  * eventi per il nucleo descritti in gest.h. Lo stato lo alloca il chiamante.
  *
- * La configurazione degli apparecchi collegati decide due cose (MIDI-137): il ruolo di X e START
- * della Flip e la mappa del macro pad, che senza tastiera è lo strumento (MIDI-136).
+ * La tastiera collegata decide il ruolo di X e START della Flip (MIDI-137).
  *
  *     static inp_t in;
  *     inp_init(&in);
