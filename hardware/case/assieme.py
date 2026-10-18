@@ -37,14 +37,14 @@ AMBRA = (236, 150, 40)
 
 PASSI = {
     1: ('La base', 'Unire le due metà della base a coda di rondine, con la colla vinilica. Piedini in gomma sotto.'),
-    2: ('Retro e divisorio', 'Il listello del retro nelle tacche del bordo posteriore, il divisorio nelle sue asole: colla nelle linguette.'),
-    3: ('I fianchi', 'Incollare i quattro strati di ogni fianco (l\'esterno con le incisioni fuori), poi avvitarli alla base con le sei squadrette M3.'),
-    4: ('Il vano dell\'hub', 'Fermo dell\'hub avvitato alla base, hub dentro. Pareti della torre nelle asole; cartellino incollato sulla parete davanti.'),
-    5: ('La mensola', 'Culla e visiera avvitate al piano (viti M3 da sopra, dadi sotto), poi il piano sulle linguette delle pareti, con la colla.'),
-    6: ('Il macro pad', 'Cornice incollata sulla base, il pad dentro; il cavo entra nel vano dalla finestra della parete davanti.'),
-    7: ('MK4 e mascherina', 'La MK4 nel suo vano; i piedini sotto la mascherina dove indica la dima; la mascherina sopra la MK4.'),
-    8: ('La Flip e i cavi', 'La Flip aperta nella culla; cavi nell\'hub: OTG della Flip, USB della MK4, USB del pad. Cuffie al jack della Flip.'),
-    9: ('Le etichette', 'Togliere i tasti del pad e mettere i tasti trasparenti; sotto ogni coperchio la sua etichetta (etichette_pad.pdf), nella disposizione del cartellino.'),
+    2: ('Retro, costola e parete davanti', 'Il retro nelle tacche del bordo posteriore, con lo strato d\'appoggio incollato davanti; i due strati della costola incollati fra loro e nelle asole; la parete davanti nelle sue. Colla nelle linguette.'),
+    3: ('I fianchi', 'Incollare i quattro strati di ogni fianco: fuori quello inciso, dentro quello d\'appoggio, più basso dietro. Poi avvitarli alla base con le sei squadrette M3.'),
+    4: ('L\'hub e i cavi', 'Fermo dell\'hub avvitato alla base, hub dentro. Il cavo USB della MK4 passa dietro, sotto la costola; quello del pad arriva dalla culla. Strisce di feltro sugli appoggi.'),
+    5: ('La culla del pad', 'La culla sulla base, fra costola, fianco e parete davanti. Il pad dentro, con il cavo a 90° nella finestra di dietro.'),
+    6: ('Il piano della Flip', 'Culla della Flip e visiera avvitate al piano (viti M3 da sopra, dadi sotto); il piano sugli appoggi, con il bordo davanti sul dente della culla del pad.'),
+    7: ('MK4 e mascherina', 'La MK4 nel suo posto, con il cavo USB a 90°; la mascherina sopra: appoggia sulla MK4 e sugli strati d\'appoggio, ogni controllo nel suo foro.'),
+    8: ('La Flip e i cavi', 'La Flip aperta nella culla; OTG nella fessura dietro, verso l\'hub; jack e ricarica nella fessura davanti, verso il retro.'),
+    9: ('Le etichette', 'Togliere i tasti del pad e mettere i tasti trasparenti; sotto ogni coperchio la sua etichetta (etichette_pad.pdf).'),
 }
 
 
@@ -112,20 +112,21 @@ def apparecchi():
         else:
             pads.box(cx - 7.5, cy - 4.0, zt, cx + 7.5, cy + 4.0, zt + 1.5)
     # ---- macro pad, con i tasti trasparenti e le etichette ----
-    pc = parte('Macro pad', 6, 'pad')
+    pc = parte('Macro pad', 5, 'pad')
     px0, py0 = M.PAD_X0, M.PAD_Y0
-    pc.prisma(rett(px0, py0, px0 + M.PAD['w'], py0 + M.PAD['d'], 5.0), z0, z0 + 20.0)
+    pz0, pz1 = M.PAD_Z0, M.PAD_Z1
+    pc.prisma(rett(px0, py0, px0 + M.PAD['w'], py0 + M.PAD['d'], 5.0), pz0, pz1)
     for k, (kx, ky, kr) in M.PAD_KNOB.items():
-        pc.cilindro(px0 + kx, py0 + ky, z0 + 20.0, z0 + 20.0 + (14.0 if k != 'M' else 16.0), kr, 24)
-    tasti = parte('Interruttori del pad', 6, 'pad')
+        pc.cilindro(px0 + kx, py0 + ky, pz1 + 0.5, pz1 + (14.0 if k != 'M' else 16.0), kr, 24)
+    tasti = parte('Interruttori del pad', 5, 'pad')
     caps = parte('Tasti trasparenti', 9, 'trasparente')
     C = M.TASTO_PAD
-    zc = z0 + M.PAD['h'] - C['h']
+    zc = pz1 + C['z']
     for r in range(3):
         for c in range(5):
             cx = px0 + M.PAD['k0'][0] + c * M.PAD['pitch_x']
             cy = py0 + M.PAD['k0'][1] + r * M.PAD['pitch_y']
-            tasti.box(cx - 7.0, cy - 7.0, z0 + 20.0, cx + 7.0, cy + 7.0, zc)
+            tasti.box(cx - 7.0, cy - 7.0, pz1, cx + 7.0, cy + 7.0, zc)
             caps.prisma(rett(cx - C['w'] / 2, cy - C['d'] / 2, cx + C['w'] / 2, cy + C['d'] / 2, 1.5), zc, zc + C['h'] - 3.0)
             t = C['top_w'] / 2
             caps.prisma(rett(cx - t, cy - t, cx + t, cy + t, 1.0), zc + C['h'] - 3.0, zc + C['h'])
@@ -165,7 +166,7 @@ def scrivi_obj(parti, path):
             r, g, b = (c / 255 for c in p['colore'])
             f.write(f'newmtl m{i}\nKd {r:.3f} {g:.3f} {b:.3f}\nKa 0 0 0\nKs 0.05 0.05 0.05\nNs 10\n\n')
     with open(path, 'w', encoding='utf-8', newline='\n') as f:
-        f.write('# Stame, la console (bozza 4): millimetri, z in su\n')
+        f.write('# Stame, la console (bozza 5): millimetri, z in su\n')
         f.write(f'mtllib {os.path.basename(mtl)}\n')
         base = 1
         for i, p in enumerate(parti):
@@ -345,7 +346,7 @@ def tavole(parti):
                            titolo=f'{k}. {tit}', testo=txt))
     finale = parti
     out.append(disegna(finale, os.path.join(MONTAGGIO, 'console.png'), titolo='Stame, la console',
-                       testo='MPK mini IV, macro pad e Miyoo Flip nel telaio di betulla (bozza 4).'))
+                       testo='MPK mini IV, macro pad e Miyoo Flip nel telaio di betulla, sotto un piano solo (bozza 5).'))
     out.append(disegna(finale, os.path.join(MONTAGGIO, 'console_retro.png'), vista=(-0.7, 0.9, 0.7)))
     return out
 

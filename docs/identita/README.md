@@ -127,22 +127,24 @@ Il case parla la stessa lingua dello schermo. Le legende incise usano Matrice (f
 
 | Materiale | Dove | Richiama |
 |---|---|---|
-| betulla, compensato 4–6 mm | fianchi, ponte, base, divisorio | il legno degli strumenti anni Settanta |
-| acrilico nero 3 mm, inciso | mascherina della MPK, cartellino del macro pad | il vetro del display; l'incisione chiara è la serigrafia sabbia |
-| PETG nero | culla e visiera della Flip, vassoi, squadrette | la cornice del vetrino |
-| PETG sabbia | tasti del macro pad (proposta) | l'inchiostro delle scritte |
+| betulla, compensato 4–6 mm | fianchi, retro, costola, parete davanti, base | il legno degli strumenti anni Settanta |
+| acrilico nero 3 mm, inciso | il piano: mascherina della MK4 e piano della Flip | il vetro del display; l'incisione chiara è la serigrafia sabbia |
+| PETG nero | culle della Flip e del pad, visiera, squadrette | la cornice del vetrino |
+| tasti trasparenti con etichette di carta | tasti del macro pad | le scritte della plancia, a punti Matrice |
 
-Integrazione della MPK mini Plus:
-- **la mascherina** copre il pannello comandi: dà a ogni comando il nome della sua funzione in Stame (SOUND, PERFORM… sulle manopole; DIM, MIN, MAJ, SUS e 6, m7, M7, 9 sui pad) e nasconde i pulsanti che Stame non usa. Sta su piedini da 4 mm, così non preme nulla;
-- **i fianchi di betulla** coprono le guance rosse della MPK, e il **divisorio** chiude il lato verso il macro pad;
+Integrazione della MPK mini IV (bozza 5, 18/10/2026):
+- **il piano nero** va da un fianco all'altro alla stessa quota: tutto coperto e omogeneo, hub e cavi sotto;
+- **la mascherina** appoggia sul pannello comandi e ha un foro per ogni controllo: dà a ogni comando il nome della sua funzione in Stame (SOUND, PERFORM… sulle manopole; DIM, MIN, MAJ, SUS e 6, m7, M7, 9 sui pad) e, piccolo, il suo nome ai controlli che Stame non usa;
+- **i fianchi di betulla** coprono le guance rosse della MK4, e la **costola** chiude il lato verso il macro pad;
+- **le culle** della Flip e del pad hanno lo stesso bordo: i due apparecchi stanno sul piano allo stesso modo;
 - **la visiera** attorno allo schermo della Flip lo fa sembrare il display della console, come la cappa di un oscilloscopio;
-- **i colori dei pad** (proposta, richiede il programma STAME via SysEx, quindi backup e ok di Luigi): pad degli accordi in acqua, estensioni in bianco, banco B in ambra.
+- **i colori dei pad** (CASE-033, con Note On sul canale 7, senza SysEx; prima prova con Luigi davanti): pad degli accordi in acqua, estensioni in bianco.
 
 Dettagli, misure e pezzi in `docs/specifica/60-case.md` e `hardware/case/README.md`.
 
-![Il case in SketchUp](img/case_3d.png)
+![La console, bozza 5](img/case_3d.png)
 
-![Mascherina sinistra](img/mascherina_sx.png)
+![La mascherina della MK4](img/mascherina_sx.png)
 
 ## 5. Il suono
 

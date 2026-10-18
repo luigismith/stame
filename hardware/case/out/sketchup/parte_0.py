@@ -1,5 +1,5 @@
 
-# Stame, la console (bozza 4): materiali, livelli dei passi, costruttore dei pezzi
+# Stame, la console (bozza 5): materiali, livelli dei passi, costruttore dei pezzi
 def get_or_create_material(name, r, g, b, a=255):
     existing = {m.get_name(): m for m in model.get_materials()}
     if name in existing:
@@ -10,7 +10,7 @@ def get_or_create_material(name, r, g, b, a=255):
     model.add_materials([mat])
     return mat
 
-PASSI = [(1, '1 La base'), (2, '2 Retro e divisorio'), (3, '3 I fianchi'), (4, "4 Il vano dell'hub"), (5, '5 La mensola'), (6, '6 Il macro pad'), (7, '7 MK4 e mascherina'), (8, '8 La Flip e i cavi'), (9, '9 Le etichette')]
+PASSI = [(1, '1 La base'), (2, '2 Retro, costola e parete davanti'), (3, '3 I fianchi'), (4, "4 L'hub e i cavi"), (5, '5 La culla del pad'), (6, '6 Il piano della Flip'), (7, '7 MK4 e mascherina'), (8, '8 La Flip e i cavi'), (9, '9 Le etichette')]
 layers = {}
 for k, nome in PASSI:
     ly = Layer()

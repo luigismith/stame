@@ -2,7 +2,7 @@
 
 Uso: python -I hardware/case/rendering.py [--prova]      (dopo genera.py e assieme.py)
 
-Prepara le texture in build/render/ (incisioni di mascherina, cartellino e fianchi dagli SVG, le
+Prepara le texture in build/render/ (incisioni di mascherina, piano della Flip e fianchi dagli SVG, le
 etichette dei tasti del pad, la faccia della Flip raddrizzata dalla foto, lo schermo con la
 plancia), scrive scena.json con i riferimenti dei pezzi e lancia Blender in background con
 blender_scena.py. I PNG escono in build/render/, i JPG per il repo in out/render/.
@@ -111,7 +111,7 @@ def main():
     os.makedirs(TEX, exist_ok=True)
     fr = riferimenti()
     inc = {}
-    for nome in ('mascherina', 'cartellino_pad', 'fianco_sx_esterno', 'fianco_dx_esterno'):
+    for nome in ('mascherina', 'piano_flip', 'fianco_sx_esterno', 'fianco_dx_esterno'):
         inc[nome] = dict(dim=incisione(nome), frame=fr[nome][0])
     etichette()
     faccia_flip()
@@ -121,7 +121,7 @@ def main():
         hdr=os.path.join(BUILD, 'studio.hdr'), incisioni=inc,
         flip=fr['Miyoo Flip'][0], flip_faccia=[[M.FLIP_X - M.FLIP['w'] / 2, -M.FLIP_Y0], [M.FLIP['w'], M.FLIP['d']]],
         schermo=fr['Schermo della Flip'][0], tasti=tasti_pad(),
-        tasto_top=M.BASE_T + M.PAD['h'], etichetta=list(M.ETICHETTA),
+        tasto_top=M.PAD_Z1 + M.TASTO_PAD['z'] + M.TASTO_PAD['h'], etichetta=list(M.ETICHETTA),
         ingombro=[M.LARGHEZZA, M.BASE_Y1],
     )
     with open(os.path.join(BUILD, 'scena.json'), 'w', encoding='utf-8') as f:

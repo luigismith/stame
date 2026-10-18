@@ -178,11 +178,11 @@ def betulla(ob, incisa=None):
 def acrilico(nome, incisa=None):
     m, nt, b = nuovo(nome)
     b.inputs['IOR'].default_value = 1.49
-    col, rough = (0.006, 0.006, 0.007), 0.04
+    col, rough = (0.006, 0.006, 0.007), 0.24       # acrilico nero satinato: quello lucido faceva da specchio bianco
     if incisa:
         t = immagine(nt, incisa, colore=False)
         col = mix(nt, t.outputs['Color'], col, (0.30, 0.30, 0.29))
-        rough = mixf(nt, t.outputs['Color'], 0.04, 0.6)
+        rough = mixf(nt, t.outputs['Color'], rough, 0.6)
         bump = nodo(nt, 'ShaderNodeBump', invert=True)
         bump.inputs['Distance'].default_value = 0.00015
         lega(nt, t.outputs['Color'], bump.inputs['Height'])
@@ -266,25 +266,22 @@ def dai(ob, m):
 
 inc = S['incisioni']
 for nome, ob in list(pezzi.items()):
-    if nome.startswith(('fianco', 'base_', 'retro_', 'divisorio', 'torre_')):
+    if nome.startswith(('fianco', 'base_', 'retro_', 'appoggio', 'costola', 'fronte')):
         tex = None
         if nome in inc:
             W, H = inc[nome]['dim']
             uv_riferimento(ob, inc[nome]['frame'], W, H)
             tex = os.path.join(TEX, nome + '_inc.png')
         dai(ob, betulla(ob, tex))
-    elif nome in ('mascherina', 'cartellino_pad'):
+    elif nome in ('mascherina', 'piano_flip'):
         W, H = inc[nome]['dim']
         uv_riferimento(ob, inc[nome]['frame'], W, H)
         dai(ob, acrilico('acrilico ' + nome, os.path.join(TEX, nome + '_inc.png')))
 
 petg = plastica('PETG nero', (0.012, 0.012, 0.013), 0.32, strati=True)
-tpu = plastica('TPU nero', (0.01, 0.01, 0.01), 0.75)
 for nome, ob in pezzi.items():
-    if nome.startswith(('culla_flip', 'visiera', 'cornice_pad', 'fermo_hub', 'squadretta')):
+    if nome.startswith(('culla_flip', 'culla_pad', 'visiera', 'fermo_hub', 'squadretta')):
         dai(ob, petg)
-    elif nome.startswith('piedino'):
-        dai(ob, tpu)
 
 dai(pezzi['MPK_mini_IV'], plastica('MK4', (0.60, 0.60, 0.58), 0.42))
 dai(pezzi['MPK_tasti'], plastica('tasti bianchi', (0.80, 0.80, 0.78), 0.3, coat=0.3))
@@ -480,7 +477,7 @@ def camera(nome, bersaglio, az, el, dist, lente, fuoco=None, f_stop=5.6):
 tasto = S['tasti'][7]
 VISTE = [
     ('eroe', (CENTRO.x + 0.01, CENTRO.y + 0.01, 0.045), 24, 27, 1.32, 60, (CENTRO.x, CENTRO.y, 0.05), 8.0),
-    ('torre', (0.47, -0.135, 0.06), 32, 30, 0.62, 85, (tasto[0] * MM, tasto[1] * MM, 0.037), 4.0),
+    ('pad', (0.47, -0.165, 0.055), 32, 32, 0.62, 85, (tasto[0] * MM, tasto[1] * MM, 0.06), 4.0),
     ('mascherina', (0.20, -0.095, 0.045), -12, 50, 0.62, 70, (0.20, -0.09, 0.05), 6.3),
 ]
 for nome, bers, az, el, dist, lente, fuoco, fs in VISTE:

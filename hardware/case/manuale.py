@@ -77,7 +77,7 @@ def pagina(nome, corpo, n, tot):
     with open(p, 'w', encoding='utf-8', newline='\n') as f:
         f.write(f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}mm" height="{H}mm" viewBox="0 0 {W} {H}">\n')
         f.write(f'<rect width="{W}" height="{H}" fill="#F6F4EE"/>\n{corpo}\n')
-        f.write(testo(14, H - 8, [f'Stame · la console, bozza 4 · {n}/{tot}'], 3.2, 400, '#777'))
+        f.write(testo(14, H - 8, [f'Stame · la console, bozza 5 · {n}/{tot}'], 3.2, 400, '#777'))
         f.write('\n</svg>\n')
     return p
 
@@ -97,22 +97,22 @@ def elenco_pezzi():
         pezzi = [(p['nome'], p['quanti']) for p in G.LASER if p['materiale'] == mat]
         righe.append(f'{nome}: ' + ', '.join(f'{n} ×{q}' if q > 1 else n for n, q in pezzi))
     stampati = ', '.join(f'{s["nome"]} ×{s["quanti"]}' if s['quanti'] > 1 else s['nome'] for s in G.STAMPATI)
-    righe.append(f'stampa 3D (PETG; piedini in TPU): {stampati}')
+    righe.append(f'stampa 3D (PETG): {stampati}')
     return righe
 
 
 MINUTERIA = [
-    'viti M3 × 10 svasate e dadi M3: 4 per la culla, sotto la Flip',
+    'viti M3 × 10 svasate e dadi M3: 4 per la culla della Flip, sotto la Flip',
     'viti M3 × 10 e dadi M3: 2 per la visiera, 6 per le squadrette nella base',
     'viti da legno 3 × 12: 6 per le squadrette nei fianchi, 2 per il fermo dell\'hub',
-    'colla vinilica (legno), biadesivo sottile o colla per acrilico (cartellino)',
+    'colla vinilica (legno); feltro adesivo da 1 mm in strisce sugli appoggi del piano',
     '6 piedini in gomma da 12 mm sotto la base',
-    'hub USB 2.0 senza Power Delivery; cavo USB-C a 90° per la MK4; cavi corti',
+    'hub USB 2.0 senza Power Delivery; cavi USB-C a 90° per la MK4 e per il pad; cavi corti',
 ]
 
 VERIFICARE = [
-    'MK4: controlli rimisurati sulle foto (±1 mm): provare la dima su carta; altezza dei pulsanti piccoli',
-    'Macro pad: altezza; ingombro e passo ricavati dalla foto con i copritasti 1u come metro (±2 %)',
+    'MK4: dima su carta (controlli dalle foto, ±1 mm); altezza del pannello (37 mm) e dei pulsanti piccoli',
+    'Macro pad: altezza del corpo (16 mm stimati) e quota della presa USB-C, prima di stampare la culla',
     'Flip: angolo massimo dello schermo (serve 115°: schermo a 65°); porte e tasti presi dalle foto',
     'Hub: misure reali (fermo dell\'hub) e consumo di MK4 + pad dalla batteria della Flip',
     'Prova di taglio su un ritaglio: potenza, velocità e gioco delle linguette (0,2 mm per lato)',
@@ -129,7 +129,7 @@ def istruzioni():
     pagine = []
     # copertina
     corpo = [testo(14, 22, ['Stame — la console'], 11, 700, '#141B18'),
-             testo(14, 31, ['Istruzioni di montaggio · bozza 4, 17/10/2026 · MPK mini IV, macro pad, Miyoo Flip'], 4.4, 400, '#555'),
+             testo(14, 31, ['Istruzioni di montaggio · bozza 5, 18/10/2026 · MPK mini IV, macro pad, Miyoo Flip'], 4.4, 400, '#555'),
              immagine(ritaglia(os.path.join(tavole, 'console.png')), 120, 36, 170, 110),
              testo(14, 46, ['I pezzi'], 5.2, 700)]
     y = 54

@@ -65,7 +65,7 @@ def codice_dati(parti):
 
 
 PARTE_0 = r'''
-# Stame, la console (bozza 4): materiali, livelli dei passi, costruttore dei pezzi
+# Stame, la console (bozza 5): materiali, livelli dei passi, costruttore dei pezzi
 def get_or_create_material(name, r, g, b, a=255):
     existing = {m.get_name(): m for m in model.get_materials()}
     if name in existing:

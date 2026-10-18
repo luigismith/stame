@@ -3,8 +3,8 @@
 Uso: python -I hardware/case/etichette.py      scrive out/etichette_pad.svg e out/etichette_pad.pdf
 
 I tasti trasparenti a due strati (Luigi, 17/10/2026) hanno sotto il coperchio un vano da 11 × 9 mm:
-ogni etichetta si taglia a 10,8 × 8,8. Sopra il nome nella mappa con la tastiera, in basso a destra
-la nota del pad strumento (MIDI-136), con i punti della Matrice come sulla plancia e sul case.
+ogni etichetta si taglia a 10,8 × 8,8. Sopra il nome nella mappa del pad (40 MIDI-120, MIDI-133),
+con i punti della Matrice come sulla plancia e sul case.
 T13 LOCK, T14 VIEW e T15 PAGE sono gli stati di Stame: etichette in negativo, come nel prontuario.
 Un foglio A4 al 100 %: quattro serie chiare e quattro scure (il tema Notte), un righello di prova.
 """
@@ -23,7 +23,6 @@ VC = r'C:\Program Files\VectorCraft\vectorcraft-cli.exe'
 A4 = (210.0, 297.0)
 CELLA = (M.ETICHETTA[0] - 0.2, M.ETICHETTA[1] - 0.2)
 PASSO_NOME = 0.30                    # «SCENE» e «PANIC», le parole più larghe: 8,7 mm, lontane dal bordo
-PASSO_NOTA = 0.21
 STATI = {4, 9, 14}                   # T13, T14, T15
 
 # inchiostri: chiaro (carta bianca) e scuro (Notte: vetro verde scuro, fosfori)
@@ -45,7 +44,7 @@ def punti(out, x, base, passo, testo, colore, allinea='centro'):
 
 
 def etichetta(out, x0, y0, k, tema):
-    righe, nota = G.COPRITASTI[k]
+    righe = G.COPRITASTI[k]
     t = TEMI[tema]
     stato = k in STATI
     fondo = t['stato_fondo'] if stato else t['fondo']
@@ -55,13 +54,10 @@ def etichetta(out, x0, y0, k, tema):
     alto_nome = 7 * PASSO_NOME
     gap = 1.2 * PASSO_NOME * 2
     blocco = len(righe) * alto_nome + (len(righe) - 1) * gap
-    spazio = h - (1.9 if nota else 0.0)          # sotto resta posto per la nota
-    base = y0 + (spazio - blocco) / 2 + alto_nome + (0.25 if nota else 0.0)
+    base = y0 + (h - blocco) / 2 + alto_nome
     for testo in righe:
         punti(out, x0 + w / 2, base, PASSO_NOME, testo, ink)
         base += alto_nome + gap
-    if nota:
-        punti(out, x0 + w - 0.8, y0 + h - 0.7, PASSO_NOTA, nota, t['nota'], 'destra')
 
 
 def serie(out, x0, y0, tema):
@@ -86,8 +82,7 @@ def foglio():
     punti(out, 18, 33, 0.4, 'ETICHETTE DEL MACRO PAD', '#151A19', 'sinistra')
     righe = ['STAMPARE AL 100 % SENZA ADATTARE ALLA PAGINA',
              f'TAGLIARE LUNGO LE LINEE GRIGIE  {CELLA[0]:.1f} X {CELLA[1]:.1f} MM  (VANO 11 X 9)',
-             'COME SUL PAD  T1-T5 IN ALTO  T11-T15 IN BASSO',
-             'IN BASSO A DESTRA LA NOTA DEL PAD STRUMENTO']
+             'COME SUL PAD  T1-T5 IN ALTO  T11-T15 IN BASSO']
     for i, r in enumerate(righe):
         punti(out, 18, 42 + i * 4.2, 0.26, r, '#4A504E', 'sinistra')
     sw, sh = 5 * CELLA[0], 3 * CELLA[1]

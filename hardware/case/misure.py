@@ -1,4 +1,4 @@
-"""misure.py — tutte le misure del case di Stame, in millimetri (docs/specifica/60-case.md, bozza 3).
+"""misure.py — tutte le misure del case di Stame, in millimetri (docs/specifica/60-case.md, bozza 5).
 
 Fonti: [M] manuale o scheda, [O] osservato, [D] dedotto da foto o calcolo, [V] da verificare con il
 calibro prima di tagliare. Le posizioni dei controlli della MK4 e le misure del macro pad sono [D],
@@ -9,10 +9,13 @@ Il 17/10/2026 i controlli della MK4 sono stati rimisurati su mk4_vista_alto.jpg:
 due assi (347,5 mm di larghezza, 192 di profondità, ±1 %), con la correzione della prospettiva
 (la fronte è più vicina all'obiettivo); centri dei pulsanti dal colore, delle manopole dal cerchio
 degli anelli rossi, di pad e ruote dai bordi. Incertezza stimata ±1 mm. Le porte della Flip vengono
-da due foto che concordano entro 0,5 mm. Le misure del pad no: due foto danno passi diversi del 10 %.
+da due foto che concordano entro 0,5 mm. Il pad è stato misurato il 17/10/2026 con i tasti 1u come
+metro (±2 %); la sua altezza è [V].
 
-Composizione (decisa da Luigi il 15/10/2026): MPK mini IV a sinistra; a destra la «torre»: davanti il
-macro pad in linea con i tasti, dietro la Flip aperta su una mensola, con l'hub nel vano sotto.
+Composizione (decisa da Luigi il 15/10/2026): MPK mini IV a sinistra; a destra il macro pad in linea
+con i tasti e, dietro, la Flip aperta. Bozza 5 (18/10/2026): un telaio solo con la cima alla stessa
+quota, la mascherina che appoggia sulla MK4, il pad in una culla come quella della Flip, hub e cavi
+sotto il piano.
 
 Sistema di riferimento del case: x verso destra dal bordo esterno del fianco sinistro, y dal retro
 verso il musicista, z dal tavolo verso l'alto.
@@ -72,9 +75,9 @@ MK4_CTRL = {
 MK4_KEYBED_Y = MK4['keybed_y']
 MK4_CONN_X = (255.0, 335.0)       # USB-C (a x 278 nella foto), MIDI OUT e SUSTAIN sul retro [D, V]
 
-# Fori della mascherina per tipo di controllo (larghezza, altezza, raggio degli angoli). I tasti
-# stanno sotto la mascherina (sollevata dai piedini): i fori non devono girare attorno ai cappucci,
-# solo lasciarli raggiungere dal dito.
+# Fori della mascherina per tipo di controllo (larghezza, altezza, raggio degli angoli). La
+# mascherina appoggia sul pannello della MK4: i fori girano attorno a cappucci e cornici, e i pulsanti
+# restano 1-2 mm sotto la sua faccia [V: altezza dei pulsanti].
 FORO = {
     'k': (21.0, 21.0, 10.5),      # manopole: cappuccio da 11 mm, anello rosso del pannello da 15-17 [D]
     'e': (21.0, 21.0, 10.5),      # encoder: anello da 20 mm [D]
@@ -83,66 +86,69 @@ FORO = {
     'd': (25.0, 12.5, 1.5),       # display: vetro 22,6 × 11,7 [D]; 2 mm dal foro dell'encoder
     'b': (17.8, 12.0, 2.0),       # pulsanti 17,7 × 11,5, passo 20-21: restano 2,2-3 mm fra i fori [D]
 }
-# Controlli che restano scoperti; gli altri (OCT, ARP, LATCH, NOTE REPEAT, TAP, BANK, PLUGIN/DAW)
-# stanno sotto la mascherina, sollevata dai piedini. PLUGIN/DAW serve una volta per scegliere il
-# preset DAW: si solleva la mascherina.
-SCOPERTI = {'PITCH', 'MOD', 'PAD1', 'PAD2', 'PAD3', 'PAD4', 'PAD5', 'PAD6', 'PAD7', 'PAD8',
-            'DISP', 'NAV', 'MINUS', 'PLUS', 'SHIFT', 'K1', 'K2', 'K3', 'K4', 'K5', 'K6', 'K7', 'K8',
-            'UNDO', 'LOOP', 'PLAY', 'REC', 'DUB'}
+# I fori della mascherina sono per tutti i controlli della MK4 (Luigi, 18/10/2026: «falla che si
+# poggia bene con i fori anche per i controlli non utilizzati»): la mascherina appoggia sul pannello.
+SCOPERTI = set(MK4_CTRL)
 
-MASCHERINA = dict(
-    y0=1.0, y1=94.0,              # copre il pannello comandi fino ai tasti (bordo della MK4 [V])
-    x0=3.0, x1=349.0,             # un pezzo solo (346 mm stanno nel laser); a destra sporge di 1,5 mm
-                                  # sulla fessura verso il divisorio, così attorno a K4 e K8 restano 3 mm
-    piede_h=4.0,                  # piedini: la mascherina sta 4 mm sopra i pulsanti [V]
-    piede_d=6.0,
-)
-# piedini incollati SOTTO la mascherina (x, y nel riferimento della MK4), dove la MK4 è piana e
-# lontano da fori e controlli [V: controllare con la dima]
-PIEDINI = [(9.0, 9.0), (9.0, 88.0), (68.0, 9.0), (68.0, 88.0), (130.0, 88.0),
-           (194.0, 9.0), (194.0, 88.0), (236.0, 9.0), (236.0, 88.0), (339.0, 34.0), (339.0, 88.0)]
-
-# ---- disposizione del case (bozza 3) ----
+# ---- disposizione del case (bozza 5, 18/10/2026) ----
+# Luigi: «deve essere tutto coperto e omogeneo. non mi piace tanto la divisione che hai creato tra mpk e
+# pad, e per il pad vorrei una culla simile a quella che hai fatto per il flip». Un telaio di betulla
+# (fianchi, retro, fronte, costola) con la cima tutta alla stessa quota; dentro, un piano solo di
+# acrilico nero: a sinistra la mascherina, che appoggia sulla MK4 e copre anche la zona dei cavi; a
+# destra il piano della Flip. Il pad sta in una culla stampata davanti alla Flip, con il bordo come
+# quello della culla della Flip. Hub e cavi stanno sotto il piano.
 FIANCO = FIANCO_STRATI * PLY      # 16
-RETRO_Y = 40.0                    # zona dei cavi dietro gli apparecchi (y 0..40), chiusa dal listello
+FELTRO = 1.0                      # strisce di feltro adesivo sugli appoggi del piano
+Z_MK4 = BASE_T + MK4['h']         # 43: il pannello della MK4, dove appoggia la mascherina
+Z_PIANO0 = Z_MK4                  # 43: faccia di sotto del piano (mascherina e piano della Flip)
+Z_PIANO = Z_PIANO0 + ACR          # 46: la cima della console: piano, fianchi, retro, fronte, costola
+Z_APPOGGIO = Z_PIANO0 - FELTRO    # 42: gli strati d'appoggio sotto il bordo del piano, con il feltro
+RETRO_Y = PLY                     # il retro: uno strato fino alla cima e uno d'appoggio davanti
+APPOGGIO_Y = RETRO_Y + PLY        # 8: da qui comincia la zona dei cavi, sotto la mascherina
 MK4_X0 = FIANCO + 2.0             # 2 mm di gioco ai lati della MK4
-MK4_Y0 = RETRO_Y + PLY            # 44: dietro c'è il listello del retro
+MK4_Y0 = 44.0                     # 36 mm di zona dei cavi dietro la MK4 (USB a 90°)
 BASE_Y1 = MK4_Y0 + MK4['d'] + 8.0 # 244: 8 mm davanti ai tasti
-DIV_X = MK4_X0 + MK4['w'] + 2.0   # 367,5: divisorio fra MK4 e torre
-TORRE_X0 = DIV_X + PLY + 2.0      # 373,5
-TORRE_W = PAD['w'] + 20.0         # 178: 10 mm per lato attorno al pad
-TORRE_X1 = TORRE_X0 + TORRE_W     # 551,5
-LARGHEZZA = TORRE_X1 + 2.0 + FIANCO   # 569,5
-MENSOLA_Y = (MK4_Y0, MK4_Y0 + 100.0)  # 44..144: vano della mensola fra la parete dietro e quella davanti
-MENSOLA_Z = 46.0                  # cima del piano della mensola: sotto c'è il vano dell'hub
-TORRE_FRONTE_Y = MENSOLA_Y[1]     # parete davanti della mensola (4 mm), con il cartellino sul davanti
-# Bozza 4 (17/10/2026): le pareti della torre stanno SOTTO il piano (z da BASE_T a MENSOLA_Z - BASE_T)
-# e si incastrano a linguetta nella base e nel piano; il piano sporge di 3 mm oltre le pareti, così
-# le asole restano chiuse. Il listello del retro e il divisorio si incastrano nella base allo stesso modo.
-PIANO_Y = (MENSOLA_Y[0] - 3.0, TORRE_FRONTE_Y + PLY + 3.0)   # 41..151
-PIANO_Z0 = MENSOLA_Z - BASE_T     # 40: sotto il piano il vano è alto 34 mm
-LINGUETTA = 14.0                  # larghezza delle linguette; le asole hanno GIOCO in più per lato
-PAD_X0 = TORRE_X0 + 10.0
-PAD_Y0 = TORRE_FRONTE_Y + PLY + (BASE_Y1 - 8.0 - TORRE_FRONTE_Y - PLY - PAD['d']) / 2   # 157: centrato
-FLIP_X = TORRE_X0 + TORRE_W / 2   # 462,5: centro della Flip
-# Culla (bozza 4): un vassoio basso appoggiato sul piano e fissato con 4 viti M3. Il 17/10/2026 i tasti
-# della Flip sono diventati sempre vivi, spalle comprese (L1 R1 fuoco, L2 Tap, R2 Fill): la culla non
-# deve coprirle, quindi è aperta dietro e i bordi sono alti solo CULLA_BORDO.
+MASCHERINA_Y1 = MK4_Y0 + 94.0     # 138: il bordo davanti della mascherina, 4 mm prima dei tasti
+COSTOLA_X0 = MK4_X0 + MK4['w'] + 2.0   # 367,5: la costola fra la MK4 e la culla del pad, due strati
+COSTOLA_X1 = COSTOLA_X0 + 2 * PLY      # 375,5
+GIUNTA_PIANO = COSTOLA_X0 + PLY        # 371,5: mascherina e piano della Flip si incontrano qui
+CULLA_PAD_PARETE = 2.7
+CULLA_PAD_GIOCO = 0.5
+DESTRA_X0 = COSTOLA_X1
+DESTRA_X1 = DESTRA_X0 + PAD['w'] + 2 * (CULLA_PAD_PARETE + CULLA_PAD_GIOCO) + 0.6   # 560,5
+LARGHEZZA = DESTRA_X1 + FIANCO    # 576,5
+FRONTE_Y = BASE_Y1 - PLY          # 240: parete davanti della parte destra
+# culla del pad: tutta la larghezza fra costola e fianco, fino alla parete davanti; dietro porta il
+# bordo davanti del piano della Flip su un dente (CULLA_DENTE) e lascia passare la spina del pad
+CULLA_PAD_Y1 = FRONTE_Y - 0.3
+CULLA_PAD_Y0 = CULLA_PAD_Y1 - PAD['d'] - 2 * (CULLA_PAD_PARETE + CULLA_PAD_GIOCO)
+CULLA_DENTE = 4.0
+PIANO_Y1 = CULLA_PAD_Y0 - 0.3                  # il piano della Flip arriva alla culla del pad
+PAD_X0 = DESTRA_X0 + 0.3 + CULLA_PAD_PARETE + CULLA_PAD_GIOCO
+PAD_Y1 = CULLA_PAD_Y1 - CULLA_PAD_PARETE - CULLA_PAD_GIOCO
+PAD_Y0 = PAD_Y1 - PAD['d']
+# altezze del pad [V]: il corpo (dal fondo alla faccia della piastra di acrilico) e i tasti sopra.
+# Come la Flip, il pad sta 2 mm sopra il piano, e il bordo della culla sale 5 mm oltre la piastra
+PAD_CORPO = 16.0                  # [V]: da misurare prima di stampare la culla
+PAD_Z1 = Z_PIANO + 2.0            # 48: la faccia della piastra del pad
+PAD_Z0 = PAD_Z1 - PAD_CORPO       # 32: il pad poggia sulle costole della culla
+PAD_USB_Z = 7.0                   # [V]: centro della presa USB-C sopra il fondo del pad; con la spina a 90°
+                                  # verso il basso, se la spina tocca il piano si apre una tacca nel suo bordo
+CULLA_BORDO = 5.0                 # bordi delle due culle sopra il fondo (Flip) o sopra la piastra (pad)
 CULLA_FONDO = 2.0
-CULLA_BORDO = 5.0
 CULLA_PARETE = 2.0
-FLIP_Y0 = MENSOLA_Y[0] + PLY + 6.6                # bordo posteriore della metà con i tasti (cerniera): 54,6
-FLIP_Z0 = MENSOLA_Z + CULLA_FONDO                 # la metà con i tasti appoggia sul fondo della culla: 48
+FLIP_X = (DESTRA_X0 + DESTRA_X1) / 2   # 468: centro della Flip e del pad
+FLIP_Y0 = MK4_Y0 + 10.6           # 54,6: bordo posteriore della metà con i tasti (cerniera)
+FLIP_Z0 = Z_PIANO + CULLA_FONDO   # 48: la metà con i tasti appoggia sul fondo della culla
 SCHERMO_DEG = 65.0                # schermo a 65° dall'orizzontale: apertura della cerniera 115° [V]
 GIUNTA = 310.0                    # giunta delle due metà di base e retro
-FIANCO_Z = dict(front=40.0, back=54.0, y_front=180.0, y_back=140.0)   # profilo dei fianchi
-
-# cartellino del macro pad: acrilico sulla parete davanti della mensola
-CARTELLINO = dict(w=TORRE_W - 4.0, h=PIANO_Z0 - BASE_T - 1.0)   # 33: sotto il bordo del piano
-# hub USB nel suo fermo, sotto la culla
+LINGUETTA = 14.0                  # larghezza delle linguette; le asole hanno GIOCO in più per lato
+FIANCO_R = 8.0                    # raggio degli spigoli in cima ai fianchi
+# hub USB nel suo fermo, sotto il piano della Flip, dietro la culla del pad
 HUB_X0 = FLIP_X - (HUB['w'] + 0.8) / 2
-HUB_Y0 = MENSOLA_Y[0] + PLY + 30.0
+HUB_Y0 = CULLA_PAD_Y0 - CULLA_DENTE - 14.0 - HUB['d']
 # tasti del macro pad (CASE-043, Luigi 17/10/2026): tasti trasparenti a due strati per Cherry MX,
-# 17 × 17 alla base; sotto il coperchio un'etichetta di carta da 11 × 9 [M, scheda del venditore]
-TASTO_PAD = dict(w=17.0, d=17.0, h=11.0, top_w=12.5)
+# 17 × 17 alla base; sotto il coperchio un'etichetta di carta da 11 × 9 [M, scheda del venditore];
+# il coperchio sta circa 4 mm sopra la piastra, la cima a 15 mm [D]
+TASTO_PAD = dict(w=17.0, d=17.0, h=11.0, top_w=12.5, z=4.0)
 ETICHETTA = (11.0, 9.0)

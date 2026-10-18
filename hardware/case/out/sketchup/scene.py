@@ -13,7 +13,7 @@ set_ro("HIGHLIGHT_COLOR", TypedValue(color_value=SUColor(0, 1, 255, 255)))
 set_ro("LOCKED_COLOR", TypedValue(color_value=SUColor(255, 0, 0, 255)))
 
 xmin, ymin, zmin = 0.0, -9.61, 0.0
-xmax, ymax, zmax = 23.21, 0.0, 5.89
+xmax, ymax, zmax = 22.70, 0.0, 5.89
 cx, cy = (xmin + xmax) / 2, (ymin + ymax) / 2
 w, d, h = xmax - xmin, ymax - ymin, zmax - zmin
 
@@ -37,7 +37,7 @@ def camera(az, el, fov=30.0, margin=1.15):
     return cam
 
 layers = session_state['layers']
-nomi = ['1 La base', '2 Retro e divisorio', '3 I fianchi', "4 Il vano dell'hub", '5 La mensola', '6 Il macro pad', '7 MK4 e mascherina', '8 La Flip e i cavi', '9 Le etichette']
+nomi = ['1 La base', '2 Retro, costola e parete davanti', '3 I fianchi', "4 L'hub e i cavi", '5 La culla del pad', '6 Il piano della Flip', '7 MK4 e mascherina', '8 La Flip e i cavi', '9 Le etichette']
 scenes = []
 for nome in nomi + ['Console']:
     sc = Scene()

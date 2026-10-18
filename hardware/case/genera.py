@@ -1,4 +1,4 @@
-"""genera.py — genera i pezzi del case di Stame da misure.py (bozza 4, 17/10/2026).
+"""genera.py — genera i pezzi del case di Stame da misure.py (bozza 5, 18/10/2026).
 
 Uso: python -I hardware/case/genera.py            scrive in hardware/case/out/
 
@@ -6,8 +6,8 @@ Laser (SVG in millimetri, 1:1, per LightBurn): rosso = taglio, nero pieno = inci
 blu = segno leggero. Le scritte usano gli stessi caratteri della plancia: Matrice a punti per le
 funzioni principali, Spleen a pixel per le legende piccole. Così il case e lo schermo parlano la
 stessa lingua (docs/identita/README.md).
-Stampa (STL, PETG): culla della Flip, cornice del macro pad, visiera, piedini, squadrette, fermo
-dell'hub. I tasti del pad sono trasparenti, con le etichette di carta di etichette.py.
+Stampa (STL, PETG): culla della Flip, culla del macro pad, visiera, squadrette, fermo dell'hub. I
+tasti del pad sono trasparenti, con le etichette di carta di etichette.py.
 Fogli di taglio: i pezzi del laser impaginati per materiale, in SVG (LightBurn) e DXF.
 Dima (SVG da stampare su carta al 100%): la mascherina sopra il contorno della MK4.
 
@@ -16,9 +16,11 @@ modello 3D, il modello SketchUp e le tavole del montaggio (assieme.py). Il rifer
 x verso destra, y dal retro verso il musicista, z in su: è sinistrorso, quindi ogni esportazione
 3D lo specchia su y (SPECCHIO) per avere i pezzi nel verso fisico giusto.
 
-Bozza 4: la torre si monta a linguette nelle asole (pareti nella base e nel piano), come il
-listello del retro e il divisorio; la culla è un vassoio basso che lascia libere le spalle della
-Flip (L1 L2 R1 R2, sempre vive dal 17/10/2026); la visiera segue lo schermo a 65°.
+Bozza 5 (Luigi, 18/10/2026: «deve essere tutto coperto e omogeneo»): un telaio di betulla con la
+cima alla stessa quota (fianchi, retro, costola, parete davanti) e dentro un piano di acrilico nero
+in due pezzi: la mascherina, che appoggia sulla MK4 con un foro per ogni controllo e copre la zona
+dei cavi, e il piano della Flip. Il pad sta nella sua culla, come la Flip nella sua; hub e cavi
+sotto il piano. Gli strati d'appoggio (fianchi, retro, costola) reggono il piano con il feltro.
 """
 import math
 import os
@@ -308,10 +310,12 @@ def asola(svg, cx, cy, lx, ly):
 
 
 X_INT = (M.FIANCO, M.LARGHEZZA - M.FIANCO)     # fra i fianchi
-RETRO_H = 30.0
-TORRE_LING = (M.TORRE_X0 + 25.0, M.TORRE_X1 - 25.0)                 # linguette delle pareti della torre
-DIV_LING = (M.MK4_Y0 + 80.0, M.MK4_Y0 + 170.0)                      # linguette del divisorio
-SQUADRETTE_Y = (20.0, 130.0, 230.0)                                   # squadrette fra base e fianchi
+RETRO_H = M.Z_PIANO - M.BASE_T                 # 40: il retro arriva in cima, come i fianchi
+COSTOLA_LING = (100.0, 205.0)                  # linguette della costola nella base (y)
+FRONTE_LING = (M.DESTRA_X0 + 40.0, M.DESTRA_X1 - 40.0)
+SQUADRETTE_Y = (20.0, 130.0, 230.0)            # squadrette fra base e fianchi
+CAVI_Z = 30.0                                  # dietro la MK4 la costola lascia passare i cavi fin qui
+USCITE = {'sx': (280.0,), 'dx': (430.0, 500.0)}   # finestre del retro: pedale; alimentazione e audio
 
 
 def retro_ling(lato):
@@ -320,8 +324,9 @@ def retro_ling(lato):
 
 
 # ---------------------------------------------------------------------------------------------
-# mascherina della MK4 (CASE-030, CASE-031): un pezzo solo, con le legende di Stame
-# mappa dei comandi del 16-17/10/2026 (specifica 40 MIDI-130, MIDI-135)
+# mascherina della MK4 (CASE-030, CASE-031): appoggia sul pannello della MK4 e copre la zona dei
+# cavi fino al retro. Un foro per ogni controllo (Luigi, 18/10/2026): le legende di Stame su quelli
+# che Stame usa, i nomi della MK4 in piccolo sugli altri. Mappa del 16-17/10/2026 (40 MIDI-130, MIDI-135)
 
 ETICHETTE_K = {'K1': 'SOUND', 'K2': 'PERFORM', 'K3': 'FX', 'K4': 'KEY',
                'K5': 'BASS', 'K6': 'LOOP', 'K7': 'BPM', 'K8': 'VOLUME'}
@@ -331,65 +336,86 @@ PAD_SOTTO = {'PAD1': ('6', 'B:KICK'), 'PAD2': ('m7', 'B:SNARE'), 'PAD3': ('M7', 
 TRASPORTO = {'UNDO': ('UNDO', 'S:CLEAR'), 'LOOP': ('PAUSE', ''), 'PLAY': ('BEAT', 'S:PANIC'),
              'REC': ('LOOP', ''), 'DUB': ('DUB', '')}
 PULSANTI = {'SHIFT': 'PUSH', 'MINUS': 'BACK', 'PLUS': 'MENU'}
+# i comandi della MK4 stessa, che Stame non usa: il loro nome, piccolo. BANK porta i pad al banco B,
+# la batteria; DAW sceglie il preset DAW, una volta sola
+PROPRI = {'OCT-': ('OCT -', ''), 'OCT+': ('OCT +', ''), 'ARP': ('ARP', ''), 'LATCH': ('LATCH', ''),
+          'NREP': ('NOTE RPT', ''), 'TAP': ('TAP', ''), 'BANK': ('BANK', 'B: DRUMS'), 'DAW': ('DAW', 'PRESET')}
+
+MASC_X0, MASC_X1 = M.FIANCO - M.PLY + 0.2, M.GIUNTA_PIANO - 0.2
+MASC_Y0, MASC_Y1 = M.RETRO_Y + 0.2, M.MASCHERINA_Y1
+
+
+def ctrl(nome):
+    """centro di un controllo della MK4 nel riferimento del case"""
+    x, y, _ = M.MK4_CTRL[nome]
+    return M.MK4_X0 + x, M.MK4_Y0 + y
 
 
 def foro(svg, nome, ox, oy):
-    x, y, tipo = M.MK4_CTRL[nome]
-    w, h, r = M.FORO[tipo]
-    if tipo in ('k', 'e'):
+    """foro di un controllo; (ox, oy) è l'origine del disegno nel riferimento del case"""
+    x, y = ctrl(nome)
+    w, h, r = M.FORO[M.MK4_CTRL[nome][2]]
+    if M.MK4_CTRL[nome][2] in ('k', 'e'):
         svg.cerchio(x - ox, y - oy, w / 2)
     else:
         svg.rett(x - ox - w / 2, y - oy - h / 2, w, h, r)
 
 
 def mascherina():
-    m = M.MASCHERINA
-    x0, x1, y0, y1 = m['x0'], m['x1'], m['y0'], m['y1']
-    svg = Svg('mascherina', x1 - x0 + 2, y1 - y0 + 2, f'mascherina della MK4, acrilico nero {M.ACR} mm, un pezzo solo.')
-    ox, oy = x0 - 1, y0 - 1          # origine del disegno nel riferimento della MK4
-    svg.poligono(_angoli(rett(1, 1, x1 - ox, y1 - oy, 0), {0: 4.0, 1: 4.0, 2: 4.0, 3: 4.0}))
+    svg = Svg('mascherina', MASC_X1 - MASC_X0 + 2, MASC_Y1 - MASC_Y0 + 2,
+              f'mascherina della MK4, acrilico nero {M.ACR} mm: appoggia sulla MK4 e copre i cavi fino al retro.')
+    ox, oy = MASC_X0 - 1, MASC_Y0 - 1
+    svg.poligono(rett(1, 1, MASC_X1 - ox, MASC_Y1 - oy, 0.6))
     for nome in M.MK4_CTRL:
-        if nome in M.SCOPERTI:
-            foro(svg, nome, ox, oy)
+        foro(svg, nome, ox, oy)
+    def C(nome):
+        x, y = ctrl(nome)
+        return x - ox, y - oy
     P = 0.5                          # passo dei punti delle manopole: lettere alte 3,5 mm
     for k, nome in ETICHETTE_K.items():
-        x, y, _ = M.MK4_CTRL[k]
-        base = y + M.FORO['k'][1] / 2 + 1.0 + 7 * P
-        svg.punti(x - ox, base - oy, P, nome, 'centro')
+        x, y = C(k)
+        svg.punti(x, y + M.FORO['k'][1] / 2 + 1.0 + 7 * P, P, nome, 'centro')
     hp = M.FORO['p'][1]
     for pad, (nome, banco_b) in PAD_SOPRA.items():
-        x, y, _ = M.MK4_CTRL[pad]
-        gap0 = y + hp / 2
-        gap1 = M.MK4_CTRL['PAD1'][1] - hp / 2
-        top = (gap0 + gap1) / 2 - 1.44 - oy
-        svg.pixel(x - ox - 2.0, top, 0.18, nome, 'destra')
-        svg.pixel(x - ox + 2.0, top + 0.4, 0.13, banco_b)
+        x, y = C(pad)
+        gap1 = C('PAD1')[1] - hp / 2
+        top = (y + hp / 2 + gap1) / 2 - 1.44
+        svg.pixel(x - 2.0, top, 0.18, nome, 'destra')
+        svg.pixel(x + 2.0, top + 0.4, 0.13, banco_b)
     for pad, (nome, banco_b) in PAD_SOTTO.items():
-        x, y, _ = M.MK4_CTRL[pad]
+        x, y = C(pad)
         Pp = 0.55
         base = y + hp / 2 + 1.2 + 7 * Pp
-        svg.punti(x - ox, base - oy, Pp, nome, 'centro')
-        svg.pixel(x - ox, base + 1.2 - oy, 0.15, banco_b, 'centro')
+        svg.punti(x, base, Pp, nome, 'centro')
+        svg.pixel(x, base + 1.2, 0.15, banco_b, 'centro')
     for nome, testo in (('PITCH', 'BEND'), ('MOD', 'MOD')):
-        x, y, _ = M.MK4_CTRL[nome]
-        svg.pixel(x - ox, y + M.FORO['w'][1] / 2 + 1.5 - oy, 0.2, testo, 'centro')
-    x, y, _ = M.MK4_CTRL['NAV']
-    svg.pixel(x - ox, y + M.FORO['e'][1] / 2 + 1.5 - oy, 0.2, 'LIST', 'centro')
+        x, y = C(nome)
+        svg.pixel(x, y + M.FORO['w'][1] / 2 + 1.5, 0.2, testo, 'centro')
+    x, y = C('NAV')
+    svg.pixel(x, y + M.FORO['e'][1] / 2 + 1.5, 0.2, 'LIST', 'centro')
+    hb = M.FORO['b'][1]
     for nome, testo in PULSANTI.items():
-        x, y, _ = M.MK4_CTRL[nome]
+        x, y = C(nome)
         if nome == 'SHIFT':
-            svg.pixel(x - ox, y + M.FORO['b'][1] / 2 + 1.5 - oy, 0.2, testo, 'centro')
+            svg.pixel(x, y + hb / 2 + 1.5, 0.2, testo, 'centro')
         else:                        # BACK e MENU sopra: sotto c'è il foro di SHIFT, a 3 mm
-            svg.pixel(x - ox, y - M.FORO['b'][1] / 2 - 3.8 - oy, 0.2, testo, 'centro')
+            svg.pixel(x, y - hb / 2 - 3.8, 0.2, testo, 'centro')
     for nome, (testo, con_shift) in TRASPORTO.items():
-        x, y, _ = M.MK4_CTRL[nome]
-        svg.pixel(x - ox, y + M.FORO['b'][1] / 2 + 1.5 - oy, 0.2, testo, 'centro')
+        x, y = C(nome)
+        svg.pixel(x, y + hb / 2 + 1.5, 0.2, testo, 'centro')
         if con_shift:
-            svg.pixel(x - ox, y + M.FORO['b'][1] / 2 + 5.0 - oy, 0.14, con_shift, 'centro')
-    logo(svg, 38.0 - ox, 80.0 - oy, 11.0)
-    svg.punti(38.0 - ox, 91.5 - oy, 0.35, 'STAME', 'centro')
-    z = M.BASE_T + M.MK4['h'] + m['piede_h']
-    fr = piano((M.MK4_X0 + ox, M.MK4_Y0 + oy, z + M.ACR), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0))
+            svg.pixel(x, y + hb / 2 + 5.0, 0.14, con_shift, 'centro')
+    for nome, (testo, sotto) in PROPRI.items():
+        x, y = C(nome)
+        svg.pixel(x, y + hb / 2 + 1.5, 0.15, testo, 'centro')
+        if sotto:
+            svg.pixel(x, y + hb / 2 + 4.4, 0.12, sotto, 'centro')
+    # la targa sulla zona dei cavi, dietro la MK4: il marchio e il nome
+    yc = (M.RETRO_Y + M.MK4_Y0) / 2
+    logo(svg, M.MK4_X0 + 24.0 - ox, yc - oy, 26.0)
+    svg.punti(M.MK4_X0 + 44.0 - ox, yc + 3.5 - oy, 1.0, 'STAME')
+    svg.pixel(M.MK4_X0 + 44.0 - ox, yc + 6.5 - oy, 0.25, 'STAMEN HARMONICUM')
+    fr = piano((ox, oy, M.Z_PIANO), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0))
     return registra(svg, _verso(fr, -1), M.ACR, 'acrilico3', 7)
 
 
@@ -402,50 +428,61 @@ def _verso(frame, segno):
 
 
 def dima():
-    """mascherina sopra il contorno della MK4, da stampare su carta al 100%"""
-    m = M.MASCHERINA
-    svg = Svg('dima_mascherina', M.MK4['w'] + 20, 130,
+    """la mascherina sopra il contorno della MK4, da stampare su carta al 100%"""
+    ox, oy = MASC_X0 - 10, MASC_Y0 - 10
+    yk = M.MK4_Y0 + M.MK4_KEYBED_Y
+    svg = Svg('dima_mascherina', MASC_X1 - MASC_X0 + 20, yk + 34 - oy,
               'dima 1:1 della mascherina sul contorno della MK4; stampare al 100%, controllare il righello.')
-    ox, oy = -10, -10
-    svg.rett(0 - ox, 0 - oy, M.MK4['w'], 104, 0, 'segno')
-    svg.linea([(0 - ox, M.MK4_KEYBED_Y - oy), (M.MK4['w'] - ox, M.MK4_KEYBED_Y - oy)], 'segno')
-    for nome, (x, y, tipo) in M.MK4_CTRL.items():
+    svg.rett(M.MK4_X0 - ox, M.MK4_Y0 - oy, M.MK4['w'], M.MK4_KEYBED_Y + 6, 0, 'segno')
+    svg.linea([(M.MK4_X0 - ox, yk - oy), (M.MK4_X0 + M.MK4['w'] - ox, yk - oy)], 'segno')
+    for nome in M.MK4_CTRL:
+        x, y = ctrl(nome)
         svg.cerchio(x - ox, y - oy, 1.0, 'segno')
-        if nome in M.SCOPERTI:
-            foro(svg, nome, ox, oy)
-        else:
-            w, h, r = M.FORO[tipo]
-            svg.rett(x - ox - w / 2, y - oy - h / 2, w, h, r, 'segno')
-    svg.rett(m['x0'] - ox, m['y0'] - oy, m['x1'] - m['x0'], m['y1'] - m['y0'], 4, 'taglio')
-    for (px, py) in M.PIEDINI:
-        svg.cerchio(px - ox, py - oy, M.MASCHERINA['piede_d'] / 2, 'segno')
-        svg.cerchio(px - ox, py - oy, 0.6, 'incisione')
-    svg.tratto([(10 - ox, 112 - oy), (110 - ox, 112 - oy)], 0.3)
+        foro(svg, nome, ox, oy)
+    svg.rett(MASC_X0 - ox, MASC_Y0 - oy, MASC_X1 - MASC_X0, MASC_Y1 - MASC_Y0, 0.6, 'taglio')
+    y = yk + 16 - oy
+    svg.tratto([(10, y), (110, y)], 0.3)
     for k in range(11):
-        svg.tratto([(10 + k * 10 - ox, 110 - oy), (10 + k * 10 - ox, 114 - oy)], 0.3)
-    svg.pixel(120 - ox, 108 - oy, 0.35, '100 mm: misurare dopo la stampa')
-    svg.pixel(120 - ox, 116 - oy, 0.35, 'cerchi blu: piedini sotto la mascherina; rettangoli blu: pulsanti coperti')
+        svg.tratto([(10 + k * 10, y - 2), (10 + k * 10, y + 2)], 0.3)
+    svg.pixel(120, y - 4, 0.35, '100 mm: misurare dopo la stampa')
+    svg.pixel(120, y + 4, 0.35, 'la mascherina appoggia sulla MK4: ogni foro deve lasciare libero il suo controllo')
     return svg.salva()
 
 
 # ---------------------------------------------------------------------------------------------
-# telaio: retro, fianchi, base, divisorio
+# telaio: retro e strato d'appoggio, fianchi, base, costola, parete davanti
 
 def retro(lato):
-    """listello del retro: chiude la zona dei cavi, con le uscite; si incastra nella base con due
-    linguette nelle tacche del bordo posteriore"""
+    """retro: chiude la zona dei cavi e arriva in cima; si incastra nella base con due linguette
+    nelle tacche del bordo posteriore. Le finestre per pedale, alimentazione e audio"""
     a, b, ling = retro_ling(lato)
     h = RETRO_H
     svg = Svg(f'retro_{lato}', b - a + 2, h + M.BASE_T + 2,
-              f'listello del retro, compensato {M.PLY} mm, alto {h:.0f} più le linguette; sta sulla base.')
+              f'retro, compensato {M.PLY} mm, alto {h:.0f} più le linguette; sta sulla base.')
     def P(x, z):
         return (x - a + 1, h - z + 1)
     pts = bordo_linguette(a, b, 0.0, ling, -M.BASE_T) + [(b, h), (a, h)]
     svg.poligono([P(x, z) for x, z in pts])
-    for cx in ((120.0, 230.0) if lato == 'sx' else (400.0, 500.0)):     # alimentazione, audio, pedale
+    for cx in USCITE[lato]:
         x, y = P(cx - 14, 20)
         svg.rett(x, y, 28, 12, 6)
     fr = piano((a - 1, 0.0, M.BASE_T + h + 1), (1.0, 0.0, 0.0), (0.0, 0.0, -1.0))
+    return registra(svg, _orienta(fr, (0.0, 1.0, 0.0)), M.PLY, 'betulla4', 2)
+
+
+def appoggio_retro(lato):
+    """strato incollato davanti al retro, più basso: regge il bordo di dietro del piano (feltro)"""
+    a, b, _ = retro_ling(lato)
+    h = M.Z_APPOGGIO - M.BASE_T
+    svg = Svg(f'appoggio_retro_{lato}', b - a + 2, h + 2,
+              f'strato d\'appoggio del retro, compensato {M.PLY} mm, alto {h:.0f}; si incolla davanti al retro.')
+    def P(x, z):
+        return (x - a + 1, h - z + 1)
+    svg.poligono([P(a, 0.0), P(b, 0.0), P(b, h), P(a, h)])
+    for cx in USCITE[lato]:
+        x, y = P(cx - 14, 20)
+        svg.rett(x, y, 28, 12, 6)
+    fr = piano((a - 1, M.RETRO_Y, M.BASE_T + h + 1), (1.0, 0.0, 0.0), (0.0, 0.0, -1.0))
     return registra(svg, _orienta(fr, (0.0, 1.0, 0.0)), M.PLY, 'betulla4', 2)
 
 
@@ -457,66 +494,60 @@ def _orienta(frame, verso):
     return (O, U, V, N)
 
 
-def profilo_fianco():
-    """profilo (y, z) del fianco, dal retro in basso in senso antiorario"""
-    Y = M.BASE_Y1
-    zf, zb = M.FIANCO_Z['front'], M.FIANCO_Z['back']
-    pts = [(0.0, 0.0), (Y, 0.0), (Y, zf - 10.0)]
-    for k in range(1, 9):
-        t = math.radians(90 * k / 8)
-        pts.append((Y - 10 + 10 * math.cos(t), zf - 10 + 10 * math.sin(t)))
-    pts += [(M.FIANCO_Z['y_front'], zf), (M.FIANCO_Z['y_back'], zb)]
-    for k in range(0, 9):
-        t = math.radians(90 + 90 * k / 8)
-        pts.append((6 + 6 * math.cos(t), zb - 6 + 6 * math.sin(t)))
-    return pts
+def _arco(c, r, a0, a1, n=8):
+    return [(c[0] + r * math.cos(math.radians(a0 + (a1 - a0) * k / n)),
+             c[1] + r * math.sin(math.radians(a0 + (a1 - a0) * k / n))) for k in range(n + 1)]
 
 
-def fianco(lato, strato):
-    prof = profilo_fianco()
-    H = max(z for _, z in prof)
-    Y = M.BASE_Y1
-    esterno = strato == 'esterno'
-    svg = Svg(f'fianco_{lato}_{strato}' if esterno else 'fianco_interno', Y + 2, H + 2,
-              (f'fianco {"sinistro" if lato == "sx" else "destro"}, strato esterno con le incisioni'
-               if esterno else f'strato interno dei fianchi: tagliarne {2 * (M.FIANCO_STRATI - 1)}') +
-              f', compensato {M.PLY} mm.')
-    sp = lato == 'sx'
-    # gli strati interni sono tutti il disegno del sinistro; gli esterni hanno il disegno che si legge
-    # da fuori: il sinistro con il davanti a destra, il destro con il davanti a sinistra
-    rovescio = (not sp) if esterno else sp
+def profilo_fianco(basso=None):
+    """profilo (y, z) dei fianchi, dal retro in basso in senso antiorario: cima piana alla quota del
+    piano e spigoli arrotondati; basso = (y0, y1) dove lo strato d'appoggio scende sotto il piano.
+    Se il tratto basso entra sotto uno spigolo (y0 = 4 e raggio 8, dietro), l'arco si ferma lì:
+    altrimenti il contorno tornava su se stesso e lasciava un ritaglio di pochi millimetri"""
+    Y, H, R = M.BASE_Y1, M.Z_PIANO, M.FIANCO_R
+    y0, y1 = basso or (R, Y - R)
+    dav = _arco((Y - R, H - R), R, 0, math.degrees(math.acos(min(1.0, (y1 - Y + R) / R))) if y1 > Y - R else 90)
+    ret = _arco((R, H - R), R, math.degrees(math.acos(max(-1.0, (y0 - R) / R))) if y0 < R else 90, 180)
+    pts = [(0.0, 0.0), (Y, 0.0)] + dav
+    if basso:
+        pts += [(y1, dav[-1][1]), (y1, M.Z_APPOGGIO), (y0, M.Z_APPOGGIO), (y0, ret[0][1])]
+    pts += ret
+    return [p for i, p in enumerate(pts) if i == 0 or math.dist(p, pts[i - 1]) > 1e-6]
+
+
+def fianco(nome, copie, basso=None, incisa=False, viti=False):
+    """uno strato dei fianchi per le copie [(lato, k)], k = 0 l'esterno. L'esterno sinistro si disegna
+    con il davanti a destra, come si legge da fuori; tutti gli altri con il davanti a sinistra"""
+    prof = profilo_fianco(basso)
+    H, Y, L = M.Z_PIANO, M.BASE_Y1, M.LARGHEZZA
+    rovescio = not (incisa and copie[0][0] == 'sx')
+    if incisa:
+        nota = f'fianco {"sinistro" if copie[0][0] == "sx" else "destro"}, strato esterno con le incisioni'
+    elif basso:
+        nota = f'fianco {"sinistro" if copie[0][0] == "sx" else "destro"}, strato d\'appoggio (il più interno)'
+    else:
+        nota = f'strato di mezzo dei fianchi: tagliarne {len(copie)}'
+    svg = Svg(nome, Y + 2, H + 2, nota + f', compensato {M.PLY} mm.')
     def P(y, z):
-        u = (Y - y) if rovescio else y
-        return (u + 1, H - z + 1)
+        return (((Y - y) if rovescio else y) + 1, H - z + 1)
     svg.poligono([P(y, z) for y, z in prof])
-    if not esterno:                               # viti delle squadrette (CASE-003): a 6 mm sopra la base
+    if viti:                                      # viti delle squadrette (CASE-003): a 6 mm sopra la base
         for y in SQUADRETTE_Y:
             svg.cerchio(*P(y, M.BASE_T + 6.0), 1.25)
-    if esterno:
-        cx, cy = P(40.0, 30.0)
-        logo(svg, cx, cy, 28.0)
-        x, y = P(72.0, 22.0)
-        if rovescio:
-            svg.punti(x, y, 1.3, 'STAME', 'destra')
-            svg.pixel(x, y + 3, 0.26, 'STAMEN HARMONICUM', 'destra')
+    if incisa:
+        logo(svg, *P(40.0, 24.0), 26.0)
+        x, y = P(70.0, 26.0)
+        svg.punti(x, y, 1.3, 'STAME', 'destra' if rovescio else 'sinistra')
+        svg.pixel(x, y + 3, 0.26, 'STAMEN HARMONICUM', 'destra' if rovescio else 'sinistra')
+    frames = []
+    for lato, k in copie:
+        if k == 0 and lato == 'sx':
+            frames.append(_orienta(piano((0.0, -1.0, H + 1), (0.0, 1.0, 0.0), (0.0, 0.0, -1.0)), (1.0, 0.0, 0.0)))
+        elif k == 0:
+            frames.append(_orienta(piano((L, Y + 1, H + 1), (0.0, -1.0, 0.0), (0.0, 0.0, -1.0)), (-1.0, 0.0, 0.0)))
         else:
-            svg.punti(x, y, 1.3, 'STAME')
-            svg.pixel(x, y + 3, 0.26, 'STAMEN HARMONICUM')
-    # riferimenti: strato k (0 = esterno) da fuori verso dentro
-    L = M.LARGHEZZA
-    def fr_sx(k):
-        return _orienta(piano((k * M.PLY, Y + 1, H + 1), (0.0, -1.0, 0.0), (0.0, 0.0, -1.0)), (1.0, 0.0, 0.0))
-    def fr_dx(k, disegno_sx):
-        x0 = L - (k + 1) * M.PLY
-        if disegno_sx:                            # gli strati interni sono tutti uguali: si girano
-            return _orienta(piano((x0, Y + 1, H + 1), (0.0, -1.0, 0.0), (0.0, 0.0, -1.0)), (1.0, 0.0, 0.0))
-        return _orienta(piano((L, -1.0, H + 1), (0.0, 1.0, 0.0), (0.0, 0.0, -1.0)), (-1.0, 0.0, 0.0))
-    if esterno and sp:
-        frames = [_orienta(piano((0.0, -1.0, H + 1), (0.0, 1.0, 0.0), (0.0, 0.0, -1.0)), (1.0, 0.0, 0.0))]
-    elif esterno:
-        frames = [_orienta(piano((L, Y + 1, H + 1), (0.0, -1.0, 0.0), (0.0, 0.0, -1.0)), (-1.0, 0.0, 0.0))]
-    else:
-        frames = [fr_sx(k) for k in range(1, M.FIANCO_STRATI)] + [fr_dx(k, True) for k in range(1, M.FIANCO_STRATI)]
+            x0 = k * M.PLY if lato == 'sx' else L - (k + 1) * M.PLY
+            frames.append(_orienta(piano((x0, Y + 1, H + 1), (0.0, -1.0, 0.0), (0.0, 0.0, -1.0)), (1.0, 0.0, 0.0)))
     return registra(svg, frames, M.PLY, 'betulla4', 3)
 
 
@@ -572,46 +603,61 @@ def base(lato):
         for y in SQUADRETTE_Y:
             if a < x < b:
                 svg.cerchio(*P(x, y), 1.7)
-    # asole: divisorio e pareti della torre
-    for yc in DIV_LING:
-        if a < M.DIV_X < b:
-            asola(svg, *P(M.DIV_X + M.PLY / 2, yc), M.PLY, M.LINGUETTA)
-    for yw in (M.MENSOLA_Y[0], M.TORRE_FRONTE_Y):
-        for xc in TORRE_LING:
-            if a < xc < b:
-                asola(svg, *P(xc, yw + M.PLY / 2), M.LINGUETTA, M.PLY)
+    # asole: costola (due strati incollati, linguette insieme) e parete davanti
+    for yc in COSTOLA_LING:
+        if a < M.GIUNTA_PIANO < b:
+            asola(svg, *P(M.GIUNTA_PIANO, yc), 2 * M.PLY, M.LINGUETTA)
+    for xc in FRONTE_LING:
+        if a < xc < b:
+            asola(svg, *P(xc, M.FRONTE_Y + M.PLY / 2), M.LINGUETTA, M.PLY)
     # viti del fermo dell'hub
     for x in (M.HUB_X0 - 10.0, M.HUB_X0 + M.HUB['w'] + 0.8 + 10.0):
         if a < x < b:
             svg.cerchio(*P(x, M.HUB_Y0 + (M.HUB['d'] + 0.8) / 2), 1.25)
-    # segni per la posa: MK4, pad
+    # segni per la posa: MK4, culla del pad
     def area(x0, y0, w, h, r=0.0):
         xa, xb = max(x0, a + 0.5), min(x0 + w, b - 0.5)
         if xb > xa:
             svg.rett(*P(xa, y0), xb - xa, h, r if xa == x0 and xb == x0 + w else 0, 'segno')
     area(M.MK4_X0, M.MK4_Y0, M.MK4['w'], M.MK4['d'], 3)
-    area(M.PAD_X0, M.PAD_Y0, M.PAD['w'], M.PAD['d'], 4)
+    area(M.DESTRA_X0 + 0.3, M.CULLA_PAD_Y0, M.DESTRA_X1 - M.DESTRA_X0 - 0.6, M.CULLA_PAD_Y1 - M.CULLA_PAD_Y0, 1)
     fr = piano((a - 1, -1.0, M.BASE_T), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0))
     return registra(svg, _orienta(fr, (0.0, 0.0, -1.0)), M.BASE_T, 'betulla6', 1)
 
 
-def divisorio():
-    """parete fra la MK4 e la torre: copre il fianco della MK4; due linguette nella base; dietro
-    lascia passare i cavi"""
-    y0, y1 = M.MK4_Y0, M.MK4_Y0 + M.MK4['d']
-    z1 = M.MENSOLA_Z
-    svg = Svg('divisorio', y1 - y0 + 2, z1 + 2, f'divisorio fra MK4 e torre, compensato {M.PLY} mm; si incastra nella base.')
+def costola(lato):
+    """costola fra la MK4 e la culla del pad, due strati incollati con le linguette insieme. Dietro
+    reggono la mascherina (sx) e il piano della Flip (dx) con il feltro, e sotto lasciano passare i
+    cavi della MK4 verso l'hub; davanti salgono in cima: sono la guancia dei tasti"""
+    y0, Y, H = M.APPOGGIO_Y, M.BASE_Y1, M.Z_PIANO
+    yb = M.MASCHERINA_Y1 if lato == 'sx' else M.CULLA_PAD_Y0
+    svg = Svg(f'costola_{lato}', Y - y0 + 2, H + 2,
+              f'costola, strato {"verso la MK4" if lato == "sx" else "verso il pad"}, compensato {M.PLY} mm; '
+              'i due strati si incollano.')
     def P(y, z):
-        return (y - y0 + 1, z1 - z + 1)
-    pts = ([(y0, 20.0), (y0 + 26.0, 20.0)] + bordo_linguette(y0 + 26.0, y1, M.BASE_T, DIV_LING, -M.BASE_T)
-           + [(y1, z1), (y0, z1)])
+        return (y - y0 + 1, H - z + 1)
+    pts = ([(y0, CAVI_Z), (M.MK4_Y0, CAVI_Z)] + bordo_linguette(M.MK4_Y0, Y, M.BASE_T, COSTOLA_LING, -M.BASE_T)
+           + [(Y, H), (yb, H), (yb, M.Z_APPOGGIO), (y0, M.Z_APPOGGIO)])
     svg.poligono([P(y, z) for y, z in pts])
-    fr = piano((M.DIV_X, y0 - 1, z1 + 1), (0.0, 1.0, 0.0), (0.0, 0.0, -1.0))
+    x = M.COSTOLA_X0 + (0.0 if lato == 'sx' else M.PLY)
+    fr = piano((x, y0 - 1, H + 1), (0.0, 1.0, 0.0), (0.0, 0.0, -1.0))
     return registra(svg, _orienta(fr, (1.0, 0.0, 0.0)), M.PLY, 'betulla4', 2)
 
 
+def fronte():
+    """parete davanti della parte destra, davanti alla culla del pad: arriva in cima"""
+    x0, x1, H = M.DESTRA_X0, M.DESTRA_X1, M.Z_PIANO
+    svg = Svg('fronte_dx', x1 - x0 + 2, H + 2, f'parete davanti della culla del pad, compensato {M.PLY} mm.')
+    def P(x, z):
+        return (x - x0 + 1, H - z + 1)
+    pts = bordo_linguette(x0, x1, M.BASE_T, FRONTE_LING, -M.BASE_T) + [(x1, H), (x0, H)]
+    svg.poligono([P(x, z) for x, z in pts])
+    fr = piano((x0 - 1, M.FRONTE_Y, H + 1), (1.0, 0.0, 0.0), (0.0, 0.0, -1.0))
+    return registra(svg, _orienta(fr, (0.0, 1.0, 0.0)), M.PLY, 'betulla4', 2)
+
+
 # ---------------------------------------------------------------------------------------------
-# torre: piano della mensola, pareti davanti e dietro, cartellino del pad
+# piano della Flip: acrilico nero come la mascherina, con la culla e la visiera avvitate sopra
 
 def culla_viti():
     """viti M3 che fissano la culla al piano (sotto la Flip: teste svasate)"""
@@ -622,96 +668,50 @@ def visiera_viti():
     return [(M.FLIP_X + sx * (M.FLIP['w'] / 2 + 14.0), M.FLIP_Y0 + 12.0) for sx in (-1, 1)]
 
 
-def torre_piano():
-    """piano della mensola della Flip: sporge di 3 mm oltre le pareti, che entrano con le linguette
-    nelle asole; porta la culla e la visiera, avvitate da sopra con i dadi sotto"""
-    x0, x1 = M.TORRE_X0, M.TORRE_X1
-    y0, y1 = M.PIANO_Y
-    svg = Svg('torre_piano', x1 - x0 + 2, y1 - y0 + 2, f'piano della mensola della Flip, compensato {M.BASE_T} mm.')
+CULLA_FLIP_Y1 = M.FLIP_Y0 - 0.6 + M.FLIP['d'] + 1.0 + M.CULLA_PARETE   # davanti della culla della Flip
+PIANO_X0, PIANO_X1 = M.GIUNTA_PIANO + 0.2, M.DESTRA_X1 + M.PLY - 0.2
+PIANO_Y0 = M.RETRO_Y + 0.2
+# fessure dei cavi: OTG della Flip dietro la cerniera; jack e ricarica davanti alla culla
+FESSURA_OTG = (M.FLIP_X - 16.0, M.FLIP_Y0 - 13.0, 32.0, 8.0)
+FESSURA_FRONTE = (M.FLIP_X + M.FLIP_JACK_DX - 9.0, CULLA_FLIP_Y1 + 2.0,
+                  M.FLIP_USBC_DX - M.FLIP_JACK_DX + 18.0, 8.0)
+SPINA_PAD_X = M.PAD_X0 + M.PAD_USB_X
+SPINA_PAD_TOP = M.PAD_Z0 + M.PAD_USB_Z + 3.5        # la spina a 90° è alta circa 7 mm
+
+# le manopole del pad (40 MIDI-120, MIDI-131, MIDI-135): normale, con il Lock, sotto DRUMS
+MANOPOLE_PAD = [('M', 'CH. VOICING', 'SOUND', 'DENSITY'), ('m1', 'BASS VOICING', 'PERFORM', 'GROOVE'),
+                ('m2', 'BEAT VOL', 'KEY', 'VARIATION')]
+
+
+def piano_flip():
+    x0, x1, y0, y1 = PIANO_X0, PIANO_X1, PIANO_Y0, M.PIANO_Y1
+    svg = Svg('piano_flip', x1 - x0 + 2, y1 - y0 + 2,
+              f'piano della Flip, acrilico nero {M.ACR} mm: appoggia su retro, costola, fianco e culla del pad.')
     def P(x, y):
         return (x - x0 + 1, y - y0 + 1)
-    svg.poligono([P(x0, y0), P(x1, y0), P(x1, y1), P(x0, y1)])
-    for yw in (M.MENSOLA_Y[0], M.TORRE_FRONTE_Y):
-        for xc in TORRE_LING:
-            asola(svg, *P(xc, yw + M.PLY / 2), M.LINGUETTA, M.PLY)
+    pts = [(x0, y0), (x1, y0), (x1, y1)]
+    if SPINA_PAD_TOP > M.Z_PIANO0 - 0.3:            # la spina del pad tocca il piano: una tacca nel bordo
+        pts += [(SPINA_PAD_X + 12.0, y1), (SPINA_PAD_X + 12.0, y1 - 8.0), (SPINA_PAD_X - 12.0, y1 - 8.0),
+                (SPINA_PAD_X - 12.0, y1)]
+    pts.append((x0, y1))
+    svg.poligono([P(x, y) for x, y in pts])
     for x, y in culla_viti() + visiera_viti():
         svg.cerchio(*P(x, y), 1.7)
-    x, y = P(x0 + 6, y1 - 7)
-    svg.pixel(x, y, 0.22, 'TAB. I')
-    fr = piano((x0 - 1, y0 - 1, M.MENSOLA_Z), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0))
-    return registra(svg, _orienta(fr, (0.0, 0.0, -1.0)), M.BASE_T, 'betulla6', 5)
-
-
-def torre_parete(dove):
-    """pareti del vano dell'hub, sotto il piano: due linguette in basso nella base e due in alto
-    nel piano. Davanti il passaggio del cavo del pad, accanto al cartellino; dietro la finestra dei
-    cavi (OTG della Flip, USB della MK4)"""
-    x0, x1 = M.TORRE_X0, M.TORRE_X1
-    zt = M.PIANO_Z0
-    svg = Svg(f'torre_{dove}', x1 - x0 + 2, M.MENSOLA_Z + 2,
-              f'parete {"davanti" if dove == "fronte" else "dietro"} della mensola, compensato {M.PLY} mm.')
-    def P(x, z):
-        return (x - x0 + 1, M.MENSOLA_Z - z + 1)
-    pts = (bordo_linguette(x0, x1, M.BASE_T, TORRE_LING, -M.BASE_T)
-           + bordo_linguette(x1, x0, zt, TORRE_LING, M.BASE_T)[0:])
-    svg.poligono([P(x, z) for x, z in pts])
-    if dove == 'fronte':
-        x, y = P(PAD_CAVO_X - 9.0, M.BASE_T + 16.0)
-        svg.rett(x, y, 18.0, 12.0, 4.0)
-    else:
-        x, y = P(M.FLIP_X - 20, M.BASE_T + 26)
-        svg.rett(x, y, 40, 14, 5)
-    yw = M.TORRE_FRONTE_Y if dove == 'fronte' else M.MENSOLA_Y[0]
-    fr = piano((x0 - 1, yw, M.MENSOLA_Z + 1), (1.0, 0.0, 0.0), (0.0, 0.0, -1.0))
-    return registra(svg, _orienta(fr, (0.0, 1.0, 0.0)), M.PLY, 'betulla4', 4)
-
-
-# il cavo del pad passa dalla parete davanti a destra del cartellino
-CARTELLINO_X0 = M.TORRE_X0 + 2.0
-CARTELLINO_W = 152.0
-PAD_CAVO_X = CARTELLINO_X0 + CARTELLINO_W + 9.5
-
-# la mappa del macro pad con una tastiera collegata (specifica 40 MIDI-120, MIDI-133); senza
-# tastiera il pad è lo strumento (MIDI-136): le note stanno in piccolo in basso a destra
-LEGENDA_PAD = [[('T1', 'HOLD'), ('T2', 'TAP'), ('T3', 'METRO'), ('T4', 'FILL'), ('T13', 'LOCK')],
-               [('T5', 'SCENE 1'), ('T6', 'SCENE 2'), ('T7', 'SCENE 3'), ('T8', 'SCENE 4'), ('T14', 'VIEW')],
-               [('T9', 'OPTIONS'), ('T10', 'SAVE LP'), ('T11', 'DRUMS'), ('T12', 'PANIC'), ('T15', 'PAGE')]]
-NOTE_PAD = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-# manopole: con la tastiera, con il Lock, con il solo pad
-MANOPOLE_PAD = {'m1': ('BASS VOIC', 'PERFORM', 'EXT'), 'm2': ('BEAT VOL', 'KEY', 'FOCUS'), 'M': ('CHORD VOIC', 'SOUND', 'TYPE')}
-
-
-def cartellino_pad():
-    """striscia di acrilico incollata sulla parete davanti della mensola: la mappa dei 15 tasti e
-    delle 3 manopole del macro pad, nello stesso ordine in cui stanno sul pad"""
-    W, H = CARTELLINO_W, M.CARTELLINO['h']
-    svg = Svg('cartellino_pad', W + 2, H + 2, f'cartellino del macro pad, acrilico nero {M.ACR} mm; si incolla sulla parete davanti della mensola.')
-    svg.rett(1, 1, W, H, 3)
-    cw, ch = 19.0, 10.0
-    x0, y0 = 5.0, 2.5
-    for r, riga in enumerate(LEGENDA_PAD):
-        for c, (sigla, nome) in enumerate(riga):
-            x, y = x0 + c * (cw + 1.5), y0 + r * ch
-            svg.tratto([(x, y), (x + cw, y), (x + cw, y + ch - 1.2), (x, y + ch - 1.2), (x, y)], 0.25)
-            svg.pixel(x + 1.4, y + 0.9, 0.15, sigla)
-            svg.pixel(x + cw - 1.4, y + 0.9, 0.15, nome, 'destra')
-            if c < 4:                                                # la nota del pad strumento
-                svg.pixel(x + cw - 1.4, y + 4.8, 0.14, NOTE_PAD[r * 4 + c], 'destra')
-            else:                                                    # le aggiunte di Stame: un segno sotto
-                svg.tratto([(x + 1.2, y + ch - 2.6), (x + cw - 1.2, y + ch - 2.6)], 0.5)
-    kx = x0 + 5 * (cw + 1.5) + 3.0
-    for nome, (cx, cy, r) in (('m1', (kx + 7, 8.5, 4.0)), ('m2', (kx + 31, 8.5, 4.0)), ('M', (kx + 19, 22.5, 5.0))):
-        anello = [(cx + r * math.cos(2 * math.pi * k / 40), cy + r * math.sin(2 * math.pi * k / 40)) for k in range(41)]
-        svg.tratto(anello, 0.45)
-        svg.tratto([(cx, cy - r + 0.8), (cx, cy - r + 2.4)], 0.6)
-        svg.pixel(cx, cy - 1.3, 0.16, nome, 'centro')
-    # sotto ogni manopola: il mestiere con la tastiera e, piccolo, quello del pad strumento
-    for k, (cx, y) in (('m1', (kx + 7, 13.3)), ('m2', (kx + 31, 13.3)), ('M', (kx + 19, 28.0))):
-        svg.pixel(cx, y, 0.13, MANOPOLE_PAD[k][0], 'centro')
-        svg.pixel(cx, y + 2.3, 0.11, 'PAD:' + MANOPOLE_PAD[k][2], 'centro')
-    svg.pixel(kx + 19, 1.2, 0.12, 'LOCK: ' + ' '.join(MANOPOLE_PAD[k][1] for k in ('M', 'm1', 'm2')), 'centro')
-    fr = piano((CARTELLINO_X0 - 1, M.TORRE_FRONTE_Y + M.PLY + M.ACR, M.BASE_T + H + 1), (1.0, 0.0, 0.0), (0.0, 0.0, -1.0))
-    return registra(svg, _orienta(fr, (0.0, -1.0, 0.0)), M.ACR, 'acrilico3', 4)
+    for fx, fy, fw, fh in (FESSURA_OTG, FESSURA_FRONTE):
+        svg.rett(*P(fx, fy), fw, fh, 3.0)
+    # le manopole del pad, fra le due culle: dietro i tasti del pad ne resta in vista una striscia
+    xa = M.FLIP_X + 24.0
+    ya = CULLA_FLIP_Y1 + 3.0
+    px = 0.12
+    colonne = (0.0, 5.0, 21.0, 32.0)
+    for c, testo in zip(colonne[1:], ('', 'LOCK', 'DRUMS')):
+        if testo:
+            svg.pixel(*P(xa + c, ya), px, testo)
+    for r, riga in enumerate(MANOPOLE_PAD):
+        for c, testo in zip(colonne, riga):
+            svg.pixel(*P(xa + c, ya + 3.1 * (r + 1)), px, testo)
+    fr = piano((x0 - 1, y0 - 1, M.Z_PIANO), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0))
+    return registra(svg, _verso(fr, -1), M.ACR, 'acrilico3', 6)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -735,8 +735,8 @@ def flip_aperta():
 
 
 def visiera_profilo():
-    """fianco della visiera nel piano (y, z): dal piano della mensola dietro la cerniera, lungo lo
-    schermo fino sopra il bordo alto, e 24 mm davanti allo schermo"""
+    """fianco della visiera nel piano (y, z): dal piano dietro la cerniera, lungo lo schermo fino
+    sopra il bordo alto, e 24 mm davanti allo schermo"""
     a = math.radians(M.SCHERMO_DEG)
     d, t = M.FLIP['d'], M.FLIP['half']
     h = (M.FLIP_Y0, M.FLIP_Z0 + t)
@@ -747,40 +747,44 @@ def visiera_profilo():
     alto_dietro = p(d + 4.0, -t - 3.0)
     alto_davanti = p(d + 4.0, 24.0)
     basso_davanti = p(6.0, 24.0)
-    return [(M.FLIP_Y0 - 6.0, M.MENSOLA_Z), (M.FLIP_Y0 + 4.0, M.MENSOLA_Z), (basso_davanti[0], basso_davanti[1]),
-            alto_davanti, alto_dietro, (alto_dietro[0], M.MENSOLA_Z + 20.0)]
+    return [(M.FLIP_Y0 - 6.0, M.Z_PIANO), (M.FLIP_Y0 + 4.0, M.Z_PIANO), (basso_davanti[0], basso_davanti[1]),
+            alto_davanti, alto_dietro, (alto_dietro[0], M.Z_PIANO + 20.0)]
 
 
 def tavola():
     W, Y = M.LARGHEZZA, M.BASE_Y1
-    svg = Svg('tavola_insieme', W + 40, Y + 300, 'tavola d\'insieme: vista dall\'alto e fianco; non è un pezzo da tagliare.')
+    svg = Svg('tavola_insieme', W + 40, Y + 260, 'tavola d\'insieme: vista dall\'alto e fianco; non è un pezzo da tagliare.')
     ox, oy = 20, 20
     def T(x, y):
         return (x + ox, y + oy)
+    # telaio: fianchi, retro, costola, parete davanti
     svg.rett(*T(0, 0), M.FIANCO, Y, 2, 'taglio')
     svg.rett(*T(W - M.FIANCO, 0), M.FIANCO, Y, 2, 'taglio')
     svg.rett(*T(M.FIANCO, 0), W - 2 * M.FIANCO, M.PLY, 0, 'taglio')
+    svg.rett(*T(M.COSTOLA_X0, M.APPOGGIO_Y), 2 * M.PLY, Y - M.APPOGGIO_Y, 0, 'taglio')
+    svg.rett(*T(M.DESTRA_X0, M.FRONTE_Y), M.DESTRA_X1 - M.DESTRA_X0, M.PLY, 0, 'taglio')
+    # MK4 e mascherina con i fori
     svg.rett(*T(M.MK4_X0, M.MK4_Y0), M.MK4['w'], M.MK4['d'], 3, 'segno')
     for k in range(16):
         x = M.MK4_X0 + 6 + k * (M.MK4['w'] - 12) / 15
         svg.linea([T(x, M.MK4_Y0 + M.MK4_KEYBED_Y + 2), T(x, M.MK4_Y0 + M.MK4['d'] - 4)], 'segno')
-    m = M.MASCHERINA
-    svg.rett(*T(M.MK4_X0 + m['x0'], M.MK4_Y0 + m['y0']), m['x1'] - m['x0'], m['y1'] - m['y0'], 4, 'taglio')
+    svg.rett(*T(MASC_X0, MASC_Y0), MASC_X1 - MASC_X0, MASC_Y1 - MASC_Y0, 0.6, 'taglio')
     for nome, (x, y, tipo) in M.MK4_CTRL.items():
-        if nome in M.SCOPERTI:
-            w, h, r = M.FORO[tipo]
-            if tipo in ('k', 'e'):
-                svg.cerchio(*T(M.MK4_X0 + x, M.MK4_Y0 + y), w / 2, 'segno')
-            else:
-                svg.rett(*T(M.MK4_X0 + x - w / 2, M.MK4_Y0 + y - h / 2), w, h, r, 'segno')
-    svg.rett(*T(M.DIV_X, M.MK4_Y0), M.PLY, M.MK4['d'], 0, 'taglio')
-    svg.rett(*T(M.TORRE_X0, M.PIANO_Y[0]), M.TORRE_W, M.PIANO_Y[1] - M.PIANO_Y[0], 0, 'taglio')
-    cw = M.FLIP['w'] + 2 * (0.6 + M.CULLA_PARETE)
-    svg.rett(*T(M.FLIP_X - cw / 2, M.FLIP_Y0), cw, M.FLIP['d'] + 3.6, 2, 'segno')
+        w, h, r = M.FORO[tipo]
+        cx, cy = ctrl(nome)
+        if tipo in ('k', 'e'):
+            svg.cerchio(*T(cx, cy), w / 2, 'segno')
+        else:
+            svg.rett(*T(cx - w / 2, cy - h / 2), w, h, r, 'segno')
+    # piano della Flip, culla, Flip e schermo aperto
+    svg.rett(*T(PIANO_X0, PIANO_Y0), PIANO_X1 - PIANO_X0, M.PIANO_Y1 - PIANO_Y0, 0, 'taglio')
+    cw = M.FLIP['w'] + 1.2 + 2 * M.CULLA_PARETE
+    svg.rett(*T(M.FLIP_X - cw / 2, M.FLIP_Y0 - 0.6), cw, M.FLIP['d'] + 1.0 + M.CULLA_PARETE, 2, 'segno')
     svg.rett(*T(M.FLIP_X - M.FLIP['w'] / 2, M.FLIP_Y0), M.FLIP['w'], M.FLIP['d'], 3, 'segno')
     sch = M.FLIP['d'] * math.cos(math.radians(M.SCHERMO_DEG))
     svg.rett(*T(M.FLIP_X - M.FLIP['w'] / 2, M.FLIP_Y0 - sch), M.FLIP['w'], sch, 3, 'segno')
-    svg.rett(*T(CARTELLINO_X0, M.TORRE_FRONTE_Y + M.PLY), CARTELLINO_W, M.ACR, 0, 'taglio')
+    # culla del pad e pad con tasti e manopole
+    svg.rett(*T(M.DESTRA_X0 + 0.3, M.CULLA_PAD_Y0), M.DESTRA_X1 - M.DESTRA_X0 - 0.6, M.CULLA_PAD_Y1 - M.CULLA_PAD_Y0, 1, 'taglio')
     svg.rett(*T(M.PAD_X0, M.PAD_Y0), M.PAD['w'], M.PAD['d'], 5, 'segno')
     for r in range(3):
         for c in range(5):
@@ -789,53 +793,52 @@ def tavola():
             svg.rett(*T(cx - 8, cy - 8), 16, 16, 1.5, 'segno')
     for nome, (kx, ky, kr) in M.PAD_KNOB.items():
         svg.cerchio(*T(M.PAD_X0 + kx, M.PAD_Y0 + ky), kr, 'segno')
-    for txt, x, y in (('MPK MINI IV', M.MK4_X0 + 150, M.MK4_Y0 + 150), ('MASCHERINA', M.MK4_X0 + 150, M.MK4_Y0 + 100),
-                      ('FLIP', M.FLIP_X - 10, M.MENSOLA_Y[0] - 22), ('MENSOLA', M.TORRE_X0 + 4, M.MENSOLA_Y[1] - 12),
-                      ('CARTELLINO', M.TORRE_X0 + 4, M.TORRE_FRONTE_Y + 12), ('MACRO PAD', M.PAD_X0 + 2, M.PAD_Y0 + M.PAD['d'] + 4),
-                      ('CAVI', 40, 12), ('DIVISORIO', M.DIV_X - 44, M.MK4_Y0 + 180)):
+    for txt, x, y in (('MPK MINI IV', M.MK4_X0 + 150, M.MK4_Y0 + 150), ('MASCHERINA', M.MK4_X0 + 150, 12),
+                      ('FLIP', M.FLIP_X - 10, M.FLIP_Y0 - 22), ('PIANO DELLA FLIP', PIANO_X0 + 4, 12),
+                      ('CULLA DEL PAD', M.DESTRA_X0 + 4, M.CULLA_PAD_Y0 - 4), ('COSTOLA', M.COSTOLA_X0 - 40, Y - 30)):
         svg.pixel(*T(x, y), 0.45, txt)
     svg.pixel(*T(0, Y + 8), 0.7, f'VISTA DALL\'ALTO   {W:.0f} x {Y:.0f} mm')
-    # vista di fianco (da destra)
-    z_max = 240.0
-    oy2 = oy + Y + 40
+    # vista di fianco (da destra), sezione nella parte destra
+    z_max = 200.0
+    oy2 = oy + Y + 30
     def S(y, z):
         return (y + ox, oy2 + z_max - z)
-    prof = profilo_fianco()
-    svg.poligono([S(y, z) for y, z in prof], 'taglio')
+    svg.poligono([S(y, z) for y, z in profilo_fianco()], 'taglio')
     svg.poligono([S(0, 0), S(Y, 0), S(Y, M.BASE_T), S(0, M.BASE_T)], 'segno')
-    svg.poligono([S(0, M.BASE_T), S(M.PLY, M.BASE_T), S(M.PLY, M.BASE_T + RETRO_H), S(0, M.BASE_T + RETRO_H)], 'segno')
-    y0, y1 = M.MK4_Y0, M.MK4_Y0 + M.MK4['d']
-    zt = M.BASE_T + M.MK4['h']
-    yk = M.MK4_Y0 + M.MK4_KEYBED_Y
-    svg.poligono([S(y0, M.BASE_T), S(y1, M.BASE_T), S(y1, M.BASE_T + M.MK4['key_top']), S(yk, M.BASE_T + M.MK4['key_top']),
-                  S(yk, zt), S(y0, zt)], 'segno')
-    pm0, pm1 = M.MK4_Y0 + m['y0'], M.MK4_Y0 + m['y1']
-    zp = zt + m['piede_h']
-    svg.poligono([S(pm0, zp), S(pm1, zp), S(pm1, zp + M.ACR), S(pm0, zp + M.ACR)], 'segno')
-    svg.poligono([S(M.PIANO_Y[0], M.PIANO_Z0), S(M.PIANO_Y[1], M.PIANO_Z0), S(M.PIANO_Y[1], M.MENSOLA_Z), S(M.PIANO_Y[0], M.MENSOLA_Z)], 'taglio')
-    for yw in (M.MENSOLA_Y[0], M.TORRE_FRONTE_Y):
-        svg.poligono([S(yw, M.BASE_T), S(yw + M.PLY, M.BASE_T), S(yw + M.PLY, M.PIANO_Z0), S(yw, M.PIANO_Z0)], 'taglio')
+    svg.poligono([S(0, M.BASE_T), S(M.PLY, M.BASE_T), S(M.PLY, M.Z_PIANO), S(0, M.Z_PIANO)], 'segno')
+    svg.poligono([S(M.PLY, M.BASE_T), S(2 * M.PLY, M.BASE_T), S(2 * M.PLY, M.Z_APPOGGIO), S(M.PLY, M.Z_APPOGGIO)], 'segno')
+    # piano della Flip e culla del pad in sezione
+    svg.poligono([S(PIANO_Y0, M.Z_PIANO0), S(M.PIANO_Y1, M.Z_PIANO0), S(M.PIANO_Y1, M.Z_PIANO), S(PIANO_Y0, M.Z_PIANO)], 'taglio')
+    c0, c1 = M.CULLA_PAD_Y0, M.CULLA_PAD_Y1
+    zr = M.PAD_Z1 + M.CULLA_BORDO
+    s = M.CULLA_PAD_PARETE
+    svg.poligono([S(c0, M.BASE_T), S(c0 + s, M.BASE_T), S(c0 + s, zr), S(c0, zr)], 'taglio')
+    svg.poligono([S(c1 - s, M.BASE_T), S(c1, M.BASE_T), S(c1, zr), S(c1 - s, zr)], 'taglio')
+    svg.poligono([S(M.FRONTE_Y, M.BASE_T), S(Y, M.BASE_T), S(Y, M.Z_PIANO), S(M.FRONTE_Y, M.Z_PIANO)], 'segno')
+    svg.poligono([S(M.PAD_Y0, M.PAD_Z0), S(M.PAD_Y1, M.PAD_Z0), S(M.PAD_Y1, M.PAD_Z1), S(M.PAD_Y0, M.PAD_Z1)], 'taglio')
+    zt = M.PAD_Z1 + M.TASTO_PAD['z'] + M.TASTO_PAD['h']
+    svg.poligono([S(M.PAD_Y0 + 5, M.PAD_Z1), S(M.PAD_Y1 - 5, M.PAD_Z1), S(M.PAD_Y1 - 5, zt), S(M.PAD_Y0 + 5, zt)], 'segno')
     svg.poligono([S(M.HUB_Y0, M.BASE_T), S(M.HUB_Y0 + M.HUB['d'], M.BASE_T), S(M.HUB_Y0 + M.HUB['d'], M.BASE_T + M.HUB['h']),
                   S(M.HUB_Y0, M.BASE_T + M.HUB['h'])], 'segno')
-    cy0 = M.TORRE_FRONTE_Y + M.PLY
-    svg.poligono([S(cy0, M.BASE_T), S(cy0 + M.ACR, M.BASE_T), S(cy0 + M.ACR, M.BASE_T + M.CARTELLINO['h']), S(cy0, M.BASE_T + M.CARTELLINO['h'])], 'taglio')
     sotto, sopra, vis = flip_aperta()
     svg.poligono([S(*p) for p in sotto], 'taglio')
     svg.poligono([S(*p) for p in sopra], 'taglio')
     svg.poligono([S(*p) for p in vis], 'segno')
-    py0, py1 = M.PAD_Y0, M.PAD_Y0 + M.PAD['d']
-    svg.poligono([S(py0, M.BASE_T), S(py1, M.BASE_T), S(py1, M.BASE_T + M.PAD['h']), S(py0, M.BASE_T + M.PAD['h'])], 'taglio')
-    svg.poligono([S(py0 - 6, M.BASE_T), S(py1 + 6, M.BASE_T), S(py1 + 6, M.BASE_T + 8), S(py0 - 6, M.BASE_T + 8)], 'segno')
+    # la MK4 in trasparenza, dietro: corpo, tasti
+    y0m, y1m = M.MK4_Y0, M.MK4_Y0 + M.MK4['d']
+    yk = M.MK4_Y0 + M.MK4_KEYBED_Y
+    svg.poligono([S(y0m, M.BASE_T), S(y1m, M.BASE_T), S(y1m, M.BASE_T + M.MK4['key_top']), S(yk, M.BASE_T + M.MK4['key_top']),
+                  S(yk, M.Z_MK4), S(y0m, M.Z_MK4)], 'segno')
     sc = ((sopra[0][0] + sopra[1][0]) / 2, (sopra[0][1] + sopra[1][1]) / 2)
     ey, ez = Y + 500.0, 350.0
-    k = (Y + 40 - sc[0]) / (ey - sc[0])
+    k = (Y + 30 - sc[0]) / (ey - sc[0])
     svg.linea([S(*sc), S(sc[0] + (ey - sc[0]) * k, sc[1] + (ez - sc[1]) * k)], 'segno')
-    for txt, y, z in (('MK4', 150, 20), ('MASCHERINA', 60, 56), ('MENSOLA', 48, 50), ('HUB', 76, 10),
-                      (f'SCHERMO {M.SCHERMO_DEG:.0f} GRADI', -8, 150), ('VISIERA', 40, 140), ('PAD', 170, 42),
-                      ('CARTELLINO', 150, 60), ('SGUARDO 60 CM', 210, 125)):
+    for txt, y, z in (('MK4 (DIETRO)', 120, 20), ('PIANO', 20, 52), ('HUB', M.HUB_Y0, 26),
+                      (f'SCHERMO {M.SCHERMO_DEG:.0f} GRADI', -8, 150), ('VISIERA', 40, 140), ('PAD', M.PAD_Y0 + 20, 74),
+                      ('CULLA', M.CULLA_PAD_Y0 + 10, 14), ('SGUARDO 60 CM', 200, 120)):
         svg.pixel(*S(y, z), 0.45, txt)
     alt = max(p[1] for p in sopra)
-    svg.pixel(*S(0, -14), 0.7, f'FIANCO   ALTEZZA CON LO SCHERMO APERTO {alt:.0f} mm   CENTRO DELLO SCHERMO A {sc[1]:.0f} mm')
+    svg.pixel(*S(0, -14), 0.7, f'FIANCO   CIMA A {M.Z_PIANO:.0f} mm   CON LO SCHERMO APERTO {alt:.0f} mm   CENTRO DELLO SCHERMO A {sc[1]:.0f} mm')
     return svg.salva()
 
 
@@ -858,15 +861,15 @@ def stampato(nome, mesh, frames, passo, nota, materiale='petg_nero', posa=IDENTI
 
 
 def culla_flip():
-    """Vassoio basso sul piano della mensola: fondo da 2 mm, bordi da 5 mm davanti e ai lati,
-    aperto dietro (spalle L1 L2 R1 R2, cerniera, USB-C OTG). Davanti gli intagli del jack e della
-    USB-C di ricarica, ai lati le finestre dei tasti del volume [V: posizioni]. Quattro fori per
-    viti M3 svasate, sotto la Flip."""
+    """Vassoio basso sul piano: fondo da 2 mm, bordi da 5 mm davanti e ai lati, aperto dietro
+    (spalle L1 L2 R1 R2, cerniera, USB-C OTG). Davanti l'intaglio del jack e della USB-C di
+    ricarica, ai lati le finestre dei tasti del volume [V: posizioni]. Quattro fori per viti M3
+    svasate, sotto la Flip."""
     fw, fd = M.FLIP['w'] + 1.2, M.FLIP['d'] + 1.0
     p, h = M.CULLA_PARETE, M.CULLA_BORDO
     x0, x1 = M.FLIP_X - fw / 2, M.FLIP_X + fw / 2
     y0, y1 = M.FLIP_Y0 - 0.6, M.FLIP_Y0 - 0.6 + fd
-    z0, zf = M.MENSOLA_Z, M.MENSOLA_Z + M.CULLA_FONDO
+    z0, zf = M.Z_PIANO, M.Z_PIANO + M.CULLA_FONDO
     ms = Mesh('Stame culla della Flip')
     viti = [cerchio(x, y, 1.7, 16) for x, y in culla_viti()]
     ms.prisma(rett(x0 - p, y0, x1 + p, y1 + p, 2.0), z0, zf, holes=viti)                  # fondo
@@ -882,19 +885,43 @@ def culla_flip():
     return ms
 
 
-def cornice_pad():
-    """cornice che tiene fermo il macro pad sulla base (si incolla), con l'intaglio per il cavo"""
-    ms = Mesh('Stame cornice del macro pad')
-    pw, pd = M.PAD['w'] + 0.8, M.PAD['d'] + 0.8
-    s, h = 6.0, 8.0
-    ox, oy = M.PAD_X0 - 0.4, M.PAD_Y0 - 0.4
-    fr = sposta(ox, oy, M.BASE_T)
-    ms.box(-s, -s, 0, 0, pd + s, h, frame=fr)
-    ms.box(pw, -s, 0, pw + s, pd + s, h, frame=fr)
-    ms.box(0, pd, 0, pw, pd + s, h, frame=fr)
-    ux = M.PAD_USB_X
-    ms.box(0, -s, 0, ux - 10, 0, h, frame=fr)
-    ms.box(ux + 10, -s, 0, pw, 0, h, frame=fr)
+def culla_pad():
+    """Culla del macro pad (Luigi, 18/10/2026: «per il pad vorrei una culla simile a quella che hai
+    fatto per il flip»). Sta in piedi sulla base e riempie la parte destra davanti, fra costola,
+    fianco e parete davanti. Il pad poggia su sei costole con la piastra 2 mm sopra il piano, come
+    la Flip sul fondo della sua culla, e il bordo sale 5 mm oltre la piastra, come i bordi della
+    culla della Flip. Davanti la tacca per la manopola grande, che sporge; dietro un dente regge il
+    bordo del piano della Flip e una finestra fa passare la spina del pad (a 90°, verso il basso)
+    sotto il piano, verso l'hub. Si stampa in piedi, senza supporti."""
+    x0, x1 = M.DESTRA_X0 + 0.3, M.DESTRA_X1 - 0.3
+    y0, y1 = M.CULLA_PAD_Y0, M.CULLA_PAD_Y1
+    s = M.CULLA_PAD_PARETE
+    z0, zr = M.BASE_T, M.PAD_Z1 + M.CULLA_BORDO
+    ms = Mesh('Stame culla del macro pad')
+    ms.box(x0, y0, z0, x0 + s, y1, zr)                                           # fianchi
+    ms.box(x1 - s, y0, z0, x1, y1, zr)
+    # davanti: la manopola M sporge dal pad di quasi 3 mm, sopra la piastra
+    mx = M.PAD_X0 + M.PAD_KNOB['M'][0]
+    ma, mb = mx - M.PAD_KNOB['M'][2] - 2.0, mx + M.PAD_KNOB['M'][2] + 2.0
+    ms.box(x0 + s, y1 - s, z0, x1 - s, y1, M.PAD_Z1)
+    ms.box(x0 + s, y1 - s, M.PAD_Z1, ma, y1, zr)
+    ms.box(mb, y1 - s, M.PAD_Z1, x1 - s, y1, zr)
+    # dietro: finestra per la spina, sotto il piano; sopra il bordo continua
+    fa, fb = SPINA_PAD_X - 11.0, SPINA_PAD_X + 11.0
+    zf = M.Z_PIANO0 + 0.5
+    ms.box(x0 + s, y0, z0, fa, y0 + s, zr)
+    ms.box(fb, y0, z0, x1 - s, y0 + s, zr)
+    ms.box(fa, y0, zf, fb, y0 + s, zr)
+    # dente per il bordo del piano della Flip, con lo smusso a 45° sotto (si stampa senza supporti)
+    d = M.CULLA_DENTE
+    za = M.Z_APPOGGIO
+    dente = [(y0 - d, za), (y0 - d, za - 2.0), (y0, za - 2.0 - d), (y0, za)]
+    for a, b in ((x0, fa), (fb, x1)):
+        ms.prisma_x(dente, a, b)
+    # sei costole sotto il pad
+    for k in range(1, 7):
+        cx = M.PAD_X0 + M.PAD['w'] * k / 7
+        ms.box(cx - 1.2, y0 + s, z0, cx + 1.2, y1 - s, M.PAD_Z0)
     return ms
 
 
@@ -915,16 +942,10 @@ def visiera():
     tetto = [a, b, (b[0] + n[0], b[1] + n[1]), (a[0] + n[0], a[1] + n[1])]
     ms.prisma_x(tetto, xa, xb + sp)
     for (x, y) in visiera_viti():
-        ms.prisma(rett(x - 7, y - 7, x + 7, y + 7, 2), M.MENSOLA_Z, M.MENSOLA_Z + 4.0, holes=[cerchio(x, y, 1.7, 16)])
+        ms.prisma(rett(x - 7, y - 7, x + 7, y + 7, 2), M.Z_PIANO, M.Z_PIANO + 4.0, holes=[cerchio(x, y, 1.7, 16)])
         # piede collegato al fianco
         xf = xa if x < M.FLIP_X else xb
-        ms.box(min(x, xf), y - 3, M.MENSOLA_Z, max(x, xf + sp), y + 3, M.MENSOLA_Z + 4.0)
-    return ms
-
-
-def piedino():
-    ms = Mesh('Stame piedino della mascherina')
-    ms.cilindro(0, 0, 0, M.MASCHERINA['piede_h'], M.MASCHERINA['piede_d'] / 2, 32)
+        ms.box(min(x, xf), y - 3, M.Z_PIANO, max(x, xf + sp), y + 3, M.Z_PIANO + 4.0)
     return ms
 
 
@@ -959,11 +980,11 @@ def fermo_hub():
     return ms
 
 
-# scritte dei tasti del macro pad (CASE-043): il nome nella mappa con la tastiera e la nota del
-# pad strumento. Dal 17/10/2026 vanno sulle etichette di carta dei tasti trasparenti (etichette.py)
-COPRITASTI = [(['HOLD'], 'C'), (['TAP'], 'C♯'), (['METRO'], 'D'), (['FILL'], 'D♯'), (['LOCK'], ''),
-              (['SCENE', '1'], 'E'), (['SCENE', '2'], 'F'), (['SCENE', '3'], 'F♯'), (['SCENE', '4'], 'G'), (['VIEW'], ''),
-              (['OPT'], 'G♯'), (['SAVE', 'LOOP'], 'A'), (['DRUMS'], 'A♯'), (['PANIC'], 'B'), (['PAGE'], '')]
+# scritte dei tasti del macro pad (CASE-043, 40 MIDI-120, MIDI-133): il nome nella mappa del pad.
+# Vanno sulle etichette di carta dei tasti trasparenti (etichette.py)
+COPRITASTI = [['HOLD'], ['TAP'], ['METRO'], ['FILL'], ['LOCK'],
+              ['SCENE', '1'], ['SCENE', '2'], ['SCENE', '3'], ['SCENE', '4'], ['VIEW'],
+              ['OPT'], ['SAVE', 'LOOP'], ['DRUMS'], ['PANIC'], ['PAGE']]
 
 
 # ---------------------------------------------------------------------------------------------
@@ -975,8 +996,26 @@ FOGLIO = M.LASER_BED
 STACCO = 4.0
 
 
+def _in_colonna(f, q):
+    """il pezzo, girato in piedi, nella colonna libera a destra degli scaffali del foglio"""
+    p, k, ruota, (w, h) = q
+    if 'col' not in f:
+        x0 = max(sc['x'] for sc in f['scaffali'])
+        if x0 + h > FOGLIO[0] - STACCO or STACCO + w > FOGLIO[1] - STACCO:
+            return False
+        f['col'] = dict(x=x0, y=STACCO, w=FOGLIO[0] - STACCO - x0)
+        f['xmax'] = x0 - STACCO
+    c = f['col']
+    if h > c['w'] or c['y'] + w > FOGLIO[1] - STACCO:
+        return False
+    f['pezzi'].append(((p, k, not ruota, (h, w)), c['x'], c['y']))
+    c['y'] += w + STACCO
+    return True
+
+
 def impagina():
-    """scaffali: pezzi per altezza decrescente, ruotati di 90° se così stanno meglio"""
+    """scaffali: pezzi per altezza decrescente, ruotati di 90° se così stanno meglio; quello che non
+    entra più negli scaffali va in piedi nella colonna libera a destra, prima di aprire un altro foglio"""
     fogli = []
     for mat in MATERIALI:
         pezzi = []
@@ -994,7 +1033,7 @@ def impagina():
             messo = False
             for f in aperti:
                 for sc in f['scaffali']:
-                    if h <= sc['h'] and sc['x'] + w <= FOGLIO[0] - STACCO:
+                    if h <= sc['h'] and sc['x'] + w <= f.get('xmax', FOGLIO[0] - STACCO):
                         f['pezzi'].append((q, sc['x'], sc['y']))
                         sc['x'] += w + STACCO
                         messo = True
@@ -1002,10 +1041,14 @@ def impagina():
                 if messo:
                     break
                 y = f['y']
-                if y + h <= FOGLIO[1] - STACCO:
+                if y + h <= FOGLIO[1] - STACCO and STACCO + w <= f.get('xmax', FOGLIO[0] - STACCO):
                     f['scaffali'].append(dict(y=y, h=h, x=STACCO + w + STACCO))
                     f['pezzi'].append((q, STACCO, y))
                     f['y'] = y + h + STACCO
+                    messo = True
+                    break
+            for f in ([] if messo else aperti):
+                if _in_colonna(f, q):
                     messo = True
                     break
             if not messo:
@@ -1098,10 +1141,12 @@ def _parse_svg_el(el):
 
 # ---------------------------------------------------------------------------------------------
 
-# pezzi della bozza 2 e 3 che non esistono più: si tolgono da out/
+# pezzi delle bozze 2-4 che non esistono più: si tolgono da out/
 OBSOLETI = ['mascherina_sx.svg', 'mascherina_dx.svg', 'ponte_sopra_sx.svg', 'ponte_sopra_dx.svg',
             'ponte_fronte_sx.svg', 'ponte_fronte_dx.svg', 'ponte_retro_sx.svg', 'ponte_retro_dx.svg',
-            'centine.svg', 'vassoio_pad.stl', 'colonnina.stl']
+            'centine.svg', 'vassoio_pad.stl', 'colonnina.stl', 'divisorio.svg', 'torre_piano.svg',
+            'torre_fronte.svg', 'torre_retro.svg', 'cartellino_pad.svg', 'cornice_pad.stl',
+            'piedino_mascherina.stl']
 
 
 def genera():
@@ -1113,19 +1158,18 @@ def genera():
             os.remove(p)
     LASER.clear()
     STAMPATI.clear()
-    laser = [mascherina(), dima(), retro('sx'), retro('dx'),
-             fianco('sx', 'esterno'), fianco('dx', 'esterno'), fianco('sx', 'interno'),
-             base('sx'), base('dx'), divisorio(), torre_piano(), torre_parete('fronte'), torre_parete('retro'),
-             cartellino_pad(), tavola()]
-    stampato('culla_flip', culla_flip(), IDENTITA, 5, 'vassoio sul piano della mensola, 4 viti M3 svasate')
-    stampato('visiera', visiera(), IDENTITA, 5, 'si avvita al piano dietro la culla; stampare sul tettuccio, con supporti')
-    stampato('cornice_pad', cornice_pad(), IDENTITA, 6, 'si incolla sulla base attorno al pad')
-    stampato('fermo_hub', fermo_hub(), IDENTITA, 4, 'tiene l\'hub nel vano, 2 viti nella base')
+    laser = [mascherina(), dima(), retro('sx'), retro('dx'), appoggio_retro('sx'), appoggio_retro('dx'),
+             fianco('fianco_sx_esterno', [('sx', 0)], incisa=True),
+             fianco('fianco_dx_esterno', [('dx', 0)], incisa=True),
+             fianco('fianco_interno', [('sx', 1), ('sx', 2), ('dx', 1), ('dx', 2)]),
+             fianco('fianco_sx_appoggio', [('sx', 3)], basso=(M.RETRO_Y, M.MASCHERINA_Y1), viti=True),
+             fianco('fianco_dx_appoggio', [('dx', 3)], basso=(M.RETRO_Y, M.CULLA_PAD_Y0), viti=True),
+             base('sx'), base('dx'), costola('sx'), costola('dx'), fronte(), piano_flip(), tavola()]
+    stampato('culla_flip', culla_flip(), IDENTITA, 6, 'vassoio sul piano della Flip, 4 viti M3 svasate')
+    stampato('visiera', visiera(), IDENTITA, 6, 'si avvita al piano dietro la culla; stampare sul tettuccio, con supporti')
+    stampato('culla_pad', culla_pad(), IDENTITA, 5, 'sta sulla base fra costola, fianco e parete davanti; si stampa in piedi')
+    stampato('fermo_hub', fermo_hub(), IDENTITA, 4, 'tiene l\'hub sotto il piano, 2 viti nella base')
     stampato('squadretta_m3', squadretta(), squadrette_frames(), 3, 'base e fianchi, viti M3')
-    m = M.MASCHERINA
-    zp = M.BASE_T + M.MK4['h']
-    stampato('piedino_mascherina', piedino(), [sposta(M.MK4_X0 + x, M.MK4_Y0 + y, zp) for x, y in M.PIEDINI], 7,
-             'meglio TPU; si incollano sotto la mascherina dove indica la dima', 'tpu')
     return laser
 
 
@@ -1152,7 +1196,7 @@ def main():
     print('FOGLI DI TAGLIO')
     for nome, mat, n, pezzi, (uw, uh) in scrivi_fogli(impagina()):
         print(f'  {nome:24s} {mat:28s} lastra da almeno {uw:3.0f} x {uh:3.0f}  {n:2d} pezzi: {pezzi}')
-    print(f'INGOMBRO {M.LARGHEZZA:.1f} x {M.BASE_Y1:.1f} mm, torre alta {M.MENSOLA_Z:.0f} alla mensola')
+    print(f'INGOMBRO {M.LARGHEZZA:.1f} x {M.BASE_Y1:.1f} mm, cima a {M.Z_PIANO:.0f} mm')
 
 
 if __name__ == '__main__':
