@@ -32,7 +32,7 @@ RADICE = os.path.normpath(os.path.join(QUI, '..', '..'))
 sys.path.insert(0, QUI)
 sys.path.insert(0, os.path.join(RADICE, 'tools'))
 import misure as M                  # noqa: E402
-from mesh import Mesh, rett, cerchio, triangola, sposta, taglia, area, IDENTITA  # noqa: E402
+from mesh import Mesh, rett, cerchio, triangola, sposta, taglia, area, ccw, IDENTITA  # noqa: E402
 from matrice import GLIFI           # noqa: E402
 
 OUT = os.path.join(QUI, 'out')
@@ -716,15 +716,11 @@ def contorno_pad(o=0.0):
 
 
 # ---------------------------------------------------------------------------------------------
-# piano della Flip: acrilico nero come la mascherina, con la culla e la visiera avvitate sopra
+# piano della Flip: acrilico nero come la mascherina, con la culla avvitata sopra
 
 def culla_viti():
     """viti M3 che fissano la culla al piano (sotto la Flip: teste svasate)"""
     return [(M.FLIP_X + sx * 30.0, M.FLIP_Y0 + dy) for sx in (-1, 1) for dy in (15.0, 65.0)]
-
-
-def visiera_viti():
-    return [(M.FLIP_X + sx * (M.FLIP['w'] / 2 + 14.0), M.FLIP_Y0 + 12.0) for sx in (-1, 1)]
 
 
 CULLA_FLIP_Y1 = M.FLIP_Y0 - 0.6 + M.FLIP['d'] + 1.0 + M.CULLA_PARETE   # davanti della culla della Flip
@@ -759,7 +755,7 @@ def piano_flip():
         pts += [(nb, y1), (nb, ny), (na, ny), (na, y1)]
     pts.append((x0, y1))
     svg.poligono([P(x, y) for x, y in pts])
-    for x, y in culla_viti() + visiera_viti():
+    for x, y in culla_viti():
         svg.cerchio(*P(x, y), 1.7)
     for fx, fy, fw, fh in fessure:
         svg.rett(*P(fx, fy), fw, fh, 3.0)
@@ -800,21 +796,28 @@ def flip_aperta():
     return sotto, sopra, visiera_profilo()
 
 
-def visiera_profilo():
-    """fianco della visiera nel piano (y, z): dal piano dietro la cerniera, lungo lo schermo fino
-    sopra il bordo alto, e 24 mm davanti allo schermo"""
+# la cornice dello schermo (Luigi, 19/10/2026, al posto della visiera a cassone): un bordo da 2 mm che
+# abbraccia il coperchio aperto della Flip sopra e sui fianchi, sporge 13 mm davanti allo schermo e si
+# aggancia dietro il coperchio con un labbro di 3 mm. Sta sulla Flip: niente piedi, niente viti
+CORNICE = dict(gioco=0.4, parete=2.0, davanti=13.0, labbro=3.0, dietro=2.0, da=16.0)
+
+
+def coperchio_frame():
+    """riferimento del coperchio aperto: u lungo la Flip, v dalla cerniera verso l'alto dello schermo,
+    n davanti allo schermo (lo spessore del coperchio va da -half a 0)"""
     a = math.radians(M.SCHERMO_DEG)
-    d, t = M.FLIP['d'], M.FLIP['half']
-    h = (M.FLIP_Y0, M.FLIP_Z0 + t)
-    v = (-math.cos(a), math.sin(a))
-    w = (math.sin(a), math.cos(a))
-    def p(sv, sw):
-        return (h[0] + v[0] * sv + w[0] * sw, h[1] + v[1] * sv + w[1] * sw)
-    alto_dietro = p(d + 4.0, -t - 3.0)
-    alto_davanti = p(d + 4.0, 24.0)
-    basso_davanti = p(6.0, 24.0)
-    return [(M.FLIP_Y0 - 6.0, M.Z_PIANO), (M.FLIP_Y0 + 4.0, M.Z_PIANO), (basso_davanti[0], basso_davanti[1]),
-            alto_davanti, alto_dietro, (alto_dietro[0], M.Z_PIANO + 20.0)]
+    return ((M.FLIP_X - M.FLIP['w'] / 2, M.FLIP_Y0, M.FLIP_Z0 + M.FLIP['half']), (1.0, 0.0, 0.0),
+            (0.0, -math.cos(a), math.sin(a)), (0.0, math.sin(a), math.cos(a)))
+
+
+def visiera_profilo():
+    """la cornice vista di fianco, nel piano (y, z), per la tavola d'insieme"""
+    O, _, V, N = coperchio_frame()
+    c, t = CORNICE, M.FLIP['half']
+    alto = M.FLIP['d'] + c['gioco'] + c['parete']
+    def p(sv, sn):
+        return (O[1] + V[1] * sv + N[1] * sn, O[2] + V[2] * sv + N[2] * sn)
+    return [p(c['da'], -t - c['dietro']), p(alto, -t - c['dietro']), p(alto, c['davanti']), p(c['da'], c['davanti'])]
 
 
 def tavola():
@@ -903,7 +906,7 @@ def tavola():
     k = (Y + 30 - sc[0]) / (ey - sc[0])
     svg.linea([S(*sc), S(sc[0] + (ey - sc[0]) * k, sc[1] + (ez - sc[1]) * k)], 'segno')
     for txt, y, z in (('MK4 (DIETRO)', 120, 20), ('PIANO', 20, 52), ('HUB', M.HUB_Y0, zh1 + 5),
-                      (f'SCHERMO {M.SCHERMO_DEG:.0f} GRADI', -8, 150), ('VISIERA', 40, 140), ('PAD', M.PAD_Y0 + 20, 74),
+                      (f'SCHERMO {M.SCHERMO_DEG:.0f} GRADI', -8, 150), ('CORNICE', 20, 150), ('PAD', M.PAD_Y0 + 20, 74),
                       ('CULLA', M.CULLA_PAD_Y0 + 10, 14), ('SGUARDO 60 CM', 200, 120)):
         svg.pixel(*S(y, z), 0.45, txt)
     alt = max(p[1] for p in sopra)
@@ -1030,27 +1033,34 @@ def culla_pad():
 
 
 def visiera():
-    """Visiera attorno allo schermo aperto: due fianchi che seguono lo schermo a 65°, un tettuccio
-    sopra il bordo alto e due piedi avvitati al piano dietro la culla. Non tocca la Flip."""
-    ms = Mesh('Stame visiera')
-    prof = visiera_profilo()
-    w_int = M.FLIP['w'] + 10.0
-    sp = 3.0
-    xa, xb = M.FLIP_X - w_int / 2 - sp, M.FLIP_X + w_int / 2
-    for x in (xa, xb):
-        ms.prisma_x(prof, x, x + sp)
-    # tettuccio: il lato alto del profilo (fra alto_davanti e alto_dietro), spesso 3 mm, da fianco a fianco
-    a, b = prof[3], prof[4]
-    L = math.hypot(b[0] - a[0], b[1] - a[1])
-    n = ((b[1] - a[1]) / L * sp, -(b[0] - a[0]) / L * sp)
-    tetto = [a, b, (b[0] + n[0], b[1] + n[1]), (a[0] + n[0], a[1] + n[1])]
-    ms.prisma_x(tetto, xa, xb + sp)
-    for (x, y) in visiera_viti():
-        ms.prisma(rett(x - 7, y - 7, x + 7, y + 7, 2), M.Z_PIANO, M.Z_PIANO + 4.0, holes=[cerchio(x, y, 1.7, 16)])
-        # piede collegato al fianco
-        xf = xa if x < M.FLIP_X else xb
-        ms.box(min(x, xf), y - 3, M.Z_PIANO, max(x, xf + sp), y + 3, M.Z_PIANO + 4.0)
+    """la cornice dello schermo (CORNICE): la U attorno al coperchio, aperta sotto verso la cerniera, dal
+    dorso del coperchio fino a 13 mm davanti allo schermo, e dietro il labbro che la tiene"""
+    ms = Mesh('Stame cornice dello schermo')
+    c = CORNICE
+    fw, fd, t, r = M.FLIP['w'], M.FLIP['d'], M.FLIP['half'], 4.0
+
+    def u(dentro):
+        """la U fra il contorno fuori (a gioco + parete dal coperchio) e quello dentro (a dentro)"""
+        fuori = c['gioco'] + c['parete']
+        pts = [(-fuori, c['da'])]
+        pts += _arco((r, fd - r), r + fuori, 180, 90, 10)
+        pts += _arco((fw - r, fd - r), r + fuori, 90, 0, 10)
+        pts += [(fw + fuori, c['da']), (fw + dentro, c['da'])]
+        pts += _arco((fw - r, fd - r), max(r + dentro, 0.5), 0, 90, 10)
+        pts += _arco((r, fd - r), max(r + dentro, 0.5), 90, 180, 10)
+        pts += [(-dentro, c['da'])]
+        return ccw([p for k, p in enumerate(pts) if k == 0 or p != pts[k - 1]])
+
+    fr = coperchio_frame()
+    ms.prisma(u(c['gioco']), -t, c['davanti'], frame=fr)
+    ms.prisma(u(-c['labbro']), -t - c['dietro'], -t, frame=fr)
     return ms
+
+
+def posa_cornice():
+    """sul piatto con il bordo davanti in basso: dopo lo specchio, n va verso il basso"""
+    th = math.radians(180.0 - M.SCHERMO_DEG)
+    return ((0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, math.cos(th), math.sin(th)), (0.0, -math.sin(th), math.cos(th)))
 
 
 def squadretta():
@@ -1288,7 +1298,8 @@ def genera():
              fianco('fianco_dx_appoggio', [('dx', 3)], basso=(M.RETRO_Y, M.CULLA_PAD_Y0), viti=True),
              base('sx'), base('dx'), costola('sx'), costola('dx'), fronte(), piano_flip(), tavola()]
     stampato('culla_flip', culla_flip(), IDENTITA, 6, 'vassoio sul piano della Flip, 4 viti M3 svasate')
-    stampato('visiera', visiera(), IDENTITA, 6, 'si avvita al piano dietro la culla; stampare sul tettuccio, con supporti')
+    stampato('visiera', visiera(), IDENTITA, 8, 'la cornice dello schermo: si aggancia al coperchio della Flip; '
+             'si stampa sul bordo davanti, senza supporti', posa=posa_cornice())
     stampato('culla_pad', culla_pad(), IDENTITA, 5, 'sta sulla base fra costola, fianco e parete davanti; si stampa in piedi')
     stampato('fermo_hub', fermo_hub(), IDENTITA, 4, 'tiene l\'hub sotto il piano, 2 viti nella base')
     stampato('colonnina', colonnina(), IDENTITA, 4, 'regge il piano della Flip sotto la culla; una vite 3 × 12 da sotto la base')

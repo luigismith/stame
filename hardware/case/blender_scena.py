@@ -582,8 +582,8 @@ SCOPPIO = [(('base_',), 0, 0), (('retro', 'appoggio_retro', 'costola', 'fronte')
            (('fermo_hub', 'Hub'), 0, 18), (('culla_pad',), 0, 70),
            (('Macro_pad', 'Manopole_del_pad', 'Interruttori_del_pad'), 0, 105),
            (('Tasti_trasparenti', 'etichetta'), 0, 140), (('MPK',), 0, 70),
-           (('mascherina', 'piano_flip'), 0, 180), (('culla_flip', 'visiera'), 0, 205),
-           (('Miyoo_Flip', 'Schermo'), 0, 245), (('fianco', 'squadretta'), 85, 30)]
+           (('mascherina', 'piano_flip'), 0, 180), (('culla_flip',), 0, 205),
+           (('Miyoo_Flip', 'Schermo'), 0, 245), (('visiera',), 0, 290), (('fianco', 'squadretta'), 85, 30)]
 
 
 def esplodi(verso):

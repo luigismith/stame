@@ -22,7 +22,7 @@ Generato da `hardware/case/stampa3d.py` (piatto 210 × 210 mm). Ogni pezzo sta s
 | `mascherina_2.stl` | 1 | 166 × 126 × 2,0 | piani: nero | lastra da 3 mm; le scritte su carta adesiva, nelle tasche |
 | `piano_flip.stl` | 1 | 200 × 140 × 2,0 | piani: nero | lastra da 3 mm; le scritte su carta adesiva, nelle tasche |
 | `culla_flip.stl` | 1 | 89 × 83 × 7,0 | nero | vassoio sul piano della Flip, 4 viti M3 svasate |
-| `visiera.stl` | 1 | 126 × 70 × 103,6 | nero | si avvita al piano dietro la culla; stampare sul tettuccio, con supporti |
+| `visiera.stl` | 1 | 89 × 67 × 27,3 | nero | la cornice dello schermo: si aggancia al coperchio della Flip; si stampa sul bordo davanti, senza supporti |
 | `culla_pad.stl` | 1 | 191 × 92 × 39,0 | nero | sta sulla base fra costola, fianco e parete davanti; si stampa in piedi |
 | `fermo_hub.stl` | 1 | 175 × 65 × 10,5 | nero | tiene l'hub sotto il piano, 2 viti nella base |
 | `colonnina.stl` | 1 | 20 × 20 × 36,0 | nero | regge il piano della Flip sotto la culla; una vite 3 × 12 da sotto la base |

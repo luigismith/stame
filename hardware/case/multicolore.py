@@ -346,13 +346,13 @@ def _pad_in_colonna(etichette):
 
 
 def _appoggiati(nome_laser, F, fr):
-    """i pezzi stampati che appoggiano sul piano della Flip (culla, piedi della visiera), nel disegno"""
+    """i pezzi stampati che appoggiano sul piano della Flip (la culla), nel disegno"""
     if nome_laser != 'piano_flip':
         return []
     out = []
     inv = _inversa(fr)
     for s in G.STAMPATI:
-        if s['nome'] not in ('culla_flip', 'visiera'):
+        if s['nome'] != 'culla_flip':
             continue
         for f in s['frames'] or [None]:
             ms = s['mesh'].portato(f) if f else s['mesh']

@@ -20,13 +20,13 @@ Generato da `hardware/case/multicolore.py` per un piatto di 240 × 240 mm (Anycu
 | `costola.stl` | 224 × 45 × 8,0 | telaio: PLA o PETG color legno o sabbia | i due strati della costola in un pezzo |
 | `fronte.stl` | 192 × 37 × 4,0 | telaio: PLA o PETG color legno o sabbia | parete davanti, la faccia esterna in alto |
 | `culla_flip.stl` × 1 | 89 × 83 × 7,0 | nero | vassoio sul piano della Flip, 4 viti M3 svasate |
-| `visiera.stl` × 1 | 126 × 70 × 103,6 | nero | si avvita al piano dietro la culla; stampare sul tettuccio, con supporti |
+| `visiera.stl` × 1 | 89 × 67 × 27,3 | nero | la cornice dello schermo: si aggancia al coperchio della Flip; si stampa sul bordo davanti, senza supporti |
 | `culla_pad.stl` × 1 | 191 × 92 × 39,0 | nero | sta sulla base fra costola, fianco e parete davanti; si stampa in piedi |
 | `fermo_hub.stl` × 1 | 175 × 65 × 10,5 | nero | tiene l'hub sotto il piano, 2 viti nella base |
 | `colonnina.stl` × 1 | 20 × 20 × 36,0 | nero | regge il piano della Flip sotto la culla; una vite 3 × 12 da sotto la base |
 | `squadretta_m3.stl` × 6 | 20 × 12 × 12,0 | nero | base e fianchi, viti M3 |
 
-Filamento: circa 1,3 kg in tutto, quasi tutto del colore del corpo.
+Filamento: circa 1,2 kg in tutto, quasi tutto del colore del corpo.
 
 ## In Anycubic Slicer Next
 
