@@ -93,6 +93,9 @@ class Svg:
         self.nome, self.w, self.h, self.nota = nome, w, h, nota
         self.taglio, self.incisione, self.segno = [], [], []
         self._loops = []                                    # contorni di taglio come poligoni
+        # le scritte incise: testo, tipo (pixel o punti), passo e gli elementi di self.incisione che le
+        # disegnano (i0…i1), così la versione stampata a più colori le può ridisegnare (stampa3d.py)
+        self.scritte = []
 
     def _lista(self, livello):
         return {'taglio': self.taglio, 'incisione': self.incisione, 'segno': self.segno}[livello]
@@ -134,8 +137,12 @@ class Svg:
             x -= w / 2
         elif allinea == 'destra':
             x -= w
+        i0 = len(self.incisione)
         for px, py in matrice_punti(testo, passo):
             self.cerchio(x + px, base + py, passo * diametro / 2, livello)
+        if livello == 'incisione':
+            self.scritte.append(dict(tipo='punti', testo=testo, passo=passo, tratto=passo * diametro, allinea=allinea,
+                                     i0=i0, i1=len(self.incisione)))
         return w
 
     def pixel(self, x, top, px, testo, allinea='sinistra', livello='incisione'):
@@ -146,6 +153,7 @@ class Svg:
             x -= w / 2
         elif allinea == 'destra':
             x -= w
+        i0 = len(self.incisione)
         for k, c in enumerate(testo):
             g = glifi.get(ord(c), glifi.get(ord('?')))
             for r in range(ch):
@@ -157,6 +165,9 @@ class Svg:
                     elif not on and c0 is not None:
                         self.rett(x + (k * cw + c0) * px, top + r * px, (col - c0) * px, px, livello=livello)
                         c0 = None
+        if livello == 'incisione':
+            self.scritte.append(dict(tipo='pixel', testo=testo, passo=px, tratto=px, allinea=allinea,
+                                     i0=i0, i1=len(self.incisione)))
         return w
 
     def contorni(self):

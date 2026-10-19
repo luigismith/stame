@@ -107,6 +107,7 @@ class Pezzo:
         self.strati = []        # (contorno, fori, w0, w1)
         self.rilievi = []       # (contorno, w0, w1)
         self.tasche = []        # dict(rett=(u0, v0, u1, v1), n, elementi)
+        self.regioni = []       # scritte stampate a più colori (multicolore.py): dict(rett, testo, fondo)
         self.faccia = None      # quota w della faccia in vista, dove stanno le tasche
 
 
@@ -302,6 +303,7 @@ def _ostacoli(pz):
         obs += [_bbox(h) for h in holes]
     obs += [t['rett'] for t in pz.tasche]
     obs += [_bbox(r[0]) for r in pz.rilievi]
+    obs += [r['rett'] for r in pz.regioni]
     return obs
 
 
@@ -432,7 +434,7 @@ def dividi(pz, piatto):
         pts = [(-u, v) for u, v in pts]
     ang = _angolo_che_entra(pts, piatto)
     if ang is not None:
-        return [dict(strati=pz.strati, rilievi=pz.rilievi, tasche=pz.tasche, angolo=ang, cella=None, giunte=[])]
+        return [dict(strati=pz.strati, rilievi=pz.rilievi, tasche=pz.tasche, regioni=pz.regioni, angolo=ang, cella=None, giunte=[])]
     u0, v0, u1, v1 = _ingombro(pz)
     lim = piatto - M.CODA['prof'] - M.GIOCO_STAMPA - 2.0
     obs = _ostacoli(pz)
@@ -491,7 +493,8 @@ def dividi(pz, piatto):
             giunte = [len(code.get((0, i, j), [])) if i > 0 else None, len(code.get((0, i + 1, j), [])) if i < len(us) - 2 else None,
                       len(code.get((1, j, i), [])) if j > 0 else None, len(code.get((1, j + 1, i), [])) if j < len(vs) - 2 else None]
             out.append(dict(strati=strati, rilievi=[r for r in pz.rilievi if dentro(_bbox(r[0]))],
-                            tasche=[t for t in pz.tasche if dentro(t['rett'])], angolo=0, cella=cella, giunte=giunte))
+                            tasche=[t for t in pz.tasche if dentro(t['rett'])],
+                            regioni=[r for r in pz.regioni if dentro(r['rett'])], angolo=0, cella=cella, giunte=giunte))
     return out
 
 
