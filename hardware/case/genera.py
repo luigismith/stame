@@ -6,7 +6,7 @@ Laser (SVG in millimetri, 1:1, per LightBurn): rosso = taglio, nero pieno = inci
 blu = segno leggero. Le scritte usano gli stessi caratteri della plancia: Matrice a punti per le
 funzioni principali, Spleen a pixel per le legende piccole. Così il case e lo schermo parlano la
 stessa lingua (docs/identita/README.md).
-Stampa (STL, PETG): culla della Flip, culla del macro pad, visiera, squadrette, fermo dell'hub. I
+Stampa (STL, PETG): culla della Flip, culla del macro pad, visiera, squadrette, fermo dell'hub, colonnina. I
 tasti del pad sono trasparenti, con le etichette di carta di etichette.py.
 Fogli di taglio: i pezzi del laser impaginati per materiale, in SVG (LightBurn) e DXF.
 Dima (SVG da stampare su carta al 100%): la mascherina sopra il contorno della MK4.
@@ -17,7 +17,8 @@ x verso destra, y dal retro verso il musicista, z in su: è sinistrorso, quindi 
 3D lo specchia su y (SPECCHIO) per avere i pezzi nel verso fisico giusto.
 
 Bozza 5 (Luigi, 18/10/2026: «deve essere tutto coperto e omogeneo»): un telaio di betulla con la
-cima alla stessa quota (fianchi, retro, costola, parete davanti) e dentro un piano di acrilico nero
+cima alla stessa quota (fianchi, retro, costola; davanti, sopra la parete, il bordo della culla del
+pad) e dentro un piano di acrilico nero
 in due pezzi: la mascherina, che appoggia sulla MK4 con un foro per ogni controllo e copre la zona
 dei cavi, e il piano della Flip. Il pad sta nella sua culla, come la Flip nella sua; hub e cavi
 sotto il piano. Gli strati d'appoggio (fianchi, retro, costola) reggono il piano con il feltro.
@@ -1122,6 +1123,13 @@ def visiera():
     return ms
 
 
+def posa_visiera():
+    """sul piatto con il tettuccio in basso: dopo lo specchio il verso su per lo schermo va verso il basso,
+    fianchi e dorso salgono dritti e solo i piedi, in cima, vogliono i supporti"""
+    th = math.radians(270.0 - M.SCHERMO_DEG)
+    return ((0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, math.cos(th), math.sin(th)), (0.0, -math.sin(th), math.cos(th)))
+
+
 def squadretta():
     """squadretta M3: ala orizzontale (sulla base) e ala verticale (sul fianco) lungo x, rinforzo"""
     ms = Mesh('Stame squadretta M3')
@@ -1335,7 +1343,7 @@ def _parse_svg_el(el):
 # pezzi delle bozze 2-4 che non esistono più: si tolgono da out/
 OBSOLETI = ['mascherina_sx.svg', 'mascherina_dx.svg', 'ponte_sopra_sx.svg', 'ponte_sopra_dx.svg',
             'ponte_fronte_sx.svg', 'ponte_fronte_dx.svg', 'ponte_retro_sx.svg', 'ponte_retro_dx.svg',
-            'centine.svg', 'vassoio_pad.stl', 'colonnina.stl', 'divisorio.svg', 'torre_piano.svg',
+            'centine.svg', 'vassoio_pad.stl', 'divisorio.svg', 'torre_piano.svg',
             'torre_fronte.svg', 'torre_retro.svg', 'cartellino_pad.svg', 'cornice_pad.stl',
             'piedino_mascherina.stl']
 
@@ -1357,7 +1365,8 @@ def genera():
              fianco('fianco_dx_appoggio', [('dx', 3)], basso=(M.RETRO_Y, M.CULLA_PAD_Y0), viti=True),
              base('sx'), base('dx'), costola('sx'), costola('dx'), fronte(), piano_flip(), tavola()]
     stampato('culla_flip', culla_flip(), IDENTITA, 6, 'vassoio sul piano della Flip, 4 viti M3 svasate')
-    stampato('visiera', visiera(), IDENTITA, 6, 'si avvita al piano dietro la culla; stampare sul tettuccio, con supporti')
+    stampato('visiera', visiera(), IDENTITA, 6, 'si avvita al piano dietro la culla; si stampa sul tettuccio, '
+             'con i supporti solo sotto i piedi', posa=posa_visiera())
     stampato('culla_pad', culla_pad(), IDENTITA, 5, 'sta sulla base fra costola, fianco e parete davanti; si stampa in piedi')
     stampato('fermo_hub', fermo_hub(), IDENTITA, 4, 'tiene l\'hub sotto il piano, 2 viti nella base')
     stampato('colonnina', colonnina(), IDENTITA, 4, 'regge il piano della Flip sotto la culla; una vite 3 × 12 da sotto la base')

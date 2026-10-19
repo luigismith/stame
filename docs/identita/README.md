@@ -128,7 +128,7 @@ Il case parla la stessa lingua dello schermo. Le legende incise usano Matrice (f
 | Materiale | Dove | Richiama |
 |---|---|---|
 | betulla, compensato 4–6 mm | fianchi, retro, costola, parete davanti, base | il legno degli strumenti anni Settanta |
-| acrilico nero 3 mm, inciso | il piano: mascherina della MK4 e piano della Flip | il vetro del display; l'incisione chiara è la serigrafia sabbia |
+| acrilico nero 2 mm, inciso | il piano: mascherina della MK4 e piano della Flip | il vetro del display; l'incisione chiara è la serigrafia sabbia |
 | PETG nero | culle della Flip e del pad, visiera, squadrette | la cornice del vetrino |
 | tasti trasparenti con etichette di carta | tasti del macro pad | le scritte della plancia, a punti Matrice |
 

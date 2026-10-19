@@ -176,9 +176,9 @@ GIUNTA_PIANO = COSTOLA_X0 + PLY        # 371,5: mascherina e piano della Flip si
 CULLA_PAD_PARETE = 2.7
 CULLA_PAD_GIOCO = 0.5
 DESTRA_X0 = COSTOLA_X1
-DESTRA_X1 = DESTRA_X0 + PAD['w'] + 2 * (CULLA_PAD_PARETE + CULLA_PAD_GIOCO) + 0.6   # 561,5
-LARGHEZZA = DESTRA_X1 + FIANCO    # 577,5
-FRONTE_Y = BASE_Y1 - PLY          # 240: parete davanti della parte destra
+DESTRA_X1 = DESTRA_X0 + PAD['w'] + 2 * (CULLA_PAD_PARETE + CULLA_PAD_GIOCO) + 0.6   # 567,5
+LARGHEZZA = DESTRA_X1 + FIANCO    # 583,5
+FRONTE_Y = BASE_Y1 - PLY          # 236: parete davanti della parte destra
 # culla del pad: tutta la larghezza fra costola e fianco, fino alla parete davanti; dietro porta il
 # bordo davanti del piano della Flip su un dente (CULLA_DENTE) e lascia passare la spina del pad
 CULLA_PAD_Y1 = FRONTE_Y - 0.3
@@ -192,28 +192,28 @@ PAD_Y0 = PAD_Y1 - PAD_D_TOT                                   # il retro, con la
 # 19/10/2026 la piastra è a filo del piano e la culla finisce lì, senza bordo (Luigi: «non sarebbe
 # meglio se fosse tutto a pari? serve quel bordo?»): le pareti tengono il corpo del pad, sotto
 PAD_CORPO = sum(h for _, h in PAD_STRATI)     # 16,2 [O, metro del 19/10]
-PAD_Z1 = Z_PIANO                  # 46: la faccia della piastra del pad, a filo del piano
-PAD_Z0 = PAD_Z1 - PAD_CORPO       # 29,8: il pad poggia sulle costole della culla
+PAD_Z1 = Z_PIANO                  # 45: la faccia della piastra del pad, a filo del piano
+PAD_Z0 = PAD_Z1 - PAD_CORPO       # 28,8: il pad poggia sulle costole della culla
 PAD_USB_Z = 8.3                   # [O, ±0,7]: centro della presa USB-C sopra il fondo del pad; la spina a
                                   # 90° verso il basso resta sotto il piano
 CULLA_BORDO = 5.0                 # bordo della culla della Flip sopra il suo fondo
 CULLA_PAD_BORDO = 0.0             # la culla del pad finisce a filo della piastra
 CULLA_FONDO = 2.0
 CULLA_PARETE = 2.0
-FLIP_X = (DESTRA_X0 + DESTRA_X1) / 2   # 468: centro della Flip e del pad
+FLIP_X = (DESTRA_X0 + DESTRA_X1) / 2   # 471,5: centro della Flip e del pad
 FLIP_Y0 = MK4_Y0 + 6.6            # 50,6: bordo posteriore della metà con i tasti (cerniera); 4 mm più
                                   # indietro dal 19/10/2026, con la console da 240: davanti alla culla resta il posto della
                                   # legenda delle manopole del pad
-FLIP_Z0 = Z_PIANO + CULLA_FONDO   # 48: la metà con i tasti appoggia sul fondo della culla
+FLIP_Z0 = Z_PIANO + CULLA_FONDO   # 47: la metà con i tasti appoggia sul fondo della culla
 SCHERMO_DEG = 65.0                # schermo a 65° dall'orizzontale: apertura della cerniera 115° [V]
 GIUNTA = 310.0                    # giunta delle due metà di base e retro
 LINGUETTA = 14.0                  # larghezza delle linguette; le asole hanno GIOCO in più per lato
 # la parete davanti della parte destra si ferma dove comincia la curva dei fianchi; sopra la curva la
 # continua il bordo della culla del pad, e la costola ha lo stesso arco (Luigi, 19/10/2026: «dovrebbe
 # fermarsi prima in modo tale che poi continui la curva dei lati»)
-FRONTE_Z = Z_PIANO - FIANCO_R     # 38
+FRONTE_Z = Z_PIANO - FIANCO_R     # 37
 # hub nel suo fermo, sotto il piano della Flip, contro il retro: le porte guardano il davanti, dove
-# arrivano i cavi di MK4 e pad (fino alla culla del pad restano più di 80 mm per le spine); il cavo
+# arrivano i cavi di MK4 e pad (fino alla culla del pad restano circa 70 mm per le spine); il cavo
 # fisso esce a destra, sale e torna indietro sopra l'hub fino alla fessura dell'OTG. A sinistra le
 # alette del fermo stanno fra costola e hub; a destra restano 33 mm per la curva del cavo
 HUB_X0 = DESTRA_X0 + 16.5

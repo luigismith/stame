@@ -14,7 +14,7 @@ Generato da `hardware/case/stampa3d.py` (piatto 210 × 210 mm; `--piatto 240` pe
 | `mascherina_2.stl` | 1 | 166 × 126 × 2,0 | 37 | piani: nero | lastra da 2,0 mm, la faccia in vista in alto; le scritte su carta adesiva, nelle tasche; la metà destra |
 | `piano_flip.stl` | 1 | 200 × 140 × 2,0 | 61 | piani: nero | lastra da 2,0 mm, la faccia in vista in alto; le scritte su carta adesiva, nelle tasche |
 | `culla_flip.stl` | 1 | 89 × 83 × 7,0 | 19 | nero | vassoio sul piano della Flip, 4 viti M3 svasate |
-| `visiera.stl` | 1 | 118 × 61 × 95,8 | 44 | nero | si avvita al piano dietro la culla; stampare sul tettuccio, con supporti |
+| `visiera.stl` | 1 | 118 × 42 × 95,6 | 44 | nero | si avvita al piano dietro la culla; si stampa sul tettuccio, con i supporti solo sotto i piedi |
 | `prova_giunta.stl` | 1 | 75 × 60 × 45,0 | 28 | telaio: PLA o PETG color legno o sabbia | la giunta sotto la MK4 in piccolo, le due metà insieme: da stampare prima delle vasche |
 
 Filamento: circa 1,1 kg in tutto (stima a fette, come lo slicer: 3 perimetri, 4 strati pieni sopra e sotto, riempimento al 20 %).
@@ -27,8 +27,8 @@ Viti: 6 viti M3 × 6 a testa cilindrica (brugola), 4 viti M3 × 12 a testa cilin
 
 ## Impostazioni
 
-- PETG o PLA, ugello 0,4, strati da 0,2. Le vasche in un colore legno o sabbia; mascherina, piano della Flip, culla della Flip e cornice in nero.
-- 3 perimetri, 4 strati pieni sopra e sotto, riempimento giroide al 20 %. Senza supporti: le vasche hanno solo ponti corti (il passaggio dei cavi sotto la costola, 28 mm; le finestre della culla del pad) e le sedi delle viti, orizzontali e piccole. La cornice dello schermo si stampa sul bordo davanti.
+- PETG o PLA, ugello 0,4, strati da 0,2. Le vasche in un colore legno o sabbia; mascherina, piano della Flip, culla della Flip e visiera in nero.
+- 3 perimetri, 4 strati pieni sopra e sotto, riempimento giroide al 20 %. Senza supporti: le vasche hanno solo ponti corti (il passaggio dei cavi sotto la costola, 28 mm; le finestre della culla del pad) e le sedi delle viti, orizzontali e piccole. Solo la visiera vuole i supporti, sotto i piedi: si stampa sul tettuccio, come esce.
 - Le vasche sono alte 45 mm e larghe fino al piatto: piatto pulito, tesa (brim) di 5 mm se gli angoli si alzano.
 - Fianchi: il marchio e il nome escono di 0,6 mm dalla faccia di fuori, che stampata in piedi è verticale: vengono del colore della vasca (a più colori: `../stampa3d_multicolore/`).
 - Mascherina e piano della Flip: 39 tasche profonde 0,4 mm per le etichette (`etichette_mascherina.svg`, da stampare al 100 % su carta adesiva; `etichette_mappa.svg` dice dove va ogni numero). La mascherina è in due metà accostate, senza giunta: i fori sui comandi della MK4 tengono ogni metà al suo posto.
@@ -39,6 +39,6 @@ Viti: 6 viti M3 × 6 a testa cilindrica (brugola), 4 viti M3 × 12 a testa cilin
 1. Le vasche: si calano una accanto all'altra, in qualunque ordine, sul tavolo; poi le viti delle giunte. Piedini in gomma sotto, due per colonna.
 2. L'hub nel fermo, con le porte verso il davanti; i cavi come nella console laser (passo 4 di `istruzioni_montaggio.pdf`). Feltro sugli appoggi del piano (retro, fianchi, costola, colonnina, dente della culla).
 3. Il pad nella sua culla, con il cavo a 90° nella finestra di dietro.
-4. La culla della Flip avvitata al piano (4 viti M3 svasate, dadi sotto), la cornice sullo schermo; il piano sugli appoggi.
+4. La culla della Flip e la visiera avvitate al piano (4 viti M3 svasate e 2 M3 × 10, dadi sotto); il piano sugli appoggi.
 5. La MK4 sulla pedana, le due metà della mascherina sopra, ogni controllo nel suo foro.
 6. Le etichette nelle tasche; la Flip nella culla; i tasti trasparenti del pad con le loro etichette.

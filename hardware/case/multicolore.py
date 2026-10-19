@@ -620,7 +620,7 @@ def scrivi_elenco(righe, totale, piatto, report, viti):
           '2. Due filamenti in tutto: 1 nero, 2 sabbia (o il colore scelto per il telaio). Mascherina e piano della Flip: '
           'corpo 1 e scritte 2, come l\'incisione del laser sull\'acrilico nero. Vasche: corpo 2 e scritte 1, come la '
           'bruciatura sul legno. Nel `.3mf` è già così; con gli STL si assegna a mano. La vasca di centro e la prova di '
-          'giunta col 2, la culla della Flip e la cornice col 1.',
+          'giunta col 2, la culla della Flip e la visiera col 1.',
           '3. Non girare i pezzi: le vasche stanno in piedi con il fondo sul piatto, mascherina e piano con la faccia in vista '
           'sul piatto. Il piatto liscio la fa lucida, quello testurizzato le dà la sua grana.',
           f'4. Strati da 0,2 e primo strato da 0,2: nei piani le scritte sono profonde {v(SCRITTA_H)} mm, cioè i primi tre '
@@ -629,7 +629,8 @@ def scrivi_elenco(righe, totale, piatto, report, viti):
           'Torre di spurgo sì; spurgo nel riempimento se lo slicer lo offre. Se i cambi sono troppi, le vasche di '
           '`../stampa3d/` hanno il marchio in rilievo, di un colore.',
           '5. Il resto come la console stampata a un colore: 3 perimetri, 4 strati pieni, riempimento al 20 %, senza '
-          'supporti (la cornice si stampa sul bordo davanti). Il primo strato deve essere perfetto: piatto pulito, '
+          'supporti (solo la visiera, che si stampa sul tettuccio, li vuole sotto i piedi). Il primo strato deve essere '
+          'perfetto: piatto pulito, '
           'livellamento fatto. Prima delle vasche, `prova_giunta.stl`.', '',
           '## Le scritte', '',
           'Le incisioni del laser sono troppo fini per un ugello da 0,4: qui le scritte sono ridisegnate con Matrice, il '

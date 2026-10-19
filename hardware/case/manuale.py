@@ -138,7 +138,7 @@ def elenco_pezzi():
 MINUTERIA = [
     'viti M3 × 10 svasate e dadi M3: 4 per la culla della Flip, sotto la Flip',
     'viti M3 × 10 e dadi M3: 2 per la visiera, 6 per le squadrette nella base',
-    'viti da legno 3 × 12: 6 per le squadrette nei fianchi, 2 per il fermo dell\'hub',
+    'viti da legno 3 × 12: 6 per le squadrette nei fianchi, 2 per il fermo dell\'hub, 1 per la colonnina',
     'colla vinilica (legno); feltro adesivo da 1 mm in strisce sugli appoggi del piano',
     '6 piedini in gomma da 12 mm sotto la base',
     'hub USB fino a 142 × 58 × 17,5, meglio USB 2.0 semplice senza Power Delivery; cavi USB-C a 90° per la MK4 e per il pad; cavi corti',
@@ -180,7 +180,7 @@ def istruzioni():
             y += 4.9
     corpo.append(testo(120, 160, a_capo('Prima di tagliare: la dima della mascherina su carta al 100% e le misure '
                                         'dell\'ultima pagina. Ingombro ' f'{M.LARGHEZZA:.0f} × {M.BASE_Y1:.0f} mm; '
-                                        'altezza 133 mm con lo schermo aperto, 150 con la visiera.', 80), 3.6, 400, '#444'))
+                                        'altezza 132 mm con lo schermo aperto, 141 con la visiera.', 80), 3.6, 400, '#444'))
     pagine.append(pagina('00_copertina', '\n'.join(corpo), 1, tot))
     # un passo per pagina
     for i, (k, (tit, txt)) in enumerate(passi, 2):
@@ -214,6 +214,7 @@ def minuteria_stampa(viti, etichette=True):
     """la minuteria della console stampata, con le viti delle giunte che servono per quel piatto"""
     import stampa3d as S
     out = ['viti M3 × 10 svasate e dadi M3: 4 per la culla della Flip, sotto la Flip',
+           'viti M3 × 10 e dadi M3: 2 per i piedi della visiera, i dadi sotto il piano',
            f'{S.testo_viti(viti)}: le giunte delle vasche, ognuna nella sua sede',
            'feltro adesivo da 1 mm in strisce sugli appoggi del piano; 6 piedini in gomma da 12 mm, due sotto ogni colonna di vasche',
            'niente colla: le vasche si smontano (una goccia di cianoacrilica nelle code, se si vuole la console in un pezzo)']
@@ -267,7 +268,7 @@ def _montaggio():
         'quello della MK4 dietro e sotto il ponte della costola. Feltro sugli appoggi: retro, fianchi, costola, colonnina, '
         'dente della culla del pad.',
         'Il pad nella sua culla, con il cavo a 90° nella finestra di dietro.',
-        'La culla della Flip avvitata al piano (4 viti svasate, i dadi sotto), il piano sugli appoggi; la cornice sullo schermo.',
+        'La culla della Flip e la visiera avvitate al piano (4 viti svasate e 2 viti M3, i dadi sotto), il piano sugli appoggi.',
         'La MK4 sulla pedana; le due metà della mascherina sopra, ogni controllo nel suo foro.',
         'La Flip nella culla, i cavi nelle fessure; i tasti trasparenti del pad con le etichette (etichette_pad.pdf).']
 
@@ -313,7 +314,7 @@ def istruzioni_stampa3d():
         'PETG o PLA, ugello 0,4, strati da 0,2; 3 perimetri, 4 strati pieni sopra e sotto, riempimento giroide al 20 %.',
         'Ogni file esce nel verso giusto: le vasche in piedi, mascherina e piano con la faccia in vista in alto.',
         'Senza supporti: nelle vasche ci sono solo ponti corti (il passaggio dei cavi sotto la costola, le finestre della '
-        'culla del pad). La cornice dello schermo si stampa sul bordo davanti.',
+        'culla del pad). Solo la visiera, che si stampa sul tettuccio, vuole i supporti sotto i piedi.',
         'Le vasche sono alte 45 mm e larghe quasi quanto il piatto: piatto pulito, una tesa di 5 mm se gli angoli si alzano.'],
         70, 3.3, 4.6)
     corpo += el
@@ -418,7 +419,7 @@ def istruzioni_multicolore():
         '1 nero e 2 sabbia (o il colore scelto per il telaio). Si scambiano il ruolo:',
         'mascherina e piano della Flip: corpo 1, scritte 2, come l\'incisione del laser sull\'acrilico nero;',
         'vasche: corpo 2, scritte 1 nei fianchi, come la bruciatura sul legno;',
-        'la vasca di centro e la prova di giunta col 2; la culla della Flip e la cornice col 1.'], 66, 3.3, 4.6)
+        'la vasca di centro e la prova di giunta col 2; la culla della Flip e la visiera col 1.'], 66, 3.3, 4.6)
     corpo += el
     pagine.append(_pagina_in(pag, '01_pezzi', '\n'.join(corpo), 1, tot, piede))
     # 2: nello slicer

@@ -23,7 +23,7 @@ misure.py e di genera.py.
   allineate nel piano, le viti le tengono insieme in altezza: niente colla, e la console si smonta.
 - Restano a parte i pezzi che si tolgono per arrivare ai cavi: la mascherina, in due metà accostate (i fori sui
   comandi della MK4 tengono ogni metà al suo posto), e il piano della Flip, tutti e due con le tasche delle
-  etichette di carta; la culla della Flip e la cornice dello schermo sono quelle di genera.py.
+  etichette di carta; la culla della Flip e la visiera sono quelle di genera.py.
 - Sui fianchi il marchio e il nome escono in rilievo dalla faccia di fuori, che stampata in piedi è verticale.
 Ogni STL esce nel verso fisico giusto (il riferimento del case si specchia su y), con la faccia giusta sul piatto,
 e ogni guscio è chiuso; le vasche vicine non si compenetrano e lasciano libere le sedi (sedi_occupate).
@@ -898,7 +898,7 @@ def per_la_stampa(pz, ms):
 
 
 def _grammi_prismi(ms):
-    """stima prisma per prisma (per i pezzi con prismi inclinati, come la cornice): 3 perimetri da 0,4, 4 strati
+    """stima prisma per prisma (per i pezzi con prismi inclinati, come la visiera): 3 perimetri da 0,4, 4 strati
     pieni sopra e sotto, riempimento al 20 %; due prismi che si compenetrano contano due volte"""
     g = 0.0
     for p in ms.prismi:
@@ -1233,10 +1233,10 @@ def scrivi_elenco(righe, totale, piatto, n_etichette, viti, n_vasche):
           f'Viti: {testo_viti(viti)}.', '',
           '## Impostazioni', '',
           '- PETG o PLA, ugello 0,4, strati da 0,2. Le vasche in un colore legno o sabbia; mascherina, piano della Flip, '
-          'culla della Flip e cornice in nero.',
+          'culla della Flip e visiera in nero.',
           '- 3 perimetri, 4 strati pieni sopra e sotto, riempimento giroide al 20 %. Senza supporti: le vasche hanno solo '
           'ponti corti (il passaggio dei cavi sotto la costola, 28 mm; le finestre della culla del pad) e le sedi delle viti, '
-          'orizzontali e piccole. La cornice dello schermo si stampa sul bordo davanti.',
+          'orizzontali e piccole. Solo la visiera vuole i supporti, sotto i piedi: si stampa sul tettuccio, come esce.',
           '- Le vasche sono alte 45 mm e larghe fino al piatto: piatto pulito, tesa (brim) di 5 mm se gli angoli si alzano.',
           f'- Fianchi: il marchio e il nome escono di {_v(M.RILIEVO)} mm dalla faccia di fuori, che stampata in piedi è '
           'verticale: vengono del colore della vasca (a più colori: `../stampa3d_multicolore/`).',
@@ -1251,7 +1251,7 @@ def scrivi_elenco(righe, totale, piatto, n_etichette, viti, n_vasche):
           '2. L\'hub nel fermo, con le porte verso il davanti; i cavi come nella console laser (passo 4 di '
           '`istruzioni_montaggio.pdf`). Feltro sugli appoggi del piano (retro, fianchi, costola, colonnina, dente della culla).',
           '3. Il pad nella sua culla, con il cavo a 90° nella finestra di dietro.',
-          '4. La culla della Flip avvitata al piano (4 viti M3 svasate, dadi sotto), la cornice sullo schermo; il piano '
+          '4. La culla della Flip e la visiera avvitate al piano (4 viti M3 svasate e 2 M3 × 10, dadi sotto); il piano '
           'sugli appoggi.',
           '5. La MK4 sulla pedana, le due metà della mascherina sopra, ogni controllo nel suo foro.',
           '6. Le etichette nelle tasche; la Flip nella culla; i tasti trasparenti del pad con le loro etichette.', '']

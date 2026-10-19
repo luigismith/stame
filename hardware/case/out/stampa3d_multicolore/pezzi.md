@@ -11,7 +11,7 @@ Generato da `hardware/case/multicolore.py` per un piatto di 240 × 240 mm (Anycu
 | `mascherina_2.3mf` (o `mascherina_2_corpo.stl` + `mascherina_2_scritte.stl`) | 166 × 126 × 2,0 | 38 | piani: nero | la metà destra della mascherina; scritte incassate nella faccia in vista, che sta sul piatto |
 | `piano_flip.3mf` (o `piano_flip_corpo.stl` + `piano_flip_scritte.stl`) | 200 × 140 × 2,0 | 61 | piani: nero | scritte incassate nella faccia in vista, che sta sul piatto |
 | `culla_flip.stl` | 89 × 83 × 7,0 | 19 | nero | vassoio sul piano della Flip, 4 viti M3 svasate |
-| `visiera.stl` | 118 × 61 × 95,8 | 44 | nero | si avvita al piano dietro la culla; stampare sul tettuccio, con supporti |
+| `visiera.stl` | 118 × 42 × 95,6 | 44 | nero | si avvita al piano dietro la culla; si stampa sul tettuccio, con i supporti solo sotto i piedi |
 | `prova_giunta.stl` | 75 × 60 × 45,0 | 28 | telaio: PLA o PETG color legno o sabbia | la giunta sotto la MK4 in piccolo, le due metà insieme: da stampare prima |
 
 Filamento: circa 1,1 kg in tutto, quasi tutto del colore del corpo. Viti delle giunte: 4 viti M3 × 6 a testa cilindrica (brugola) con i dadi.
@@ -19,10 +19,10 @@ Filamento: circa 1,1 kg in tutto, quasi tutto del colore del corpo. Viti delle g
 ## In Anycubic Slicer Next
 
 1. Apri il `.3mf` del pezzo: arriva un oggetto con due parti, «corpo» e «scritte». Se lo slicer lo apre come due oggetti, o se preferisci gli STL: importa insieme `_corpo.stl` e `_scritte.stl` e, alla domanda, caricali come un oggetto solo con più parti.
-2. Due filamenti in tutto: 1 nero, 2 sabbia (o il colore scelto per il telaio). Mascherina e piano della Flip: corpo 1 e scritte 2, come l'incisione del laser sull'acrilico nero. Vasche: corpo 2 e scritte 1, come la bruciatura sul legno. Nel `.3mf` è già così; con gli STL si assegna a mano. La vasca di centro e la prova di giunta col 2, la culla della Flip e la cornice col 1.
+2. Due filamenti in tutto: 1 nero, 2 sabbia (o il colore scelto per il telaio). Mascherina e piano della Flip: corpo 1 e scritte 2, come l'incisione del laser sull'acrilico nero. Vasche: corpo 2 e scritte 1, come la bruciatura sul legno. Nel `.3mf` è già così; con gli STL si assegna a mano. La vasca di centro e la prova di giunta col 2, la culla della Flip e la visiera col 1.
 3. Non girare i pezzi: le vasche stanno in piedi con il fondo sul piatto, mascherina e piano con la faccia in vista sul piatto. Il piatto liscio la fa lucida, quello testurizzato le dà la sua grana.
 4. Strati da 0,2 e primo strato da 0,2: nei piani le scritte sono profonde 0,6 mm, cioè i primi tre strati. Nelle vasche il fianco è verticale e le scritte sono profonde 0,6 mm nella faccia di fuori: il filamento cambia in ogni strato fra il basso del marchio e la cima del nome, circa 126 strati per vasca. Torre di spurgo sì; spurgo nel riempimento se lo slicer lo offre. Se i cambi sono troppi, le vasche di `../stampa3d/` hanno il marchio in rilievo, di un colore.
-5. Il resto come la console stampata a un colore: 3 perimetri, 4 strati pieni, riempimento al 20 %, senza supporti (la cornice si stampa sul bordo davanti). Il primo strato deve essere perfetto: piatto pulito, livellamento fatto. Prima delle vasche, `prova_giunta.stl`.
+5. Il resto come la console stampata a un colore: 3 perimetri, 4 strati pieni, riempimento al 20 %, senza supporti (solo la visiera, che si stampa sul tettuccio, li vuole sotto i piedi). Il primo strato deve essere perfetto: piatto pulito, livellamento fatto. Prima delle vasche, `prova_giunta.stl`.
 
 ## Le scritte
 
