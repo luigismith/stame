@@ -82,7 +82,7 @@ T14: Geek Out e ritorno. T15: pagina dei comandi aperta finché non lo ripremi (
 
 | | Gira | Premi | Tieni | Premi e gira |
 |---|---|---|---|---|
-| Sound | 150 suoni (99 di sintesi, 51 campionati) | lista | prev. Save | — |
+| Sound | 200 suoni (149 di sintesi, 51 campionati) | lista | prev. Save | — |
 | Perform | quantità (0 = off) | lista dei modi | Lock | — |
 | FX | 0…10 | mostra | Lock | — |
 | Key | tonalità | Key mode | prev. scelta rapida | Transpose ±12 |
