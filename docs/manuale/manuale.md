@@ -57,7 +57,7 @@ Il principio vuole nove encoder che si girano e si premono e due manopole di voi
 | **premi e gira** | SHIFT + K girata; oppure premi e giri una manopola del pad |
 | **gira** | la manopola |
 
-Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 Volume sulla MPK; T9 Options; M Chord Voicing; m1 Bass Voicing (vedi §7 per il Lock, che cambia il mestiere di M, m1, m2). Premere un controllo porta anche il **fuoco** su di lui: da lì la manopola di navigazione della MPK lo gira e lo preme.
+Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 Volume sulla MPK; T9 Options; M Chord Voicing; m1 Bass Voicing. Premere un controllo porta anche il **fuoco** su di lui: da lì la manopola di navigazione della MPK lo gira e lo preme.
 
 | Controllo | Gira | Premi | Tieni 1 s | Premi e gira |
 |---|---|---|---|---|
@@ -178,15 +178,15 @@ Con **DRUMS acceso** sei in modalità crea: le tre manopole del pad inventano il
 
 ## 7. Il macro pad
 
-![Lock acceso (T13): la testata scrive LOCK SOUND PERFORM KEY e le celle dicono quale manopola fa cosa](img/lock.png)
+![Drop (T13 tenuto): la testata scrive DROP, il Beat e il basso tacciono, l'accordo suona](img/drop.png)
 
-Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera collegata (dal 16/10/2026) il pad non rifà i comandi della MPK: tiene Options, Panic, Lock, View, Page e i due voicing, e i tasti liberi fanno **quello che l'originale non ha**. Fa lo stesso anche senza tastiera.
+Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera collegata (dal 16/10/2026) il pad non rifà i comandi della MPK: tiene Options, Panic, View, Page e i due voicing, e i tasti liberi fanno **quello che l'originale non ha**. Fa lo stesso anche senza tastiera.
 
-![Il macro pad tenuto con le manopole a destra: i quindici tasti con le loro etichette e le tre manopole, con quello che fanno da sole, con il Lock e con DRUMS](img/pad.svg)
+![Il macro pad tenuto con le manopole a destra: i quindici tasti con le loro etichette e le tre manopole, con quello che fanno da sole e con DRUMS](img/pad.svg)
 
 | | col. 1 | col. 2 | col. 3 | col. 4 | col. 5 |
 |---|---|---|---|---|---|
-| in alto | **T1** Hold | **T2** Tap tempo | **T3** Metronomo | **T4** Fill (tenuto) | **T13 LOCK** |
+| in alto | **T1** Hold | **T2** Tap tempo | **T3** Metronomo | **T4** Fill (tenuto) | **T13 DROP** (tenuto) |
 | in mezzo | **T5** Scene 1 | **T6** Scene 2 | **T7** Scene 3 | **T8** Scene 4 | **T14 VIEW** |
 | in basso | **T9** Options | **T10** Save Loop | **T11** Drums | **T12** Panic (tenuto 1 s) | **T15 PAGE** |
 
@@ -197,15 +197,8 @@ Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera c
 - **T10 SAVE LOOP**: ferma il loop e lo tiene da parte (§5).
 - **T11 DRUMS**: la batteria a tastiera (§6.1) e la modalità crea delle tre manopole (§6.3).
 - **T12 PANIC** scatta solo dopo 1 secondo: spegne tutte le note; tenuto 3 secondi fa il **Reset** (loop, Beat, transpose, Perform, Hold, metronomo da capo). Sulla MPK: **SHIFT + STOP/PLAY**.
-- **T13 LOCK, a scatto come il Caps Lock.** Un tocco accende, un altro spegne; non si tiene. Le manopole della MPK non hanno scatti, quelle del pad sì: con il Lock acceso le tre manopole del pad diventano gli encoder che hanno bisogno degli scatti, con tutti i loro gesti.
-
-| Manopola | Lock spento | Lock acceso |
-|---|---|---|
-| **M** (grande) | Chord Voicing · premi = Split/Octave | **Sound** · premi = lista · tieni = previsto Save |
-| **m1** | Bass Voicing · premi = Mod | **Perform** · premi = lista dei modi · tieni = Lock del Perform |
-| **m2** | volume del Beat · premi e gira = volume del basso | **Key** · premi = Key mode · premi e gira = Transpose |
-
-  Finché è acceso la testata mostra **LOCK SOUND PERFORM KEY**; nella pagina dei comandi le celle dicono quale manopola fa cosa. Liste, fuoco e conferma stanno sulla manopola di navigazione della MPK. Se stacchi il pad, il Lock si spegne.
+- **T13 DROP, tenuto.** Finché lo tieni, Beat, batteria del loop e basso tacciono: restano gli accordi con la loro performance, il metronomo e quello che suoni tu (tasti sotto DRUMS, pad del banco B). Lascialo e tornano **sul battito dopo**, a tempo; se lo lasci appena dopo un battito (entro un sedicesimo) tornano subito. È il break della techno e del dub: tieni T13 nella salita, lascialo sull'uno. Beat e loop intanto vanno avanti, quindi rientrano al loro posto. In testata «DROP». Fa il paio con **T4 FILL**.
+- **Le manopole.** **M** (grande) è il Chord Voicing, premuta Split/Octave; **m1** il Bass Voicing, premuta Mod; **m2** il volume del Beat, premuta e girata il volume del basso. Sotto DRUMS creano il loop di batteria (§6.3).
 - **T14 VIEW**: Geek Out e, al tocco dopo, la vista di prima.
 - **T15 PAGE**: apre la pagina dei comandi della Flip e la tiene aperta finché non lo ripremi (o premi −).
 - Se il pad non c'è, la Flip ne fa una parte: Options è SELECT, Mod è Y, Hold è X, Fill è START tenuto, i due voicing sono la levetta destra (§9.2).
@@ -240,7 +233,7 @@ Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera c
 
 ![Lo stesso accordo nel tema Notte: vetro scuro e fosfori (MENU › Theme)](img/notte.png)
 
-Il vetrino mostra, dall'alto: la **testata** (batteria; avvisi solo quando servono; LOCK), la **zona accordo** (tonalità e transpose, il nome dell'accordo in grande), la **zona tempo e loop** (BPM, battiti, il looper quando lavora), la **tastiera** a quattro ottave (treble in acqua, basso in ambra, loop in viola, i granelli della tonalità) e in fondo la **banda**, che mostra in grande il controllo appena toccato e, a riposo, il suono.
+Il vetrino mostra, dall'alto: la **testata** (batteria; avvisi e stati solo quando servono: DRUMS, HOLD, DROP…), la **zona accordo** (tonalità e transpose, il nome dell'accordo in grande), la **zona tempo e loop** (BPM, battiti, il looper quando lavora), la **tastiera** a quattro ottave (treble in acqua, basso in ambra, loop in viola, i granelli della tonalità) e in fondo la **banda**, che mostra in grande il controllo appena toccato e, a riposo, il suono.
 
 Due pagine:
 - **pagina di gioco**: quello che serve mentre si suona;
@@ -303,7 +296,7 @@ Sono sei brani originali di Stame, suonati a giro: **«Acacia»** (poco meno di 
 | **NO MPK** lampeggia in testata | la tastiera non è collegata o non è riconosciuta | controlla cavo e hub (porta di sopra, hub senza Power Delivery); la MPK si riconosce dal nome «MPK mini IV» |
 | **MPK FACTORY** | con la Plus: non è attivo il programma STAME | con la MPK mini IV non compare: basta il preset DAW |
 | **PAD** in rosso | il macro pad non si apre in esclusiva, o manda codici che nessuna mappa conosce | ricollega il pad; usa lo strato 3 (o rendi l'1 uguale al 3). Previsto: MENU › Learn Pad |
-| «Pad disconnected» | il pad si è staccato: i tasti tenuti si rilasciano, il Lock si spegne | ricollegalo |
+| «Pad disconnected» | il pad si è staccato: i tasti tenuti si rilasciano, un Drop tenuto finisce | ricollegalo |
 | **CLIP** in testata | l'uscita satura | abbassa Volume, o il volume del basso o del Beat |
 | **XRUN** | l'audio ha perso un periodo (crepitii) | in `launch.sh` porta `STAME_AUDIO_FRAMES` a 1024 |
 | una nota resta appesa | — | Panic: T12 tenuto 1 s, oppure SHIFT + STOP/PLAY; se il Hold è acceso (HOLD in testata) spegnilo con T1 |
@@ -315,13 +308,13 @@ Sono sei brani originali di Stame, suonati a giro: **«Acacia»** (poco meno di 
 - **Banda**: la striscia in fondo allo schermo, che risponde al controllo toccato.
 - **Beat**: una battuta di batteria in loop, scelta dalla lista di BPM.
 - **Count-in**: la battuta di metronomo prima della registrazione.
+- **Drop**: Beat, batteria del loop e basso tacciono finché T13 è tenuto, e rientrano sul battito.
 - **Finestra**: l'ottava in cui cadono le note dell'accordo, decisa dal Chord Voicing.
 - **Fill**: la battuta di riempimento del Beat, finché T4 è tenuto.
 - **Fuoco**: il controllo su cui agisce la manopola di navigazione (e, senza MPK, croce e A della Flip); lo sposta la pressione di qualunque encoder.
 - **Hold**: l'accordo resta a suonare dopo il rilascio (T1).
 - **Key mode**: la tonalità accesa: i tasti suonano i gradi.
 - **Lock (Perform, FX)**: il valore non cambia al cambio di suono.
-- **LOCK (T13)**: le manopole del pad fanno Sound, Perform e Key.
 - **Mod**: Bass Voicing premuto (m1 o Y), il modificatore delle combinazioni.
 - **Overlay**: il nome e il valore del controllo toccato, nella banda.
 - **PUSH**: SHIFT tenuto (B8 o X con la Plus): la manopola K toccata risulta premuta.

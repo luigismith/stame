@@ -21,7 +21,11 @@ void drums_init(drums_t *k, float fs, uint32_t seed)
     k->rng = seed ? seed : 1u;
     k->gain = 0.36f;
     k->fx_a = 1.0f - expf(-16.0f / (0.015f * fs));           /* 15 ms, a blocchi di 16 */
+    k->prog_g = 1.0f;
+    k->prog_step = 16.0f / (0.005f * fs);                     /* il Drop: da 1 a 0 in 5 ms */
 }
+
+void drums_drop(drums_t *k, bool on) { k->prog_mute = on; }
 
 void drums_fx(drums_t *k, uint8_t drive, int8_t filt)
 {
@@ -59,7 +63,16 @@ static void bp_set(const drums_t *k, drum_voice_t *v, float f, float q)
     v->c2 = r * r;
 }
 
-void drums_hit(drums_t *k, uint8_t inst, uint8_t vel)
+static void hit(drums_t *k, uint8_t inst, uint8_t vel, uint8_t prog);
+
+void drums_hit(drums_t *k, uint8_t inst, uint8_t vel) { hit(k, inst, vel, 0); }
+
+void drums_hit_prog(drums_t *k, uint8_t inst, uint8_t vel)
+{
+    if (!k->prog_mute) hit(k, inst, vel, 1);
+}
+
+static void hit(drums_t *k, uint8_t inst, uint8_t vel, uint8_t prog)
 {
     if (inst >= DRUM_COUNT || vel == 0) return;
     if (inst == DRUM_CLOSED_HAT)                                  /* il chiuso strozza l'aperto */
@@ -74,6 +87,7 @@ void drums_hit(drums_t *k, uint8_t inst, uint8_t vel)
     memset(v, 0, sizeof *v);
     v->on = 1;
     v->inst = inst;
+    v->prog = prog;
     float x = (float)vel / 127.0f;
     v->amp = x * sqrtf(x);
     float th = (PAN[inst] + 1.0f) * 0.25f * DSP_PI;               /* potenza costante */
@@ -233,12 +247,15 @@ static void bus_fx(drums_t *k, float *L, float *R)
 void drums_render16(drums_t *k, float *L, float *R)
 {
     float bl[16] = { 0 }, br[16] = { 0 };                         /* il bus con l'FX; i clic vanno diretti */
+    float pl[16] = { 0 }, pr[16] = { 0 };                         /* i colpi programmati, che il Drop zittisce */
+    bool prog = false;
     for (int i = 0; i < DRUM_VOICES; i++) {
         drum_voice_t *v = &k->v[i];
         if (!v->on) continue;
         float gl = v->gl * v->amp * k->gain, gr = v->gr * v->amp * k->gain;
         bool clic = v->inst >= DRUM_CLICK_ACCENT;
-        float *ol = clic ? L : bl, *or_ = clic ? R : br;
+        if (v->prog && !clic) prog = true;
+        float *ol = clic ? L : v->prog ? pl : bl, *or_ = clic ? R : v->prog ? pr : br;
         for (int s = 0; s < 16; s++) {
             float y = sample(k, v);
             ol[s] += y * gl;
@@ -251,6 +268,18 @@ void drums_render16(drums_t *k, float *L, float *R)
         if (v->z) { if (v->e1 < 1e-4f) v->on = 0; }                /* la fine del campione la segna sample() */
         else if (v->t >= DUR[v->inst] || (v->e1 < 1e-4f && v->e2 < 1e-4f && v->inst != DRUM_CLAP)) v->on = 0;
     }
+    /* Drop: i colpi programmati sfumano in 5 ms; a zero le loro voci si spengono, così le code non
+     * tornano al rilascio */
+    float g0 = k->prog_g;
+    if (!k->prog_mute && g0 == 0.0f) g0 = 1.0f;       /* dopo un Drop finito non resta una voce vecchia: il primo colpo è pieno */
+    float g1 = clampf(k->prog_mute ? g0 - k->prog_step : g0 + k->prog_step, 0.0f, 1.0f);
+    if (prog) {
+        float g = g0, dg = (g1 - g0) / 16.0f;
+        for (int s = 0; s < 16; s++) { g += dg; bl[s] += pl[s] * g; br[s] += pr[s] * g; }
+    }
+    k->prog_g = g1;
+    if (g1 == 0.0f)
+        for (int i = 0; i < DRUM_VOICES; i++) if (k->v[i].prog && k->v[i].inst < DRUM_CLICK_ACCENT) k->v[i].on = 0;
     bus_fx(k, bl, br);
     for (int s = 0; s < 16; s++) { L[s] += bl[s]; R[s] += br[s]; }
 }

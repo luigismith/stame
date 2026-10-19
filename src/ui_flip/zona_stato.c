@@ -17,7 +17,7 @@ uint64_t uf_sig_z1(const ui_model_t *m, const ui_flip_state_t *st)
     const ui_platform_t *pl = &m->plat;
     bool g = geek(m);
     uint8_t v[24] = {
-        pl->mpk_link, pl->mpk_profile, pl->mpk_bank, pl->pad_link, m->prefs.pocket, m->prefs.meters, m->ctl.knob_lock,
+        pl->mpk_link, pl->mpk_profile, pl->mpk_bank, pl->pad_link, m->prefs.pocket, m->prefs.meters, m->tempo.drop,
         (uint8_t)(g && m->now_ms - pl->midi_in_ms < 50), (uint8_t)(g && m->now_ms - pl->midi_out_ms < 50),
         g ? m->meters.voices_used : 0, g ? m->meters.dsp_load_pct : 0, pl->battery_pct, pl->charging,
         (uint8_t)((int32_t)(st->xrun_until - m->now_ms) > 0), (uint8_t)((int32_t)(st->clip_until - m->now_ms) > 0),
@@ -124,16 +124,13 @@ void uf_draw_z1(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, const ui
         if (pl->pad_link == PADL_ERROR || pl->pad_link == PADL_UNMAPPED)
             x = gfx_text(fb, &GFX_S, x, y, "PAD", p->c[T_WARN]) + 16;
         if (m->prefs.pocket) x = gfx_text(fb, &GFX_S, x, y, "POCKET", p->c[T_ACTIVE]) + 16;
-        if (m->ctl.knob_lock) {                       /* lo stato acceso, poi cosa fanno le manopole, stampato */
-            x = gfx_text(fb, &GFX_S, x, y, "LOCK", p->c[T_ACTIVE]);
-            x = gfx_text(fb, &GFX_S, x + 8, y, "SOUND PERFORM KEY", p->c[T_DIM]) + 16;
-        }
         /* batteria a tastiera: uno stato, quindi sempre in vista (anche con il transpose o la pagina dei comandi) */
         if (m->tempo.drums_on) x = gfx_text(fb, &GFX_S, x, y, "DRUMS", p->c[T_ACTIVE]) + 16;
         /* le aggiunte del pad sono stati (MIDI-133): Hold dell'accordo, metronomo, Fill tenuto */
         if (m->ctl.hold) x = gfx_text(fb, &GFX_S, x, y, "HOLD", p->c[T_ACTIVE]) + 16;
         if (m->tempo.metro_on) x = gfx_text(fb, &GFX_S, x, y, "METRO", p->c[T_ACTIVE]) + 16;
         if (m->ctl.fill) x = gfx_text(fb, &GFX_S, x, y, "FILL", p->c[T_ACTIVE]) + 16;
+        if (m->tempo.drop) x = gfx_text(fb, &GFX_S, x, y, "DROP", p->c[T_ACTIVE]) + 16;   /* T13 tenuto (MIDI-140) */
         /* swing e FX della batteria cambiano il Beat anche fuori da DRUMS (MIDI-135): in vista finché ci sono */
         if (m->tempo.swing) x = gfx_text(fb, &GFX_S, x, y, "SWING", p->c[T_ACTIVE]) + 16;
         if (m->tempo.drive || m->tempo.filt) x = gfx_text(fb, &GFX_S, x, y, "DRUM FX", p->c[T_ACTIVE]) + 16;
@@ -171,10 +168,8 @@ void uf_draw_z1(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, const ui
         clip_xrun(fb, p, m, st, 452, true, false);
     }
 
-    if (pl->pad_link != PADL_ABSENT) {                /* con il Lock acceso il contrassegno diventa LOCK */
-        bool lk = m->ctl.knob_lock != 0;
-        gfx_text(fb, &GFX_S, 492, y, lk ? "LOCK" : "PAD", p->c[lk ? T_ACTIVE : pl->pad_link == PADL_OPEN ? T_FOCUS : T_WARN]);
-    }
+    if (pl->pad_link != PADL_ABSENT)
+        gfx_text(fb, &GFX_S, 492, y, "PAD", p->c[pl->pad_link == PADL_OPEN ? T_FOCUS : T_WARN]);
     if (m->prefs.pocket)
         gfx_text(fb, &GFX_S, 528, y, "POCKET", p->c[T_ACTIVE]);
 

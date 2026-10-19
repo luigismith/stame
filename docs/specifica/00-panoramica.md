@@ -99,7 +99,7 @@ Ogni fase si chiude con l'ascolto di Luigi, non solo con le prove automatiche.
 | **Play Style** | come i tasti accordo e la tastiera interagiscono (Simple, Advanced, Free) |
 | **Perform** | modi di esecuzione: Strum, Slop, Arp, Pattern, Harp… |
 | **Fuoco** | il controllo rotante del pannello a cui vanno m2 del macro pad, « », joystick e croce della Flip |
-| **Macro pad** | il BRIMFORD CusKeyboard0227 (USB `1189:8840`): 15 tasti (T1–T12 i pulsanti e i comandi di sistema; T13 Lock delle manopole, T14 View, T15 Page: 40 MIDI-131, MIDI-132) e 3 manopole (M, m1, m2), profilo `pad_brimford` |
+| **Macro pad** | il BRIMFORD CusKeyboard0227 (USB `1189:8840`): 15 tasti (T1–T12 i pulsanti e i comandi di sistema; T13 Drop, T14 View, T15 Page: 40 MIDI-140, MIDI-132) e 3 manopole (M, m1, m2), profilo `pad_brimford` |
 | **PUSH** | B8 o X della Flip tenuto: la manopola della MPK toccata viene "premuta"; riserva per quando il macro pad non c'è |
 | **Editor dei suoni** | l'editor ufficiale dei suoni dell'originale; Stame legge il suo formato `.inc` |
 | **`ui_model_t`** | lo stato completo da mostrare, prodotto dal nucleo e disegnato dai renderer |

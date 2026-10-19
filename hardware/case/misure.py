@@ -66,7 +66,7 @@ FLIP_TASTI_LATO = (6.0, 16.0)
 # sulla piastra (19/10/2026): 185 × 75 [O, ±0,5]; passo e primo tasto dalle stesse foto, corretti per
 # la quota dei copritasti [D, ±0,5]. x dal bordo dei tasti verso le manopole, y dal retro verso il
 # musicista.
-PAD = dict(w=185.0, d=75.0, h=31.5, pitch_x=21.4, pitch_y=22.1, k0=(15.5, 12.6))
+PAD = dict(w=185.0, d=75.0, h=39.2, pitch_x=21.4, pitch_y=22.1, k0=(15.5, 12.6))
 # il lobo davanti, dal lato delle manopole: da 3 mm dopo l'ultima colonna di tasti (x 113) la piastra
 # sporge circa 2 mm oltre il bordo davanti dei tasti, con un gradino arrotondato; l'angolo davanti
 # verso le manopole ha R 30, gli altri tre R 5 [D, foto del 18/10 e del 19/10]
@@ -75,10 +75,10 @@ PAD_R = 5.0
 PAD_D_TOT = PAD['d'] + PAD_LOBO['sporge']    # 77: la profondità sul lobo
 # manopole del pad: centro (x, y dal retro) e raggio del cappello; m1 è la piccola vicina ai tasti, m2
 # quella sul bordo, M la grande davanti (specifica 40 §8.10). x di m1 e m2 dal metro [O, ±1], il resto
-# [D]. Tutte arrivano 20 mm sopra la piastra; le piccole sono un cappello zigrinato alto 14,5 su un
-# dado da 5, la grande ha una flangia alla base, raggio 17 [D]
+# [D]. Le piccole sono un cappello zigrinato su un dado e arrivano 23 mm sopra la piastra, la grande ha
+# una flangia alla base, raggio 17, e arriva a circa 25 [O, foto di fianco del 19/10/2026, ±1,5]
 PAD_KNOB = {'m1': (133.5, 18.0, 10.0), 'm2': (169.0, 18.0, 10.0), 'M': (151.5, 62.0, 15.0)}
-PAD_KNOB_H = 20.0
+PAD_KNOB_H = 23.0
 PAD_FLANGIA = 17.0
 # sul retro [O, foto del 19/10/2026]: la USB-C fra m1 e m2, con il LED verde accanto; un interruttore
 # a slitta a 78, la cui levetta sporge di circa 1 mm (la culla la lascia libera); a 36 un altro
@@ -86,9 +86,12 @@ PAD_FLANGIA = 17.0
 PAD_USB_X = 148.0
 PAD_INTERRUTTORE_X = 78.0
 PAD_PORTA2_X = 36.0
-# strati dal fondo [D, ±1,5]: la fascia scura (distanziali, circuito, fondo nero), l'acrilico
-# trasparente, la piastra satinata con gli interruttori; la faccia della piastra è il riferimento
-PAD_STRATI = (('fondo', 6.0), ('trasparente', 3.5), ('satinata', 2.0))
+# strati dal fondo: la parte scura (fondo nero lucido 4,7, poi distanziali e circuito con la USB-C fino
+# a 12,2), l'acrilico trasparente, la piastra satinata con gli interruttori; la faccia della piastra è il
+# riferimento. Foto di fianco del 19/10/2026 con il metro in piedi: la scala sul retro viene dalla
+# larghezza della presa USB-C e dall'orizzonte all'altezza delle manopole, e le due concordano [O, ±0,7].
+# Le foto del 18/10 davano 11,5: la fascia scura è il doppio di quanto sembrava
+PAD_STRATI = (('fondo', 12.2), ('trasparente', 2.0), ('satinata', 2.0))
 HUB = dict(w=85.0, d=32.0, h=15.0)   # hub USB 2.0 [V]
 
 # Controlli della MK4: centro (x dal bordo sinistro, y dal bordo posteriore) [D, foto, rimisurati il
@@ -165,10 +168,10 @@ PAD_Y1 = CULLA_PAD_Y1 - CULLA_PAD_PARETE - CULLA_PAD_GIOCO    # il davanti del l
 PAD_Y0 = PAD_Y1 - PAD_D_TOT                                   # il retro, con la USB-C
 # altezze del pad: il corpo (dal fondo alla faccia della piastra satinata) e i tasti sopra. Come la
 # Flip, il pad sta 2 mm sopra il piano, e il bordo della culla sale 5 mm oltre la piastra
-PAD_CORPO = sum(h for _, h in PAD_STRATI)     # 11,5 [D, foto del 18/10]: col righello prima di stampare la culla
+PAD_CORPO = sum(h for _, h in PAD_STRATI)     # 16,2 [O, metro del 19/10]
 PAD_Z1 = Z_PIANO + 2.0            # 48: la faccia della piastra del pad
-PAD_Z0 = PAD_Z1 - PAD_CORPO       # 36,5: il pad poggia sulle costole della culla
-PAD_USB_Z = 9.0                   # [D, ±1,5]: centro della presa USB-C sopra il fondo del pad; la spina a
+PAD_Z0 = PAD_Z1 - PAD_CORPO       # 31,8: il pad poggia sulle costole della culla
+PAD_USB_Z = 8.3                   # [O, ±0,7]: centro della presa USB-C sopra il fondo del pad; la spina a
                                   # 90° verso il basso arriva sopra il piano: una tacca nel suo bordo
 CULLA_BORDO = 5.0                 # bordi delle due culle sopra il fondo (Flip) o sopra la piastra (pad)
 CULLA_FONDO = 2.0

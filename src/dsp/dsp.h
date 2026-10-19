@@ -136,6 +136,8 @@ typedef struct dsp {
     float bpm;
     uint8_t master, bass_vol, vel_sense;
     float g_master, g_bass;
+    uint8_t bass_mute;          /* Drop (SND-539): il basso tace, con una rampa di 5 ms */
+    float g_bmute, bmute_step;
     dsp_eng_t eng[DSP_ENGINES];
     dsp_voice_t voice[DSP_VOICES];
     dsp_tail_t tail[DSP_TAILS];
@@ -172,6 +174,8 @@ void dsp_set_max_voices(dsp_t *d, dsp_engine e, uint8_t n);
 void dsp_set_bpm(dsp_t *d, float bpm);
 void dsp_set_master_volume(dsp_t *d, uint8_t v);    /* 0…99 */
 void dsp_set_bass_volume(dsp_t *d, uint8_t v);      /* 0…99 */
+/* Drop (SND-539): il motore Bass tace o torna, con una rampa lineare di 5 ms; le voci continuano */
+void dsp_set_bass_mute(dsp_t *d, bool mute);
 void dsp_set_velocity_sense(dsp_t *d, bool on);
 
 /* 16 frame; drum_L/drum_R è il bus della batteria, può essere NULL (SND-535) */

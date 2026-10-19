@@ -9,3 +9,9 @@ __pycache__/
 !/assets/suoni/*.wav
 /hardware/case/out/montaggio/pagine/
 /hardware/case/out/stampa3d/pagine/
+
+# schermate di stame-render --scene che il manuale non usa (le copie per sito e identità stanno altrove)
+/docs/manuale/img/nome.png
+/docs/manuale/img/react.png
+/docs/manuale/img/rec.png
+/docs/manuale/img/transpose.png

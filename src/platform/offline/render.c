@@ -402,14 +402,10 @@ static int render_scene(const char *dir)
     sc_run(150);
     render_to(dir, "tocco");
     sc_run(2000);
-    /* pagina dei comandi (T15), poi il Lock (T13) */
+    /* pagina dei comandi (T15) */
     sc_pad(MPAD_T15);
     sc_run(200);
     render_to(dir, "comandi");
-    sc_pad(MPAD_T13);
-    sc_run(200);
-    render_to(dir, "lock");
-    sc_pad(MPAD_T13);
     sc_pad(MPAD_T15);
     /* lista dei suoni (SHIFT + K1) e dei Beat (SHIFT + K7 tenuto) */
     sc_push(0, 60);
@@ -476,6 +472,16 @@ static int render_scene(const char *dir)
     sc_run(100);
     sc_pad(MPAD_T11);
     sc_run(2200);
+    /* Drop (T13 tenuto, MIDI-140): il loop di batteria suona ancora; l'accordo resta, Beat e basso tacciono */
+    sc_chord(true);
+    sc_run(300);
+    vet_pad(&vet, MPAD_T13, 1, sc_now);
+    sc_run(400);
+    render_to(dir, "drop");
+    vet_pad(&vet, MPAD_T13, 0, sc_now);
+    sc_run(300);
+    sc_chord(false);
+    sc_run(200);
     /* menu della piattaforma, poi la stessa pagina di gioco nel tema Notte */
     sc_pad(PAD_MENU);
     sc_run(200);

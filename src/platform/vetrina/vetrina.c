@@ -44,7 +44,7 @@ typedef struct {
     int8_t dens_off[INV_PARTS];         /* scarto di ogni parte dalla densità di tutto; −10 = muta */
     uint8_t part;                       /* parte che M regola: 0 = tutto, 1…INV_PARTS */
     uint8_t mod_used;                   /* m1 tenuta come Mod (con Loop o BPM): il suo rilascio non cambia parte */
-    uint8_t knob_lock;                  /* Lock delle manopole del macro pad (MIDI-131), per la testata */
+    uint8_t drop;                       /* T13 tenuto: Drop (MIDI-140), per la testata */
     uint32_t drum_ms[12];               /* ultimo colpo di ogni tasto, per accendere il tasto sulla plancia */
 } sim_t;
 static sim_t S;                    /* una vetrina sola per processo */
@@ -746,7 +746,10 @@ static void handle(vet_t *v, const pnl_event_t *e)
             snd_push(v, VS_ALL_OFF, 0, 0, 0);
             msg(v, MSG_INFO, "Reset: loop, beat, transpose, perform", 3000);
         }
-        else if (e->a == MACRO_KNOB_LOCK) S.knob_lock = (uint8_t)e->b;   /* T13 del pad (MIDI-131); vet_model lo copia */
+        else if (e->a == MACRO_DROP) {                                         /* T13 tenuto: Drop (MIDI-140) */
+            S.drop = (uint8_t)(e->b != 0);
+            snd_push(v, VS_DROP, 0, S.drop, 0);
+        }
         else if (e->a == MACRO_VIEW_TOGGLE) {                                    /* T14: Geek Out e ritorno (MIDI-132) */
             if (S.view == VIEW_GEEK) S.view = v->view_back;
             else { v->view_back = (uint8_t)S.view; S.view = VIEW_GEEK; }
@@ -1000,9 +1003,9 @@ static void demo_stop(vet_t *v)
     demo_release(v);
     loop_send(v, LOOP_C_RESET);                         /* anche se la demo era in overdub */
     for (int i = 0; i < VET_DEMO_OPTS; i++) ain(v, ACC_IN_OPTION_SET, DEMO_OPTS[i], v->demo_saved[i]);
-    uint8_t lock = S.knob_lock;                         /* il Lock del pad è del pad, non della demo */
+    uint8_t drop = S.drop;                              /* T13 tenuto è del pad, non della demo */
     S = demo_S;
-    S.knob_lock = lock;
+    S.drop = drop;
     S.beat_on = 0;
     S.drums = 0;
     memset(S.sec, 0, sizeof S.sec);
@@ -1508,6 +1511,7 @@ static void fill_tempo_looper(vet_t *v, ui_model_t *m)
     t->swing = (uint8_t)S.swing;
     t->drive = (uint8_t)S.drive;
     t->filt = (int8_t)S.filt;
+    t->drop = S.drop;
     t->inv = S.inv;                                       /* batteria che si inventa (MIDI-139) */
     t->groove = (uint8_t)S.groove;
     t->variation = (uint8_t)S.variation;
@@ -1587,7 +1591,6 @@ const ui_model_t *vet_model(vet_t *v)
     m->ctl.hold = S.hold;
     m->ctl.fill = S.fill;
     c->push = mk4 ? v->inp.mk4.push : v->inp.mpk.push;
-    c->knob_lock = S.knob_lock;
     /* programma della Plus e banco stimato dei pad (MIDI-088, MIDI-089): prima non arrivavano alla
      * testata, e «FACTORY» non compariva mai. L'avviso di MIDI-119 una volta per collegamento */
     m->plat.mpk_profile = !mk4 && v->inp.mpk.factory ? MPKP_FACTORY : MPKP_STAME;

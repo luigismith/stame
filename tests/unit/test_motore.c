@@ -1,4 +1,4 @@
-/* test_motore.c — performance, Beat, looper e clock (specifica 10, §13.8–§13.9: TV-90…103, TV-110…121). */
+/* test_motore.c — performance, Beat, looper e clock (specifica 10, §13.8–§13.9: TV-90…103, TV-110…122). */
 #include "test.h"
 #include "../../src/core/motore.h"
 #include <math.h>
@@ -965,8 +965,79 @@ static void test_drum_fx(void)
     CHECK(M.drums.drive_t == 1.0f && M.drums.fpos_t == -1.0f);
 }
 
+static bool prog_voice(const motore_t *m)
+{
+    for (int i = 0; i < DRUM_VOICES; i++) if (m->drums.v[i].on && m->drums.v[i].prog) return true;
+    return false;
+}
+
+/* TV-122: il Drop (ACC-217) zittisce Beat, colpi del loop e basso; il metronomo e i colpi dal vivo
+ * suonano; al rilascio si rientra sul battito, o subito entro un sedicesimo dal battito */
+static void test_drop(void)
+{
+    static dsp_t D;
+    static motore_t M;
+    static float l[16], r[16];
+    dsp_init(&D, 48000.0f, 1);
+    mot_init(&M, &D, 48000, 1);                                   /* 120 BPM: 96 tick a battito */
+    beat_hit_t h[8];
+    int b = 1;
+    while (b < BEAT_COUNT && !(beat_hits(b, 4, h, 8) && beat_hits(b, 8, h, 8) && beat_hits(b, 0, h, 8))) b++;
+    CHECKM(b < BEAT_COUNT, "TV-122: serve un Beat che suoni sui passi 0, 4 e 8");
+    mot_beat(&M, BEAT_M_PATTERN, (uint8_t)b);
+    mot_beat_on(&M, true);
+    render_tick(&M, 96);
+    CHECKM(prog_voice(&M), "TV-122: prima del Drop il Beat suona");
+    mot_metronome(&M, true);
+    while (M.tick < 100) mot_render(&M, l, r, 16);
+    mot_drop(&M, true);
+    CHECK(M.drop == 1 && D.bass_mute == 1);
+    for (int i = 0; i < 20; i++) mot_render(&M, l, r, 16);       /* 6,7 ms: la rampa di 5 ms è finita */
+    CHECKM(!prog_voice(&M), "TV-122: le voci del Beat si spengono dopo la rampa");
+    CHECKM(D.g_bmute == 0.0f, "TV-122: il basso è a zero dopo 5 ms");
+    render_tick(&M, 192);
+    CHECKM(!prog_voice(&M), "TV-122: durante il Drop il Beat non suona");
+    CHECKM(fresh_hit(&M, DRUM_CLICK_ACCENT) || fresh_hit(&M, DRUM_CLICK), "TV-122: il metronomo suona anche nel Drop");
+    mot_drum(&M, DRUM_SNARE, 100);
+    CHECKM(fresh_hit(&M, DRUM_SNARE), "TV-122: un colpo dal vivo suona nel Drop");
+    /* rilascio a metà battito (pos 230): si rientra a 288 */
+    while (M.tick < 230) mot_render(&M, l, r, 16);
+    mot_drop(&M, false);
+    CHECK(M.drop == 1 && M.drop_wait == 1 && M.drop_end == 288);
+    render_tick(&M, 287);
+    CHECKM(!prog_voice(&M), "TV-122: rilasciato, aspetta il battito");
+    render_tick(&M, 288);
+    CHECKM(M.drop == 0 && D.bass_mute == 0, "TV-122: sul battito il Drop finisce");
+    CHECKM(prog_voice(&M), "TV-122: il Beat rientra sul battito");
+    float g = 0.0f;
+    for (int i = 0; i < DRUM_VOICES; i++) if (M.drums.v[i].on && M.drums.v[i].prog) g = M.drums.prog_g;
+    CHECKM(g == 1.0f, "TV-122: il primo colpo che rientra è pieno, senza rampa");
+    /* rilascio entro un sedicesimo dal battito (pos 384 + 10): si rientra subito */
+    while (M.tick < 300) mot_render(&M, l, r, 16);
+    mot_drop(&M, true);
+    while (M.tick < 394) mot_render(&M, l, r, 16);
+    mot_drop(&M, false);
+    CHECK(M.drop == 0 && M.drop_wait == 0);
+    /* una coda lunga del Beat (piatto) non torna al rilascio */
+    drums_hit_prog(&M.drums, DRUM_CYMBAL, 120);
+    mot_drop(&M, true);
+    for (int i = 0; i < 20; i++) mot_render(&M, l, r, 16);
+    mot_drop(&M, false);
+    while (M.drop) mot_render(&M, l, r, 16);
+    bool piatto = false;
+    for (int i = 0; i < DRUM_VOICES; i++) if (M.drums.v[i].on && M.drums.v[i].inst == DRUM_CYMBAL && M.drums.v[i].t > 0.05f) piatto = true;
+    CHECKM(!piatto, "TV-122: il piatto di prima del Drop non ricompare");
+    /* da fermo il rilascio è subito */
+    mot_beat_on(&M, false);
+    mot_metronome(&M, false);
+    mot_drop(&M, true);
+    mot_drop(&M, false);
+    CHECK(M.drop == 0 && D.bass_mute == 0);
+}
+
 void test_motore(void)
 {
+    test_drop();
     test_swing();
     test_drum_fx();
     test_inventa();

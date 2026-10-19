@@ -119,7 +119,7 @@ typedef struct {
 |---|---|---|
 | `music`, `tempo`, `looper` | `core` (motore della sezione 10, ACC-012, ACC-232) | a ogni pubblicazione dello snapshot (al massimo 120 Hz, PLT-017) |
 | `ctl`, `layer`, `prefs`, `msg_core` | `core/ui`, con i valori presi da `core` e `dsp` | idem |
-| `ctl.push`, `ctl.knob_lock`, `music.pocket_pc` | `core/input` (profili `mpk_stame`, `pad_brimford` e `flip_tasti`, sezione 40) | idem |
+| `ctl.push`, `music.pocket_pc` | `core/input` (profili `mpk_stame`, `pad_brimford` e `flip_tasti`, sezione 40) | idem |
 | `meters` (voci, picco, clip, oscilloscopio) | `dsp`, attraverso `core` | idem |
 | `meters.dsp_load_pct`, `meters.xrun_count` | piattaforma, nel thread audio (PLT-021) | idem |
 | `now_ms`, `plat`, `msg_plat` | piattaforma, nel thread UI (contatori atomici dei thread MIDI, batteria da PLT-090) | a ogni frame |
@@ -237,7 +237,6 @@ typedef struct {
     uint8_t  focus;               /* fuoco del pannello, condiviso (40, MIDI-104)            */
     uint8_t  turn_target;         /* encoder che ENC_FOCUS ruota adesso: proprietario della lista o fuoco */
     uint8_t  push;                /* PUSH (40, MIDI-084): 0 IDLE, 1 ARMED, 2 + k = TARGET(manopola k) */
-    uint8_t  knob_lock;           /* Lock del macro pad (40, MIDI-131): M, m1, m2 = Sound, Perform, Key */
     /* Sound */
     uint8_t  sound_user, sound_num;           /* fabbrica 1..70, utente 1..30             */
     char     sound_name[17];
@@ -812,7 +811,7 @@ I font dell'OLED sono diversi e propri (§7.2).
 
 ### 4.4 Testata
 
-**UI-126** [D] Z1 (0, 0, 640, 24), testo in classe S alle righe 4..19. **Fuori da Geek Out lo stato tace**: la testata mostra a destra la batteria e, da x = 8 verso destra e solo finché servono, «NO MPK» (lampeggia), «MPK BUSY», «MPK ERROR», «MPK FACTORY», «PAD» (macro pad in errore o senza mappa), «POCKET», «LOCK» seguito da «SOUND PERFORM KEY» in `dim` (Lock delle manopole del macro pad acceso, 40 MIDI-131: è uno stato che cambia cosa fanno le mani, come il LED del Caps Lock), «DRUMS», «HOLD», «METRO» e «FILL» (gli stati delle aggiunte del macro pad in `active`: batteria a tastiera, Hold dell'accordo, metronomo di T3, Fill tenuto; 40 MIDI-133), «SWING» e «DRUM FX» (swing e FX della batteria, che cambiano il Beat anche fuori da DRUMS; 40 MIDI-135), «CLIP» (1500 ms) e «XRUN» (2 s), con 16 px tra l'uno e l'altro; «NO MPK» tiene il suo posto anche quando è spento, così il resto non si sposta. Attività MIDI, voci, carico e livelli non si disegnano e non ridisegnano la zona. Nella vista **Geek Out** la testata è la barra completa:
+**UI-126** [D] Z1 (0, 0, 640, 24), testo in classe S alle righe 4..19. **Fuori da Geek Out lo stato tace**: la testata mostra a destra la batteria e, da x = 8 verso destra e solo finché servono, «NO MPK» (lampeggia), «MPK BUSY», «MPK ERROR», «MPK FACTORY», «PAD» (macro pad in errore o senza mappa), «POCKET», «DRUMS», «HOLD», «METRO», «FILL» e «DROP» (gli stati delle aggiunte del macro pad in `active`: batteria a tastiera, Hold dell'accordo, metronomo di T3, Fill tenuto; 40 MIDI-133; Drop di T13 tenuto, 40 MIDI-140; il Lock delle manopole, «LOCK SOUND PERFORM KEY», è tolto dal 19/10/2026), «SWING» e «DRUM FX» (swing e FX della batteria, che cambiano il Beat anche fuori da DRUMS; 40 MIDI-135), «CLIP» (1500 ms) e «XRUN» (2 s), con 16 px tra l'uno e l'altro; «NO MPK» tiene il suo posto anche quando è spento, così il resto non si sposta. Attività MIDI, voci, carico e livelli non si disegnano e non ridisegnano la zona. Nella vista **Geek Out** la testata è la barra completa:
 
 | Elemento | x | Contenuto |
 |---|---|---|
@@ -822,7 +821,7 @@ I font dell'OLED sono diversi e propri (§7.2).
 | carico | 292..347 | «CPU 23%»: carico del thread audio (`dsp_load_pct`); sopra il 70% in `active`, sopra il 90% in `warn`; per 2 s dopo un underrun la scritta diventa «XRUN» in `warn` |
 | livello | 360..447 | due barre (L e R) di 88×4 px alle righe 7..10 e 13..16, scala −48..0 dBFS, picco con caduta di 20 dB/s e tenuta di 1 s; in `text` fino a −6 dBFS, in `active` sopra |
 | clip | 452..487 | «clip» in `dim`; in negativo su `warn` per **1500 ms** dopo ogni aumento di `clip_count` |
-| macro pad | 492..523 | contrassegno «PAD» (40, §8.10): in `focus` se collegato e aperto in esclusiva (`PADL_OPEN`); in `warn` se non si apre in esclusiva (`PADL_ERROR`) o manda codici che nessuna mappa conosce (`PADL_UNMAPPED`); nascosto se assente. Con il Lock delle manopole acceso (MIDI-131) diventa «LOCK» in `active` |
+| macro pad | 492..523 | contrassegno «PAD» (40, §8.10): in `focus` se collegato e aperto in esclusiva (`PADL_OPEN`); in `warn` se non si apre in esclusiva (`PADL_ERROR`) o manda codici che nessuna mappa conosce (`PADL_UNMAPPED`); nascosto se assente |
 | modo tascabile | 528..575 | contrassegno «POCKET» in `active`, solo se acceso |
 | batteria | 576..635 | «87%» allineato a destra a x = 606 e un'icona da 28×12 px a x = 608 con il riempimento proporzionale e il lampo durante la carica; sotto il 15% in `warn` (PLT-090), sotto il 10% lampeggia a 1 Hz. Anche «100%» resta nella colonna (16/10/2026: prima copriva «POCKET») |
 
@@ -969,8 +968,8 @@ Un testo che non sta nella cella si tronca con «…».
 - Le legende riprendono la mappa di 40 (§8.9b, §8.10, §9.1, mappa del 16/10/2026): sono la **legenda viva** della MK4 e del macro pad. Restano nelle celle anche con la plancia calma: la pagina dei comandi si guarda da vicino e, finché il case non c'è, è l'unico promemoria della mappa. «S+K1» è SHIFT + K1 della MK4, il PUSH (40 MIDI-130). Con il macro pad collegato (`pad_link` = `PADL_OPEN`) si usa l'ultima colonna: Options, Chord Voicing e Bass Voicing passano a T9, M e m1.
 - **Sotto DRUMS** (40 MIDI-135, MIDI-139) sette celle cambiano mestiere, con i loro testi: Sound «KIT» (kit, dettaglio il Beat o «Drums»), Perform «ROLL» («Hold a key»), FX «DRIVE» con il filtro nel dettaglio («Filter LP 4»), e «FILTER» mentre si gira premuta, con il drive nel dettaglio; Key «SWING» («Off», «58%»; dettaglio «Beat and loop»), Bass «ACCENT» («Velocity»), Chord Voicing «DENSITY» e Bass Voicing «GROOVE» (UI-176).
 - Options non ha una manopola sulla MPK: si ruota con la manopola di navigazione della MK4 dopo averlo premuto, perché la pressione porta lì il fuoco (MIDI-104). Senza macro pad Chord Voicing e Bass Voicing non hanno una manopola sulla MPK: si raggiungono con L1/R1 della Flip o con la levetta destra (40 MIDI-138); Y è il Mod.
-- **Senza tastiera** (`mpk_link` diverso da `MPK_OPEN`) restano scritti solo i comandi diretti: BPM «START», Options «SEL», Bass Voicing «Y»; con il pad Options, Chord Voicing e Bass Voicing passano a T9, M e m1, e con il Lock acceso Sound «M», Perform «m1», Key «m2». Gli altri controlli si raggiungono con il fuoco della Flip (L1/R1 e la croce).
-- Con la **Plus** (`plat.mpk_model` = 0) valgono le legende di prima: banco B («K2 B3», «K6 B5 REC», «B7 SEL», «B4»), X e Y; con il pad T9, M e m1. Con il **Lock acceso** (40 MIDI-131) le legende dicono quale manopola del pad fa cosa: Sound «M K1», Perform «m1 K2», Key «m2 K4»; Chord Voicing e Bass Voicing mostrano «LOCK», perché in quel momento non hanno manopola. REC e PLAY sono i tasti del trasporto (sulla MK4: REC e STOP/PLAY).
+- **Senza tastiera** (`mpk_link` diverso da `MPK_OPEN`) restano scritti solo i comandi diretti: BPM «START», Options «SEL», Bass Voicing «Y»; con il pad Options, Chord Voicing e Bass Voicing passano a T9, M e m1. Gli altri controlli si raggiungono con il fuoco della Flip (L1/R1 e la croce).
+- Con la **Plus** (`plat.mpk_model` = 0) valgono le legende di prima: banco B («K2 B3», «K6 B5 REC», «B7 SEL», «B4»), X e Y; con il pad T9, M e m1. REC e PLAY sono i tasti del trasporto (sulla MK4: REC e STOP/PLAY).
 
 **UI-153** [D] Stati di una cella, cumulabili:
 
@@ -1238,7 +1237,7 @@ Questa è la mappa **logica**. Il riferimento normativo è la sezione 40: numeri
 | `PNL_MACRO(MACRO_SYSTEM_MENU)` | apre o chiude il menu della piattaforma (UI-129) |
 | `PNL_MACRO(MACRO_PANIC)` | va a `core`; la UI mostra l'avviso «Panic» |
 | `PNL_MACRO(MACRO_LOOP_STOP)`, `(MACRO_LOOP_CLEAR)`, `(MACRO_LOOP_UNDO)`, `(MACRO_LOOP_OVERDUB)` | vanno al looper; la UI mostra lo stato che ne risulta |
-| `PNL_MACRO(MACRO_KNOB_LOCK, b)` | `ctl.knob_lock = b`; la testata mostra «LOCK» (UI-126) |
+| `PNL_MACRO(MACRO_DROP, b)` | `tempo.drop = b` e il Drop al motore (10 ACC-217); la testata mostra «DROP» (UI-126) |
 | `PNL_MACRO(MACRO_VIEW_TOGGLE)` | Geek Out, oppure la vista in uso prima di entrarci (T14 del macro pad, 40 MIDI-132) |
 | `PNL_MACRO(MACRO_CONTROLS_PAGE)` | apre la pagina dei comandi e la tiene aperta; un altro `MACRO_CONTROLS_PAGE` o `PNL_BACK` la chiude (UI-142a) |
 | `PNL_SRC_CONNECTED`, `PNL_SRC_LOST` | stato della MPK o del macro pad (UI-126), legende (UI-152, UI-155) e avviso (UI-156) |
@@ -1267,7 +1266,7 @@ Gli eventi musicali (`PNL_KEY_*`, `PNL_CHORD_*`, `PNL_BEND`, `PNL_MOD`, `PNL_SUS
 | **Tn tenuto + Kn** | premere e ruotare: T4 + K4 = transpose, T8 + K8 = volume del basso, T7 + K7 = volume del beat |
 | **T9 / T10 / T11** | Options / indietro / menu della piattaforma (UI-129) |
 | **T12** tenuto 1 s | Panic |
-| **T13** | **Lock** delle manopole, a scatto come il Caps Lock (40 MIDI-131): acceso, M, m1 e m2 sono Sound, Perform e Key con tutti i loro gesti; la testata mostra «LOCK» (UI-126) |
+| **T13** | **Drop** finché è tenuto (40 MIDI-140): Beat, batteria del loop e basso tacciono e rientrano sul battito; la testata mostra «DROP» (UI-126) |
 | **T14** | **View**: Geek Out e ritorno alla vista di prima (40 MIDI-132) |
 | **T15** | **Page**: apre la pagina dei comandi e la tiene aperta; un altro tocco o B la chiude (UI-142a, 40 MIDI-132) |
 | manopola grande **M** | Chord Voicing: rotazione; pressione = Split ↔ Octave |

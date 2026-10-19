@@ -712,9 +712,9 @@ FESSURA_FRONTE = (M.FLIP_X + M.FLIP_JACK_DX - 9.0, CULLA_FLIP_Y1 + 2.0,
 SPINA_PAD_X = M.PAD_X0 + M.PAD_USB_X
 SPINA_PAD_TOP = M.PAD_Z0 + M.PAD_USB_Z + 3.5        # la spina a 90° è alta circa 7 mm
 
-# le manopole del pad (40 MIDI-120, MIDI-131, MIDI-135): normale, con il Lock, sotto DRUMS
-MANOPOLE_PAD = [('M', 'CH. VOICING', 'SOUND', 'DENSITY'), ('m1', 'BASS VOICING', 'PERFORM', 'GROOVE'),
-                ('m2', 'BEAT VOL', 'KEY', 'VARIATION')]
+# le manopole del pad (40 MIDI-120, MIDI-139): normale e sotto DRUMS. La colonna del Lock (SOUND,
+# PERFORM, KEY) è tolta con il Lock, il 19/10/2026
+MANOPOLE_PAD = [('M', 'CH. VOICING', 'DENSITY'), ('m1', 'BASS VOICING', 'GROOVE'), ('m2', 'BEAT VOL', 'VARIATION')]
 
 
 def piano_flip():
@@ -742,10 +742,10 @@ def piano_flip():
     # legenda sta a sinistra della fessura della Flip: a destra, dietro m1 e m2, c'è la tacca della spina
     ya = CULLA_FLIP_Y1 + 3.0
     px = 0.12
-    colonne = (0.0, 5.0, 21.0, 32.0)
+    colonne = (0.0, 5.0, 21.0)
     largo = max(c + pixel_w(t, px) for riga in MANOPOLE_PAD for c, t in zip(colonne, riga))
     xa = FESSURA_FRONTE[0] - 3.0 - largo
-    for c, testo in zip(colonne[1:], ('', 'LOCK', 'DRUMS')):
+    for c, testo in zip(colonne[1:], ('', 'DRUMS')):
         if testo:
             svg.pixel(*P(xa + c, ya), px, testo)
     for r, riga in enumerate(MANOPOLE_PAD):
@@ -1049,7 +1049,7 @@ def fermo_hub():
 
 # scritte dei tasti del macro pad (CASE-043, 40 MIDI-120, MIDI-133): il nome nella mappa del pad.
 # Vanno sulle etichette di carta dei tasti trasparenti (etichette.py)
-COPRITASTI = [['HOLD'], ['TAP'], ['METRO'], ['FILL'], ['LOCK'],
+COPRITASTI = [['HOLD'], ['TAP'], ['METRO'], ['FILL'], ['DROP'],
               ['SCENE', '1'], ['SCENE', '2'], ['SCENE', '3'], ['SCENE', '4'], ['VIEW'],
               ['OPT'], ['SAVE', 'LOOP'], ['DRUMS'], ['PANIC'], ['PAGE']]
 

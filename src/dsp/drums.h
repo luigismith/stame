@@ -24,6 +24,7 @@ enum { DRUM_KICK, DRUM_RIMSHOT, DRUM_SNARE, DRUM_CLAP, DRUM_CLOSED_HAT, DRUM_TOM
 
 typedef struct {
     uint8_t on, inst;
+    uint8_t prog;               /* colpo del Beat o del loop, che il Drop zittisce (SND-539); 0 = suonato dal vivo */
     float t;                    /* secondi dall'attacco */
     float amp, ph, ph2;         /* livello, fasi degli oscillatori */
     float e1, e2, e3, d1, d2, d3;   /* inviluppi esponenziali e loro moltiplicatori per campione */
@@ -48,12 +49,19 @@ typedef struct {
     float fpos, fpos_t;         /* filtro −1 (passa-basso chiuso) … 0 (spento) … +1 (passa-alto aperto) */
     float drv_prev[2];          /* ultimo campione all'ingresso del drive, per il campione di mezzo */
     float ic1[2], ic2[2];       /* stati del filtro */
+    /* Drop: i colpi programmati tacciono (rampa di 5 ms, poi le loro voci si spengono) */
+    uint8_t prog_mute;
+    float prog_g, prog_step;
 } drums_t;
 
 void drums_init(drums_t *k, float fs, uint32_t seed);
 /* il kit a campioni (un set del banco) per i colpi successivi; NULL = kit sintetizzato */
 void drums_set_kit(drums_t *k, const smp_bank_t *bank, const smp_set_t *kit);
 void drums_hit(drums_t *k, uint8_t inst, uint8_t vel);
+/* colpo programmato (Beat, loop): come drums_hit, ma durante il Drop non suona */
+void drums_hit_prog(drums_t *k, uint8_t inst, uint8_t vel);
+/* Drop (SND-539): on = i colpi programmati tacciono, quelli suonati dal vivo e i clic no */
+void drums_drop(drums_t *k, bool on);
 void drums_volume(drums_t *k, uint8_t v);          /* 0…99 */
 /* FX del bus: drive 0…10, filtro −10 (passa-basso a 150 Hz) … 0 (spento) … +10 (passa-alto a 3 kHz) */
 void drums_fx(drums_t *k, uint8_t drive, int8_t filt);

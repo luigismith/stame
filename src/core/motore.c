@@ -95,7 +95,7 @@ static void apply_loop(motore_t *m, const loop_ev_t *ev, int n)
                 m->swq[m->swq_n].inst = ev[i].note;
                 m->swq[m->swq_n].vel = ev[i].vel;
                 m->swq_n++;
-            } else drums_hit(&m->drums, ev[i].note, ev[i].vel);
+            } else drums_hit_prog(&m->drums, ev[i].note, ev[i].vel);
             continue;
         }
         uint8_t r = ev[i].role == LOOP_BASS ? 1 : 0, src = ev[i].note & 127u;
@@ -279,6 +279,25 @@ void mot_swing(motore_t *m, uint8_t ticks) { m->swing = ticks > MOT_SWING_MAX ? 
 
 void mot_drum_fx(motore_t *m, uint8_t drive, int8_t filt) { drums_fx(&m->drums, drive, filt); }
 
+static void drop_set(motore_t *m, bool on)
+{
+    m->drop = on;
+    m->drop_wait = 0;
+    drums_drop(&m->drums, on);
+    dsp_set_bass_mute(m->d, on);
+}
+
+void mot_drop(motore_t *m, bool on)
+{
+    if (on) { drop_set(m, true); return; }
+    if (!m->drop || m->drop_wait) return;
+    if (m->tr_on) {                                               /* rientro a tempo, sul battito della metrica */
+        uint32_t bt = mot_click(m), r = (m->tick - m->tr_t0) % bt;
+        if (r >= STEP_TICKS) { m->drop_end = m->tick + (bt - r); m->drop_wait = 1; return; }
+    }
+    drop_set(m, false);
+}
+
 void mot_inventa(motore_t *m, uint8_t groove, uint8_t var)
 {
     if (!m->inv_on || groove != m->inv.groove || var != m->inv.var) inv_build(&m->inv, groove, var);
@@ -330,13 +349,14 @@ static int beat_step(const motore_t *m, uint32_t step, beat_hit_t *h, int max)
 
 static void tick_run(motore_t *m)
 {
+    if (m->drop_wait && (int32_t)(m->tick - m->drop_end) >= 0) drop_set(m, false);   /* il Drop finisce sul battito */
     perf_ev_t pe[48];
     apply_perf(m, pe, perf_run(&m->perf, m->tick, pe, 48));
     loop_ev_t le[LOOP_OUT_MAX];
     apply_loop(m, le, loop_run(&m->loop, m->tick, le, LOOP_OUT_MAX));
     for (int i = 0; i < m->swq_n;) {                              /* i colpi del loop spostati dallo swing (ACC-216) */
         if ((int32_t)(m->tick - m->swq[i].due) >= 0) {
-            drums_hit(&m->drums, m->swq[i].inst, m->swq[i].vel);
+            drums_hit_prog(&m->drums, m->swq[i].inst, m->swq[i].vel);
             m->swq[i] = m->swq[--m->swq_n];
         } else i++;
     }
@@ -368,10 +388,11 @@ static void tick_run(motore_t *m)
             else n += beat_step(m, step, h + n, 6 - n);
         }
     } else m->sw_step = -1;
+    int nb = n;                                                   /* i colpi del Beat: il Drop li zittisce, i clic no */
     /* il metronomo (dal Beat o da T3), e il count-in del looper con qualunque Beat (ACC-223) */
     if ((m->beat_on && m->beat_sel == BEAT_M_METRONOME) || m->metro_on || m->loop.state == LOOP_COUNT_IN)
         n += metro_hits(m->beat_sel == BEAT_M_PATTERN ? METER_4_4 : m->meter, pos, h + n, 8 - n);
-    for (int i = 0; i < n; i++) drums_hit(&m->drums, h[i].inst, h[i].vel);
+    for (int i = 0; i < n; i++) (i < nb ? drums_hit_prog : drums_hit)(&m->drums, h[i].inst, h[i].vel);
 }
 
 bool mot_due(const motore_t *m, uint32_t at)

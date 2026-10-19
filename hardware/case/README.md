@@ -77,7 +77,7 @@ Il piatto di riferimento è 210 × 210 mm, cioè le stampanti da 220 in su; `--p
 1. **Misurare** le voci [V] di `misure.py`. I controlli della MK4 e le porte della Flip sono stati rimisurati sulle foto il 17/10/2026 (±1 mm); restano:
    - altezza del pannello della MK4 (37 mm, `MK4['h']`): la mascherina ci appoggia, e il piano della Flip va alla stessa quota;
    - altezza dei pulsanti piccoli della MK4: con la mascherina appoggiata stanno 1-2 mm sotto la sua faccia;
-   - altezza del corpo del pad (`PAD_CORPO`, 11,5 mm dalle foto del 18/10/2026) e quota della sua presa USB-C (`PAD_USB_Z`, 9 mm): decidono le costole e la finestra della culla del pad. Il contorno (185 × 75), la presa (sul retro fra m1 e m2, a 148 mm dal bordo dei tasti) e l'interruttore a slitta (a 78) sono stati misurati con il metro il 19/10/2026;
+   - il macro pad è misurato con il metro il 19/10/2026: contorno 185 × 75, corpo 16,2 (`PAD_CORPO`, le foto del 18/10 davano 11,5), presa USB-C sul retro fra m1 e m2 a 148 mm dal bordo dei tasti e 8,3 sopra il fondo (`PAD_USB_Z`), interruttore a slitta a 78. Resta da vedere a che altezza sta l'interruttore: la finestra della culla va dal fondo fin sopra la spina;
    - angolo di apertura della Flip (serve almeno 115°);
    - misure dell'hub (`HUB`).
 

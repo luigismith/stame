@@ -94,7 +94,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     </div>
     <div class="schede">
       <div class="scheda"><h3>Akai MPK mini IV</h3><p>The eight pads are the original's chord buttons (Dim, Min, Maj, Sus / 6, m7, M7, 9); the keys give the root; the eight knobs turn Sound, Perform, FX, Key, Bass, Loop, BPM and Volume; the transport is the looper.</p></div>
-      <div class="scheda"><h3>Macro pad</h3><p>Fifteen keys and three detented, pushable knobs. The keys do what the original lacks: Hold, tap tempo, metronome, fill, four scenes, Save Loop, drums on the keys; the big knob is the Chord Voicing dial. T13 is the Lock, T14 the View, T15 the Page.</p></div>
+      <div class="scheda"><h3>Macro pad</h3><p>Fifteen keys and three detented, pushable knobs. The keys do what the original lacks: Hold, tap tempo, metronome, fill, four scenes, Save Loop, drums on the keys; the big knob is the Chord Voicing dial. T13 is the Drop, T14 the View, T15 the Page.</p></div>
       <div class="scheda"><h3>Miyoo Flip</h3><p>The brain and the display: a 640×480 screen on a hinge, a Cortex-A55 running the synth at 48 kHz. Its own controls always work: the buttons move a focus and open the controls page and the menu, the left stick bends and modulates, the right one moves the two voicing windows, L2 taps the tempo and R2 holds a fill.</p></div>
     </div>
     <p class="nota-postazione">In the wooden console they sit like this: the MPK on the left, the pad in its cradle in line with the keys, the Flip open above the pad, so the screen never covers the keys. The rendering is further down, in the <a href="#case">Case</a> section.</p>
@@ -190,7 +190,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
           <li>Performances: Strum, Strum 2 Octaves, Slop, Arpeggiate (1 and 2 octaves), Pattern, Harp, with Lock</li>
           <li>Beat with nineteen patterns and sampled kits, Techno, Dub, Acid and Industrial included, metronome in four metres, beat volume</li>
           <li>Looper: REC with a count-in, four bars, overdub, pause, undo, clear, synced with the transport</li>
-          <li>Macro pad: Hold, tap tempo, metronome, fill, four scenes, Options, Save Loop, drums, Panic (held 1 s) and Reset (held 3 s), T13 Lock, T14 View, T15 Page; the two voicing knobs, beat and bass volume</li>
+          <li>Macro pad: Hold, tap tempo, metronome, fill, four scenes, Options, Save Loop, drums, Panic (held 1 s) and Reset (held 3 s), T13 Drop (held: beat, loop drums and bass fall silent and come back on the beat), T14 View, T15 Page; the two voicing knobs, beat and bass volume</li>
           <li>One instrument: keyboard, pad and Flip together, each command in one place. If a device is missing the others keep their job. The Flip's buttons always work</li>
           <li>The Flip's sticks and triggers: bend and modulation on the left stick, Chord and Bass Voicing on the right one, tap tempo and fill on L2 and R2</li>
           <li>MPK mini IV profile in the DAW preset: pads, keys, knobs, SHIFT as the push, navigation knob with − and +, transport, bank B as drum pads</li>
@@ -234,7 +234,7 @@ sh tools/deploy.sh              # copies it over SSH (the Flip's address in tool
       <div class="prosa">
         <h3>Playing it, in three lines</h3>
         <p><strong>Hold a pad, press a key.</strong> Top row Dim, Min, Maj, Sus; bottom row the extensions 6, m7, M7, 9. The key gives the root; the big knob of the pad moves the voicing window.</p>
-        <p><strong>Turn a knob, the band answers.</strong> K1 Sound, K2 Perform, K3 FX, K4 Key, K5 Bass, K6 Loop, K7 BPM, K8 Volume; hold SHIFT and touch a knob to «push» it. T13 locks the pad's three knobs onto Sound, Perform and Key, with their clicks.</p>
+        <p><strong>Turn a knob, the band answers.</strong> K1 Sound, K2 Perform, K3 FX, K4 Key, K5 Bass, K6 Loop, K7 BPM, K8 Volume; hold SHIFT and touch a knob to «push» it. Hold T13 for a drop: beat, loop drums and bass go quiet and come back on the next beat.</p>
         <p><strong>REC, play four bars, ⊕ to overdub.</strong> The transport buttons of the MPK are the looper; STOP/PLAY starts the beat; T11 turns the keys into drums and T10 puts the loop aside. T12 held for a second is Panic, three seconds is Reset.</p>
         <p>The Italian <a href="manuale.html" hreflang="it">manual</a> and the one-page <a href="prontuario.html" hreflang="it">quick reference</a> have all of it.</p>
       </div>

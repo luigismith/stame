@@ -65,6 +65,7 @@ typedef struct {
     uint8_t  kit, roll, accent;         /* drum machine (40 MIDI-135): kit scelto (0 = del Beat), Roll 0…6, Accent 0…10 */
     uint8_t  swing, drive;              /* Swing in tick 0…12 (10 ACC-216), Drive 0…10 (20 SND-538) */
     int8_t   filt;                      /* filtro della batteria: −10 passa-basso … 0 spento … +10 passa-alto */
+    uint8_t  drop;                      /* T13 tenuto (40 MIDI-140): Beat, loop di batteria e basso tacciono */
     /* la batteria che si inventa (40 MIDI-139): il Beat è il loop inventato; stile, variazione, densità
      * di tutto, parte che M regola (0 = tutto, 1…5 = cassa, rullante, charleston, aperto, percussioni),
      * densità di ogni parte, passo che suona (255 = fermo) e la griglia dei colpi (velocity, 0 = niente) */
@@ -102,7 +103,6 @@ enum { ARP_UP, ARP_DOWN, ARP_UPDOWN };
 typedef struct {
     ui_ctl_state_t st[ENC_COUNT];
     uint8_t  focus, turn_target, push;
-    uint8_t  knob_lock;                 /* Lock del macro pad (40, MIDI-131): M, m1, m2 = Sound, Perform, Key */
     uint8_t  hold, fill;                /* Hold dell'accordo e Fill del Beat tenuto (T1, T4 del pad: MIDI-133) */
     uint8_t  sound_user, sound_num;
     char     sound_name[17];

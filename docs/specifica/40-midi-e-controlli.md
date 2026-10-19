@@ -559,18 +559,18 @@ Gli encoder dell'originale si premono, le manopole della MPK no. Luigi ha aggiun
 
 ```
   Macro pad BRIMFORD, tenuto con le manopole a destra (mappa del 16/10/2026)
-  T1 Hold     T2 Tap      T3 Metro   T4 Fill    T13 Lock    m1   m2
+  T1 Hold     T2 Tap      T3 Metro   T4 Fill    T13 Drop    m1   m2
   T5 Scene 1  T6 Scene 2  T7 Scene 3 T8 Scene 4 T14 View
   T9 Options  T10 Save Lp T11 Drums  T12 Panic  T15 Page       M
 ```
 
 | Fila del pad | col. 1 | col. 2 | col. 3 | col. 4 | col. 5 | Manopole |
 |---|---|---|---|---|---|---|
-| in alto | T1 Hold | T2 Tap tempo | T3 Metronomo | T4 Fill (tenuto) | **T13 Lock** | m1 Bass Voicing (piccola vicina ai tasti), m2 volume del Beat (piccola sul bordo; premuta e girata, volume del basso); con il Lock acceso Perform e Key (MIDI-131) |
+| in alto | T1 Hold | T2 Tap tempo | T3 Metronomo | T4 Fill (tenuto) | **T13 Drop** (tenuto) | m1 Bass Voicing (piccola vicina ai tasti), m2 volume del Beat (piccola sul bordo; premuta e girata, volume del basso) |
 | in mezzo | T5 Scene 1 | T6 Scene 2 | T7 Scene 3 | T8 Scene 4 | **T14 View** | |
-| in basso | T9 Options | T10 Save Loop | T11 Drums | T12 Panic | **T15 Page** | M Chord Voicing (la grande); con il Lock acceso Sound |
+| in basso | T9 Options | T10 Save Loop | T11 Drums | T12 Panic | **T15 Page** | M Chord Voicing (la grande) |
 
-La quinta colonna è quella **decisa da Luigi il 15/10/2026**: **T13 Lock** (MIDI-131), **T14 View** e **T15 Page** (MIDI-132). Le prime quattro, fino al 15/10 gemelle delle manopole della MPK, dal 16/10/2026 sono le funzioni di MIDI-133.
+La quinta colonna è quella **decisa da Luigi il 15/10/2026**, degli stati di Stame: **T13 Drop** (MIDI-140; fino al 19/10/2026 era il Lock delle manopole, MIDI-131), **T14 View** e **T15 Page** (MIDI-132). Le prime quattro, fino al 15/10 gemelle delle manopole della MPK, dal 16/10/2026 sono le funzioni di MIDI-133.
 
 - **MIDI-120** — Il profilo `pad_brimford` DEVE applicare questa mappa [D, **13/10/2026**, rifatta il **16/10/2026**] sempre, con o senza tastiera (il pad strumento di MIDI-136 è stato tolto il 18/10/2026). I codici sono quelli programmati sul macro pad (MIDI-122) o imparati con Learn Pad (MIDI-123); al profilo arrivano già tradotti nei codici portabili `MPAD_*` (MIDI-124):
 
@@ -585,7 +585,7 @@ La quinta colonna è quella **decisa da Luigi il 15/10/2026**: **T13 Lock** (MID
 | **T10** | L | `PNL_MACRO(MACRO_LOOP_EXIT)` alla pressione | **Save Loop**: l'uscita morbida di ACC-222 (`LOOP_C_EXIT`) |
 | **T11** | M | `PNL_MACRO(MACRO_DRUMS_TOGGLE)` alla pressione | **Batteria a tastiera** on/off (ACC-211) |
 | **T12** | N | `PNL_MACRO(MACRO_PANIC)` **solo dopo 1 s tenuto**, `MACRO_RESET` a 3 s (MIDI-126) | Panic (§7), Reset |
-| **T13** | E | `PNL_MACRO(MACRO_KNOB_LOCK, 1/0)` alla pressione, a scatto | **Lock** delle manopole, come il Caps Lock (MIDI-131) [D, **deciso da Luigi il 15/10/2026**] |
+| **T13** | E | `PNL_MACRO(MACRO_DROP, 1)` alla pressione, `0` al rilascio | **Drop** finché è tenuto (MIDI-140) [D, **scelto da Luigi il 19/10/2026**] |
 | **T14** | J | `PNL_MACRO(MACRO_VIEW_TOGGLE)` alla pressione | **View**: Geek Out e ritorno alla vista di prima (MIDI-132) |
 | **T15** | O | `PNL_MACRO(MACRO_CONTROLS_PAGE)` alla pressione | **Page**: apre la pagina dei comandi della Flip e la tiene aperta; un altro tocco o Back la chiude (MIDI-132) |
 | **M** antioraria / oraria | 9 / 7 (strato 1: volume giù / su) | `PNL_ENC_TURN(ENC_CHORD_VOICING, −1/+1)`, uno scatto per evento | Chord Voicing Dial |
@@ -593,13 +593,13 @@ La quinta colonna è quella **decisa da Luigi il 15/10/2026**: **T13 Lock** (MID
 | **m1** antioraria / oraria | 1 / 3 | `PNL_ENC_TURN(ENC_BASS_VOICING, −1/+1)` | Bass Voicing Dial: registro (ottava) del basso |
 | **m1** pressione | 2 | `PNL_ENC_DOWN/UP(ENC_BASS_VOICING)` | Bass Voicing premuto: il **modificatore** delle combinazioni |
 | **m2** antioraria / oraria | 4 / 6 | `PNL_MACRO(MACRO_BEAT_VOL, ∓1)`; con m2 premuta `MACRO_BASS_VOL` | Volume del Beat; premuta e girata, volume del basso (MIDI-133). Con il Lock acceso `PNL_ENC_TURN(ENC_KEY)` |
-| **m2** pressione | 5 | niente (con il Lock acceso `PNL_ENC_DOWN/UP(ENC_KEY)`) | — |
+| **m2** pressione | 5 | niente; premuta e lasciata senza girarla `MACRO_KNOB_CLICK` (MIDI-139) | — |
 
   Combinazioni con il Bass Voicing tenuto [M], come in §8.5: **m1 tenuta + Loop** (REC della MK4, o B5 della Plus) = uscita hard dal loop; **m1 tenuta + BPM** = batteria da suonare ("On drums") [O], che dal 16/10/2026 ha anche T11; **m1 tenuta + Bass** = basso on/off.
 
 - **MIDI-121** — **Gesti con il macro pad** [D, 13/10/2026, ridotti il 16/10/2026]. Il riconoscitore (MIDI-103) lavora sullo stato unito delle sorgenti (MIDI-102):
   - T9 è un pulsante di encoder: **premere** = tocco, **tenere** = 1 s; porta il fuoco su Options (MIDI-104), che si ruota con la manopola di navigazione della MK4;
-  - M e m1 premute e ruotate danno il premere e ruotare del proprio encoder; con il Lock acceso lo stesso vale per m2 (Key: transpose);
+  - M e m1 premute e ruotate danno il premere e ruotare del proprio encoder;
   - T4 e T5–T8 hanno il tenuto nel profilo (`on_tick`), non nel riconoscitore: Fill finché è tenuto, scena salvata a 1 s;
   - i tasti T1–T8 non premono più gli encoder: il premere e ruotare degli encoder è SHIFT + K della MK4 (MIDI-130).
 
@@ -682,12 +682,7 @@ layers:
   - funziona anche senza MPK: in quel caso le note arrivano solo dal modo tascabile (§9.2);
   - quando il macro pad è collegato, le legende delle celle e la legenda viva mostrano i suoi nomi (`30` UI-152, UI-155) e la barra di stato mostra «PAD» (`30` UI-126).
 
-- **MIDI-131** — **Lock delle manopole** [D, **deciso da Luigi il 15/10/2026**: «un tasto che funzioni tipo Caps Lock per i knob»]. Le manopole della MK4 non hanno scatti (§8.9b), le tre del macro pad sì, e le scelte a lista vogliono gli scatti: uno scatto, una voce. **T13** è un interruttore **a scatto, come il Caps Lock**: un tocco accende il Lock, un altro lo spegne; non si tiene. Con il Lock acceso **M, m1 e m2 sono gli encoder Sound, Perform e Key**, con tutti i gesti dell'encoder che rappresentano (M tenuta 1 s = Save, m1 premuta = lista dei modi, m2 premuta e ruotata = transpose); spento, tornano Chord Voicing, Bass Voicing e liste. Regole:
-  - il profilo emette `PNL_MACRO(MACRO_KNOB_LOCK, b)` con `b` = 1 acceso, 0 spento, a ogni cambio; la UI tiene lo stato in `ctl.knob_lock` e mostra «LOCK» in testata finché è acceso (`30` UI-126), come il LED del Caps Lock;
-  - una pressione di manopola cominciata prima del cambio finisce sull'encoder con cui è cominciata;
-  - allo scollegamento del macro pad il Lock si spegne (`MACRO_KNOB_LOCK` 0 prima di `PNL_SRC_LOST`); all'avvio è spento e non si ricorda;
-  - il Lock non tocca K1–K8 della MPK, T1–T12, il PUSH né i tasti della Flip. Premere una manopola con il Lock acceso porta il fuoco sul suo encoder, come MIDI-104;
-  - con il Lock spento m2 è il volume del Beat (premuta e girata, del basso: MIDI-133); acceso è Key. Liste, fuoco e conferma stanno sulla **manopola di navigazione della MK4** (scatti e pressione, MIDI-130; dal 16/10/2026 la sola casa della navigazione, con − e +) e, senza MK4, su croce e A della Flip.
+- **MIDI-131** — **Lock delle manopole** [D, deciso da Luigi il 15/10/2026: «un tasto che funzioni tipo Caps Lock per i knob»; **tolto il 19/10/2026**]. Dal 15 al 19/10/2026 T13 era un interruttore a scatto: acceso, M, m1 e m2 erano gli encoder Sound, Perform e Key, perché le manopole della MK4 non hanno scatti e quelle del pad sì. Il 19/10/2026 Luigi: «a che serve se sulla mpk ho già sound, perform, key?»; la navigazione della MK4 ha scatti e pressione per le liste e SHIFT + K dà tutti i gesti premuti, quindi il Lock era un doppione. T13 è il Drop (MIDI-140).
 
 - **MIDI-132** — **View e Page** [D, **decisi da Luigi il 15/10/2026**]. Due tasti per guardare la Flip senza allungare la mano fino ai suoi tasti:
   - **T14 View** emette `PNL_MACRO(MACRO_VIEW_TOGGLE)` alla pressione: la UI passa a **Geek Out** e, al tocco successivo, torna alla vista in uso prima (`30` UI-051: Options → View resta la strada dell'originale per le sei viste);
@@ -702,7 +697,7 @@ layers:
   - **T5–T8 Scene 1–4**: un tocco richiama suono, basso, Perform (modo e amount), intensità dell'effetto, tonalità con la Key mode e basso acceso; tenuto 1 s salva lo stato corrente. Una scena vuota lo dice («Scene 3 empty: hold 1 s to save»). Le scene stanno in `Saves/stame/scene.txt` (chiave=valore, PLT-066: `s1.sound`, `s1.perf`…), lette all'avvio e riscritte a ogni salvataggio dal thread principale;
   - **T10 Save Loop**: l'uscita morbida di ACC-222 (`LOOP_C_EXIT`): il loop si ferma e resta in RAM; il Loop successivo (REC) lo riprende da t = 0 invece di registrarne uno nuovo; Clear da fermo lo svuota;
   - **T11 Drums**: `DRUMS_TOGGLE` di ACC-211, la batteria a tastiera, che con il PUSH su SHIFT non ha più una combinazione comoda (Mod + BPM resta);
-  - **m2** (Lock spento): girata regola il **volume del Beat**, premuta e girata il **volume del basso**, uno scatto per punto, con i loro overlay; premuta da sola non fa niente. Con il Lock acceso resta Key (MIDI-131).
+  - **m2**: girata regola il **volume del Beat**, premuta e girata il **volume del basso**, uno scatto per punto, con i loro overlay; premuta da sola non fa niente.
 
 - **MIDI-134** — **Riserve inerti** [D, 16/10/2026; **superata il 17/10/2026** da MIDI-137]. Dal 16 al 17/10/2026 i tasti della Flip che rifacevano il comando di un altro apparecchio tacevano quando quell'apparecchio c'era (croce, A, B e START con la MK4; Y, SELECT, L1 e R1 con il pad). Sulla Flip Luigi è rimasto chiuso nel menu: MENU lo apriva, ma la croce taceva. Il 17/10/2026: «i tasti della flip devono funzionare per la gestione», poi «tutti».
 
@@ -766,6 +761,12 @@ layers:
   - i cambi valgono dal sedicesimo dopo: il loop non riparte, la battuta e il loop del looper restano allineati; il Fill di T4 e la scelta del kit (K1) valgono anche per il loop inventato;
   - lo stesso vale per il fuoco della Flip sotto DRUMS: la levetta destra e R3 (Chord Voicing) sono M, L3 e Y (Bass Voicing) sono m1;
   - sulla plancia la zona dell'accordo mostra la griglia del loop (`30` UI-176) e le celle CH.VOICING e BS.VOICING diventano DENSITY e GROOVE; sul case la legenda delle manopole sotto DRUMS è DENSITY, GROOVE, VARIATION (`60` CASE-045).
+
+- **MIDI-140** — **Drop** [D, **scelto da Luigi il 19/10/2026** fra quattro proposte (Drop, scelta rapida della tonalità, Perform on/off, mute del loop), al posto del Lock di MIDI-131]. **T13 tenuto**: il Beat (tabella o loop inventato), i colpi di batteria del loop e il basso tacciono subito; al rilascio rientrano a tempo, sul battito dopo (`10` ACC-217). È il break della techno e del dub, e fa il paio con il Fill di T4. Regole:
+  - il profilo emette `PNL_MACRO(MACRO_DROP, 1)` alla pressione e `MACRO_DROP, 0` al rilascio, come il Fill; se il pad si stacca con T13 tenuto, il rilascio sintetico arriva prima di `PNL_SRC_LOST` (MIDI-127);
+  - suonano sempre: gli accordi e le loro performance, il metronomo e il count-in, i colpi suonati dal vivo (tasti sotto DRUMS, pad del banco B, Roll), che entrano nel loop se registra;
+  - Beat e loop vanno avanti in silenzio: al rientro sono al loro posto. Le voci del basso continuano, quindi una nota tenuta ricompare al rientro (`20` SND-539);
+  - la testata scrive «DROP» finché T13 è tenuto (`30` UI-126); sul case l'etichetta di T13 è DROP, in negativo come gli altri stati (`60` CASE-043). T13 sta nella quinta colonna, quella degli stati di Stame.
 
 ---
 
@@ -858,7 +859,7 @@ typedef enum {                      /* gli 8 tasti accordo */
 
 typedef enum {
     MACRO_LOOP_STOP, MACRO_LOOP_CLEAR, MACRO_PANIC, MACRO_SYSTEM_MENU, MACRO_LOOP_UNDO, MACRO_LOOP_OVERDUB,
-    MACRO_KNOB_LOCK,                /* b = 1 acceso, 0 spento (MIDI-131) */
+    MACRO_DROP,                     /* b = 1 tenuto, 0 rilasciato (MIDI-140) */
     MACRO_VIEW_TOGGLE,              /* Geek Out <-> la vista di prima (MIDI-132) */
     MACRO_CONTROLS_PAGE             /* apre o chiude la pagina dei comandi della Flip (MIDI-132) */
 } macro_t;

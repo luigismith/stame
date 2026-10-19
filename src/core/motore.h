@@ -63,6 +63,8 @@ typedef struct {
     uint32_t sw_due;
     uint8_t  swq_n;                     /* colpi del loop sui sedicesimi dispari, in attesa dello swing */
     struct { uint32_t due; uint8_t inst, vel; } swq[MOT_SWQ];
+    uint8_t  drop, drop_wait;           /* Drop (ACC-217): batteria programmata e basso tacciono; rilasciato, aspetta il battito */
+    uint32_t drop_end;                  /* tick in cui rientrano */
     uint8_t  inv_on;                    /* il Beat viene dalla batteria che si inventa (MIDI-139) */
     uint8_t  inv_dens[INV_PARTS];       /* densità delle cinque parti, 0…10 */
     inv_t    inv;                       /* stile, variazione e priorità del loop inventato */
@@ -99,6 +101,10 @@ void mot_roll(motore_t *m, uint8_t div_ticks);
 void mot_swing(motore_t *m, uint8_t ticks);
 /* FX del bus della batteria (SND-538): drive 0…10, filtro −10…+10 (passa-basso … spento … passa-alto) */
 void mot_drum_fx(motore_t *m, uint8_t drive, int8_t filt);
+/* Drop (ACC-217, T13 tenuto): on = Beat, colpi del loop e basso tacciono subito (le voci del basso vanno
+ * avanti in silenzio, i colpi dal vivo e il metronomo suonano); off = rientrano sul battito dopo, o subito
+ * se il rilascio cade entro un sedicesimo dal battito */
+void mot_drop(motore_t *m, bool on);
 /* la batteria che si inventa (MIDI-139, ACC-215): il Beat suona il loop di inventa.h con lo stile e la
  * variazione dati, finché non si sceglie un Beat del menu (mot_beat); le densità valgono dal passo dopo */
 void mot_inventa(motore_t *m, uint8_t groove, uint8_t var);

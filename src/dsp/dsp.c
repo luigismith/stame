@@ -31,6 +31,8 @@ void dsp_init(dsp_t *d, float fs, uint32_t seed)
     d->vel_sense = 1;
     d->g_master = (75.0f / 99.0f) * (75.0f / 99.0f);
     d->g_bass = d->g_master;
+    d->g_bmute = 1.0f;
+    d->bmute_step = dt / 0.005f;                              /* da 1 a 0 in 5 ms */
     for (int e = 0; e < DSP_ENGINES; e++) {
         dsp_eng_t *E = &d->eng[e];
         snd_patch_init(E->p, SND_MODEL_VA);
@@ -833,6 +835,7 @@ void dsp_set_max_voices(dsp_t *d, dsp_engine e, uint8_t n)
 void dsp_set_bpm(dsp_t *d, float bpm) { d->bpm = clampf(bpm, 20.0f, 400.0f); }
 void dsp_set_master_volume(dsp_t *d, uint8_t v) { d->master = v > 99 ? 99 : v; }
 void dsp_set_bass_volume(dsp_t *d, uint8_t v) { d->bass_vol = v > 99 ? 99 : v; }
+void dsp_set_bass_mute(dsp_t *d, bool mute) { d->bass_mute = mute; }
 void dsp_set_velocity_sense(dsp_t *d, bool on) { d->vel_sense = on; }
 
 int dsp_voices_active(const dsp_t *d)
@@ -925,6 +928,8 @@ void dsp_render16(dsp_t *d, float *L, float *R, const float *drum_L, const float
     /* motori: −12 dB, tremolo RP, FX1 → FX2, volume del basso, mandate al riverbero (§10.1) */
     float send_l[DSP_BLOCK] = { 0 }, send_r[DSP_BLOCK] = { 0 };
     float gb0 = d->g_bass, gb1 = ((float)d->bass_vol / 99.0f) * ((float)d->bass_vol / 99.0f);
+    float mb0 = d->g_bmute;                                                    /* Drop (SND-539) */
+    float mb1 = clampf(d->bass_mute ? mb0 - d->bmute_step : mb0 + d->bmute_step, 0.0f, 1.0f);
     for (int e = 0; e < DSP_ENGINES; e++) {
         dsp_eng_t *E = &d->eng[e];
         float *bl = bus[e][0], *br = bus[e][1];
@@ -933,7 +938,7 @@ void dsp_render16(dsp_t *d, float *L, float *R, const float *drum_L, const float
         fx_process(d, E, 0, bl, br);
         fx_process(d, E, 1, bl, br);
         if (e == DSP_BASS) {                                                    /* SND-453 */
-            float g = gb0, dg = (gb1 - gb0) / (float)DSP_BLOCK;
+            float g = gb0 * mb0, dg = (gb1 * mb1 - gb0 * mb0) / (float)DSP_BLOCK;
             for (int i = 0; i < DSP_BLOCK; i++) { g += dg; bl[i] *= g; br[i] *= g; }
         }
         float s = E->sm[SND_P_REVSEND] / 127.0f;                               /* SND-531 */
@@ -941,6 +946,7 @@ void dsp_render16(dsp_t *d, float *L, float *R, const float *drum_L, const float
             for (int i = 0; i < DSP_BLOCK; i++) { send_l[i] += bl[i] * s; send_r[i] += br[i] * s; }
     }
     d->g_bass = gb1;
+    d->g_bmute = mb1;
 
     float wet_l[DSP_BLOCK], wet_r[DSP_BLOCK];
     rev_process(d, send_l, send_r, wet_l, wet_r);

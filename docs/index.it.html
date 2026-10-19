@@ -94,7 +94,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     </div>
     <div class="schede">
       <div class="scheda"><h3>Akai MPK mini IV</h3><p>Gli otto pad sono i tasti accordo dell'originale (Dim, Min, Maj, Sus / 6, m7, M7, 9); i tasti danno la fondamentale; le otto manopole girano Sound, Perform, FX, Key, Bass, Loop, BPM e Volume; il trasporto è il looper.</p></div>
-      <div class="scheda"><h3>Macro pad</h3><p>Quindici tasti e tre manopole a scatti, che si premono. I tasti fanno quello che l'originale non ha: Hold, tap tempo, metronomo, fill, quattro scene, Save Loop, batteria sui tasti; la manopola grande è il Chord Voicing. T13 è il Lock, T14 la vista, T15 la pagina dei comandi.</p></div>
+      <div class="scheda"><h3>Macro pad</h3><p>Quindici tasti e tre manopole a scatti, che si premono. I tasti fanno quello che l'originale non ha: Hold, tap tempo, metronomo, fill, quattro scene, Save Loop, batteria sui tasti; la manopola grande è il Chord Voicing. T13 è il Drop, T14 la vista, T15 la pagina dei comandi.</p></div>
       <div class="scheda"><h3>Miyoo Flip</h3><p>Il cervello e il display: uno schermo 640×480 su una cerniera, un Cortex-A55 che fa girare il synth a 48 kHz. I suoi comandi funzionano sempre: i tasti spostano il fuoco e aprono la pagina dei comandi e il menu, la levetta sinistra fa bend e modulazione, la destra muove le due finestre del voicing, L2 batte il tempo e R2 tiene il fill.</p></div>
     </div>
     <p class="nota-postazione">Nella console di legno stanno così: la MPK a sinistra, il pad nella sua culla in linea con i tasti, la Flip aperta sopra il pad, così lo schermo non copre mai i tasti. Il rendering è più giù, nella sezione <a href="#case">Case</a>.</p>
@@ -190,7 +190,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
           <li>Performance: Strum, Strum 2 Octaves, Slop, Arpeggiate (1 e 2 ottave), Pattern, Harp, con il Lock</li>
           <li>Beat con diciannove pattern e kit a campioni, Techno, Dub, Acid e Industrial compresi, metronomo in quattro metriche, volume del Beat</li>
           <li>Looper: REC con count-in, quattro battute, sovraincisione, pausa, undo, clear, in sincrono con il trasporto</li>
-          <li>Macro pad: Hold, tap tempo, metronomo, fill, quattro scene, Options, Save Loop, batteria, Panic (tenuto 1 s) e Reset (tenuto 3 s), T13 Lock, T14 View, T15 Page; le due manopole del voicing, volume del Beat e del basso</li>
+          <li>Macro pad: Hold, tap tempo, metronomo, fill, quattro scene, Options, Save Loop, batteria, Panic (tenuto 1 s) e Reset (tenuto 3 s), T13 Drop (tenuto: Beat, batteria del loop e basso tacciono e rientrano sul battito), T14 View, T15 Page; le due manopole del voicing, volume del Beat e del basso</li>
           <li>Uno strumento solo: tastiera, pad e Flip insieme, ogni comando in una casa. Se manca un apparecchio, gli altri fanno lo stesso mestiere. I tasti della Flip funzionano sempre</li>
           <li>Levette e grilletti della Flip: bend e modulazione sulla levetta sinistra, Chord e Bass Voicing sulla destra, tap tempo e fill su L2 e R2</li>
           <li>Profilo della MPK mini IV nel preset DAW: pad, tasti, manopole, SHIFT come pressione, manopola di navigazione con − e +, trasporto, banco B come pad di batteria</li>
@@ -234,7 +234,7 @@ sh tools/deploy.sh              # la copia via SSH (l'indirizzo della Flip in to
       <div class="prosa">
         <h3>Suonarlo, in tre righe</h3>
         <p><strong>Tieni un pad, premi un tasto.</strong> Fila alta Dim, Min, Maj, Sus; fila bassa le estensioni 6, m7, M7, 9. Il tasto dà la fondamentale; la manopola grande del pad sposta la finestra del voicing.</p>
-        <p><strong>Gira una manopola, la banda risponde.</strong> K1 Sound, K2 Perform, K3 FX, K4 Key, K5 Bass, K6 Loop, K7 BPM, K8 Volume; tieni SHIFT e tocca la manopola per «premerla». T13 blocca le tre manopole del pad su Sound, Perform e Key, con i loro scatti.</p>
+        <p><strong>Gira una manopola, la banda risponde.</strong> K1 Sound, K2 Perform, K3 FX, K4 Key, K5 Bass, K6 Loop, K7 BPM, K8 Volume; tieni SHIFT e tocca la manopola per «premerla». Tieni T13 per un drop: Beat, batteria del loop e basso tacciono e rientrano sul battito dopo.</p>
         <p><strong>REC, quattro battute, ⊕ per sovraincidere.</strong> I pulsanti del trasporto della MPK sono il looper; STOP/PLAY accende il beat; T11 fa dei tasti una batteria e T10 mette il loop da parte. T12 tenuto un secondo è il Panic, tre secondi il Reset.</p>
         <p>Il <a href="manuale.html">manuale</a> e il <a href="prontuario.html">prontuario</a> di una pagina dicono tutto il resto.</p>
       </div>

@@ -2,19 +2,18 @@
  *
  * Mappa del 16/10/2026 (Luigi: «vedo comandi replicati sui vari device... questa cosa non mi piace»):
  * il pad non rifà più i pulsanti degli encoder né la navigazione, che stanno sulla MK4; tiene Options,
- * Panic, Lock, View, Page e i due voicing, e dà ai tasti liberi le funzioni che l'originale non ha.
+ * Panic, View, Page e i due voicing, e dà ai tasti liberi le funzioni che l'originale non ha. Il Lock
+ * delle manopole (MIDI-131) è tolto dal 19/10/2026: T13 è il Drop (MIDI-140).
  */
 #include "pad_brimford.h"
 
-#define KNOB_VOL 0xFE               /* m2 senza Lock: volumi del Beat e del basso, non un encoder */
+#define KNOB_VOL 0xFE               /* m2: volumi del Beat e del basso, non un encoder */
 
-/* M, m1, m2 senza e con il Lock (MIDI-131) */
-static const uint8_t KNOB_ROLE[2][3] STAME_ROM = {
-    { ENC_CHORD_VOICING, ENC_BASS_VOICING, KNOB_VOL }, { ENC_SOUND, ENC_PERFORM, ENC_KEY }
-};
+/* M, m1, m2 */
+static const uint8_t KNOB_ROLE[3] STAME_ROM = { ENC_CHORD_VOICING, ENC_BASS_VOICING, KNOB_VOL };
 
 enum { T_HOLD, T_TAP, T_METRO, T_FILL, T_SCENE1, T_SCENE2, T_SCENE3, T_SCENE4, T_OPTIONS, T_EXIT, T_DRUMS,
-       T_PANIC, T_LOCK, T_VIEW, T_PAGE };
+       T_PANIC, T_DROP, T_VIEW, T_PAGE };
 enum { ACT_CCW, ACT_PUSH, ACT_CW };
 
 static void mpad_reset(void *st)
@@ -53,9 +52,7 @@ static int mpad_on_pad(void *st, uint16_t code, int32_t value, uint32_t t_us, pn
         case T_EXIT:    if (down) pnl_put(&o, PNL_MACRO, MACRO_LOOP_EXIT, 0); break;
         case T_DRUMS:   if (down) pnl_put(&o, PNL_MACRO, MACRO_DRUMS_TOGGLE, 0); break;
         case T_PANIC:   s->t12 = down; s->t12_t0 = t_us; break;    /* MIDI-126: il Panic lo decide on_tick */
-        case T_LOCK:                                              /* a scatto, come il Caps Lock (MIDI-131) */
-            if (down) { s->lock = (uint8_t)!s->lock; pnl_put(&o, PNL_MACRO, MACRO_KNOB_LOCK, s->lock); }
-            break;
+        case T_DROP:    pnl_put(&o, PNL_MACRO, MACRO_DROP, down); break;        /* finché è tenuto (MIDI-140) */
         case T_VIEW:    if (down) pnl_put(&o, PNL_MACRO, MACRO_VIEW_TOGGLE, 0); break;     /* MIDI-132 */
         case T_PAGE:    if (down) pnl_put(&o, PNL_MACRO, MACRO_CONTROLS_PAGE, 0); break;
         default: break;
@@ -68,13 +65,13 @@ static int mpad_on_pad(void *st, uint16_t code, int32_t value, uint32_t t_us, pn
     if (act == ACT_PUSH) {
         if (down == ((s->knob_down & kb) != 0)) return 0;
         s->knob_down ^= kb;
-        if (down) { s->knob_enc[k] = KNOB_ROLE[s->lock][k]; s->knob_turned &= (uint8_t)~kb; }   /* il rilascio va al ruolo premuto */
+        if (down) { s->knob_enc[k] = KNOB_ROLE[k]; s->knob_turned &= (uint8_t)~kb; }   /* il rilascio va al ruolo premuto */
         if (s->knob_enc[k] != KNOB_VOL) pnl_put(&o, down ? PNL_ENC_DOWN : PNL_ENC_UP, s->knob_enc[k], 0);
         else if (!down && !(s->knob_turned & kb)) pnl_put(&o, PNL_MACRO, MACRO_KNOB_CLICK, k);   /* MIDI-139 */
     } else if (down) {                                            /* conta solo il KEY_DOWN (MIDI-125) */
         int16_t d = act == ACT_CW ? 1 : -1;
         bool pressed = (s->knob_down & kb) != 0;
-        uint8_t role = pressed ? s->knob_enc[k] : KNOB_ROLE[s->lock][k];
+        uint8_t role = pressed ? s->knob_enc[k] : KNOB_ROLE[k];
         if (pressed) s->knob_turned |= kb;
         if (role == KNOB_VOL) pnl_put(&o, PNL_MACRO, pressed ? MACRO_BASS_VOL : MACRO_BEAT_VOL, d);
         else pnl_put(&o, PNL_ENC_TURN, role, d);
@@ -122,10 +119,10 @@ static int mpad_on_lost(void *st, uint32_t t_us, pnl_event_t *out, int max)
 
     if (s->t_down & (1u << T_OPTIONS)) pnl_put(&o, PNL_ENC_UP, ENC_OPTIONS, PNL_B_SYNTH);
     if (s->t_down & (1u << T_FILL)) pnl_put(&o, PNL_MACRO, MACRO_FILL, 0);
+    if (s->t_down & (1u << T_DROP)) pnl_put(&o, PNL_MACRO, MACRO_DROP, 0);   /* la batteria e il basso tornano */
     for (int k = 0; k < 3; k++)
         if ((s->knob_down & (1u << k)) && s->knob_enc[k] != KNOB_VOL)
             pnl_put(&o, PNL_ENC_UP, s->knob_enc[k], PNL_B_SYNTH);
-    if (s->lock) pnl_put(&o, PNL_MACRO, MACRO_KNOB_LOCK, 0);     /* il Lock non sopravvive al pad */
     pnl_put(&o, PNL_SRC_LOST, SRC_MACROPAD, 0);
 
     uint32_t dropped = s->dropped;

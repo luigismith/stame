@@ -10,16 +10,13 @@ static const char *const TITLE[ENC_COUNT] = {
 };
 
 /* legende (UI-152), mappa del 16/10/2026: con la MK4 la pressione degli encoder è SHIFT + K («S+K»),
- * i voicing stanno sul macro pad (M, m1) e, senza pad, sul fuoco della Flip (L1 R1 e la manopola nav);
- * con il Lock acceso M, m1 e m2 sono Sound, Perform e Key (MIDI-131). Con la Plus restano banco B e Y */
+ * i voicing stanno sul macro pad (M, m1) e, senza pad, sul fuoco della Flip (L1 R1 e la manopola nav).
+ * Con la Plus restano banco B e Y */
 static const char *const LEG_MK4[ENC_COUNT] = {
     "K1 S+K1", "K2 S+K2", "K3 S+K3", "K4 S+K4", "K5 S+K5", "K6 REC", "K7 PLAY", "K8 S+K8", "SEL", "L1 R1", "Y"
 };
 static const char *const LEG_MK4_PAD[ENC_COUNT] = {
     "K1 S+K1", "K2 S+K2", "K3 S+K3", "K4 S+K4", "K5 S+K5", "K6 REC", "K7 PLAY", "K8 S+K8", "T9", "M", "m1"
-};
-static const char *const LEG_MK4_LOCK[ENC_COUNT] = {
-    "M K1", "m1 K2", "K3 S+K3", "m2 K4", "K5 S+K5", "K6 REC", "K7 PLAY", "K8 S+K8", "T9", "LOCK", "LOCK"
 };
 static const char *const LEG_PLUS[ENC_COUNT] = {
     "K1", "K2 B3", "K3", "K4 B1", "K5 B2", "K6 B5 REC", "K7 B6 PLAY", "K8", "B7 SEL", "B4", "Y"
@@ -28,10 +25,9 @@ static const char *const LEG_PLUS_PAD[ENC_COUNT] = {
     "K1", "K2 B3", "K3", "K4 B1", "K5 B2", "K6 B5 REC", "K7 B6 PLAY", "K8", "T9", "M", "m1"
 };
 /* senza tastiera: il resto si raggiunge con il fuoco della Flip (L1 R1, croce, A); restano scritti solo i
- * comandi diretti della Flip e del pad, che fa quello che fa con la tastiera (MIDI-120, MIDI-131) */
+ * comandi diretti della Flip e del pad, che fa quello che fa con la tastiera (MIDI-120) */
 static const char *const LEG_FLIP[ENC_COUNT] = { "", "", "", "", "", "", "START", "", "SEL", "", "Y" };
 static const char *const LEG_PAD[ENC_COUNT] = { "", "", "", "", "", "", "START", "", "T9", "M", "m1" };
-static const char *const LEG_PAD_LOCK[ENC_COUNT] = { "M", "m1", "", "m2", "", "", "START", "", "T9", "LOCK", "LOCK" };
 
 static const char *pc_name(int pc)
 {
@@ -52,8 +48,8 @@ uint64_t uf_sig_cell(const ui_model_t *m, int k)
     uint64_t h = UF_H0;
     const ui_controls_t *c = &m->ctl;
     h = uf_h(h, &c->st[k].flags, 1);
-    uint8_t f[13] = { (uint8_t)(c->focus == k), (uint8_t)(c->turn_target == k), (uint8_t)(c->push == 2 + k),
-                      m->plat.pad_link, m->prefs.legend, m->prefs.theme, c->knob_lock, m->plat.mpk_model,
+    uint8_t f[12] = { (uint8_t)(c->focus == k), (uint8_t)(c->turn_target == k), (uint8_t)(c->push == 2 + k),
+                      m->plat.pad_link, m->prefs.legend, m->prefs.theme, m->plat.mpk_model,
                       m->tempo.drums_on, m->tempo.kit, m->tempo.roll, m->tempo.accent, m->plat.mpk_link };
     h = uf_h(h, f, sizeof f);
     uint8_t g[8] = { m->tempo.inv, m->tempo.groove, m->tempo.variation, m->tempo.density, m->tempo.part,   /* MIDI-139 */
@@ -340,8 +336,8 @@ void uf_draw_cell(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, int k)
     if (m->prefs.legend) {
         bool pad = m->plat.pad_link == PADL_OPEN;
         bool kb = m->plat.mpk_link == MPK_OPEN;
-        const char *leg = !kb ? (pad ? (c->knob_lock ? LEG_PAD_LOCK[k] : LEG_PAD[k]) : LEG_FLIP[k])
-                        : m->plat.mpk_model ? (pad ? (c->knob_lock ? LEG_MK4_LOCK[k] : LEG_MK4_PAD[k]) : LEG_MK4[k])
+        const char *leg = !kb ? (pad ? LEG_PAD[k] : LEG_FLIP[k])
+                        : m->plat.mpk_model ? (pad ? LEG_MK4_PAD[k] : LEG_MK4[k])
                                             : (pad ? LEG_PLUS_PAD[k] : LEG_PLUS[k]);
         gfx_text_fit(fb, &GFX_XS, x + 5, y + 59, leg, p->c[T_GHOST], w - 10);
     }

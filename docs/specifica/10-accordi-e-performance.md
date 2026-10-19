@@ -710,6 +710,7 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
   - per i colpi di batteria del loop, contati da t0: il loop li tiene sulla griglia dritta e lo swing li sposta a ogni giro, quindi vale anche per quello che è già registrato. Un colpo dal vivo va al punto più vicino della griglia spostata (a pari distanza quello dopo) e si registra al suo posto dritto;
   - per il Roll (`40` MIDI-135): una ripetizione che cade su un sedicesimo dispari suona spostata ed entra nel loop dritta.
   Metronomo e count-in restano dritti; le note degli accordi non si quantizzano e non si spostano. Il default è 0: senza toccare K4 sotto DRUMS lo swing non c'è, come vuole ACC-203 per la configurazione di default.
+- **ACC-217** `[D]` (19/10/2026, `40` MIDI-140) **Drop.** Finché è attivo, i colpi del Beat e quelli di batteria del loop non partono e il motore Bass tace (`20` SND-539); passi del Beat e loop vanno avanti in silenzio, così al rientro sono a tempo. Il Drop comincia subito. Al rilascio finisce sul **battito dopo** della metrica in uso (96 tick in 4/4), oppure subito se il rilascio cade entro un sedicesimo (24 tick) dopo un battito: chi lascia un filo in ritardo sull'uno non perde una battuta. A trasporto fermo finisce subito; una nuova pressione durante l'attesa la annulla. Metronomo, count-in, colpi suonati dal vivo e accordi non cambiano.
 
 ---
 
@@ -936,6 +937,7 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 | TV-118 | 2 strati che suonano 15 note treble insieme | 14 note aperte; la più vecchia riceve note-off prima della 15ª |
 | TV-119 | batteria che si inventa (ACC-215): ogni stile, variazioni 0, 7, … 98, densità 0…10 | stessa variazione = stessa griglia; scheletro fermo; i colpi di d restano a d + 1; 0 tace, 1 è lo scheletro; il fill aggiunge colpi; un Beat del menu la spegne |
 | TV-120 | swing (ACC-216) di 6 e di 12 tick: Beat con un colpo sul passo 1, colpi dal vivo nel loop a pos 37 e 100, Roll a 1/16 in overdub | il passo 1 suona a 30, non a 24; i pari restano dritti; il colpo a pos 37 va a t = 24 e suona a 36 nel giro dopo, quello a 100 resta a 96; il Roll suona a 174 e non a 168, a 192 dritto, e registra solo sulla griglia dritta; senza swing tutto torna dritto |
+| TV-122 | Drop (ACC-217): Beat sui passi 0, 4, 8, metronomo acceso; pressione a pos 100, rilascio a 230, di nuovo a 300 e rilascio a 394, poi con un piatto del Beat che suona | dopo 5 ms nessuna voce del Beat e basso a zero; durante il Drop il Beat tace, il metronomo e un colpo dal vivo suonano; rilasciato a 230 aspetta e rientra a 288, con il primo colpo pieno; rilasciato a 394 rientra subito; il piatto di prima non ricompare; da fermo il rilascio è subito |
 | TV-121 | FX del bus della batteria (`20` SND-538): drive 0…10, filtro −10…+10, clic del metronomo | spento (anche dopo essere stato acceso) il bus è identico bit per bit; drive 10 alza l'energia della cassa di oltre il 30 % con il picco sotto 1,2; passa-basso chiuso: il charleston sotto il 5 %; passa-alto aperto: la cassa sotto il 10 %; il clic identico con il filtro chiuso |
 
 ---

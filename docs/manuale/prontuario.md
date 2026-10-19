@@ -42,17 +42,19 @@ Con MPK e pad ogni comando ha una casa: girare e premere sulla MPK, liste sulla 
 
 | | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|
-| alto | T1 HOLD | T2 TAP | T3 METRO | T4 FILL (tenuto) | **T13 LOCK** |
+| alto | T1 HOLD | T2 TAP | T3 METRO | T4 FILL (tenuto) | **T13 DROP** (tenuto) |
 | mezzo | T5 Scene 1 | T6 Scene 2 | T7 Scene 3 | T8 Scene 4 | **T14 VIEW** |
 | basso | T9 Options | T10 Save Loop | T11 DRUMS | T12 Panic 1 s · Reset 3 s | **T15 PAGE** |
 
 Scene: tocco = richiama (suono, basso, Perform, FX, tonalità, basso on/off), tenuto 1 s = salva. Hold: l'accordo resta fino al tasto dopo. Save Loop: ferma e tiene da parte, REC riprende.
 
-| Manopola | Lock spento | Lock acceso |
-|---|---|---|
-| M | Chord Voicing · premi Split/Octave | Sound · premi lista · tieni prev. Save |
-| m1 | Bass Voicing · premi Mod | Perform · premi lista · tieni Lock |
-| m2 | Beat Volume · premi e gira Bass Volume | Key · premi Key mode · premi e gira Transpose |
+| Manopola | Gira | Premi | Sotto DRUMS |
+|---|---|---|---|
+| M | Chord Voicing | Split/Octave | densità · premi play/stop |
+| m1 | Bass Voicing | Mod | stile · premi la parte |
+| m2 | Beat Volume (premi e gira: Bass Volume) | — | variazione · premi idea nuova |
+
+T13 DROP: tenuto, Beat, batteria del loop e basso tacciono; lasciato, rientrano sul battito dopo (subito se lo lasci entro un sedicesimo dal battito). Accordi, metronomo e colpi dal vivo suonano sempre.
 
 T14: Geek Out e ritorno. T15: pagina dei comandi aperta finché non lo ripremi (o −).
 
@@ -108,4 +110,4 @@ REC → count-in di 1 battuta → 4 battute registrate → PLAY. Poi: ⊕ overdu
 
 ## Testata
 
-batteria sempre · **NO MPK** (lampeggia) · **MPK FACTORY** (solo Plus) · **PAD** rosso = pad non aperto o senza mappa · **POCKET** (prev.) · **LOCK SOUND PERFORM KEY** · **DRUMS** · **HOLD** · **METRO** · **FILL** · **SWING** · **DRUM FX** · **CLIP** 1,5 s · **XRUN** 2 s. In Geek Out: MPK, IN/OUT, VOX, CPU (misurato), livelli, PAD.
+batteria sempre · **NO MPK** (lampeggia) · **MPK FACTORY** (solo Plus) · **PAD** rosso = pad non aperto o senza mappa · **POCKET** (prev.) · **DRUMS** · **HOLD** · **METRO** · **FILL** · **DROP** · **SWING** · **DRUM FX** · **CLIP** 1,5 s · **XRUN** 2 s. In Geek Out: MPK, IN/OUT, VOX, CPU (misurato), livelli, PAD.
