@@ -4,12 +4,12 @@ Generato da `hardware/case/stampa3d.py` (piatto 210 × 210 mm). Ogni pezzo sta s
 
 | File | Quanti | Ingombro (mm) | Colore | Note |
 |---|---|---|---|---|
-| `base_1.stl` | 1 | 191 × 126 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_2.stl` | 1 | 191 × 126 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_3.stl` | 1 | 184 × 126 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_4.stl` | 1 | 191 × 124 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_5.stl` | 1 | 191 × 124 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_6.stl` | 1 | 184 × 132 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_1.stl` | 1 | 191 × 129 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_2.stl` | 1 | 192 × 129 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_3.stl` | 1 | 182 × 129 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_4.stl` | 1 | 191 × 122 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_5.stl` | 1 | 192 × 122 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_6.stl` | 1 | 182 × 122 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
 | `fianco_sx.stl` | 1 | 202 × 202 × 16,6 | telaio: PLA o PETG color legno o sabbia | quattro strati in uno; faccia esterna in alto, marchio e nome in rilievo; ruotato di 45° per stare sul piatto |
 | `fianco_dx.stl` | 1 | 202 × 202 × 16,6 | telaio: PLA o PETG color legno o sabbia | quattro strati in uno; faccia esterna in alto, marchio e nome in rilievo; ruotato di 45° per stare sul piatto |
 | `retro_sx_1.stl` | 1 | 154 × 46 × 8,0 | telaio: PLA o PETG color legno o sabbia | retro e strato d'appoggio in un pezzo |
@@ -24,7 +24,7 @@ Generato da `hardware/case/stampa3d.py` (piatto 210 × 210 mm). Ogni pezzo sta s
 | `culla_flip.stl` | 1 | 89 × 83 × 7,0 | nero | vassoio sul piano della Flip, 4 viti M3 svasate |
 | `visiera.stl` | 1 | 126 × 70 × 103,6 | nero | si avvita al piano dietro la culla; stampare sul tettuccio, con supporti |
 | `culla_pad.stl` | 1 | 191 × 87 × 47,0 | nero | sta sulla base fra costola, fianco e parete davanti; si stampa in piedi |
-| `fermo_hub.stl` | 1 | 118 × 39 × 9,0 | nero | tiene l'hub sotto il piano, 2 viti nella base |
+| `fermo_hub.stl` | 1 | 175 × 65 × 10,5 | nero | tiene l'hub sotto il piano, 2 viti nella base |
 | `squadretta_m3.stl` | 6 | 20 × 12 × 12,0 | nero | base e fianchi, viti M3 |
 
 Filamento: circa 1,3 kg in tutto (stima con 3 perimetri, 4 strati pieni sopra e sotto, riempimento al 20 %).

@@ -167,17 +167,20 @@ def mk4():
         o.append(tx(x, y + 2.4, fn, 2.7 if len(fn) > 6 else 3.0, col=FAM[fam][0], weight='700'))
     o.append(tx(X0 + 294, Y0 + 88.8, 'SHIFT + UNDO = Clear · SHIFT + STOP/PLAY = Panic · SHIFT tenuto + K toccata = «premi»',
                 2.4, col=CHIARO))
-    # tastiera: 15 tasti bianchi e 10 neri, due ottave; conta solo il nome della nota
-    kx, ky = X0 + 2.5, Y0 + M.MK4_KEYBED_Y
-    kw, kh = (W - 5) / 15, D - M.MK4_KEYBED_Y - 2.5
+    # tastiera: 15 tasti bianchi e 10 neri, due ottave, fra le due guance; conta solo il nome della nota
+    g = M.MK4['guancia']
+    kx, ky = X0 + g + 1, Y0 + M.MK4_KEYBED_Y
+    kw, kh = (W - 2 * g - 2) / 15, D - M.MK4_KEYBED_Y - 4.5
+    for x in (X0 + 1, X0 + W - g):
+        o.append(rc(x, ky, g - 1, D - M.MK4_KEYBED_Y - 1, rx=1.5, fill=PANNELLO, stroke='none'))
     for i in range(15):
         o.append(rc(kx + i * kw, ky, kw - 0.5, kh, rx=1.2, fill='#F4F5EF', stroke='#9AA091', sw=0.4))
         o.append(tx(kx + i * kw + kw / 2, ky + kh - 5, NOTE[i % 7], 3.6, col=DIM))
     neri = [1, 1, 0, 1, 1, 1, 0]
     for i in range(14):
         if neri[i % 7]:
-            o.append(rc(kx + (i + 1) * kw - 6.5, ky, 13, kh * 0.6, rx=1, fill='#252D29', stroke='none'))
-    o.append(rc(kx + 42, ky + kh * 0.63, W - 89, 11, rx=2, fill=FAM['suono'][1], stroke=FAM['suono'][0], sw=0.5))
+            o.append(rc(kx + (i + 1) * kw - 5.5, ky, 11, kh * 0.6, rx=1, fill='#252D29', stroke='none'))
+    o.append(rc(kx + 30, ky + kh * 0.63, 15 * kw - 60, 11, rx=2, fill=FAM['suono'][1], stroke=FAM['suono'][0], sw=0.5))
     o.append(tx(X0 + W / 2, ky + kh * 0.63 + 5.5,
                 'qualunque tasto: la fondamentale dell\'accordo · conta il nome della nota, non l\'ottava',
                 4.0, col=FAM['suono'][0], weight='600'))
@@ -311,7 +314,8 @@ def postazione():
     W, D = M.MK4['w'], M.MK4['d']
     mx, my = 20.0, 76.0
     o = [rc(mx, my, W, D, rx=5, fill=CORPO, stroke='#1E2220', sw=0.8),
-         rc(mx + 3, my + M.MK4_KEYBED_Y, W - 6, D - M.MK4_KEYBED_Y - 3, rx=2, fill='#F4F5EF', stroke='none'),
+         rc(mx + M.MK4['guancia'] + 1, my + M.MK4_KEYBED_Y, W - 2 * M.MK4['guancia'] - 2, D - M.MK4_KEYBED_Y - 4.5, rx=2,
+            fill='#F4F5EF', stroke='none'),
          tx(mx + W / 2, my + 44, 'MPK mini IV · preset DAW', 12, col=CHIARO, weight='700'),
          tx(mx + W / 2, my + 62, 'pad e manopole sopra, i tasti davanti', 7.5, col=CHIARO),
          tx(mx + W / 2, my + 146, 'tasti', 8, col=DIM)]
@@ -331,9 +335,9 @@ def postazione():
     o.append(tx(fx + fw / 2, fy + fd / 2, 'Flip, aperta', 9, col=INK, weight='700'))
     # hub e cavi: la MPK ha la USB-C sul retro, il pad pure, la Flip la porta di sopra
     hw, hd = M.HUB['w'], M.HUB['d']
-    hx, hy = mx + W - 50, 12.0                       # dietro, fra la MPK e il pad: la zona dei cavi
+    hx, hy = mx + W - 60, 8.0                        # dietro, fra la MPK e il pad: la zona dei cavi
     o.append(rc(hx, hy, hw, hd, rx=3, fill='#D9DECE', stroke='#8E968A', sw=0.8))
-    o.append(tx(hx + hw / 2, hy + hd / 2, 'hub USB 2.0, senza PD', 6.5, col=INK, weight='600'))
+    o.append(tx(hx + hw / 2, hy + hd / 2, 'hub USB', 6.5, col=INK, weight='600'))
     gx = mx + W + 18                                 # il corridoio fra la MPK e il pad
     cavi = [f'M{hx + 12:.1f},{hy + hd:.1f} C{hx + 12:.1f},{my - 10:.1f} {mx + M.MK4_CONN_X[0] + 23:.1f},{my - 22:.1f} '
             f'{mx + M.MK4_CONN_X[0] + 23:.1f},{my:.1f}',

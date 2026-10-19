@@ -20,6 +20,13 @@ si legge senza errore di prospettiva: 185 × 75, cioè il 3 % in più delle foto
 punti diversi concordano entro 0,7 mm). La USB-C non è a 80 mm: il cavo entra fra m1 e m2, a 148; a
 78 c'è un interruttore che sporge di circa un millimetro.
 
+Nel pomeriggio del 19/10 Luigi ha mandato altre otto foto della MK4 con il metro (mk4_righello_*), da
+sopra, davanti e di fianco: ai lati dei tasti ci sono due guance grigie larghe 13,5 e alte 32 dal
+tavolo, per tutta la profondità; sotto i tasti un bordino grigio alto 17,5, con i tasti bianchi
+(alti 29) arretrati di 4,5 dal davanti; la MK4 sta su piedini di circa 2 mm. Il pannello bianco ha il
+bordo rosso. L'inizio dei tasti a 100 resta (letto sulle tacche dei millimetri, ±0,5). E ha
+fotografato il suo hub (hub_novoo_*): una dock USB-C NOVOO di 142 × 58 × 17,5, con il cavo fisso.
+
 Composizione (decisa da Luigi il 15/10/2026): MPK mini IV a sinistra; a destra il macro pad in linea
 con i tasti e, dietro, la Flip aperta. Bozza 5 (18/10/2026): un telaio solo con la cima alla stessa
 quota, la mascherina che appoggia sulla MK4, il pad in una culla come quella della Flip, hub e cavi
@@ -52,8 +59,10 @@ FIANCO_STRATI = 4                 # fianchi: 4 strati da PLY incollati = 16 mm
 # ---- apparecchi ----
 # MPK mini IV: 347,5 × 192 × 45,7 con le manopole (rivenditori), corpo 37 (Akai) [M, guida MK4 §1];
 # col metro (19/10/2026) 345 × 192 [O]: la sede tiene i 347,5 della scheda. I tasti cominciano a
-# 100 mm dal bordo posteriore [O, metro] e sono alti circa 30 mm dal tavolo [D, foto]
-MK4 = dict(w=347.5, d=192.0, h=37.0, h_knobs=45.7, keybed_y=100.0, key_top=30.0)
+# 100 mm dal bordo posteriore [O, metro]. Altezze dal tavolo [O, righello del 19/10, ±1]: piedini 2,
+# bordino sotto i tasti 17,5, tasti bianchi 29, guance ai lati dei tasti 32 (larghe 13,5)
+MK4 = dict(w=347.5, d=192.0, h=37.0, h_knobs=45.7, keybed_y=100.0, key_top=29.0,
+           guancia=13.5, guancia_h=32.0, labbro_h=17.5, piedini=2.0)
 # Miyoo Flip chiusa 84 × 80,35 × 24,5 [O schede]; metà con i tasti 12,25 [D]; apertura della
 # cerniera [V]: qui serve almeno 115°
 FLIP = dict(w=84.0, d=80.35, h=24.5, half=12.25)
@@ -92,7 +101,12 @@ PAD_PORTA2_X = 36.0
 # larghezza della presa USB-C e dall'orizzonte all'altezza delle manopole, e le due concordano [O, ±0,7].
 # Le foto del 18/10 davano 11,5: la fascia scura è il doppio di quanto sembrava
 PAD_STRATI = (('fondo', 12.2), ('trasparente', 2.0), ('satinata', 2.0))
-HUB = dict(w=85.0, d=32.0, h=15.0)   # hub USB 2.0 [V]
+# l'hub di Luigi [O, metro del 19/10/2026, ±1]: una dock USB-C NOVOO, corpo d'alluminio con il lato
+# delle porte nero. Sul lato lungo delle porte: alimentazione, jack, 4 USB-A, USB-C dati; sull'altro
+# lato lungo LAN, VGA, 2 HDMI, DP; su un lato corto SD e microSD; dall'altro esce il cavo fisso,
+# vicino al lato delle porte (HUB_CAVO dal bordo). Vedi CASE-021: una dock non è un hub semplice [V]
+HUB = dict(w=142.0, d=58.0, h=17.5)
+HUB_CAVO = 8.0
 
 # Controlli della MK4: centro (x dal bordo sinistro, y dal bordo posteriore) [D, foto, rimisurati il
 # 17/10/2026]; tipo: k manopola, p pad, b pulsante, w ruota, d display, e encoder di navigazione
@@ -147,7 +161,7 @@ APPOGGIO_Y = RETRO_Y + PLY        # 8: da qui comincia la zona dei cavi, sotto l
 MK4_X0 = FIANCO + 2.0             # 2 mm di gioco ai lati della MK4
 MK4_Y0 = 44.0                     # 36 mm di zona dei cavi dietro la MK4 (USB a 90°)
 BASE_Y1 = MK4_Y0 + MK4['d'] + 8.0 # 244: 8 mm davanti ai tasti
-MASCHERINA_Y1 = MK4_Y0 + 94.0     # 138: il bordo davanti della mascherina, 6 mm prima dei tasti
+MASCHERINA_Y1 = MK4_Y0 + 94.0     # 138: il bordo davanti della mascherina, 6 mm prima dei tasti (fine del pannello)
 COSTOLA_X0 = MK4_X0 + MK4['w'] + 2.0   # 367,5: la costola fra la MK4 e la culla del pad, due strati
 COSTOLA_X1 = COSTOLA_X0 + 2 * PLY      # 375,5
 GIUNTA_PIANO = COSTOLA_X0 + PLY        # 371,5: mascherina e piano della Flip si incontrano qui
@@ -183,9 +197,12 @@ SCHERMO_DEG = 65.0                # schermo a 65° dall'orizzontale: apertura de
 GIUNTA = 310.0                    # giunta delle due metà di base e retro
 LINGUETTA = 14.0                  # larghezza delle linguette; le asole hanno GIOCO in più per lato
 FIANCO_R = 8.0                    # raggio degli spigoli in cima ai fianchi
-# hub USB nel suo fermo, sotto il piano della Flip, dietro la culla del pad
-HUB_X0 = FLIP_X - (HUB['w'] + 0.8) / 2
-HUB_Y0 = CULLA_PAD_Y0 - CULLA_DENTE - 14.0 - HUB['d']
+# hub nel suo fermo, sotto il piano della Flip, contro il retro: le porte guardano il davanti, dove
+# arrivano i cavi di MK4 e pad (fino alla culla del pad restano più di 80 mm per le spine); il cavo
+# fisso esce a destra, sale e torna indietro sopra l'hub fino alla fessura dell'OTG. A sinistra le
+# alette del fermo stanno fra costola e hub; a destra restano 33 mm per la curva del cavo
+HUB_X0 = DESTRA_X0 + 16.5
+HUB_Y0 = APPOGGIO_Y + 4.0
 # tasti del macro pad (CASE-043, Luigi 17/10/2026): tasti trasparenti a due strati per Cherry MX,
 # 17 × 17 alla base; sotto il coperchio un'etichetta di carta da 11 × 9 [M, scheda del venditore];
 # il coperchio sta circa 4 mm sopra la piastra, la cima a 15 mm [D]

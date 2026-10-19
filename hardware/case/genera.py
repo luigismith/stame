@@ -327,6 +327,9 @@ FRONTE_LING = (M.DESTRA_X0 + 40.0, M.DESTRA_X1 - 40.0)
 SQUADRETTE_Y = (20.0, 130.0, 230.0)            # squadrette fra base e fianchi
 CAVI_Z = 30.0                                  # dietro la MK4 la costola lascia passare i cavi fin qui
 USCITE = {'sx': (280.0,), 'dx': (430.0, 500.0)}   # finestre del retro: pedale; alimentazione e audio
+# cima delle finestre sopra la base: a destra stanno sopra l'hub, che è contro il retro, e i cavi
+# passano fra l'hub e il piano
+USCITE_Z = {'sx': 20.0, 'dx': M.HUB['h'] + 2.0 + 14.0}
 
 
 def retro_ling(lato):
@@ -475,7 +478,7 @@ def retro(lato):
     pts = bordo_linguette(a, b, 0.0, ling, -M.BASE_T) + [(b, h), (a, h)]
     svg.poligono([P(x, z) for x, z in pts])
     for cx in USCITE[lato]:
-        x, y = P(cx - 14, 20)
+        x, y = P(cx - 14, USCITE_Z[lato])
         svg.rett(x, y, 28, 12, 6)
     fr = piano((a - 1, 0.0, M.BASE_T + h + 1), (1.0, 0.0, 0.0), (0.0, 0.0, -1.0))
     return registra(svg, _orienta(fr, (0.0, 1.0, 0.0)), M.PLY, 'betulla4', 2)
@@ -491,7 +494,7 @@ def appoggio_retro(lato):
         return (x - a + 1, h - z + 1)
     svg.poligono([P(a, 0.0), P(b, 0.0), P(b, h), P(a, h)])
     for cx in USCITE[lato]:
-        x, y = P(cx - 14, 20)
+        x, y = P(cx - 14, USCITE_Z[lato])
         svg.rett(x, y, 28, 12, 6)
     fr = piano((a - 1, M.RETRO_Y, M.BASE_T + h + 1), (1.0, 0.0, 0.0), (0.0, 0.0, -1.0))
     return registra(svg, _orienta(fr, (0.0, 1.0, 0.0)), M.PLY, 'betulla4', 2)
@@ -817,9 +820,12 @@ def tavola():
     svg.rett(*T(M.DESTRA_X0, M.FRONTE_Y), M.DESTRA_X1 - M.DESTRA_X0, M.PLY, 0, 'taglio')
     # MK4 e mascherina con i fori
     svg.rett(*T(M.MK4_X0, M.MK4_Y0), M.MK4['w'], M.MK4['d'], 3, 'segno')
+    g = M.MK4['guancia']
+    for x in (M.MK4_X0 + g, M.MK4_X0 + M.MK4['w'] - g):          # le guance ai lati dei tasti
+        svg.linea([T(x, M.MK4_Y0 + M.MK4_KEYBED_Y), T(x, M.MK4_Y0 + M.MK4['d'])], 'segno')
     for k in range(16):
-        x = M.MK4_X0 + 6 + k * (M.MK4['w'] - 12) / 15
-        svg.linea([T(x, M.MK4_Y0 + M.MK4_KEYBED_Y + 2), T(x, M.MK4_Y0 + M.MK4['d'] - 4)], 'segno')
+        x = M.MK4_X0 + g + 1 + k * (M.MK4['w'] - 2 * g - 2) / 15
+        svg.linea([T(x, M.MK4_Y0 + M.MK4_KEYBED_Y + 2), T(x, M.MK4_Y0 + M.MK4['d'] - 4.5)], 'segno')
     svg.rett(*T(MASC_X0, MASC_Y0), MASC_X1 - MASC_X0, MASC_Y1 - MASC_Y0, 0.6, 'taglio')
     for nome, (x, y, tipo) in M.MK4_CTRL.items():
         w, h, r = M.FORO[tipo]
@@ -870,22 +876,22 @@ def tavola():
     svg.poligono([S(M.PAD_Y0, M.PAD_Z0), S(M.PAD_Y1, M.PAD_Z0), S(M.PAD_Y1, M.PAD_Z1), S(M.PAD_Y0, M.PAD_Z1)], 'taglio')
     zt = M.PAD_Z1 + M.TASTO_PAD['z'] + M.TASTO_PAD['h']
     svg.poligono([S(M.PAD_Y0 + 5, M.PAD_Z1), S(M.PAD_Y1 - 5, M.PAD_Z1), S(M.PAD_Y1 - 5, zt), S(M.PAD_Y0 + 5, zt)], 'segno')
-    svg.poligono([S(M.HUB_Y0, M.BASE_T), S(M.HUB_Y0 + M.HUB['d'], M.BASE_T), S(M.HUB_Y0 + M.HUB['d'], M.BASE_T + M.HUB['h']),
-                  S(M.HUB_Y0, M.BASE_T + M.HUB['h'])], 'segno')
+    zh0, zh1 = M.BASE_T + 2.0, M.BASE_T + 2.0 + M.HUB['h']             # l'hub sul fondo del fermo
+    svg.poligono([S(M.HUB_Y0, zh0), S(M.HUB_Y0 + M.HUB['d'], zh0), S(M.HUB_Y0 + M.HUB['d'], zh1), S(M.HUB_Y0, zh1)], 'segno')
     sotto, sopra, vis = flip_aperta()
     svg.poligono([S(*p) for p in sotto], 'taglio')
     svg.poligono([S(*p) for p in sopra], 'taglio')
     svg.poligono([S(*p) for p in vis], 'segno')
-    # la MK4 in trasparenza, dietro: corpo, tasti
+    # la MK4 in trasparenza, dietro: la guancia di fianco ai tasti e il pannello
     y0m, y1m = M.MK4_Y0, M.MK4_Y0 + M.MK4['d']
     yk = M.MK4_Y0 + M.MK4_KEYBED_Y
-    svg.poligono([S(y0m, M.BASE_T), S(y1m, M.BASE_T), S(y1m, M.BASE_T + M.MK4['key_top']), S(yk, M.BASE_T + M.MK4['key_top']),
-                  S(yk, M.Z_MK4), S(y0m, M.Z_MK4)], 'segno')
+    zg = M.BASE_T + M.MK4['guancia_h']
+    svg.poligono([S(y0m, M.BASE_T), S(y1m, M.BASE_T), S(y1m, zg), S(yk, zg), S(yk, M.Z_MK4), S(y0m, M.Z_MK4)], 'segno')
     sc = ((sopra[0][0] + sopra[1][0]) / 2, (sopra[0][1] + sopra[1][1]) / 2)
     ey, ez = Y + 500.0, 350.0
     k = (Y + 30 - sc[0]) / (ey - sc[0])
     svg.linea([S(*sc), S(sc[0] + (ey - sc[0]) * k, sc[1] + (ez - sc[1]) * k)], 'segno')
-    for txt, y, z in (('MK4 (DIETRO)', 120, 20), ('PIANO', 20, 52), ('HUB', M.HUB_Y0, 26),
+    for txt, y, z in (('MK4 (DIETRO)', 120, 20), ('PIANO', 20, 52), ('HUB', M.HUB_Y0, zh1 + 5),
                       (f'SCHERMO {M.SCHERMO_DEG:.0f} GRADI', -8, 150), ('VISIERA', 40, 140), ('PAD', M.PAD_Y0 + 20, 74),
                       ('CULLA', M.CULLA_PAD_Y0 + 10, 14), ('SGUARDO 60 CM', 200, 120)):
         svg.pixel(*S(y, z), 0.45, txt)
@@ -1048,11 +1054,15 @@ def squadrette_frames():
 
 
 def fermo_hub():
+    """vassoio dell'hub: dietro e a sinistra la sponda sale a 0,6 dell'hub; davanti, dove sono le
+    porte, e a destra, dove esce il cavo, resta un bordino di 3 mm sotto le prese"""
     ms = Mesh('Stame fermo dell\'hub')
     w, d, h = M.HUB['w'] + 0.8, M.HUB['d'] + 0.8, M.HUB['h']
     fr = sposta(M.HUB_X0, M.HUB_Y0, M.BASE_T)
     ms.prisma(rett(-3, -3, w + 3, d + 3, 2), 0, 2.0, frame=fr)
-    ms.prisma(rett(-3, -3, w + 3, d + 3, 2), 2.0, h * 0.6, holes=[rett(0, 0, w, d, 1)], frame=fr)
+    ms.prisma(rett(-3, -3, w + 3, d + 3, 2), 2.0, 5.0, holes=[rett(0, 0, w, d, 1)], frame=fr)
+    ms.prisma(rett(-3, -3, w + 3, 0, 0.5), 5.0, h * 0.6, frame=fr)
+    ms.prisma(rett(-3, 0, 0, d + 3, 0.5), 5.0, h * 0.6, frame=fr)
     for x in (-10, w + 10):
         ms.prisma(rett(x - 6, d / 2 - 6, x + 6, d / 2 + 6, 3), 0, 2.0, holes=[cerchio(x, d / 2, 1.25, 16)], frame=fr)
     return ms

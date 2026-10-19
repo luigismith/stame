@@ -31,7 +31,9 @@ COLORI = {
     'betulla4': (214, 182, 135), 'betulla6': (205, 172, 124), 'acrilico3': (28, 28, 31),
     'petg_nero': (48, 48, 52), 'petg_sabbia': (204, 189, 158), 'tpu': (70, 70, 72),
     'mk4': (232, 232, 226), 'mk4_tasti': (247, 247, 242), 'mk4_neri': (34, 34, 36), 'mk4_pad': (82, 82, 86),
-    'manopole': (52, 52, 56), 'pad': (38, 38, 42), 'trasparente': (214, 222, 226), 'flip': (64, 66, 72), 'schermo': (14, 44, 40), 'hub': (96, 98, 104),
+    'mk4_scocca': (150, 152, 148), 'mk4_rosso': (196, 46, 40),
+    'manopole': (52, 52, 56), 'pad': (38, 38, 42), 'trasparente': (214, 222, 226), 'flip': (64, 66, 72), 'schermo': (14, 44, 40),
+    'hub': (128, 132, 142), 'hub_nero': (34, 34, 38), 'cavo': (224, 112, 40),
     'pad_fondo': (30, 30, 34), 'pad_trasparente': (206, 218, 222), 'pad_satinata': (188, 200, 206), 'alluminio': (196, 198, 202),
 }
 AMBRA = (236, 150, 40)
@@ -40,7 +42,7 @@ PASSI = {
     1: ('La base', 'Unire le due metà della base a coda di rondine, con la colla vinilica. Piedini in gomma sotto.'),
     2: ('Retro, costola e parete davanti', 'Il retro nelle tacche del bordo posteriore, con lo strato d\'appoggio incollato davanti; i due strati della costola incollati fra loro e nelle asole; la parete davanti nelle sue. Colla nelle linguette.'),
     3: ('I fianchi', 'Incollare i quattro strati di ogni fianco: fuori quello inciso, dentro quello d\'appoggio, più basso dietro. Poi avvitarli alla base con le sei squadrette M3.'),
-    4: ('L\'hub e i cavi', 'Fermo dell\'hub avvitato alla base, hub dentro. Il cavo USB della MK4 passa dietro, sotto la costola; quello del pad arriva dalla culla. Strisce di feltro sugli appoggi.'),
+    4: ('L\'hub e i cavi', 'Fermo dell\'hub avvitato alla base contro il retro, hub dentro con le porte verso il davanti. Il cavo USB della MK4 passa dietro, sotto la costola; quello del pad arriva dalla culla; quello dell\'hub sale a destra e torna sopra l\'hub, verso la fessura dell\'OTG. Strisce di feltro sugli appoggi.'),
     5: ('La culla del pad', 'La culla sulla base, fra costola, fianco e parete davanti. Il pad dentro, con il cavo a 90° nella finestra di dietro.'),
     6: ('Il piano della Flip', 'Culla della Flip e visiera avvitate al piano (viti M3 da sopra, dadi sotto); il piano sugli appoggi, con il bordo davanti sul dente della culla del pad.'),
     7: ('MK4 e mascherina', 'La MK4 nel suo posto, con il cavo USB a 90°; la mascherina sopra: appoggia sulla MK4 e sugli strati d\'appoggio, ogni controllo nel suo foro.'),
@@ -81,22 +83,35 @@ def apparecchi():
         m = Mesh(nome)
         out.append(dict(nome=nome, passo=passo, colore=COLORI[colore], mesh=m))
         return m
-    # ---- MPK mini IV ----
+    # ---- MPK mini IV (righello di Luigi, 19/10/2026): scocca grigia su quattro piedini, con le guance
+    # ai lati dei tasti per tutta la profondità e il bordino sotto i tasti; il pannello bianco con il
+    # bordo rosso ----
     x0, y0, z0 = M.MK4_X0, M.MK4_Y0, M.BASE_T
-    W, D = M.MK4['w'], M.MK4['d']
+    K = M.MK4
+    W, D, g = K['w'], K['d'], K['guancia']
     yk = y0 + M.MK4_KEYBED_Y
-    corpo = parte('MPK mini IV', 7, 'mk4')
-    corpo.prisma_x([(y0, z0), (y0 + D, z0), (y0 + D, z0 + 20.0), (yk, z0 + 20.0), (yk, z0 + M.MK4['h']), (y0, z0 + M.MK4['h'])],
-                   x0, x0 + W)
+    zp, zl, zk, zg = z0 + K['piedini'], z0 + K['labbro_h'], z0 + K['key_top'], z0 + K['guancia_h']
+    scocca = parte('MPK mini IV', 7, 'mk4_scocca')
+    scocca.box(x0, y0, zp, x0 + W, yk, zg)
+    scocca.box(x0, yk, zp, x0 + g, y0 + D, zg)
+    scocca.box(x0 + W - g, yk, zp, x0 + W, y0 + D, zg)
+    scocca.box(x0 + g, yk, zp, x0 + W - g, y0 + D, zl)
+    piedini = parte('MPK piedini', 7, 'mk4_neri')
+    for px in (x0 + 25.0, x0 + W - 25.0):
+        for py in (y0 + 20.0, y0 + D - 20.0):
+            piedini.cilindro(px, py, z0, zp, 6.0, 16)
+    parte('MPK bordo del pannello', 7, 'mk4_rosso').box(x0, y0, zg, x0 + W, yk, z0 + K['h'] - 0.6)
+    parte('MPK pannello', 7, 'mk4').box(x0 + 0.6, y0 + 0.6, z0 + K['h'] - 0.6, x0 + W - 0.6, yk - 0.6, z0 + K['h'])
     bianchi = parte('MPK tasti', 7, 'mk4_tasti')
     neri = parte('MPK tasti neri', 7, 'mk4_neri')
-    kw = (W - 12.0) / 15
+    kx = x0 + g + 1.0
+    kw = (W - 2 * (g + 1.0)) / 15
     for i in range(15):
-        a = x0 + 6.0 + i * kw
-        bianchi.box(a + 0.4, yk + 2.0, z0 + 20.0, a + kw - 0.4, y0 + D - 3.0, z0 + M.MK4['key_top'])
+        a = kx + i * kw
+        bianchi.box(a + 0.4, yk + 0.5, zl, a + kw - 0.4, y0 + D - 4.5, zk)
     for i in (0, 1, 3, 4, 5, 7, 8, 10, 11, 12):
-        a = x0 + 6.0 + (i + 1) * kw
-        neri.box(a - 4.5, yk + 2.0, z0 + M.MK4['key_top'], a + 4.5, yk + 52.0, z0 + M.MK4['key_top'] + 5.0)
+        a = kx + (i + 1) * kw
+        neri.box(a - 5.25, yk + 0.5, zk, a + 5.25, yk + 55.0, zk + 4.0)
     pads = parte('MPK pad', 7, 'mk4_pad')
     man = parte('MPK manopole', 7, 'manopole')
     zt = z0 + M.MK4['h']
@@ -155,9 +170,14 @@ def apparecchi():
     N = (0.0, -math.sin(a), -math.cos(a))                     # lo spessore va dietro lo schermo
     fl.prisma(rett(0.0, 0.0, fw, fd, 4.0), 0.0, t, frame=(O, U, V, N))
     sch.prisma(rett(6.0, 8.0, fw - 6.0, fd - 6.0, 1.0), -0.4, 0.0, frame=(O, U, V, N))
-    # ---- hub ----
-    hb = parte('Hub USB', 4, 'hub')
-    hb.box(M.HUB_X0 + 0.4, M.HUB_Y0 + 0.4, z0 + 2.0, M.HUB_X0 + 0.4 + M.HUB['w'], M.HUB_Y0 + 0.4 + M.HUB['d'], z0 + 2.0 + M.HUB['h'])
+    # ---- hub: la dock NOVOO di Luigi, alluminio con il lato delle porte nero, e l'attacco del cavo ----
+    hx0, hy0, hz0 = M.HUB_X0 + 0.4, M.HUB_Y0 + 0.4, z0 + 2.0
+    hx1, hy1, hz1 = hx0 + M.HUB['w'], hy0 + M.HUB['d'], hz0 + M.HUB['h']
+    parte('Hub USB', 4, 'hub').box(hx0, hy0, hz0, hx1, hy1 - 15.0, hz1)
+    parte('Hub USB, lato delle porte', 4, 'hub_nero').box(hx0, hy1 - 15.0, hz0, hx1, hy1, hz1)
+    cy, cz = hy1 - M.HUB_CAVO, (hz0 + hz1) / 2
+    anello = [(cy + 3.5 * math.cos(2 * math.pi * i / 16), cz + 3.5 * math.sin(2 * math.pi * i / 16)) for i in range(16)]
+    parte('Hub USB, attacco del cavo', 4, 'cavo').prisma_x(anello, hx1, hx1 + 12.0)
     return out
 
 

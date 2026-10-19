@@ -9,12 +9,12 @@ Generato da `hardware/case/multicolore.py` per un piatto di 240 × 240 mm (Anycu
 | `piano_flip.3mf` (o `piano_flip_corpo.stl` + `piano_flip_scritte.stl`) | 200 × 152 × 3,0 | piani: nero | scritte incassate nella faccia in vista, che sta sul piatto |
 | `fianco_sx.3mf` (o `fianco_sx_corpo.stl` + `fianco_sx_scritte.stl`) | 202 × 202 × 16,0 | telaio: PLA o PETG color legno o sabbia | scritte incassate nella faccia in vista, che sta sul piatto; ruotato di 45° per stare sul piatto |
 | `fianco_dx.3mf` (o `fianco_dx_corpo.stl` + `fianco_dx_scritte.stl`) | 202 × 202 × 16,0 | telaio: PLA o PETG color legno o sabbia | scritte incassate nella faccia in vista, che sta sul piatto; ruotato di 45° per stare sul piatto |
-| `base_1.stl` | 191 × 126 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_2.stl` | 191 × 126 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_3.stl` | 184 × 126 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_4.stl` | 191 × 124 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_5.stl` | 191 × 124 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_6.stl` | 184 × 132 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_1.stl` | 191 × 129 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_2.stl` | 192 × 129 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_3.stl` | 182 × 129 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_4.stl` | 191 × 122 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_5.stl` | 192 × 122 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_6.stl` | 182 × 122 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
 | `retro_sx.stl` | 236 × 236 × 8,0 | telaio: PLA o PETG color legno o sabbia | retro e strato d'appoggio in un pezzo; ruotato di 45° per stare sul piatto |
 | `retro_dx.stl` | 210 × 210 × 8,0 | telaio: PLA o PETG color legno o sabbia | retro e strato d'appoggio in un pezzo; ruotato di 45° per stare sul piatto |
 | `costola.stl` | 236 × 46 × 8,0 | telaio: PLA o PETG color legno o sabbia | i due strati della costola in un pezzo |
@@ -22,7 +22,7 @@ Generato da `hardware/case/multicolore.py` per un piatto di 240 × 240 mm (Anycu
 | `culla_flip.stl` × 1 | 89 × 83 × 7,0 | nero | vassoio sul piano della Flip, 4 viti M3 svasate |
 | `visiera.stl` × 1 | 126 × 70 × 103,6 | nero | si avvita al piano dietro la culla; stampare sul tettuccio, con supporti |
 | `culla_pad.stl` × 1 | 191 × 87 × 47,0 | nero | sta sulla base fra costola, fianco e parete davanti; si stampa in piedi |
-| `fermo_hub.stl` × 1 | 118 × 39 × 9,0 | nero | tiene l'hub sotto il piano, 2 viti nella base |
+| `fermo_hub.stl` × 1 | 175 × 65 × 10,5 | nero | tiene l'hub sotto il piano, 2 viti nella base |
 | `squadretta_m3.stl` × 6 | 20 × 12 × 12,0 | nero | base e fianchi, viti M3 |
 
 Filamento: circa 1,3 kg in tutto, quasi tutto del colore del corpo.

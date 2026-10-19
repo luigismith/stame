@@ -138,14 +138,14 @@ MINUTERIA = [
     'viti da legno 3 × 12: 6 per le squadrette nei fianchi, 2 per il fermo dell\'hub',
     'colla vinilica (legno); feltro adesivo da 1 mm in strisce sugli appoggi del piano',
     '6 piedini in gomma da 12 mm sotto la base',
-    'hub USB 2.0 senza Power Delivery; cavi USB-C a 90° per la MK4 e per il pad; cavi corti',
+    'hub USB fino a 142 × 58 × 17,5, meglio USB 2.0 semplice senza Power Delivery; cavi USB-C a 90° per la MK4 e per il pad; cavi corti',
 ]
 
 VERIFICARE = [
     'MK4: dima su carta (controlli dalle foto, ±1 mm); altezza del pannello (37 mm) e dei pulsanti piccoli',
     "Macro pad: misurato col metro il 19/10 (185 × 75, corpo 16,2, USB-C fra m1 e m2 a 8,3 dal fondo); resta l'altezza dell'interruttore sul retro",
     'Flip: angolo massimo dello schermo (serve 115°: schermo a 65°); porte e tasti presi dalle foto',
-    'Hub: misure reali (fermo dell\'hub) e consumo di MK4 + pad dalla batteria della Flip',
+    'Hub: la dock NOVOO (142 × 58 × 17,5) deve accendersi con la Flip (le dock finora no); cavo fisso di almeno 16 cm; consumo di MK4 + pad',
     'Prova di taglio su un ritaglio: potenza, velocità e gioco delle linguette (0,2 mm per lato)',
 ]
 
@@ -214,7 +214,7 @@ MINUTERIA_STAMPA = [
     'colla cianoacrilica in gel o epossidica bicomponente, per i tasselli e le linguette',
     'feltro adesivo da 1 mm in strisce sugli appoggi del piano; 6 piedini in gomma da 12 mm sotto la base',
     'carta adesiva (o vinile da stampa) A4 per le etichette; taglierino e righello',
-    'hub USB 2.0 senza Power Delivery; cavi USB-C a 90° per la MK4 e per il pad; cavi corti',
+    'hub USB fino a 142 × 58 × 17,5, meglio USB 2.0 semplice senza Power Delivery; cavi USB-C a 90° per la MK4 e per il pad; cavi corti',
 ]
 
 

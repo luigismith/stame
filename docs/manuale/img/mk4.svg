@@ -112,47 +112,49 @@
 <text x="340.20" y="80.10" font-size="2.6" fill="#424C47" text-anchor="middle" font-weight="600" dominant-baseline="central">⊕</text>
 <text x="340.20" y="84.80" font-size="2.7" fill="#4A2894" text-anchor="middle" font-weight="700" dominant-baseline="central">Overdub</text>
 <text x="300.00" y="96.80" font-size="2.4" fill="#E8EBE4" text-anchor="middle" font-weight="400" dominant-baseline="central">SHIFT + UNDO = Clear · SHIFT + STOP/PLAY = Panic · SHIFT tenuto + K toccata = «premi»</text>
-<rect x="8.50" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="19.92" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Do</text>
-<rect x="31.33" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="42.75" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Re</text>
-<rect x="54.17" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="65.58" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Mi</text>
-<rect x="77.00" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="88.42" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Fa</text>
-<rect x="99.83" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="111.25" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Sol</text>
-<rect x="122.67" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="134.08" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">La</text>
-<rect x="145.50" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="156.92" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Si</text>
-<rect x="168.33" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="179.75" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Do</text>
-<rect x="191.17" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="202.58" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Re</text>
-<rect x="214.00" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="225.42" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Mi</text>
-<rect x="236.83" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="248.25" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Fa</text>
-<rect x="259.67" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="271.08" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Sol</text>
-<rect x="282.50" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="293.92" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">La</text>
-<rect x="305.33" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="316.75" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Si</text>
-<rect x="328.17" y="108.00" width="22.33" height="89.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
-<text x="339.58" y="192.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Do</text>
-<rect x="24.83" y="108.00" width="13.00" height="53.70" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
-<rect x="47.67" y="108.00" width="13.00" height="53.70" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
-<rect x="93.33" y="108.00" width="13.00" height="53.70" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
-<rect x="116.17" y="108.00" width="13.00" height="53.70" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
-<rect x="139.00" y="108.00" width="13.00" height="53.70" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
-<rect x="184.67" y="108.00" width="13.00" height="53.70" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
-<rect x="207.50" y="108.00" width="13.00" height="53.70" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
-<rect x="253.17" y="108.00" width="13.00" height="53.70" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
-<rect x="276.00" y="108.00" width="13.00" height="53.70" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
-<rect x="298.83" y="108.00" width="13.00" height="53.70" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
-<rect x="50.50" y="164.38" width="258.50" height="11.00" rx="2" fill="#CFE4E0" stroke="#005A51" stroke-width="0.5"/>
-<text x="179.75" y="169.88" font-size="4.0" fill="#005A51" text-anchor="middle" font-weight="600" dominant-baseline="central">qualunque tasto: la fondamentale dell'accordo · conta il nome della nota, non l'ottava</text>
+<rect x="7.00" y="108.00" width="12.50" height="91.00" rx="1.5" fill="#3B403D" stroke="none" stroke-width="0.5"/>
+<rect x="340.00" y="108.00" width="12.50" height="91.00" rx="1.5" fill="#3B403D" stroke="none" stroke-width="0.5"/>
+<rect x="20.50" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="31.12" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Do</text>
+<rect x="41.73" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="52.35" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Re</text>
+<rect x="62.97" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="73.58" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Mi</text>
+<rect x="84.20" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="94.82" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Fa</text>
+<rect x="105.43" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="116.05" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Sol</text>
+<rect x="126.67" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="137.28" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">La</text>
+<rect x="147.90" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="158.52" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Si</text>
+<rect x="169.13" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="179.75" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Do</text>
+<rect x="190.37" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="200.98" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Re</text>
+<rect x="211.60" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="222.22" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Mi</text>
+<rect x="232.83" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="243.45" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Fa</text>
+<rect x="254.07" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="264.68" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Sol</text>
+<rect x="275.30" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="285.92" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">La</text>
+<rect x="296.53" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="307.15" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Si</text>
+<rect x="317.77" y="108.00" width="20.73" height="87.50" rx="1.2" fill="#F4F5EF" stroke="#9AA091" stroke-width="0.4"/>
+<text x="328.38" y="190.50" font-size="3.6" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">Do</text>
+<rect x="36.23" y="108.00" width="11.00" height="52.50" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
+<rect x="57.47" y="108.00" width="11.00" height="52.50" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
+<rect x="99.93" y="108.00" width="11.00" height="52.50" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
+<rect x="121.17" y="108.00" width="11.00" height="52.50" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
+<rect x="142.40" y="108.00" width="11.00" height="52.50" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
+<rect x="184.87" y="108.00" width="11.00" height="52.50" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
+<rect x="206.10" y="108.00" width="11.00" height="52.50" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
+<rect x="248.57" y="108.00" width="11.00" height="52.50" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
+<rect x="269.80" y="108.00" width="11.00" height="52.50" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
+<rect x="291.03" y="108.00" width="11.00" height="52.50" rx="1" fill="#252D29" stroke="none" stroke-width="0.5"/>
+<rect x="50.50" y="163.12" width="258.50" height="11.00" rx="2" fill="#CFE4E0" stroke="#005A51" stroke-width="0.5"/>
+<text x="179.75" y="168.62" font-size="4.0" fill="#005A51" text-anchor="middle" font-weight="600" dominant-baseline="central">qualunque tasto: la fondamentale dell'accordo · conta il nome della nota, non l'ottava</text>
 <rect x="6.00" y="206.20" width="3.60" height="3.60" rx="0.6" fill="#CFE4E0" stroke="#005A51" stroke-width="0.4"/><text x="11.40" y="208.00" font-size="3.0" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">suono e accordi</text><rect x="42.00" y="206.20" width="3.60" height="3.60" rx="0.6" fill="#F2DCCB" stroke="#853A00" stroke-width="0.4"/><text x="47.40" y="208.00" font-size="3.0" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">tempo e batteria</text><rect x="79.56" y="206.20" width="3.60" height="3.60" rx="0.6" fill="#DFD5F1" stroke="#4A2894" stroke-width="0.4"/><text x="84.96" y="208.00" font-size="3.0" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">loop</text><rect x="98.40" y="206.20" width="3.60" height="3.60" rx="0.6" fill="#D8E5CA" stroke="#285C00" stroke-width="0.4"/><text x="103.80" y="208.00" font-size="3.0" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">navigazione e liste</text><rect x="140.64" y="206.20" width="3.60" height="3.60" rx="0.6" fill="#EEE3C4" stroke="#634A00" stroke-width="0.4"/><text x="146.04" y="208.00" font-size="3.0" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">PUSH: SHIFT tenuto</text><rect x="181.32" y="206.20" width="3.60" height="3.60" rx="0.6" fill="#E9EBE4" stroke="#879180" stroke-width="0.4"/><text x="186.72" y="208.00" font-size="3.0" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">interni della MPK: Stame li ignora</text>
 </svg>
