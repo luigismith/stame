@@ -44,7 +44,7 @@ PRINT_BED = (240.0, 240.0)        # Kobra S1, 250 con 5 mm di margine per lato (
 # ---- versione tutta stampata (CASE-060…CASE-066; Luigi, 18/10/2026: «per chi non ha il laser») ----
 PIATTO_COMUNE = (210.0, 210.0)    # area utile di una stampante da 220 × 220: Ender-3, Bambu, Kobra, Prusa MK4 (210 in y)
 GIOCO_STAMPA = 0.15               # gioco per lato nelle sedi delle code di rondine stampate
-CODA = dict(collo=8.0, testa=12.0, prof=7.0)   # coda di rondine fra i tasselli, nel piano del pezzo
+CODA = dict(collo=8.0, testa=12.0, prof=7.0)   # coda di rondine verticale nel fondo, fra due vasche
 TASCA = 0.4                       # profondità delle tasche delle etichette di carta (due strati da 0,2)
 RILIEVO = 0.6                     # rilievo del marchio e del nome sui fianchi stampati (tre strati da 0,2)
 DETTAGLIO_MIN = 0.7               # un'incisione più sottile non si stampa con un ugello da 0,4 mm
