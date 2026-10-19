@@ -28,7 +28,7 @@ OUT = G.OUT
 MONTAGGIO = os.path.join(OUT, 'montaggio')
 
 COLORI = {
-    'betulla4': (214, 182, 135), 'betulla6': (205, 172, 124), 'acrilico3': (28, 28, 31),
+    'betulla4': (214, 182, 135), 'betulla6': (205, 172, 124), 'acrilico': (28, 28, 31),
     'petg_nero': (48, 48, 52), 'petg_sabbia': (204, 189, 158), 'tpu': (70, 70, 72),
     'mk4': (232, 232, 226), 'mk4_tasti': (247, 247, 242), 'mk4_neri': (34, 34, 36), 'mk4_pad': (82, 82, 86),
     'mk4_scocca': (150, 152, 148), 'mk4_rosso': (196, 46, 40),
@@ -122,7 +122,17 @@ def apparecchi():
         elif tipo in ('k', 'e'):
             man.cilindro(cx, cy, zt, z0 + M.MK4['h_knobs'], 9.5 if tipo == 'k' else 9.0, 20)
         elif tipo == 'w':
-            man.box(cx - 5.5, cy - 21.0, zt, cx + 5.5, cy + 21.0, zt + 6.0)
+            # le ruote di bend e mod: un disco di raggio 36 con l'asse da sinistra a destra, che esce
+            # 6 mm dalla fessura per 40 mm, zigrinato sul bordo
+            R, h, zb = 36.0, 6.0, zt - 0.5
+            zc = zt + h - R
+            th = math.acos((zb - zc) / R)
+            arco = []
+            for k in range(73):
+                f = th - 2 * th * k / 72
+                r = R - (0.35 if k % 2 else 0.0)
+                arco.append((cy + r * math.sin(f), zc + r * math.cos(f)))
+            man.prisma_x([(cy - R * math.sin(th), zb), (cy + R * math.sin(th), zb)] + arco[1:-1], cx - 5.5, cx + 5.5)
         elif tipo == 'd':
             pads.box(cx - 12.0, cy - 6.0, zt, cx + 12.0, cy + 6.0, zt + 0.6)
         else:
@@ -154,10 +164,17 @@ def apparecchi():
         for c in range(5):
             cx = px0 + M.PAD['k0'][0] + c * M.PAD['pitch_x']
             cy = py0 + M.PAD['k0'][1] + r * M.PAD['pitch_y']
-            tasti.box(cx - 7.0, cy - 7.0, pz1, cx + 7.0, cy + 7.0, zc)
-            caps.prisma(rett(cx - C['w'] / 2, cy - C['d'] / 2, cx + C['w'] / 2, cy + C['d'] / 2, 1.5), zc, zc + C['h'] - 3.0)
-            t = C['top_w'] / 2
-            caps.prisma(rett(cx - t, cy - t, cx + t, cy + t, 1.0), zc + C['h'] - 3.0, zc + C['h'])
+            # l'interruttore Cherry MX: la parte di sopra si stringe verso lo stelo
+            tasti.tronco(rett(cx - 7.0, cy - 7.0, cx + 7.0, cy + 7.0, 1.0), pz1,
+                         rett(cx - 5.6, cy - 5.6, cx + 5.6, cy + 5.6, 1.0), zc - 0.6)
+            tasti.box(cx - 2.0, cy - 2.0, zc - 0.6, cx + 2.0, cy + 2.0, zc)
+            # il tasto trasparente a due strati: il corpo svasato e, sopra, il coperchio che tiene l'etichetta
+            w, d, t = C['w'] / 2, C['d'] / 2, C['top_w'] / 2
+            zb = zc + C['h'] - 2.0
+            caps.tronco(rett(cx - w, cy - d, cx + w, cy + d, 1.2), zc,
+                        rett(cx - w + 1.6, cy - d + 1.6, cx + w - 1.6, cy + d - 1.6, 2.2), zb)
+            caps.tronco(rett(cx - t - 0.3, cy - t - 0.3, cx + t + 0.3, cy + t + 0.3, 1.8), zb,
+                        rett(cx - t, cy - t, cx + t, cy + t, 1.6), zc + C['h'])
     # ---- Miyoo Flip aperta ----
     fl = parte('Miyoo Flip', 8, 'flip')
     sch = parte('Schermo della Flip', 8, 'schermo')

@@ -1,13 +1,14 @@
 """rendering.py — rendering fotorealistico della console con Blender (Cycles).
 
-Uso: python -I hardware/case/rendering.py [--prova] [--viste eroe,pad,…]      (dopo genera.py e assieme.py)
+Uso: python -I hardware/case/rendering.py [--prova | --bozza | --blend] [--viste eroe,pad,…]   (dopo genera.py e assieme.py)
 
 Prepara le texture in build/render/ (incisioni di mascherina, piano della Flip e fianchi dagli SVG, le
 etichette dei tasti del pad, la faccia della Flip raddrizzata dalla foto, lo schermo con la
 plancia), scrive scena.json con i riferimenti dei pezzi e lancia Blender in background con
 blender_scena.py. I PNG escono in build/render/, i JPG per il repo in out/render/.
 --prova: risoluzione e campioni bassi, per controllare inquadrature e materiali. --viste: solo
-quelle (i nomi sono in VISTE di blender_scena.py).
+quelle (i nomi sono nelle chiamate a scatta() di blender_scena.py). --bozza: viste veloci con Workbench
+(build/render/bozza_*.png), per le forme; --blend: salva build/render/stame.blend e lo apre in Blender.
 """
 import json
 import os
@@ -92,7 +93,7 @@ def faccia_disegnata():
 
     for c in ((21.0, 30.0), (63.0, 33.0)):                     # le due conche, appena più scure
         cerchio(c, 13.5, (214, 214, 208), (200, 200, 194), 6)
-    for c, r in (((17.0, 58.0), 10.0), ((62.0, 66.0), 10.0)):  # levette: anello chiaro, bordo, cappello
+    for c, r in (((19.0, 62.0), 10.0), ((65.0, 62.0), 10.0)):  # levette, alla stessa altezza: anello, bordo, cappello
         cerchio(c, r, (206, 206, 200), (186, 186, 180), 8)
         cerchio(c, r - 2.6, (70, 72, 74))
         cerchio(c, r - 4.2, (222, 222, 218), (196, 196, 190), 6)
@@ -103,12 +104,12 @@ def faccia_disegnata():
     for (dx, dy), col in (((-7.2, 0), (198, 226, 196)), ((0, -6.8), (180, 216, 236)),
                           ((7.2, 0), (240, 198, 206)), ((0, 6.8), (240, 228, 180))):
         cerchio((x + dx, y + dy), 4.3, col, (190, 190, 186), 4)
-    cerchio((46.0, 15.0), 2.0, (214, 214, 208), (190, 190, 184), 4)        # accensione
-    for c in ((33.5, 70.0), (44.5, 71.0)):                                  # SELECT, START
+    cerchio((42.0, 15.0), 2.0, (214, 214, 208), (190, 190, 184), 4)        # accensione, al centro
+    for c in ((36.5, 71.0), (47.5, 71.0)):                                  # SELECT, START, in asse
         cerchio(c, 2.7, (210, 210, 204), (186, 186, 180), 5)
     for i in range(4):                                                      # altoparlante
         for j in range(4):
-            cerchio((36.0 + i * 3.0, 47.0 + j * 3.0), 0.55, (176, 176, 170))
+            cerchio((37.5 + i * 3.0, 47.0 + j * 3.0), 0.55, (176, 176, 170))
     im.filter(ImageFilter.GaussianBlur(1.2)).save(os.path.join(TEX, 'flip_faccia.png'))
 
 
@@ -151,6 +152,7 @@ def tasti_pad():
 def main():
     prova = '--prova' in sys.argv
     viste = sys.argv[sys.argv.index('--viste') + 1].split(',') if '--viste' in sys.argv else []
+    modo = 'bozza' if '--bozza' in sys.argv else 'blend' if '--blend' in sys.argv else 'cycles'
     os.makedirs(TEX, exist_ok=True)
     fr = riferimenti()
     inc = {}
@@ -160,7 +162,7 @@ def main():
     faccia_flip()
     schermo()
     scena = dict(
-        obj=os.path.join(OUT, 'stame_console.obj'), tex=TEX, uscita=BUILD, prova=prova, viste=viste,
+        obj=os.path.join(OUT, 'stame_console.obj'), tex=TEX, uscita=BUILD, prova=prova, viste=viste, modo=modo,
         hdr=os.path.join(BUILD, 'studio.hdr'), incisioni=inc,
         flip=fr['Miyoo Flip'][0], flip_faccia=[[M.FLIP_X - M.FLIP['w'] / 2, -M.FLIP_Y0], [M.FLIP['w'], M.FLIP['d']]],
         schermo=fr['Schermo della Flip'][0], tasti=tasti_pad(),
@@ -176,6 +178,11 @@ def main():
                         os.path.join(BUILD, 'scena.json')])
     if r.returncode:
         sys.exit(r.returncode)
+    if modo == 'blend':                 # Blender con la finestra, sulla scena salvata: la si gira con il mouse
+        subprocess.Popen([BLENDER, os.path.join(BUILD, 'stame.blend')])
+        return
+    if modo == 'bozza':
+        return
     os.makedirs(os.path.join(OUT, 'render'), exist_ok=True)
     for n in sorted(os.listdir(BUILD)):
         fatta = not viste or n[len('render_'):-4] in viste

@@ -324,7 +324,7 @@ X_INT = (M.FIANCO, M.LARGHEZZA - M.FIANCO)     # fra i fianchi
 RETRO_H = M.Z_PIANO - M.BASE_T                 # 40: il retro arriva in cima, come i fianchi
 COSTOLA_LING = (100.0, 205.0)                  # linguette della costola nella base (y)
 FRONTE_LING = (M.DESTRA_X0 + 40.0, M.DESTRA_X1 - 40.0)
-SQUADRETTE_Y = (20.0, 130.0, 230.0)            # squadrette fra base e fianchi
+SQUADRETTE_Y = (28.0, 130.0, 230.0)            # squadrette fra base e fianchi (la prima davanti al retro)
 CAVI_Z = 30.0                                  # dietro la MK4 la costola lascia passare i cavi fin qui
 USCITE = {'sx': (280.0,), 'dx': (430.0, 500.0)}   # finestre del retro: pedale; alimentazione e audio
 # cima delle finestre sopra la base: a destra stanno sopra l'hub, che è contro il retro, e i cavi
@@ -431,7 +431,7 @@ def mascherina():
     svg.punti(M.MK4_X0 + 44.0 - ox, yc + 3.5 - oy, 1.0, 'STAME')
     svg.pixel(M.MK4_X0 + 44.0 - ox, yc + 6.5 - oy, 0.25, 'STAMEN HARMONICUM')
     fr = piano((ox, oy, M.Z_PIANO), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0))
-    return registra(svg, _verso(fr, -1), M.ACR, 'acrilico3', 7)
+    return registra(svg, _verso(fr, -1), M.ACR, 'acrilico', 7)
 
 
 def _verso(frame, segno):
@@ -468,8 +468,8 @@ def dima():
 # telaio: retro e strato d'appoggio, fianchi, base, costola, parete davanti
 
 def retro(lato):
-    """retro: chiude la zona dei cavi e arriva in cima; si incastra nella base con due linguette
-    nelle tacche del bordo posteriore. Le finestre per pedale, alimentazione e audio"""
+    """retro: chiude la zona dei cavi e arriva in cima, arretrato fin dove finisce la curva dei fianchi;
+    si incastra nella base con due linguette nelle asole. Le finestre per pedale, alimentazione e audio"""
     a, b, ling = retro_ling(lato)
     h = RETRO_H
     svg = Svg(f'retro_{lato}', b - a + 2, h + M.BASE_T + 2,
@@ -481,7 +481,7 @@ def retro(lato):
     for cx in USCITE[lato]:
         x, y = P(cx - 14, USCITE_Z[lato])
         svg.rett(x, y, 28, 12, 6)
-    fr = piano((a - 1, 0.0, M.BASE_T + h + 1), (1.0, 0.0, 0.0), (0.0, 0.0, -1.0))
+    fr = piano((a - 1, M.RETRO_Y0, M.BASE_T + h + 1), (1.0, 0.0, 0.0), (0.0, 0.0, -1.0))
     return registra(svg, _orienta(fr, (0.0, 1.0, 0.0)), M.PLY, 'betulla4', 2)
 
 
@@ -613,7 +613,7 @@ def base(lato):
     def P(x, y):
         return (x - a + 1, y + 1)
     giunta = _bordo_giunta(Y)
-    tacche = _tacche_retro(a, b)
+    tacche = _tacche_retro(a, b) if M.RETRO_Y0 == 0 else []     # il retro sul bordo: tacche; arretrato: asole
     if lato == 'sx':
         pts = [(a, 0.0)] + tacche + giunta + _tacche_fronte(a, b) + [(a, Y)]
     else:
@@ -628,6 +628,11 @@ def base(lato):
         for y in SQUADRETTE_Y:
             if a < x < b:
                 svg.cerchio(*P(x, y), 1.7)
+    # asole del retro, se è arretrato dal bordo
+    if M.RETRO_Y0 > 0:
+        for c in (c for s in ('sx', 'dx') for c in retro_ling(s)[2]):
+            if a < c < b:
+                asola(svg, *P(c, M.RETRO_Y0 + M.PLY / 2), M.LINGUETTA, M.PLY)
     # asole della costola (due strati incollati, linguette insieme); la parete davanti ha le tacche nel bordo
     for yc in COSTOLA_LING:
         if a < M.GIUNTA_PIANO < b:
@@ -636,6 +641,9 @@ def base(lato):
     for x in (M.HUB_X0 - 10.0, M.HUB_X0 + M.HUB['w'] + 0.8 + 10.0):
         if a < x < b:
             svg.cerchio(*P(x, M.HUB_Y0 + (M.HUB['d'] + 0.8) / 2), 1.25)
+    # la vite della colonnina, da sotto
+    if a < COLONNINA[0] < b:
+        svg.cerchio(*P(*COLONNINA), 1.7)
     # segni per la posa: MK4, culla del pad
     def area(x0, y0, w, h, r=0.0):
         xa, xb = max(x0, a + 0.5), min(x0 + w, b - 0.5)
@@ -650,7 +658,8 @@ def base(lato):
 def costola(lato):
     """costola fra la MK4 e la culla del pad, due strati incollati con le linguette insieme. Dietro
     reggono la mascherina (sx) e il piano della Flip (dx) con il feltro, e sotto lasciano passare i
-    cavi della MK4 verso l'hub; davanti salgono in cima: sono la guancia dei tasti"""
+    cavi della MK4 verso l'hub; davanti salgono in cima, sono la guancia dei tasti, e lo spigolo in cima
+    ha l'arco dei fianchi"""
     y0, Y, H = M.APPOGGIO_Y, M.BASE_Y1, M.Z_PIANO
     yb = M.MASCHERINA_Y1 if lato == 'sx' else M.CULLA_PAD_Y0
     svg = Svg(f'costola_{lato}', Y - y0 + 2, H + 2,
@@ -659,7 +668,7 @@ def costola(lato):
     def P(y, z):
         return (y - y0 + 1, H - z + 1)
     pts = ([(y0, CAVI_Z), (M.MK4_Y0, CAVI_Z)] + bordo_linguette(M.MK4_Y0, Y, M.BASE_T, COSTOLA_LING, -M.BASE_T)
-           + [(Y, H), (yb, H), (yb, M.Z_APPOGGIO), (y0, M.Z_APPOGGIO)])
+           + _arco((Y - M.FIANCO_R, H - M.FIANCO_R), M.FIANCO_R, 0, 90) + [(yb, H), (yb, M.Z_APPOGGIO), (y0, M.Z_APPOGGIO)])
     svg.poligono([P(y, z) for y, z in pts])
     x = M.COSTOLA_X0 + (0.0 if lato == 'sx' else M.PLY)
     fr = piano((x, y0 - 1, H + 1), (0.0, 1.0, 0.0), (0.0, 0.0, -1.0))
@@ -667,8 +676,9 @@ def costola(lato):
 
 
 def fronte():
-    """parete davanti della parte destra, davanti alla culla del pad: arriva in cima"""
-    x0, x1, H = M.DESTRA_X0, M.DESTRA_X1, M.Z_PIANO
+    """parete davanti della parte destra, davanti alla culla del pad: si ferma dove comincia la curva
+    dei fianchi, e sopra la curva la continua il bordo della culla"""
+    x0, x1, H = M.DESTRA_X0, M.DESTRA_X1, M.FRONTE_Z
     svg = Svg('fronte_dx', x1 - x0 + 2, H + 2, f'parete davanti della culla del pad, compensato {M.PLY} mm.')
     def P(x, z):
         return (x - x0 + 1, H - z + 1)
@@ -767,7 +777,7 @@ def piano_flip():
         for c, testo in zip(colonne, riga):
             svg.pixel(*P(xa + c, ya + 3.1 * (r + 1)), px, testo)
     fr = piano((x0 - 1, y0 - 1, M.Z_PIANO), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0))
-    return registra(svg, _verso(fr, -1), M.ACR, 'acrilico3', 6)
+    return registra(svg, _verso(fr, -1), M.ACR, 'acrilico', 6)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -816,7 +826,7 @@ def tavola():
     # telaio: fianchi, retro, costola, parete davanti
     svg.rett(*T(0, 0), M.FIANCO, Y, 2, 'taglio')
     svg.rett(*T(W - M.FIANCO, 0), M.FIANCO, Y, 2, 'taglio')
-    svg.rett(*T(M.FIANCO, 0), W - 2 * M.FIANCO, M.PLY, 0, 'taglio')
+    svg.rett(*T(M.FIANCO, M.RETRO_Y0), W - 2 * M.FIANCO, M.PLY, 0, 'taglio')
     svg.rett(*T(M.COSTOLA_X0, M.APPOGGIO_Y), 2 * M.PLY, Y - M.APPOGGIO_Y, 0, 'taglio')
     svg.rett(*T(M.DESTRA_X0, M.FRONTE_Y), M.DESTRA_X1 - M.DESTRA_X0, M.PLY, 0, 'taglio')
     # MK4 e mascherina con i fori
@@ -869,7 +879,7 @@ def tavola():
     # piano della Flip e culla del pad in sezione
     svg.poligono([S(PIANO_Y0, M.Z_PIANO0), S(M.PIANO_Y1, M.Z_PIANO0), S(M.PIANO_Y1, M.Z_PIANO), S(PIANO_Y0, M.Z_PIANO)], 'taglio')
     c0, c1 = M.CULLA_PAD_Y0, M.CULLA_PAD_Y1
-    zr = M.PAD_Z1 + M.CULLA_BORDO
+    zr = M.PAD_Z1 + M.CULLA_PAD_BORDO
     s = M.CULLA_PAD_PARETE
     svg.poligono([S(c0, M.BASE_T), S(c0 + s, M.BASE_T), S(c0 + s, zr), S(c0, zr)], 'taglio')
     svg.poligono([S(c1 - s, M.BASE_T), S(c1, M.BASE_T), S(c1, zr), S(c1 - s, zr)], 'taglio')
@@ -959,15 +969,15 @@ def culla_pad():
     """Culla del macro pad (Luigi, 18/10/2026: «per il pad vorrei una culla simile a quella che hai
     fatto per il flip»), sul contorno vero del pad (foto del 18/10/2026). Sta in piedi sulla base e
     riempie la parte destra davanti, fra costola, fianco e parete davanti; dentro ha la sagoma del pad
-    con 0,5 mm di gioco, lobo compreso. Il pad poggia su sei costole con la piastra 2 mm sopra il piano,
-    come la Flip sul fondo della sua culla, e il bordo sale 5 mm oltre la piastra. Davanti la tacca per
-    la flangia della manopola grande, che sporge dal lobo; dietro un dente regge il bordo del piano della
-    Flip e una finestra fa passare la spina del pad (a 90°, verso il basso). Le pareti vanno dagli
+    con 0,5 mm di gioco, lobo compreso. Il pad poggia su sei costole con la piastra a filo del piano, e
+    la culla finisce lì (Luigi, 19/10/2026: tutto a pari); se CULLA_PAD_BORDO la fa salire oltre la
+    piastra, davanti si apre la tacca per la flangia della manopola grande. Dietro un dente regge il
+    bordo del piano della Flip e una finestra fa passare la spina del pad (a 90°, verso il basso). Le pareti vanno dagli
     angoli della culla a quelli del pad: dove serve un'apertura si taglia solo la parete che la porta.
     Si stampa in piedi, senza supporti."""
     x0, x1 = M.DESTRA_X0 + 0.3, M.DESTRA_X1 - 0.3
     y0, y1 = M.CULLA_PAD_Y0, M.CULLA_PAD_Y1
-    z0, zr = M.BASE_T, M.PAD_Z1 + M.CULLA_BORDO
+    z0, zr = M.BASE_T, M.PAD_Z1 + M.CULLA_PAD_BORDO
     dentro, (m0, m1, m2, m3) = contorno_pad(M.CULLA_PAD_GIOCO)
     ms = Mesh('Stame culla del macro pad')
     retro = [(x0, y0), (x1, y0)] + dentro[m0:m1 + 1][::-1]
@@ -992,10 +1002,19 @@ def culla_pad():
     parete(retro, zf, zr)
     parete(destra, z0, zr)
     parete(sinistra, z0, zr)
-    # davanti: sopra la piastra la tacca per la flangia della manopola grande
+    # davanti: fino alla piastra; se il bordo sale oltre, la tacca per la flangia della manopola grande
     mx = M.PAD_X0 + M.PAD_KNOB['M'][0]
-    parete(davanti, z0, M.PAD_Z1)
-    parete(davanti, M.PAD_Z1, zr, [(mx - M.PAD_FLANGIA - 2.0, mx + M.PAD_FLANGIA + 2.0)])
+    # davanti la betulla si ferma a FRONTE_Z; sopra, il bordo arrotondato continua la curva dei fianchi
+    # fino alla piastra (sporge 4 mm sopra la parete di betulla: si stampa senza supporti)
+    R, ya = M.FIANCO_R, M.PAD_Y1 + M.CULLA_PAD_GIOCO + 0.5      # 0,5 dietro il lobo: niente strisce di spessore zero
+    parete(davanti, z0, M.FRONTE_Z)
+    dietro = taglia(davanti, 1, ya, True)
+    if len(dietro) >= 3 and abs(area(dietro)) > 0.01:
+        ms.prisma(dietro, M.FRONTE_Z, M.PAD_Z1)
+    arco = [p for p in _arco((M.BASE_Y1 - R, M.Z_PIANO - R), R, 0, 90, 16) if p[0] >= ya]
+    ms.prisma_x([(ya, M.FRONTE_Z), (M.BASE_Y1, M.FRONTE_Z)] + arco + [(ya, arco[-1][1])], x0, x1)
+    if zr > M.PAD_Z1:
+        parete(davanti, M.PAD_Z1, zr, [(mx - M.PAD_FLANGIA - 2.0, mx + M.PAD_FLANGIA + 2.0)])
     # dente per il bordo del piano della Flip, con lo smusso a 45° sotto (si stampa senza supporti)
     d = M.CULLA_DENTE
     za = M.Z_APPOGGIO
@@ -1069,6 +1088,20 @@ def fermo_hub():
     return ms
 
 
+# colonnina sotto il piano della Flip (CASE-046): con l'acrilico da 2 mm il piano, che poggia solo sui
+# bordi, regge la culla e la Flip anche nel mezzo. Sta sotto la culla, davanti alle spine dell'hub e a
+# 30 mm dalle viti della culla; una vite 3 × 12 da sotto la base, feltro in cima come sugli appoggi
+COLONNINA = (M.FLIP_X, 128.0)
+
+
+def colonnina():
+    ms = Mesh('Stame colonnina del piano')
+    x, y = COLONNINA
+    ms.cilindro(x, y, M.BASE_T, M.BASE_T + 2.0, 10.0, 40)
+    ms.prisma(cerchio(x, y, 6.0, 32), M.BASE_T + 2.0, M.Z_APPOGGIO, holes=[cerchio(x, y, 1.3, 16)])
+    return ms
+
+
 # scritte dei tasti del macro pad (CASE-043, 40 MIDI-120, MIDI-133): il nome nella mappa del pad.
 # Vanno sulle etichette di carta dei tasti trasparenti (etichette.py)
 COPRITASTI = [['HOLD'], ['TAP'], ['METRO'], ['FILL'], ['DROP'],
@@ -1080,7 +1113,7 @@ COPRITASTI = [['HOLD'], ['TAP'], ['METRO'], ['FILL'], ['DROP'],
 # fogli di taglio: i pezzi del laser impaginati per materiale (CASE-003: piano del laser)
 
 MATERIALI = {'betulla4': f'compensato di betulla {M.PLY:.0f} mm', 'betulla6': f'compensato di betulla {M.BASE_T:.0f} mm',
-             'acrilico3': f'acrilico nero {M.ACR:.0f} mm'}
+             'acrilico': f'acrilico nero {M.ACR:.0f} mm'}
 FOGLIO = M.LASER_BED
 STACCO = 4.0
 
@@ -1258,6 +1291,7 @@ def genera():
     stampato('visiera', visiera(), IDENTITA, 6, 'si avvita al piano dietro la culla; stampare sul tettuccio, con supporti')
     stampato('culla_pad', culla_pad(), IDENTITA, 5, 'sta sulla base fra costola, fianco e parete davanti; si stampa in piedi')
     stampato('fermo_hub', fermo_hub(), IDENTITA, 4, 'tiene l\'hub sotto il piano, 2 viti nella base')
+    stampato('colonnina', colonnina(), IDENTITA, 4, 'regge il piano della Flip sotto la culla; una vite 3 × 12 da sotto la base')
     stampato('squadretta_m3', squadretta(), squadrette_frames(), 3, 'base e fianchi, viti M3')
     return laser
 

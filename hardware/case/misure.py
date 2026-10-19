@@ -52,7 +52,9 @@ DETTAGLIO_MIN = 0.7               # un'incisione più sottile non si stampa con 
 # ---- materiali ----
 PLY = 4.0                         # compensato di betulla per pannelli e fianchi [D]
 BASE_T = 6.0                      # compensato della base e del piano della mensola
-ACR = 3.0                         # acrilico nero (si taglia con il laser a diodo) o compensato tinto nero
+ACR = 2.0                         # acrilico nero (si taglia con il laser a diodo) o compensato tinto nero; 2 mm dal
+                                  # 19/10/2026 (Luigi: «ne bastano 2»): la mascherina poggia tutta sulla MK4, il piano
+                                  # della Flip ha una colonnina sotto la culla
 GIOCO = 0.2                       # gioco per incastri e fori di passaggio
 FIANCO_STRATI = 4                 # fianchi: 4 strati da PLY incollati = 16 mm
 
@@ -154,13 +156,19 @@ FIANCO = FIANCO_STRATI * PLY      # 16
 FELTRO = 1.0                      # strisce di feltro adesivo sugli appoggi del piano
 Z_MK4 = BASE_T + MK4['h']         # 43: il pannello della MK4, dove appoggia la mascherina
 Z_PIANO0 = Z_MK4                  # 43: faccia di sotto del piano (mascherina e piano della Flip)
-Z_PIANO = Z_PIANO0 + ACR          # 46: la cima della console: piano, fianchi, retro, fronte, costola
+Z_PIANO = Z_PIANO0 + ACR          # 45: la cima della console: piano, fianchi, retro, fronte, costola
 Z_APPOGGIO = Z_PIANO0 - FELTRO    # 42: gli strati d'appoggio sotto il bordo del piano, con il feltro
-RETRO_Y = PLY                     # il retro: uno strato fino alla cima e uno d'appoggio davanti
-APPOGGIO_Y = RETRO_Y + PLY        # 8: da qui comincia la zona dei cavi, sotto la mascherina
+FIANCO_R = 8.0                    # raggio degli spigoli in cima ai fianchi
+# il retro (uno strato fino alla cima e uno d'appoggio davanti) è arretrato fin dove finisce la curva dei
+# fianchi, così la curva gira libera dietro (Luigi, 19/10/2026: «puoi far rientrare il pannello posteriore
+# finché non combacia con la parte prima della curva»); la base sporge 8 mm dietro, fra i fianchi
+RETRO_Y0 = FIANCO_R              # 8: la faccia di dietro del retro
+RETRO_Y = RETRO_Y0 + PLY         # 12: la faccia davanti del retro
+APPOGGIO_Y = RETRO_Y + PLY        # 16: da qui comincia la zona dei cavi, sotto la mascherina
 MK4_X0 = FIANCO + 2.0             # 2 mm di gioco ai lati della MK4
-MK4_Y0 = 44.0                     # 36 mm di zona dei cavi dietro la MK4 (USB a 90°)
-BASE_Y1 = MK4_Y0 + MK4['d'] + 8.0 # 244: 8 mm davanti ai tasti
+MK4_Y0 = 44.0                     # 28 mm di zona dei cavi dietro la MK4 (USB a 90°)
+BASE_Y1 = MK4_Y0 + MK4['d'] + 4.0 # 240: 4 mm davanti ai tasti, così la versione stampata sta intera,
+                                  # davanti-dietro, sul piatto della Kobra S1 (Luigi, 19/10/2026)
 MASCHERINA_Y1 = MK4_Y0 + 94.0     # 138: il bordo davanti della mascherina, 6 mm prima dei tasti (fine del pannello)
 COSTOLA_X0 = MK4_X0 + MK4['w'] + 2.0   # 367,5: la costola fra la MK4 e la culla del pad, due strati
 COSTOLA_X1 = COSTOLA_X0 + 2 * PLY      # 375,5
@@ -180,23 +188,30 @@ PIANO_Y1 = CULLA_PAD_Y0 - 0.3                  # il piano della Flip arriva alla
 PAD_X0 = DESTRA_X0 + 0.3 + CULLA_PAD_PARETE + CULLA_PAD_GIOCO
 PAD_Y1 = CULLA_PAD_Y1 - CULLA_PAD_PARETE - CULLA_PAD_GIOCO    # il davanti del lobo
 PAD_Y0 = PAD_Y1 - PAD_D_TOT                                   # il retro, con la USB-C
-# altezze del pad: il corpo (dal fondo alla faccia della piastra satinata) e i tasti sopra. Come la
-# Flip, il pad sta 2 mm sopra il piano, e il bordo della culla sale 5 mm oltre la piastra
+# altezze del pad: il corpo (dal fondo alla faccia della piastra satinata) e i tasti sopra. Dal
+# 19/10/2026 la piastra è a filo del piano e la culla finisce lì, senza bordo (Luigi: «non sarebbe
+# meglio se fosse tutto a pari? serve quel bordo?»): le pareti tengono il corpo del pad, sotto
 PAD_CORPO = sum(h for _, h in PAD_STRATI)     # 16,2 [O, metro del 19/10]
-PAD_Z1 = Z_PIANO + 2.0            # 48: la faccia della piastra del pad
-PAD_Z0 = PAD_Z1 - PAD_CORPO       # 31,8: il pad poggia sulle costole della culla
+PAD_Z1 = Z_PIANO                  # 46: la faccia della piastra del pad, a filo del piano
+PAD_Z0 = PAD_Z1 - PAD_CORPO       # 29,8: il pad poggia sulle costole della culla
 PAD_USB_Z = 8.3                   # [O, ±0,7]: centro della presa USB-C sopra il fondo del pad; la spina a
-                                  # 90° verso il basso arriva sopra il piano: una tacca nel suo bordo
-CULLA_BORDO = 5.0                 # bordi delle due culle sopra il fondo (Flip) o sopra la piastra (pad)
+                                  # 90° verso il basso resta sotto il piano
+CULLA_BORDO = 5.0                 # bordo della culla della Flip sopra il suo fondo
+CULLA_PAD_BORDO = 0.0             # la culla del pad finisce a filo della piastra
 CULLA_FONDO = 2.0
 CULLA_PARETE = 2.0
 FLIP_X = (DESTRA_X0 + DESTRA_X1) / 2   # 468: centro della Flip e del pad
-FLIP_Y0 = MK4_Y0 + 10.6           # 54,6: bordo posteriore della metà con i tasti (cerniera)
+FLIP_Y0 = MK4_Y0 + 6.6            # 50,6: bordo posteriore della metà con i tasti (cerniera); 4 mm più
+                                  # indietro dal 19/10/2026, con la console da 240: davanti alla culla resta il posto della
+                                  # legenda delle manopole del pad
 FLIP_Z0 = Z_PIANO + CULLA_FONDO   # 48: la metà con i tasti appoggia sul fondo della culla
 SCHERMO_DEG = 65.0                # schermo a 65° dall'orizzontale: apertura della cerniera 115° [V]
 GIUNTA = 310.0                    # giunta delle due metà di base e retro
 LINGUETTA = 14.0                  # larghezza delle linguette; le asole hanno GIOCO in più per lato
-FIANCO_R = 8.0                    # raggio degli spigoli in cima ai fianchi
+# la parete davanti della parte destra si ferma dove comincia la curva dei fianchi; sopra la curva la
+# continua il bordo della culla del pad, e la costola ha lo stesso arco (Luigi, 19/10/2026: «dovrebbe
+# fermarsi prima in modo tale che poi continui la curva dei lati»)
+FRONTE_Z = Z_PIANO - FIANCO_R     # 38
 # hub nel suo fermo, sotto il piano della Flip, contro il retro: le porte guardano il davanti, dove
 # arrivano i cavi di MK4 e pad (fino alla culla del pad restano più di 80 mm per le spine); il cavo
 # fisso esce a destra, sale e torna indietro sopra l'hub fino alla fessura dell'OTG. A sinistra le

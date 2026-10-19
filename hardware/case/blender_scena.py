@@ -491,6 +491,34 @@ try:
 except Exception:
     pass
 
+# cycles: i rendering; bozza: viste veloci con Workbench, per guardare le forme; blend: la scena salvata
+# da aprire e girare in Blender (Luigi, 19/10/2026: «fammelo vedere in più viste non renderizzato»)
+MODO = S.get('modo', 'cycles')
+if MODO != 'cycles':
+    # Workbench e la vista solida usano il colore di visualizzazione del materiale: lo si prende dal
+    # colore di base o, per i materiali con le texture, da questa tabella (i nomi più lunghi prima)
+    TINTE = [('acrilico trasparente', (0.80, 0.86, 0.88)), ('acrilico satinato', (0.86, 0.88, 0.89)),
+             ('tasti trasparenti', (0.80, 0.86, 0.88)), ('betulla', (0.62, 0.45, 0.27)),
+             ('acrilico', (0.02, 0.02, 0.022)), ('Flip', (0.80, 0.80, 0.77)), ('schermo', (0.78, 0.82, 0.78)),
+             ('etichetta', (0.92, 0.92, 0.90))]
+    for m in bpy.data.materials:
+        b = m.node_tree.nodes.get('Principled BSDF') if m.node_tree else None
+        col = next((v for k, v in TINTE if m.name.startswith(k)), None)
+        if col is None and b is not None and not b.inputs['Base Color'].is_linked:
+            col = tuple(b.inputs['Base Color'].default_value)[:3]
+        m.diffuse_color = (*(col or (0.5, 0.5, 0.5)), 1.0)
+if MODO == 'bozza':
+    scene.render.engine = 'BLENDER_WORKBENCH'
+    sh = scene.display.shading
+    sh.light = 'STUDIO'
+    sh.color_type = 'MATERIAL'
+    sh.show_cavity = True
+    sh.cavity_type = 'BOTH'
+    sh.show_object_outline = True
+    sh.show_shadows = True
+    scene.display.render_aa = '8'
+    scene.render.resolution_x, scene.render.resolution_y = 1600, 900
+
 
 def camera(nome, bersaglio, az, el, dist, lente, fuoco=None, f_stop=5.6, orto=None):
     """camera attorno al bersaglio: az 0 davanti, 90 da destra, 180 da dietro; el sopra l'orizzonte"""
@@ -504,7 +532,7 @@ def camera(nome, bersaglio, az, el, dist, lente, fuoco=None, f_stop=5.6, orto=No
     if orto:
         d.type = 'ORTHO'
         d.ortho_scale = orto
-    if fuoco is not None:
+    if fuoco is not None and MODO == 'cycles':
         d.dof.use_dof = True
         d.dof.focus_distance = (Vector(fuoco) - pos).length
         d.dof.aperture_fstop = f_stop
@@ -520,7 +548,9 @@ def scatta(nome, *args, **kw):
     if S['viste'] and nome not in S['viste']:
         return
     scene.camera = camera(nome, *args, **kw)
-    scene.render.filepath = os.path.join(S['uscita'], f'render_{nome}.png')
+    if MODO == 'blend':
+        return
+    scene.render.filepath = os.path.join(S['uscita'], f'{"bozza" if MODO == "bozza" else "render"}_{nome}.png')
     bpy.ops.render.render(write_still=True)
     print('scritto', scene.render.filepath, flush=True)
 
@@ -540,6 +570,11 @@ scatta('alto', (C.x, C.y, 0.0), 0, 89.9, 1.5, 50, orto=0.66)
 scatta('retro', (C.x, C.y, 0.04), 158, 24, 1.4, 55, (C.x, C.y, 0.04), 8.0)
 scatta('fianco', (0.47, -0.12, 0.05), 72, 14, 0.95, 70, (0.56, -0.12, 0.04), 5.6)
 scatta('schermo', tuple(SCHERMO), 8, 14, 0.36, 85, tuple(SCHERMO), 2.8)
+if MODO == 'bozza':                  # da vicino: gli angoli davanti, la costola, i tasti del pad
+    scatta('angolo_dx', (0.55, -0.235, 0.035), 38, 16, 0.42, 50)
+    scatta('angolo_sx', (0.37, -0.235, 0.035), -25, 18, 0.42, 50)
+    scatta('tasti', (TASTO[0], TASTO[1], 0.05), 15, 38, 0.30, 60)
+    scatta('angolo_retro', (0.555, -0.012, 0.03), 150, 18, 0.42, 50)
 
 # ---- la vista esplosa: ogni gruppo di pezzi sale (e i fianchi si aprono) nell'ordine del montaggio
 
@@ -564,14 +599,14 @@ def esplodi(verso):
                 break
 
 
-if not S['viste'] or 'esploso' in S['viste']:
+if MODO != 'blend' and (not S['viste'] or 'esploso' in S['viste']):
     esplodi(1.0)
     scatta('esploso', (C.x + 0.02, C.y, 0.15), 26, 22, 1.68, 60, (C.x, C.y, 0.14), 11.0)
     esplodi(-1.0)
 
 # ---- di sera: tema Notte sullo schermo, fondale scuro, una luce calda bassa e lo schermo che illumina
 
-if not S['viste'] or 'sera' in S['viste']:
+if MODO == 'cycles' and (not S['viste'] or 'sera' in S['viste']):
     sch_mat = pezzi['Schermo_della_Flip'].data.materials[0]
     for n in sch_mat.node_tree.nodes:
         if n.type == 'TEX_IMAGE':
@@ -584,3 +619,17 @@ if not S['viste'] or 'sera' in S['viste']:
     LUCI[1].data.energy = 0.0
     LUCI[2].data.energy, LUCI[2].data.color = 22, (0.55, 0.75, 1.0)
     scatta('sera', (C.x + 0.06, C.y + 0.01, 0.05), 30, 19, 1.15, 65, (0.47, -0.12, 0.06), 4.0)
+
+# ---- la scena da aprire in Blender: la vista dalla camera dell'eroe, in anteprima materiali
+
+if MODO == 'blend':
+    scene.camera = bpy.data.objects.get('eroe') or scene.camera
+    FONDALE.rotation_euler.z = math.radians(24)
+    for scr in bpy.data.screens:
+        for area in scr.areas:
+            for sp in area.spaces:
+                if sp.type == 'VIEW_3D':
+                    sp.shading.type = 'MATERIAL'
+                    sp.region_3d.view_perspective = 'CAMERA'
+    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(S['uscita'], 'stame.blend'), compress=True)
+    print('scritto', os.path.join(S['uscita'], 'stame.blend'), flush=True)

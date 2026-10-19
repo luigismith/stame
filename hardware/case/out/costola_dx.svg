@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Stame, costola_dx: costola, strato verso il pad, compensato 4.0 mm; i due strati si incollano. Scala 1:1, millimetri. Rosso taglio, nero incisione, blu segno. -->
-<svg xmlns="http://www.w3.org/2000/svg" width="238.00mm" height="48.00mm" viewBox="0 0 238.000 48.000">
+<svg xmlns="http://www.w3.org/2000/svg" width="226.00mm" height="47.00mm" viewBox="0 0 226.000 47.000">
 <title>Stame — costola_dx</title>
 <g id="incisione" fill="#000000" stroke="none">
 
@@ -9,6 +9,6 @@
 
 </g>
 <g id="taglio" fill="none" stroke="#FF0000" stroke-width="0.1">
-<path d="M1.000,17.000 L37.000,17.000 L37.000,41.000 L86.000,41.000 L86.000,47.000 L100.000,47.000 L100.000,41.000 L191.000,41.000 L191.000,47.000 L205.000,47.000 L205.000,41.000 L237.000,41.000 L237.000,1.000 L149.300,1.000 L149.300,5.000 L1.000,5.000 Z"/>
+<path d="M1.000,16.000 L29.000,16.000 L29.000,40.000 L78.000,40.000 L78.000,46.000 L92.000,46.000 L92.000,40.000 L183.000,40.000 L183.000,46.000 L197.000,46.000 L197.000,40.000 L225.000,40.000 L225.000,9.000 L224.846,7.439 L224.391,5.939 L223.652,4.555 L222.657,3.343 L221.445,2.348 L220.061,1.609 L218.561,1.154 L217.000,1.000 L137.300,1.000 L137.300,4.000 L1.000,4.000 Z"/>
 </g>
 </svg>

@@ -65,7 +65,7 @@ def mascherina():
 
 
 CARTELLA = os.path.join(DEST, 'case')
-FONDI = {'betulla4': (226, 196, 152), 'betulla6': (214, 182, 135), 'acrilico3': (34, 34, 38)}
+FONDI = {'betulla4': (226, 196, 152), 'betulla6': (214, 182, 135), 'acrilico': (34, 34, 38)}
 
 
 def pagina():
@@ -93,7 +93,7 @@ def pagina():
             a = np.asarray(Image.open(png).convert('RGBA')).astype(float)
             mat = n[len('taglio_'):].rsplit('_', 1)[0]
             fondo = np.array(FONDI[mat], float)
-            chiaro = mat != 'acrilico3'
+            chiaro = mat != 'acrilico'
             col = np.empty(a.shape[:2] + (3,))
             col[...] = fondo
             al = a[..., 3:4] / 255

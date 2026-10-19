@@ -4,30 +4,31 @@ Generato da `hardware/case/stampa3d.py` (piatto 210 × 210 mm). Ogni pezzo sta s
 
 | File | Quanti | Ingombro (mm) | Colore | Note |
 |---|---|---|---|---|
-| `base_1.stl` | 1 | 191 × 129 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_2.stl` | 1 | 192 × 129 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_3.stl` | 1 | 182 × 129 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_4.stl` | 1 | 191 × 122 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_5.stl` | 1 | 192 × 122 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `base_6.stl` | 1 | 182 × 122 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
-| `fianco_sx.stl` | 1 | 202 × 202 × 16,6 | telaio: PLA o PETG color legno o sabbia | quattro strati in uno; faccia esterna in alto, marchio e nome in rilievo; ruotato di 45° per stare sul piatto |
-| `fianco_dx.stl` | 1 | 202 × 202 × 16,6 | telaio: PLA o PETG color legno o sabbia | quattro strati in uno; faccia esterna in alto, marchio e nome in rilievo; ruotato di 45° per stare sul piatto |
-| `retro_sx_1.stl` | 1 | 154 × 46 × 8,0 | telaio: PLA o PETG color legno o sabbia | retro e strato d'appoggio in un pezzo |
-| `retro_sx_2.stl` | 1 | 147 × 46 × 8,0 | telaio: PLA o PETG color legno o sabbia | retro e strato d'appoggio in un pezzo |
-| `retro_dx_1.stl` | 1 | 143 × 46 × 8,0 | telaio: PLA o PETG color legno o sabbia | retro e strato d'appoggio in un pezzo |
-| `retro_dx_2.stl` | 1 | 122 × 46 × 8,0 | telaio: PLA o PETG color legno o sabbia | retro e strato d'appoggio in un pezzo |
-| `costola.stl` | 1 | 186 × 185 × 8,0 | telaio: PLA o PETG color legno o sabbia | i due strati della costola in un pezzo; ruotato di 42° per stare sul piatto |
-| `fronte.stl` | 1 | 192 × 46 × 4,0 | telaio: PLA o PETG color legno o sabbia | parete davanti, la faccia esterna in alto |
-| `mascherina_1.stl` | 1 | 201 × 134 × 3,0 | piani: nero | lastra da 3 mm; le scritte su carta adesiva, nelle tasche |
-| `mascherina_2.stl` | 1 | 166 × 134 × 3,0 | piani: nero | lastra da 3 mm; le scritte su carta adesiva, nelle tasche |
-| `piano_flip.stl` | 1 | 200 × 152 × 3,0 | piani: nero | lastra da 3 mm; le scritte su carta adesiva, nelle tasche |
+| `base_1.stl` | 1 | 191 × 127 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_2.stl` | 1 | 192 × 127 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_3.stl` | 1 | 182 × 127 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_4.stl` | 1 | 191 × 120 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_5.stl` | 1 | 192 × 120 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `base_6.stl` | 1 | 182 × 120 × 6,0 | telaio: PLA o PETG color legno o sabbia | lastra da 6 mm; i tasselli si incollano a coda di rondine |
+| `fianco_sx.stl` | 1 | 198 × 198 × 16,6 | telaio: PLA o PETG color legno o sabbia | quattro strati in uno; faccia esterna in alto, marchio e nome in rilievo; ruotato di 45° per stare sul piatto |
+| `fianco_dx.stl` | 1 | 198 × 198 × 16,6 | telaio: PLA o PETG color legno o sabbia | quattro strati in uno; faccia esterna in alto, marchio e nome in rilievo; ruotato di 45° per stare sul piatto |
+| `retro_sx_1.stl` | 1 | 154 × 45 × 8,0 | telaio: PLA o PETG color legno o sabbia | retro e strato d'appoggio in un pezzo |
+| `retro_sx_2.stl` | 1 | 147 × 45 × 8,0 | telaio: PLA o PETG color legno o sabbia | retro e strato d'appoggio in un pezzo |
+| `retro_dx_1.stl` | 1 | 143 × 45 × 8,0 | telaio: PLA o PETG color legno o sabbia | retro e strato d'appoggio in un pezzo |
+| `retro_dx_2.stl` | 1 | 122 × 45 × 8,0 | telaio: PLA o PETG color legno o sabbia | retro e strato d'appoggio in un pezzo |
+| `costola.stl` | 1 | 176 × 174 × 8,0 | telaio: PLA o PETG color legno o sabbia | i due strati della costola in un pezzo; ruotato di 41° per stare sul piatto |
+| `fronte.stl` | 1 | 192 × 37 × 4,0 | telaio: PLA o PETG color legno o sabbia | parete davanti, la faccia esterna in alto |
+| `mascherina_1.stl` | 1 | 201 × 126 × 2,0 | piani: nero | lastra da 3 mm; le scritte su carta adesiva, nelle tasche |
+| `mascherina_2.stl` | 1 | 166 × 126 × 2,0 | piani: nero | lastra da 3 mm; le scritte su carta adesiva, nelle tasche |
+| `piano_flip.stl` | 1 | 200 × 140 × 2,0 | piani: nero | lastra da 3 mm; le scritte su carta adesiva, nelle tasche |
 | `culla_flip.stl` | 1 | 89 × 83 × 7,0 | nero | vassoio sul piano della Flip, 4 viti M3 svasate |
 | `visiera.stl` | 1 | 126 × 70 × 103,6 | nero | si avvita al piano dietro la culla; stampare sul tettuccio, con supporti |
-| `culla_pad.stl` | 1 | 191 × 87 × 47,0 | nero | sta sulla base fra costola, fianco e parete davanti; si stampa in piedi |
+| `culla_pad.stl` | 1 | 191 × 92 × 39,0 | nero | sta sulla base fra costola, fianco e parete davanti; si stampa in piedi |
 | `fermo_hub.stl` | 1 | 175 × 65 × 10,5 | nero | tiene l'hub sotto il piano, 2 viti nella base |
+| `colonnina.stl` | 1 | 20 × 20 × 36,0 | nero | regge il piano della Flip sotto la culla; una vite 3 × 12 da sotto la base |
 | `squadretta_m3.stl` | 6 | 20 × 12 × 12,0 | nero | base e fianchi, viti M3 |
 
-Filamento: circa 1,3 kg in tutto (stima con 3 perimetri, 4 strati pieni sopra e sotto, riempimento al 20 %).
+Filamento: circa 1,2 kg in tutto (stima con 3 perimetri, 4 strati pieni sopra e sotto, riempimento al 20 %).
 
 ## Impostazioni
 

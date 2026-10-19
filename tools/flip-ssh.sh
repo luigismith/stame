@@ -14,5 +14,8 @@ ASKPASS="${FLIP_ASKPASS:-/d/dev/build/askpass.sh}"
 [ -x "$ASKPASS" ] || { echo "manca lo script askpass $ASKPASS (variabile FLIP_ASKPASS)"; exit 1; }
 mkdir -p build
 export SSH_ASKPASS="$ASKPASS" SSH_ASKPASS_REQUIRE=force DISPLAY=:0
-exec ssh -o UserKnownHostsFile=build/known_hosts_flip -o StrictHostKeyChecking=accept-new \
+# l'ssh della Git Bash: quello di Windows (che su alcuni PC viene prima nel PATH) non lancia un askpass .sh
+SSHBIN=/usr/bin/ssh
+[ -x "$SSHBIN" ] || SSHBIN=ssh
+exec "$SSHBIN" -o UserKnownHostsFile=build/known_hosts_flip -o StrictHostKeyChecking=accept-new \
     -o PubkeyAuthentication=no -o ConnectTimeout=10 "spruce@$IP" "$@"

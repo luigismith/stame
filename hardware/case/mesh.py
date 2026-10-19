@@ -351,6 +351,8 @@ class Mesh:
         return [self._tris(p) for p in self.prismi]
 
     def _tris(self, p):
+        if p.get('sopra'):
+            return self._tronco_tris(p)
         outer, holes, z0, z1, frame = p['outer'], p['holes'], p['z0'], p['z1'], p['frame']
         poly, tris = _orecchie(outer, holes)
         atteso = abs(_area(outer)) - sum(abs(_area(h)) for h in holes)
@@ -375,6 +377,30 @@ class Mesh:
             w = tuple(applica(frame, v) for v in t)
             res.append(w[::-1] if rev else w)
         return res
+
+    def _tronco_tris(self, p):
+        """il tronco: sotto il profilo outer a z0, sopra il profilo sopra a z1 (stessi punti, uno a uno)"""
+        giu, su, z0, z1, frame = ccw(p['outer']), ccw(p['sopra']), p['z0'], p['z1'], p['frame']
+        out = []
+        for poly, z, alto in ((giu, z0, False), (su, z1, True)):
+            pp, tris = _orecchie(poly, [])
+            for i, j, k in tris:
+                a, b, c = pp[i], pp[j], pp[k]
+                out.append(((a[0], a[1], z), (b[0], b[1], z), (c[0], c[1], z)) if alto
+                           else ((a[0], a[1], z), (c[0], c[1], z), (b[0], b[1], z)))
+        n = len(giu)
+        for i in range(n):
+            a0, a1, b0, b1 = giu[i], giu[(i + 1) % n], su[i], su[(i + 1) % n]
+            out.append(((a0[0], a0[1], z0), (a1[0], a1[1], z0), (b1[0], b1[1], z1)))
+            out.append(((a0[0], a0[1], z0), (b1[0], b1[1], z1), (b0[0], b0[1], z1)))
+        rev = det(frame) < 0
+        return [tuple(applica(frame, v) for v in t)[::-1] if rev else tuple(applica(frame, v) for v in t) for t in out]
+
+    def tronco(self, sotto, z0, sopra, z1, frame=IDENTITA):
+        """da un profilo sotto (a z0) a uno sopra (a z1) con lo stesso numero di punti: tasti, svasature"""
+        if len(sotto) != len(sopra):
+            raise ValueError('tronco: i due profili devono avere gli stessi punti')
+        self.prismi.append(dict(outer=list(sotto), holes=[], z0=z0, z1=z1, frame=frame, sopra=list(sopra)))
 
     def prisma(self, outer, z0, z1, holes=(), frame=IDENTITA):
         """profilo 2D (con fori) estruso da z0 a z1, nel riferimento frame"""
