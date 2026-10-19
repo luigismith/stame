@@ -52,12 +52,6 @@ char *ui_fmt_signed(char *buf, int n, int v)
     return ui_fmt_int(buf, n, v, 1);
 }
 
-const char *ui_fmt_kit(uint8_t kit)
-{
-    static const char *const N[6] = { "Beat", "Studio", "Jazz", "808", "Techno", "Chip" };
-    return kit < 6 ? N[kit] : "?";
-}
-
 /* la parte che M regola nella batteria che si inventa (MIDI-139): 0 = tutto */
 const char *ui_fmt_part(uint8_t part)
 {

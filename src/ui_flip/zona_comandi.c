@@ -56,6 +56,10 @@ uint64_t uf_sig_cell(const ui_model_t *m, int k)
                      m->tempo.swing, m->tempo.drive, (uint8_t)m->tempo.filt };                           /* MIDI-135 */
     h = uf_h(h, g, sizeof g);
     h = uf_h(h, m->tempo.dens, sizeof m->tempo.dens);
+    if (k == ENC_SOUND) {                                           /* la cella KIT sotto DRUMS (SND-541) */
+        h = uf_h(h, m->tempo.kit_name, sizeof m->tempo.kit_name);
+        h = uf_h(h, m->tempo.kit_info, sizeof m->tempo.kit_info);
+    }
     if (c->st[k].flags & CF_PRESSED) {
         uint32_t held = m->core_ms - c->st[k].pressed_since_ms;
         uint16_t q = (uint16_t)(held / 33u > 60 ? 60 : held / 33u);
@@ -117,10 +121,14 @@ static void cell_text(const ui_model_t *m, int k, cell_txt_t *t)
     t->detail_tok = T_DIM;
     bool sec = (c->st[k].flags & CF_SECONDARY) != 0;
     if (m->tempo.drums_on && (k == ENC_SOUND || k == ENC_PERFORM || k == ENC_BASS)) {   /* drum machine (MIDI-135) */
-        if (k == ENC_SOUND) {
+        if (k == ENC_SOUND) {                                       /* il kit della libreria (SND-541) */
             t->title = "KIT";
-            ui_fmt_copy(t->value, sizeof t->value, ui_fmt_kit(m->tempo.kit));
-            ui_fmt_copy(t->detail, sizeof t->detail, m->tempo.kit ? "Drums" : m->tempo.beat_name);
+            if (m->tempo.kit) {
+                ui_fmt_int(a, sizeof a, m->tempo.kit, 2);
+                ui_fmt_cat(t->value, sizeof t->value, a, " ");
+                ui_fmt_cat(t->value, sizeof t->value, t->value, m->tempo.kit_name);
+            } else ui_fmt_copy(t->value, sizeof t->value, m->tempo.kit_name);
+            ui_fmt_copy(t->detail, sizeof t->detail, m->tempo.kit_info);
         } else if (k == ENC_PERFORM) {
             t->title = "ROLL";
             ui_fmt_copy(t->value, sizeof t->value, ui_fmt_roll(m->tempo.roll));

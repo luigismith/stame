@@ -14,6 +14,7 @@ void test_plancia(void);
 void test_dsp(void);
 void test_smp(void);
 void test_motore(void);
+void test_kits(void);
 
 int main(void)
 {
@@ -27,6 +28,7 @@ int main(void)
     test_suite = "dsp";   test_dsp();
     test_suite = "smp";   test_smp();
     test_suite = "motore"; test_motore();
+    test_suite = "kits";  test_kits();
     printf("%d controlli, %d falliti\n", test_checks, test_failures);
     return test_failures ? 1 : 0;
 }

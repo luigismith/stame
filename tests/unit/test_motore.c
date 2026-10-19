@@ -652,7 +652,9 @@ static void test_mappa_133(void)
     mot_roll(&M, 0);
     mot_kit(&M, 3);
     CHECK_EQ(M.kit_sel, 3);
-    mot_kit(&M, 9);
+    mot_kit(&M, KIT_COUNT);                                       /* l'ultimo della libreria (SND-541) */
+    CHECK_EQ(M.kit_sel, KIT_COUNT);
+    mot_kit(&M, KIT_COUNT + 1);
     CHECK_EQ(M.kit_sel, 0);
     mot_loop(&M, LOOP_C_RESET);
 

@@ -1,19 +1,13 @@
-/* beat.c — i pattern dei Beat, i loro kit e il metronomo (beat.h). */
+/* beat.c — i pattern dei Beat, il catalogo dei kit e il metronomo (beat.h). */
 #include "beat.h"
-#include "../dsp/drums.h"
 
 /* una riga per strumento: 16 passi, 'X' = colpo forte (110), 'x' = colpo (80), '.' = niente */
 typedef struct { uint8_t inst; const char *steps; } beat_line_t;
-typedef struct { const char *name; const char *kit; beat_line_t line[6]; } beat_def_t;
-
-#define KIT_STUDIO "kit_studio"
-#define KIT_JAZZ   "kit_jazz"
-#define KIT_808    "kit_808"
-#define KIT_TECHNO "kit_techno"
+typedef struct { const char *name; uint8_t kit; beat_line_t line[6]; } beat_def_t;
 
 static const beat_def_t BEATS[BEAT_COUNT] STAME_ROM = {
     /* ACC-210: il provvisorio della specifica, velocity 110 sui battiti e 80 sugli altri passi */
-    { "Provvisorio", NULL, { { DRUM_KICK, "X...X...X...X..." }, { DRUM_SNARE, "....X.......X..." },
+    { "Provvisorio", KIT_CHIP, { { DRUM_KICK, "X...X...X...X..." }, { DRUM_SNARE, "....X.......X..." },
                              { DRUM_CLOSED_HAT, "X.x.X.x.X.x.X.x." } } },
     /* i Beat della vetrina (nomi e pattern di Stame, nessun dato dell'originale); i primi 6 dal 14/10,
      * gli altri dal 15/10/2026 con i kit a campioni (SND-537) */
@@ -41,7 +35,7 @@ static const beat_def_t BEATS[BEAT_COUNT] STAME_ROM = {
                               { DRUM_CLOSED_HAT, "x.x.x.x.x.x.x.x." }, { DRUM_CYMBAL, "X..............." } } },
     { "Train", KIT_JAZZ, { { DRUM_KICK, "X...X...X...X..." }, { DRUM_SNARE, "x.xXx.xXx.xXx.xX" },
                            { DRUM_CLOSED_HAT, "X.x.X.x.X.x.X.x." } } },
-    { "Chip", NULL, { { DRUM_KICK, "X...X..xX...X..." }, { DRUM_SNARE, "....X.......X..x" },
+    { "Chip", KIT_CHIP, { { DRUM_KICK, "X...X..xX...X..." }, { DRUM_SNARE, "....X.......X..x" },
                       { DRUM_CLOSED_HAT, "x.x.x.x.x.x.x.x." }, { DRUM_COWBELL, "..x...x...x...x." },
                       { DRUM_TOM_HI, "..............x." } } },
     /* 15/10/2026 sera, Luigi: «più cupi e più tecno». Il kit techno è di campioni Sonic Pi (CC0) */
@@ -159,8 +153,25 @@ int metro_hits(int meter, uint32_t pos, beat_hit_t *out, int max)
 
 const char *beat_name(int b) { return b >= 0 && b < BEAT_COUNT ? BEATS[b].name : ""; }
 
-static const char *const KIT_NAME[KIT_COUNT] STAME_ROM = { KIT_STUDIO, KIT_JAZZ, KIT_808, KIT_TECHNO, NULL };
-static const char *const KIT_LABEL[KIT_COUNT] STAME_ROM = { "Studio", "Jazz", "808", "Techno", "Chip" };
-const char *beat_kit_name(int i) { return i >= 0 && i < KIT_COUNT ? KIT_NAME[i] : NULL; }
-const char *beat_kit_label(int i) { return i >= 0 && i < KIT_COUNT ? KIT_LABEL[i] : ""; }
-const char *beat_kit(int b) { return b >= 0 && b < BEAT_COUNT ? BEATS[b].kit : NULL; }
+/* il catalogo dei kit (SND-541): i primi cinque qui, gli altri da drum_kits[] */
+static const char *const KIT_SET[KIT_SYNTH0] STAME_ROM = { "kit_studio", "kit_jazz", "kit_808", "kit_techno", NULL };
+static const char *const KIT_LABEL[KIT_SYNTH0] STAME_ROM = { "Studio", "Jazz", "808", "Techno", "Chip" };
+
+const char *beat_kit_name(int i) { return i >= 0 && i < KIT_SYNTH0 ? KIT_SET[i] : NULL; }
+
+const char *beat_kit_label(int i)
+{
+    if (i >= 0 && i < KIT_SYNTH0) return KIT_LABEL[i];
+    return i >= KIT_SYNTH0 && i < KIT_COUNT ? drum_kits[i - KIT_SYNTH0].name : "";
+}
+
+const char *beat_kit_style(int i)
+{
+    static const char *const STYLE[KIT_SYNTH0] STAME_ROM = { "acoustic", "jazz", "analog", "techno", "classic" };
+    if (i >= 0 && i < KIT_SYNTH0) return STYLE[i];
+    return i >= KIT_SYNTH0 && i < KIT_COUNT ? drum_kits[i - KIT_SYNTH0].style : "";
+}
+
+const drum_kit_t *beat_kit_synth(int i) { return i >= KIT_SYNTH0 && i < KIT_COUNT ? &drum_kits[i - KIT_SYNTH0] : NULL; }
+int beat_kit_of(int b) { return b >= 0 && b < BEAT_COUNT ? BEATS[b].kit : KIT_CHIP; }
+const char *beat_kit(int b) { return beat_kit_name(beat_kit_of(b)); }

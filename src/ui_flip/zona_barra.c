@@ -36,6 +36,10 @@ uint64_t uf_sig_z6(const ui_model_t *m)
     if (k == OV_KEY || k == OV_KEY_TOGGLE) h = uf_h(h, m->music.key_name, sizeof m->music.key_name);
     if (k == OV_VOICING) h = UF_HV(h, m->music.W);
     if (k == OV_BASS_VOICING) h = UF_HV(h, m->music.WB);
+    if (k == OV_KIT) {                                        /* il kit: nome e stile (SND-541) */
+        h = uf_h(h, m->tempo.kit_name, sizeof m->tempo.kit_name);
+        h = uf_h(h, m->tempo.kit_info, sizeof m->tempo.kit_info);
+    }
     return h;
 }
 
@@ -196,8 +200,9 @@ static void overlay(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
     case OV_DRUMS:
         e.label = "Drums"; e.text = v ? "On" : "Off";
         break;
-    case OV_KIT:                                              /* drum machine (MIDI-135) */
-        e.label = "Kit"; e.text = ui_fmt_kit((uint8_t)v);
+    case OV_KIT:                                              /* drum machine (MIDI-135), la libreria (SND-541) */
+        ui_fmt_int(d, sizeof d, v, 2);
+        e.label = "Kit"; e.digits = v ? d : NULL; e.text = m->tempo.kit_name; e.detail = m->tempo.kit_info;
         break;
     case OV_ROLL:
         e.label = "Roll"; e.text = ui_fmt_roll((uint8_t)v);

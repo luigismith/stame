@@ -1,9 +1,21 @@
-/* drums.c — kit di batteria: campioni del kit scelto, o sintesi in stile CR-78 (drums.h). Tutto a
- * campione, float a 32 bit. Inviluppi esponenziali moltiplicativi e coefficienti dei filtri calcolati
- * una volta al colpo: nel ciclo per campione niente expf né cosf, salvo il seno da tabella degli
- * oscillatori. Le voci a campione leggono con interpolazione lineare al passo rate / fs. */
+/* drums.c — kit di batteria: campioni del kit scelto, ricette dei kit sintetizzati della libreria, o
+ * sintesi in stile CR-78 (drums.h). Tutto a campione, float a 32 bit. Inviluppi esponenziali
+ * moltiplicativi e coefficienti dei filtri calcolati una volta al colpo: nel ciclo per campione niente
+ * expf né cosf, salvo il seno da tabella degli oscillatori. Le voci a campione leggono con
+ * interpolazione lineare al passo rate / fs. */
 #include "drums.h"
 #include "dsp_int.h"
+
+/* rapporti dei sei oscillatori a onda quadra del metallo (SND-540), sulla frequenza del tono: il
+ * charleston analogico (205,3 · 304,4 · 369,6 · 522,7 · 540 · 800 Hz), il campanaccio (540 e 800 Hz), i
+ * modi di una piastra circolare (campane, gong, incudini) e un piatto più fitto */
+static const float METAL_R[DK_METAL_SETS][6] STAME_ROM = {
+    { 1.0f, 1.4827082f, 1.8002922f, 2.5460302f, 2.6302971f, 3.8967365f },
+    { 1.0f, 1.4814815f, 0.0f, 0.0f, 0.0f, 0.0f },
+    { 1.0f, 2.7560000f, 5.4040000f, 8.9330000f, 13.344000f, 18.640000f },
+    { 1.0f, 1.1834000f, 1.4227000f, 1.7781000f, 2.2468000f, 2.9327000f },
+};
+static const uint8_t METAL_N[DK_METAL_SETS] STAME_ROM = { 6, 2, 6, 6 };
 
 /* durata massima e pan di ogni strumento */
 static const float DUR[DRUM_COUNT] STAME_ROM = {
@@ -45,6 +57,8 @@ void drums_set_kit(drums_t *k, const smp_bank_t *bank, const smp_set_t *kit)
     k->kit = bank ? kit : NULL;
 }
 
+void drums_set_synth(drums_t *k, const drum_kit_t *kit) { k->syn = kit; }
+
 void drums_all_off(drums_t *k)
 {
     for (int i = 0; i < DRUM_VOICES; i++) k->v[i].on = 0;
@@ -63,6 +77,43 @@ static void bp_set(const drums_t *k, drum_voice_t *v, float f, float q)
     v->c2 = r * r;
 }
 
+/* una voce della ricetta r (SND-540): inviluppi, attacco, colpi del battimani e filtro, al colpo */
+static void rec_start(const drums_t *k, drum_voice_t *v, const drum_rec_t *r)
+{
+    v->r = r;
+    v->amp *= r->gain;
+    v->ep = v->et = v->en = v->ec = v->eg = 1.0f;
+    v->dp = decay(k, r->tp > 0.0f ? r->tp : 1e-4f);
+    v->dt = decay(k, r->ta > 0.0f ? r->ta : 1e-4f);
+    v->dn_tail = decay(k, r->tn > 0.0f ? r->tn : 1e-4f);
+    v->dc = decay(k, 0.0012f);
+    v->dg = 1.0f;
+    if (r->bursts > 1) {                                       /* il battimani: colpi brevi ogni 9,5 ms, poi la coda */
+        v->dn = decay(k, 0.0035f);
+        v->burst_n = (uint8_t)(r->bursts - 1);
+        v->burst_t = 0.0095f;
+    } else v->dn = v->dn_tail;
+    if (r->att > 0.0f) { v->a = 0.0f; v->a_inc = k->inv_fs / r->att; } else v->a = 1.0f;
+    v->qb = (float)r->bits;
+    v->qi = r->bits ? 1.0f / (float)r->bits : 0.0f;
+    /* passi senza salto di pitch, il rumore e il filtro solo se servono, i passi del metallo */
+    v->inc0 = clampf(r->f0 * k->inv_fs, 0.0f, 0.45f);
+    v->inc2 = clampf(r->f0 * r->r2 * k->inv_fs, 1e-6f, 0.45f);
+    v->use_n = r->noise != 0.0f || r->click != 0.0f;
+    v->use_f = r->noise != 0.0f || r->osc == DK_METAL || (r->flags & DK_ALL);
+    if (r->osc == DK_METAL) {
+        int set = (int)r->r2 < 0 ? 0 : (int)r->r2 >= DK_METAL_SETS ? DK_METAL_SETS - 1 : (int)r->r2;
+        v->nmet = METAL_N[set];
+        for (int i = 0; i < v->nmet; i++) v->minc[i] = clampf(r->f0 * METAL_R[set][i] * k->inv_fs, 1e-6f, 0.45f);
+    }
+    /* filtro a variabili di stato trapezoidale: coefficienti una volta, qui */
+    float g = tanf(DSP_PI * clampf(r->fc, 20.0f, 0.45f * k->fs) * k->inv_fs);
+    v->fk = 1.0f / (r->q > 0.05f ? r->q : 0.05f);
+    v->f1 = 1.0f / (1.0f + g * (g + v->fk));
+    v->f2 = g * v->f1;
+    v->f3 = g * v->f2;
+}
+
 static void hit(drums_t *k, uint8_t inst, uint8_t vel, uint8_t prog);
 
 void drums_hit(drums_t *k, uint8_t inst, uint8_t vel) { hit(k, inst, vel, 0); }
@@ -77,7 +128,7 @@ static void hit(drums_t *k, uint8_t inst, uint8_t vel, uint8_t prog)
     if (inst >= DRUM_COUNT || vel == 0) return;
     if (inst == DRUM_CLOSED_HAT)                                  /* il chiuso strozza l'aperto */
         for (int i = 0; i < DRUM_VOICES; i++)
-            if (k->v[i].on && k->v[i].inst == DRUM_OPEN_HAT) k->v[i].d1 = decay(k, 0.006f);
+            if (k->v[i].on && k->v[i].inst == DRUM_OPEN_HAT) k->v[i].d1 = k->v[i].dg = decay(k, 0.006f);
     drum_voice_t *v = NULL;
     for (int i = 0; i < DRUM_VOICES && !v; i++) if (!k->v[i].on) v = &k->v[i];
     if (!v) {                                                      /* ruba la più vecchia */
@@ -98,6 +149,14 @@ static void hit(drums_t *k, uint8_t inst, uint8_t vel, uint8_t prog)
     if (v->z) {                                                    /* campione: l'inviluppo è nel file */
         v->d1 = v->d2 = v->d3 = 1.0f;                              /* d1 scende solo se lo strozza il chiuso */
         v->inc = (float)v->z->rate * k->inv_fs;
+        return;
+    }
+    if (k->syn && inst < DRUM_KIT_INST) {                          /* kit sintetizzato della libreria */
+        const drum_rec_t *r = &k->syn->r[inst];
+        th = (clampf(r->pan, -1.0f, 1.0f) + 1.0f) * 0.25f * DSP_PI;
+        v->gl = cosf(th);
+        v->gr = sinf(th);
+        rec_start(k, v, r);
         return;
     }
     switch (inst) {
@@ -125,9 +184,119 @@ static inline float bp(drum_voice_t *v, float x)
     return y;
 }
 
+/* PolyBLEP di un gradino alla fase t (0…1) con il passo dt: l'onda quadra senza aliasing (SND-250) */
+static inline float blep(float t, float dt)
+{
+    if (t < dt) { t /= dt; return t + t - t * t - 1.0f; }
+    if (t > 1.0f - dt) { t = (t - 1.0f) / dt; return t * t + t + t + 1.0f; }
+    return 0.0f;
+}
+
+/* onda quadra ±1 alla fase ph (0…1) e passo dt (< 0,5) */
+static inline float square(float ph, float dt)
+{
+    float y = ph < 0.5f ? 1.0f : -1.0f, p2 = ph + 0.5f;
+    if (p2 >= 1.0f) p2 -= 1.0f;
+    return y + blep(ph, dt) - blep(p2, dt);
+}
+
+/* avanza una fase in [0, 1) di un passo inc in [0; 0,45] */
+static inline float step(float ph, float inc)
+{
+    ph += inc;
+    return ph >= 1.0f ? ph - 1.0f : ph;
+}
+
+/* un campione della ricetta (SND-540): tono, rumore e clic; filtro, drive, riduzioni, attacco, sfumata.
+ * Senza salto di pitch i passi sono quelli calcolati al colpo; rumore e filtro solo se la ricetta li usa */
+static float rec_sample(drums_t *k, drum_voice_t *v)
+{
+    const drum_rec_t *r = v->r;
+    float inv = k->inv_fs, n = v->use_n ? rnd_bi(&k->rng) : 0.0f, sc = 1.0f, y_t = 0.0f;
+    float inc = v->inc0, i2 = v->inc2;
+    if (r->pa != 0.0f) {
+        sc = 1.0f + r->pa * v->ep;
+        inc = clampf(r->f0 * sc * inv, 0.0f, 0.45f);
+        i2 = clampf(inc * r->r2, 1e-6f, 0.45f);
+    }
+    switch (r->osc) {
+    case DK_SINE:
+        y_t = sin_cyc(v->ph);
+        if (r->l2 != 0.0f) { y_t += r->l2 * sin_cyc(v->ph2); v->ph2 = step(v->ph2, i2); }
+        v->ph = step(v->ph, inc);
+        break;
+    case DK_SQUARE:
+        y_t = square(v->ph, inc);
+        if (r->l2 != 0.0f) { y_t += r->l2 * square(v->ph2, i2); v->ph2 = step(v->ph2, i2); }
+        v->ph = step(v->ph, inc);
+        break;
+    case DK_FM:                                                    /* l'indice decade con il tono */
+        y_t = sin_cyc(v->ph + r->l2 * v->et * sin_cyc(v->ph2));
+        v->ph2 = step(v->ph2, i2);
+        v->ph = step(v->ph, inc);
+        break;
+    case DK_METAL:
+        if (v->nmet == 2) {                                        /* il campanaccio: due quadre limitate in banda */
+            for (int i = 0; i < 2; i++) {
+                float mi = sc == 1.0f ? v->minc[i] : clampf(v->minc[i] * sc, 1e-6f, 0.45f);
+                y_t += square(v->mph[i], mi);
+                v->mph[i] = step(v->mph[i], mi);
+            }
+            y_t *= 0.5f;
+        } else {                                                   /* sei quadre semplici: il ripiegamento finisce nel */
+            for (int i = 0; i < 6; i++) {                          /* fruscio del passa-alto, e costano un terzo */
+                float mi = sc == 1.0f ? v->minc[i] : clampf(v->minc[i] * sc, 1e-6f, 0.45f);
+                y_t += v->mph[i] < 0.5f ? 1.0f : -1.0f;
+                v->mph[i] = step(v->mph[i], mi);
+            }
+            y_t *= 1.0f / 6.0f;
+        }
+        break;
+    default: break;
+    }
+    y_t *= r->tone * v->et;
+    float y = y_t;
+    if (v->use_f) {
+        if (r->nhold > 1) {                                        /* rumore tenuto: il canale di rumore dei chip */
+            if (v->nc == 0) v->nheld = n;
+            if (++v->nc >= r->nhold) v->nc = 0;
+        }
+        float x = r->noise * v->en * (r->nhold > 1 ? v->nheld : n);
+        if (r->osc == DK_METAL || (r->flags & DK_ALL)) { x += y_t; y = 0.0f; }
+        float v3 = x - v->s2, v1 = v->f1 * v->s1 + v->f2 * v3, v2 = v->s2 + v->f2 * v->s1 + v->f3 * v3;
+        v->s1 = 2.0f * v1 - v->s1;
+        v->s2 = 2.0f * v2 - v->s2;
+        y += r->flt == DK_LP ? v2 : r->flt == DK_BP ? v->fk * v1 : x - v->fk * v1 - v2;
+    }
+    y += r->click * v->ec * n;
+    if (r->drive > 0.0f) y = tanh_f((1.0f + r->drive) * y);
+    if (r->hold > 1) {                                             /* meno campioni: l'aliasing dei campionatori vecchi */
+        if (v->hc == 0) v->held = y;
+        if (++v->hc >= r->hold) v->hc = 0;
+        y = v->held;
+    }
+    if (r->bits) y = floorf(y * v->qb + 0.5f) * v->qi;             /* meno bit */
+    if (v->a < 1.0f) { y *= v->a; v->a += v->a_inc; if (v->a > 1.0f) v->a = 1.0f; }
+    float rest = r->dur - v->t;
+    if (rest < 0.004f) y *= rest > 0.0f ? rest * 250.0f : 0.0f;   /* gli ultimi 4 ms sfumano: niente clic alla fine */
+    y *= v->eg;
+    v->ep *= v->dp;
+    v->et *= v->dt;
+    v->en *= v->dn;
+    v->ec *= v->dc;
+    v->eg *= v->dg;
+    if (v->burst_n && v->t + inv >= v->burst_t) {                  /* il colpo dopo del battimani */
+        v->en = 1.0f;
+        v->burst_t += 0.0095f;
+        if (--v->burst_n == 0) v->dn = v->dn_tail;
+    }
+    return y;
+}
+
 /* un campione dello strumento */
 static float sample(drums_t *k, drum_voice_t *v)
 {
+    if (v->r) return rec_sample(k, v);
     if (v->z) {                                                    /* dal kit: lettura lineare */
         const smp_zone_t *z = v->z;
         uint32_t i = v->idx;
@@ -266,6 +435,16 @@ void drums_render16(drums_t *k, float *L, float *R)
         v->bp2 = undenorm(v->bp2);
         v->hp = undenorm(v->hp);
         if (v->z) { if (v->e1 < 1e-4f) v->on = 0; }                /* la fine del campione la segna sample() */
+        else if (v->r) {                                           /* ricetta: la sua durata, o tutto spento */
+            v->s1 = undenorm(v->s1);                               /* niente denormali (SND-703): il clic e il */
+            v->s2 = undenorm(v->s2);                               /* salto di pitch arrivano a 1e−38 in 0,1 s */
+            v->ep = undenorm(v->ep);
+            v->ec = undenorm(v->ec);
+            v->et = undenorm(v->et);
+            v->en = undenorm(v->en);
+            if (v->t >= v->r->dur || v->eg < 1e-4f ||
+                (v->et < 1e-4f && v->en < 1e-4f && !v->burst_n && v->a >= 1.0f)) v->on = 0;
+        }
         else if (v->t >= DUR[v->inst] || (v->e1 < 1e-4f && v->e2 < 1e-4f && v->inst != DRUM_CLAP)) v->on = 0;
     }
     /* Drop: i colpi programmati sfumano in 5 ms; a zero le loro voci si spengono, così le code non
