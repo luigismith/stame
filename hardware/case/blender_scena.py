@@ -5,8 +5,10 @@ blender -b --factory-startup -P blender_scena.py -- build/render/scena.json
 Importa stame_console.obj (mm, y già specchiata), dà a ogni pezzo il suo materiale (betulla con i
 bordi bruciati dal laser e le incisioni, acrilico nero lucido con le incisioni satinate, PETG
 satinato con gli strati, alluminio delle manopole del pad, tasti trasparenti con l'etichetta
-dentro, Flip bianca con la sua faccia vera, schermo acceso), arrotonda gli spigoli, mette luce da
-studio e tre inquadrature. Cycles su GPU (OptiX) se c'è.
+dentro, Flip bianca con la sua faccia, schermo acceso; la MK4 grigia con il pannello bianco e il bordo
+rosso), arrotonda gli spigoli, mette un fondale curvo con la luce da studio e fa dieci inquadrature:
+eroe, pad, mascherina, frontale, dall'alto, dal retro, di fianco, lo schermo, la vista esplosa e
+quella di sera con il tema Notte. Cycles sulla CPU, con il denoiser.
 """
 import json
 import math
@@ -235,6 +237,16 @@ def emissivo(nome, col, forza, rough=0.6, base=(0.02, 0.02, 0.02)):
     return m
 
 
+def vetro(nome, col, rough):
+    """acrilico pieno: trasmette la luce, liscio o satinato"""
+    m, nt, b = nuovo(nome)
+    b.inputs['Base Color'].default_value = (*col, 1)
+    b.inputs['Transmission Weight'].default_value = 1.0
+    b.inputs['Roughness'].default_value = rough
+    b.inputs['IOR'].default_value = 1.49
+    return m
+
+
 def trasparente(nome):
     """tasto trasparente: vetro per la camera, trasparente per le ombre (così l'etichetta è in luce)"""
     m = bpy.data.materials.new(nome)
@@ -283,7 +295,11 @@ for nome, ob in pezzi.items():
     if nome.startswith(('culla_flip', 'culla_pad', 'visiera', 'fermo_hub', 'squadretta')):
         dai(ob, petg)
 
-dai(pezzi['MPK_mini_IV'], plastica('MK4', (0.60, 0.60, 0.58), 0.42))
+# la MK4 come nelle foto del 19/10: scocca e guance grigie, pannello bianco con il bordo rosso, piedini
+dai(pezzi['MPK_mini_IV'], plastica('scocca della MK4', (0.36, 0.36, 0.34), 0.48))
+dai(pezzi['MPK_piedini'], plastica('piedini', (0.015, 0.015, 0.015), 0.8))
+dai(pezzi['MPK_bordo_del_pannello'], plastica('bordo rosso della MK4', (0.58, 0.025, 0.02), 0.4))
+dai(pezzi['MPK_pannello'], plastica('pannello della MK4', (0.78, 0.78, 0.76), 0.35))
 dai(pezzi['MPK_tasti'], plastica('tasti bianchi', (0.80, 0.80, 0.78), 0.3, coat=0.3))
 dai(pezzi['MPK_tasti_neri'], plastica('tasti neri', (0.012, 0.012, 0.012), 0.28, coat=0.3))
 gomma = plastica('gomma dei pulsanti', (0.02, 0.02, 0.022), 0.6)
@@ -299,14 +315,19 @@ for o in separa(pezzi['MPK_pad']):
         dai(o, display)
     else:
         dai(o, gomma)
-dai(pezzi['MPK_manopole'], plastica('manopole MK4', (0.10, 0.10, 0.105), 0.5))
-alluminio = metallo('alluminio', (0.86, 0.87, 0.89), 0.2, 0.7)
-fumé = plastica('acrilico fumé del pad', (0.015, 0.016, 0.018), 0.05, coat=0.5)
-for o in separa(pezzi['Macro_pad']):
-    dai(o, fumé if o.dimensions.x / MM > 100 else alluminio)
+dai(pezzi['MPK_manopole'], plastica('manopole MK4', (0.28, 0.28, 0.27), 0.5))
+# il macro pad a strati (foto del 18/10): fondo nero lucido, acrilico trasparente, piastra satinata,
+# manopole d'alluminio
+dai(pezzi['Macro_pad,_fondo'], plastica('fondo del pad', (0.008, 0.008, 0.009), 0.12, coat=0.6))
+dai(pezzi['Macro_pad,_trasparente'], vetro('acrilico trasparente del pad', (0.95, 0.98, 1.0), 0.02))
+dai(pezzi['Macro_pad,_satinata'], vetro('acrilico satinato del pad', (0.92, 0.94, 0.95), 0.42))
+dai(pezzi['Manopole_del_pad'], metallo('alluminio', (0.86, 0.87, 0.89), 0.2, 0.7))
 dai(pezzi['Interruttori_del_pad'], plastica('interruttori', (0.03, 0.03, 0.035), 0.4))
 dai(pezzi['Tasti_trasparenti'], trasparente('tasti trasparenti'))
-dai(pezzi['Hub_USB'], plastica('hub', (0.02, 0.02, 0.022), 0.4))
+# l'hub di Luigi: alluminio grigio, il lato delle porte nero, l'attacco del cavo arancione
+dai(pezzi['Hub_USB'], metallo('hub', (0.42, 0.44, 0.48), 0.38))
+dai(pezzi['Hub_USB,_lato_delle_porte'], plastica('hub, porte', (0.012, 0.012, 0.013), 0.45))
+dai(pezzi['Hub_USB,_attacco_del_cavo'], plastica('hub, cavo', (0.75, 0.22, 0.04), 0.5))
 
 # la Flip bianca, con la faccia dei tasti dalla foto sulla metà di sotto
 flip = pezzi['Miyoo_Flip']
@@ -373,12 +394,36 @@ for ob in [o for o in scene.objects if o.type == 'MESH' and not o.name.startswit
         pass
 
 # ---------------------------------------------------------------------------------------------
-# studio: piano, luce, mondo
+# studio: fondale curvo, luce, mondo
 
-bpy.ops.mesh.primitive_plane_add(size=8, location=(0.3, -0.1, 0))
-piano = bpy.context.active_object
-dai(piano, plastica('piano', (0.30, 0.285, 0.265), 0.55))
+CENTRO = Vector((S['ingombro'][0] / 2 * MM, -S['ingombro'][1] / 2 * MM, 0.04))
 FONDO = (0.33, 0.315, 0.295)
+
+
+def fondale(dietro=0.55, raggio=0.6, alto=3.0, largo=8.0, n=24):
+    """il fondale da studio: pavimento che dietro la console sale in una curva e diventa parete. Ha
+    l'origine sotto il centro della console e si gira con la camera, così sta sempre dietro"""
+    prof = [(-4.0, 0.0), (dietro, 0.0)]
+    for i in range(1, n + 1):
+        a = math.pi / 2 * i / n
+        prof.append((dietro + raggio * math.sin(a), raggio * (1 - math.cos(a))))
+    prof.append((dietro + raggio, alto))
+    me = bpy.data.meshes.new('fondale')
+    vs = [(x, y, z) for y, z in prof for x in (-largo / 2, largo / 2)]
+    fs = [(2 * i, 2 * i + 1, 2 * i + 3, 2 * i + 2) for i in range(len(prof) - 1)]
+    me.from_pydata(vs, [], fs)
+    me.update()
+    o = bpy.data.objects.new('fondale', me)
+    scene.collection.objects.link(o)
+    o.location = (CENTRO.x, CENTRO.y, 0.0)
+    for p in me.polygons:
+        p.use_smooth = True
+    return o
+
+
+FONDALE = fondale()
+MAT_FONDO = plastica('fondale', FONDO, 0.6)
+dai(FONDALE, MAT_FONDO)
 
 w = bpy.data.worlds.new('studio')
 scene.world = w
@@ -403,8 +448,6 @@ lega(nt, bg.outputs['Background'], mx.inputs[1])
 lega(nt, cam_bg.outputs['Background'], mx.inputs[2])
 lega(nt, mx.outputs['Shader'], nt.nodes['World Output'].inputs['Surface'])
 
-CENTRO = Vector((S['ingombro'][0] / 2 * MM, -S['ingombro'][1] / 2 * MM, 0.04))
-
 
 def luce(nome, pos, forza, misura, colore=(1, 1, 1)):
     d = bpy.data.lights.new(nome, 'AREA')
@@ -418,35 +461,28 @@ def luce(nome, pos, forza, misura, colore=(1, 1, 1)):
     return o
 
 
-luce('chiave', (-0.35, -0.95, 1.05), 55, 1.1, (1.0, 0.96, 0.9))
-luce('riempimento', (1.5, -0.55, 0.55), 14, 1.6, (0.9, 0.95, 1.0))
-luce('contro', (0.55, 1.1, 0.75), 40, 0.9)
+LUCI = [luce('chiave', (-0.35, -0.95, 1.05), 55, 1.1, (1.0, 0.96, 0.9)),
+        luce('riempimento', (1.5, -0.55, 0.55), 14, 1.6, (0.9, 0.95, 1.0)),
+        luce('contro', (0.55, 1.1, 0.75), 40, 0.9)]
 
 # ---------------------------------------------------------------------------------------------
-# camere e rendering
+# rendering: Cycles sulla CPU (sul PC di lavoro non c'è OptiX; su HOMEPC la GPU dava schermate blu),
+# campionamento adattivo e il denoiser; i dati restano fra una vista e l'altra
 
 scene.render.engine = 'CYCLES'
-try:
-    prefs = bpy.context.preferences.addons['cycles'].preferences
-    for tipo in ('OPTIX', 'CUDA'):
-        try:
-            prefs.compute_device_type = tipo
-            prefs.get_devices()
-            usati = [d for d in prefs.devices if d.type == tipo]
-            if usati:
-                for d in prefs.devices:
-                    d.use = d.type == tipo
-                scene.cycles.device = 'GPU'
-                print('Cycles su', tipo, [d.name for d in usati])
-                break
-        except TypeError:
-            continue
-except Exception as e:
-    print('GPU non disponibile:', e)
-scene.cycles.samples = 48 if PROVA else 640
+scene.cycles.device = 'CPU'
+scene.cycles.samples = 48 if PROVA else 512
+scene.cycles.use_adaptive_sampling = True
+scene.cycles.adaptive_threshold = 0.05 if PROVA else 0.012
 scene.cycles.use_denoising = True
-scene.cycles.max_bounces = 16
-scene.cycles.transmission_bounces = 16
+try:
+    scene.cycles.denoiser = 'OPENIMAGEDENOISE'
+except Exception:
+    pass
+scene.cycles.max_bounces = 12
+scene.cycles.transmission_bounces = 12
+scene.cycles.glossy_bounces = 6
+scene.render.use_persistent_data = True
 scene.render.resolution_x, scene.render.resolution_y = (1200, 675) if PROVA else (2400, 1350)
 scene.render.film_transparent = False
 try:
@@ -456,13 +492,18 @@ except Exception:
     pass
 
 
-def camera(nome, bersaglio, az, el, dist, lente, fuoco=None, f_stop=5.6):
+def camera(nome, bersaglio, az, el, dist, lente, fuoco=None, f_stop=5.6, orto=None):
+    """camera attorno al bersaglio: az 0 davanti, 90 da destra, 180 da dietro; el sopra l'orizzonte"""
     bersaglio = Vector(bersaglio)
     a, e = math.radians(az), math.radians(el)
     pos = bersaglio + dist * Vector((math.sin(a) * math.cos(e), -math.cos(a) * math.cos(e), math.sin(e)))
     d = bpy.data.cameras.new(nome)
     d.lens = lente
     d.sensor_width = 36
+    d.clip_end = 20.0
+    if orto:
+        d.type = 'ORTHO'
+        d.ortho_scale = orto
     if fuoco is not None:
         d.dof.use_dof = True
         d.dof.focus_distance = (Vector(fuoco) - pos).length
@@ -471,18 +512,75 @@ def camera(nome, bersaglio, az, el, dist, lente, fuoco=None, f_stop=5.6):
     scene.collection.objects.link(o)
     o.location = pos
     o.rotation_euler = (bersaglio - pos).to_track_quat('-Z', 'Y').to_euler()
+    FONDALE.rotation_euler.z = a
     return o
 
 
-tasto = S['tasti'][7]
-VISTE = [
-    ('eroe', (CENTRO.x + 0.01, CENTRO.y + 0.01, 0.045), 24, 27, 1.32, 60, (CENTRO.x, CENTRO.y, 0.05), 8.0),
-    ('pad', (0.47, -0.165, 0.055), 32, 32, 0.62, 85, (tasto[0] * MM, tasto[1] * MM, 0.06), 4.0),
-    ('mascherina', (0.20, -0.095, 0.045), -12, 50, 0.62, 70, (0.20, -0.09, 0.05), 6.3),
-]
-for nome, bers, az, el, dist, lente, fuoco, fs in VISTE:
-    cam = camera(nome, bers, az, el, dist, lente, fuoco, fs)
-    scene.camera = cam
+def scatta(nome, *args, **kw):
+    if S['viste'] and nome not in S['viste']:
+        return
+    scene.camera = camera(nome, *args, **kw)
     scene.render.filepath = os.path.join(S['uscita'], f'render_{nome}.png')
     bpy.ops.render.render(write_still=True)
-    print('scritto', scene.render.filepath)
+    print('scritto', scene.render.filepath, flush=True)
+
+
+# il centro dello schermo della Flip, dal suo riferimento (mm)
+fO, fU, fV = (Vector(v) for v in S['schermo'][:3])
+SCHERMO = (fO + fU * 42.0 + fV * 41.0) * MM
+tasto = S['tasti'][7]
+TASTO = (tasto[0] * MM, tasto[1] * MM, 0.06)
+C = CENTRO
+
+scatta('eroe', (C.x + 0.01, C.y + 0.01, 0.045), 24, 27, 1.32, 60, (C.x, C.y, 0.05), 8.0)
+scatta('pad', (0.47, -0.165, 0.055), 32, 32, 0.62, 85, TASTO, 4.0)
+scatta('mascherina', (0.20, -0.095, 0.045), -12, 50, 0.62, 70, (0.20, -0.09, 0.05), 6.3)
+scatta('frontale', (C.x, C.y, 0.035), 0, 9, 2.1, 105, (C.x, C.y - 0.1, 0.035), 11.0)
+scatta('alto', (C.x, C.y, 0.0), 0, 89.9, 1.5, 50, orto=0.66)
+scatta('retro', (C.x, C.y, 0.04), 158, 24, 1.4, 55, (C.x, C.y, 0.04), 8.0)
+scatta('fianco', (0.47, -0.12, 0.05), 72, 14, 0.95, 70, (0.56, -0.12, 0.04), 5.6)
+scatta('schermo', tuple(SCHERMO), 8, 14, 0.36, 85, tuple(SCHERMO), 2.8)
+
+# ---- la vista esplosa: ogni gruppo di pezzi sale (e i fianchi si aprono) nell'ordine del montaggio
+
+SCOPPIO = [(('base_',), 0, 0), (('retro', 'appoggio_retro', 'costola', 'fronte'), 0, 30),
+           (('fermo_hub', 'Hub'), 0, 18), (('culla_pad',), 0, 70),
+           (('Macro_pad', 'Manopole_del_pad', 'Interruttori_del_pad'), 0, 105),
+           (('Tasti_trasparenti', 'etichetta'), 0, 140), (('MPK',), 0, 70),
+           (('mascherina', 'piano_flip'), 0, 180), (('culla_flip', 'visiera'), 0, 205),
+           (('Miyoo_Flip', 'Schermo'), 0, 245), (('fianco', 'squadretta'), 85, 30)]
+
+
+def esplodi(verso):
+    for ob in [o for o in scene.objects if o.type == 'MESH' and o is not FONDALE]:
+        for prefissi, fuori, su in SCOPPIO:
+            if ob.name.startswith(prefissi):
+                cx = sum((ob.matrix_world @ v.co).x for v in ob.data.vertices) / max(len(ob.data.vertices), 1)
+                lato = -1.0 if cx < CENTRO.x else 1.0
+                if ob.name.startswith('squadretta'):
+                    fuori = 45
+                ob.location.x += verso * lato * fuori * MM
+                ob.location.z += verso * su * MM
+                break
+
+
+if not S['viste'] or 'esploso' in S['viste']:
+    esplodi(1.0)
+    scatta('esploso', (C.x + 0.02, C.y, 0.15), 26, 22, 1.68, 60, (C.x, C.y, 0.14), 11.0)
+    esplodi(-1.0)
+
+# ---- di sera: tema Notte sullo schermo, fondale scuro, una luce calda bassa e lo schermo che illumina
+
+if not S['viste'] or 'sera' in S['viste']:
+    sch_mat = pezzi['Schermo_della_Flip'].data.materials[0]
+    for n in sch_mat.node_tree.nodes:
+        if n.type == 'TEX_IMAGE':
+            n.image = bpy.data.images.load(os.path.join(TEX, 'schermo_notte.png'))
+    sch_mat.node_tree.nodes['Principled BSDF'].inputs['Emission Strength'].default_value = 2.4
+    MAT_FONDO.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = (0.010, 0.010, 0.012, 1)
+    cam_bg.inputs['Color'].default_value = (0.006, 0.006, 0.008, 1)
+    bg.inputs['Strength'].default_value = 0.025
+    LUCI[0].data.energy, LUCI[0].data.color = 9, (1.0, 0.78, 0.55)
+    LUCI[1].data.energy = 0.0
+    LUCI[2].data.energy, LUCI[2].data.color = 22, (0.55, 0.75, 1.0)
+    scatta('sera', (C.x + 0.06, C.y + 0.01, 0.05), 30, 19, 1.15, 65, (0.47, -0.12, 0.06), 4.0)

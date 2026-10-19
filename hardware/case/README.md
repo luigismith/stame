@@ -23,10 +23,10 @@ python -I hardware/case/multicolore.py la stessa, per stampanti a più filamenti
 python -I hardware/case/manuale.py     PDF: progetti di taglio, istruzioni di montaggio, istruzioni della versione stampata
 python -I hardware/case/sketchup.py    codice per costruire il modello in SketchUp (out/sketchup/)
 python -I hardware/case/etichette.py   etichette dei tasti trasparenti del pad (A4, SVG e PDF)
-python -I hardware/case/rendering.py   rendering con Blender 5.2, Cycles su GPU (out/render/)
+python -I hardware/case/rendering.py   rendering con Blender 5.2, Cycles sulla CPU, dieci viste (out/render/)
 ```
 
-Attenzione: il 18/10/2026, su HOMEPC, `rendering.py` in qualità piena ha mandato il PC in schermata blu due volte (0xEF). I rendering in `out/render/` sono di quella mattina; prima di rilanciarlo va capita la causa.
+Attenzione: il 18/10/2026, su HOMEPC, `rendering.py` in qualità piena con Cycles sulla GPU (OptiX) ha mandato il PC in schermata blu due volte (0xEF). Dal 19/10/2026 Cycles lavora sulla CPU, e i rendering in `out/render/` sono stati rifatti così sul PC di lavoro (circa un'ora per le dieci viste); su HOMEPC non si rilancia senza l'ok di Luigi.
 
 Tutte le misure stanno in `misure.py`, ognuna con la sua fonte: [M] manuale, [O] osservato, [D] dedotto, [V] da verificare. Cambiata una misura, si rigenera tutto. `genera.py` controlla che i pezzi stiano nei piani delle macchine, che i pezzi stampati siano gusci chiusi e che le scritte incise non escano a specchio.
 
@@ -34,7 +34,7 @@ Il riferimento del case (x a destra, y verso il musicista, z in su) è sinistror
 
 `manuale.py` usa la suite ArtCraft: VectorCraft converte le pagine SVG in PDF vettoriali, PdfCraft le unisce. Il modello SketchUp si costruisce con lo strumento SketchUp (nel cloud), eseguendo nell'ordine i file `out/sketchup/parte_N.py` (da 0 in su) e `scene.py`, poi salvandolo. Ha un livello e una scena per ogni passo del montaggio.
 
-`rendering.py` prepara le texture in `build/render/` (incisioni dagli SVG, etichette, la faccia della Flip raddrizzata dalla foto, la plancia sullo schermo) e lancia `blender_scena.py` in Blender: betulla con i bordi bruciati dal laser, acrilico nero satinato con le incisioni, PETG con gli strati, alluminio, tasti trasparenti con l'etichetta dentro. La luce da studio è `studio_small_09_2k.hdr` di Poly Haven (CC0), da scaricare in `build/render/`. `--prova` fa una passata veloce. `tools/sito_case.py` porta render, tavole e fogli nel sito (`docs/case.html`).
+`rendering.py` prepara le texture in `build/render/` (incisioni dagli SVG, etichette, la faccia della Flip raddrizzata dalla foto o, se la foto manca, disegnata, la plancia sullo schermo nei temi Giorno e Notte) e lancia `blender_scena.py` in Blender: betulla con i bordi bruciati dal laser, acrilico nero satinato con le incisioni, PETG con gli strati, alluminio, tasti trasparenti con l'etichetta dentro, la MK4 con le guance grigie e il bordo rosso del pannello, il pad a strati, l'hub. Il fondale da studio è curvo e gira con la camera. Le viste: eroe, pad, mascherina, frontale, alto, retro, fianco, schermo, esploso (i pezzi nell'ordine del montaggio) e sera (tema Notte, fondale scuro). La luce da studio è `studio_small_09_2k.hdr` di Poly Haven (CC0), da scaricare in `build/render/studio.hdr`. `--prova` fa una passata veloce (tre minuti per tutte), `--viste eroe,pad` solo quelle. `tools/sito_case.py` porta render, tavole e fogli nel sito (`docs/case.html`).
 
 ## Cosa esce in `out/`
 

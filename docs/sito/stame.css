@@ -97,6 +97,7 @@ pre code { background: none; border: 0; padding: 0; }
 .galleria figcaption { font-size: 0.85rem; color: var(--dim); }
 .galleria figcaption b { color: var(--text); font-weight: 600; }
 .foto-grande { margin: 0 0 16px; display: grid; gap: 8px; }
+.galleria + .foto-grande { margin-top: 16px; }
 .foto-grande img { width: 100%; border: 1px solid var(--line); border-radius: 3px; }
 .foto-grande figcaption { font-size: 0.85rem; color: var(--dim); }
 

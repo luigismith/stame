@@ -1,12 +1,13 @@
 """rendering.py — rendering fotorealistico della console con Blender (Cycles).
 
-Uso: python -I hardware/case/rendering.py [--prova]      (dopo genera.py e assieme.py)
+Uso: python -I hardware/case/rendering.py [--prova] [--viste eroe,pad,…]      (dopo genera.py e assieme.py)
 
 Prepara le texture in build/render/ (incisioni di mascherina, piano della Flip e fianchi dagli SVG, le
 etichette dei tasti del pad, la faccia della Flip raddrizzata dalla foto, lo schermo con la
 plancia), scrive scena.json con i riferimenti dei pezzi e lancia Blender in background con
 blender_scena.py. I PNG escono in build/render/, i JPG per il repo in out/render/.
---prova: risoluzione e campioni bassi, per controllare inquadrature e materiali.
+--prova: risoluzione e campioni bassi, per controllare inquadrature e materiali. --viste: solo
+quelle (i nomi sono in VISTE di blender_scena.py).
 """
 import json
 import os
@@ -60,7 +61,11 @@ def etichette(px_mm=24.0):
 
 
 def faccia_flip():
-    """la metà con i tasti dalla foto flip_aperta.jpg, raddrizzata: 84 x 80,35 mm a 10 px/mm"""
+    """la metà con i tasti dalla foto flip_aperta.jpg, raddrizzata: 84 x 80,35 mm a 10 px/mm; senza la
+    foto (sta fuori da git, su HOMEPC) la faccia si disegna"""
+    if not os.path.exists(os.path.join(FOTO, 'flip_aperta.jpg')):
+        faccia_disegnata()
+        return
     im = Image.open(os.path.join(FOTO, 'flip_aperta.jpg')).convert('RGB')
     k = im.width / 1500.0
     # angoli della faccia (cerniera a sinistra, a destra; davanti a destra, a sinistra), in pixel
@@ -72,6 +77,41 @@ def faccia_flip():
         os.path.join(TEX, 'flip_faccia.png'))
 
 
+def faccia_disegnata():
+    """la faccia della Flip bianca disegnata (10 px/mm, cerniera in alto): croce, ABXY pastello, levette,
+    SELECT e START, il tasto di accensione e la griglia dell'altoparlante, come nella foto del 15/10"""
+    from PIL import ImageDraw, ImageFilter
+    k = 10
+    W, H = 840, 804
+    im = Image.new('RGB', (W, H), (226, 226, 220))
+    d = ImageDraw.Draw(im)
+
+    def cerchio(c, r, fill, outline=None, w=0):
+        x, y = c
+        d.ellipse([(x - r) * k, (y - r) * k, (x + r) * k, (y + r) * k], fill=fill, outline=outline, width=w)
+
+    for c in ((21.0, 30.0), (63.0, 33.0)):                     # le due conche, appena più scure
+        cerchio(c, 13.5, (214, 214, 208), (200, 200, 194), 6)
+    for c, r in (((17.0, 58.0), 10.0), ((62.0, 66.0), 10.0)):  # levette: anello chiaro, bordo, cappello
+        cerchio(c, r, (206, 206, 200), (186, 186, 180), 8)
+        cerchio(c, r - 2.6, (70, 72, 74))
+        cerchio(c, r - 4.2, (222, 222, 218), (196, 196, 190), 6)
+    x, y = 21.0, 30.0                                          # croce
+    for a, b, c_, e in ((x - 10, y - 3.4, x + 10, y + 3.4), (x - 3.4, y - 10, x + 3.4, y + 10)):
+        d.rounded_rectangle([a * k, b * k, c_ * k, e * k], radius=12, fill=(204, 204, 198), outline=(184, 184, 178), width=4)
+    x, y = 63.0, 33.0                                          # Y verde, X azzurro, A rosa, B giallo
+    for (dx, dy), col in (((-7.2, 0), (198, 226, 196)), ((0, -6.8), (180, 216, 236)),
+                          ((7.2, 0), (240, 198, 206)), ((0, 6.8), (240, 228, 180))):
+        cerchio((x + dx, y + dy), 4.3, col, (190, 190, 186), 4)
+    cerchio((46.0, 15.0), 2.0, (214, 214, 208), (190, 190, 184), 4)        # accensione
+    for c in ((33.5, 70.0), (44.5, 71.0)):                                  # SELECT, START
+        cerchio(c, 2.7, (210, 210, 204), (186, 186, 180), 5)
+    for i in range(4):                                                      # altoparlante
+        for j in range(4):
+            cerchio((36.0 + i * 3.0, 47.0 + j * 3.0), 0.55, (176, 176, 170))
+    im.filter(ImageFilter.GaussianBlur(1.2)).save(os.path.join(TEX, 'flip_faccia.png'))
+
+
 def _prospettiva(dst, src):
     A, B = [], []
     for (x, y), (u, v) in zip(dst, src):
@@ -81,13 +121,15 @@ def _prospettiva(dst, src):
 
 
 def schermo():
-    """la plancia nel vetro dello schermo (72 x 66,35 mm del modello): 4:3 al centro, cornice nera"""
+    """la plancia nel vetro dello schermo (72 x 66,35 mm del modello): 4:3 al centro, cornice nera;
+    una per tema (Giorno è il default, Notte per la scena di sera)"""
     W, H = 720, 664
-    out = Image.new('RGB', (W, H), (6, 8, 8))
-    p = Image.open(os.path.join(RADICE, 'docs', 'sito', 'img', 'plancia_giorno.png')).convert('RGB')
-    p = p.resize((700, 525), Image.Resampling.LANCZOS)
-    out.paste(p, ((W - 700) // 2, (H - 525) // 2))
-    out.save(os.path.join(TEX, 'schermo.png'))
+    for tema, nome in (('giorno', 'schermo.png'), ('notte', 'schermo_notte.png')):
+        out = Image.new('RGB', (W, H), (6, 8, 8))
+        p = Image.open(os.path.join(RADICE, 'docs', 'sito', 'img', f'plancia_{tema}.png')).convert('RGB')
+        p = p.resize((700, 525), Image.Resampling.LANCZOS)
+        out.paste(p, ((W - 700) // 2, (H - 525) // 2))
+        out.save(os.path.join(TEX, nome))
 
 
 def riferimenti():
@@ -108,6 +150,7 @@ def tasti_pad():
 
 def main():
     prova = '--prova' in sys.argv
+    viste = sys.argv[sys.argv.index('--viste') + 1].split(',') if '--viste' in sys.argv else []
     os.makedirs(TEX, exist_ok=True)
     fr = riferimenti()
     inc = {}
@@ -117,7 +160,7 @@ def main():
     faccia_flip()
     schermo()
     scena = dict(
-        obj=os.path.join(OUT, 'stame_console.obj'), tex=TEX, uscita=BUILD, prova=prova,
+        obj=os.path.join(OUT, 'stame_console.obj'), tex=TEX, uscita=BUILD, prova=prova, viste=viste,
         hdr=os.path.join(BUILD, 'studio.hdr'), incisioni=inc,
         flip=fr['Miyoo Flip'][0], flip_faccia=[[M.FLIP_X - M.FLIP['w'] / 2, -M.FLIP_Y0], [M.FLIP['w'], M.FLIP['d']]],
         schermo=fr['Schermo della Flip'][0], tasti=tasti_pad(),
@@ -135,7 +178,8 @@ def main():
         sys.exit(r.returncode)
     os.makedirs(os.path.join(OUT, 'render'), exist_ok=True)
     for n in sorted(os.listdir(BUILD)):
-        if n.startswith('render_') and n.endswith('.png') and not prova:
+        fatta = not viste or n[len('render_'):-4] in viste
+        if n.startswith('render_') and n.endswith('.png') and not prova and fatta:
             Image.open(os.path.join(BUILD, n)).convert('RGB').save(
                 os.path.join(OUT, 'render', n[len('render_'):-4] + '.jpg'), quality=92, optimize=True)
             print('out/render/' + n[len('render_'):-4] + '.jpg')
