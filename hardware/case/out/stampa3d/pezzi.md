@@ -34,5 +34,5 @@ Filamento: circa 1,3 kg in tutto (stima con 3 perimetri, 4 strati pieni sopra e 
 - PETG o PLA, ugello 0,4, strati da 0,2. Telaio (base, fianchi, retro, costola, parete davanti) in un colore legno o sabbia; mascherina, piano della Flip e culle in nero.
 - 3 perimetri, 4 strati pieni sopra e sotto, riempimento giroide al 20 %. Senza supporti, tranne la visiera.
 - Fianchi: il marchio e il nome escono di 0,6 mm dalla faccia esterna. Per averli in un altro colore, cambio di filamento (M600) alla quota 16,0 mm, cioè all'inizio del rilievo.
-- Mascherina e piano della Flip: 46 tasche profonde 0,4 mm per le etichette (`etichette_mascherina.svg`, da stampare al 100 % su carta adesiva; `etichette_mappa.svg` dice dove va ogni numero).
+- Mascherina e piano della Flip: 39 tasche profonde 0,4 mm per le etichette (`etichette_mascherina.svg`, da stampare al 100 % su carta adesiva; `etichette_mappa.svg` dice dove va ogni numero).
 - Tasselli: code di rondine con 0,15 mm di gioco per lato. Si incollano su un piano dritto con colla cianoacrilica o epossidica bicomponente; `tasselli.svg` mostra come stanno insieme.

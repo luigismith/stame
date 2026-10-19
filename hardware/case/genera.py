@@ -339,21 +339,23 @@ def retro_ling(lato):
 
 # ---------------------------------------------------------------------------------------------
 # mascherina della MK4 (CASE-030, CASE-031): appoggia sul pannello della MK4 e copre la zona dei
-# cavi fino al retro. Un foro per ogni controllo (Luigi, 18/10/2026): le legende di Stame su quelli
-# che Stame usa, i nomi della MK4 in piccolo sugli altri. Mappa del 16-17/10/2026 (40 MIDI-130, MIDI-135)
+# cavi fino al retro. Un foro per ogni controllo (Luigi, 18/10/2026); le legende di Stame solo dove il
+# comando non dice niente o fa un'altra cosa (19/10/2026). Mappa del 16-17/10/2026 (40 MIDI-130, MIDI-135)
 
 ETICHETTE_K = {'K1': 'SOUND', 'K2': 'PERFORM', 'K3': 'FX', 'K4': 'KEY',
                'K5': 'BASS', 'K6': 'LOOP', 'K7': 'BPM', 'K8': 'VOLUME'}
 # banco A: tipi sopra, estensioni sotto; banco B: la batteria (MIDI-135), sopra i piatti, sotto i tamburi
 PAD_SOPRA = {'PAD5': ('DIM', 'B:CHH'), 'PAD6': ('MIN', 'B:OHH'), 'PAD7': ('MAJ', 'B:TOM'), 'PAD8': ('SUS', 'B:CYM')}
 PAD_SOTTO = {'PAD1': ('6', 'B:KICK'), 'PAD2': ('m7', 'B:SNARE'), 'PAD3': ('M7', 'B:RIM'), 'PAD4': ('9', 'B:CLAP')}
-TRASPORTO = {'UNDO': ('UNDO', 'S:CLEAR'), 'LOOP': ('PAUSE', ''), 'PLAY': ('BEAT', 'S:PANIC'),
+# Luigi, 19/10/2026: si scrive solo dove il comando non dice niente (pad, ruote, manopole: i loro nomi
+# sono sul pannello, sotto la mascherina) o dove Stame gli dà un'altra funzione. I tasti piccoli hanno
+# il nome stampato sopra: UNDO resta Undo, e si scrive solo il suo SHIFT
+TRASPORTO = {'UNDO': ('', 'S:CLEAR'), 'LOOP': ('PAUSE', ''), 'PLAY': ('BEAT', 'S:PANIC'),
              'REC': ('LOOP', ''), 'DUB': ('DUB', '')}
 PULSANTI = {'SHIFT': 'PUSH', 'MINUS': 'BACK', 'PLUS': 'MENU'}
-# i comandi della MK4 stessa, che Stame non usa: il loro nome, piccolo. BANK porta i pad al banco B,
-# la batteria; DAW sceglie il preset DAW, una volta sola
-PROPRI = {'OCT-': ('OCT -', ''), 'OCT+': ('OCT +', ''), 'ARP': ('ARP', ''), 'LATCH': ('LATCH', ''),
-          'NREP': ('NOTE RPT', ''), 'TAP': ('TAP', ''), 'BANK': ('BANK', 'B: DRUMS'), 'DAW': ('DAW', 'PRESET')}
+# i comandi della MK4 stessa (OCT −/+, ARP, LATCH, NOTE REPEAT, TAP TEMPO, PLUGIN DAW) hanno il nome
+# sul tasto e Stame non li usa: niente scritte. BANK A/B sì, perché per Stame il banco B è la batteria
+PROPRI = {'BANK': 'B: DRUMS'}
 
 MASC_X0, MASC_X1 = M.FIANCO - M.PLY + 0.2, M.GIUNTA_PIANO - 0.2
 MASC_Y0, MASC_Y1 = M.RETRO_Y + 0.2, M.MASCHERINA_Y1
@@ -416,14 +418,13 @@ def mascherina():
             svg.pixel(x, y - hb / 2 - 3.8, 0.2, testo, 'centro')
     for nome, (testo, con_shift) in TRASPORTO.items():
         x, y = C(nome)
-        svg.pixel(x, y + hb / 2 + 1.5, 0.2, testo, 'centro')
+        if testo:
+            svg.pixel(x, y + hb / 2 + 1.5, 0.2, testo, 'centro')
         if con_shift:
-            svg.pixel(x, y + hb / 2 + 5.0, 0.14, con_shift, 'centro')
-    for nome, (testo, sotto) in PROPRI.items():
+            svg.pixel(x, y + hb / 2 + (5.0 if testo else 1.5), 0.14, con_shift, 'centro')
+    for nome, testo in PROPRI.items():
         x, y = C(nome)
         svg.pixel(x, y + hb / 2 + 1.5, 0.15, testo, 'centro')
-        if sotto:
-            svg.pixel(x, y + hb / 2 + 4.4, 0.12, sotto, 'centro')
     # la targa sulla zona dei cavi, dietro la MK4: il marchio e il nome
     yc = (M.RETRO_Y + M.MK4_Y0) / 2
     logo(svg, M.MK4_X0 + 24.0 - ox, yc - oy, 26.0)

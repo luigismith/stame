@@ -63,11 +63,12 @@ Coordinate in mm: x verso destra dal bordo esterno del fianco sinistro, y dal re
   - il bordo dietro e i lati posano sugli strati d'appoggio di retro, fianco e costola, con il feltro; non servono più piedini;
   - dietro, sulla zona dei cavi, porta la targa: il marchio, STAME e STAMEN HARMONICUM;
   - si toglie sollevandola, ma con i fori anche PLUGIN/DAW (scelta del preset DAW, `40` MIDI-130) e il Global si usano senza toglierla.
-- **CASE-031** [D] **Legende della mascherina**, incise:
+- **CASE-031** [D] **Legende della mascherina**, incise solo dove il comando non dice niente o dove Stame gli dà un'altra funzione (Luigi, 19/10/2026: «scriverei solo dove non ci sono indicazioni (pad della mpk, bend/mod, etc) o dove la funzione che abbiamo deciso non corrisponde a quella scritta sul pulsante»). Pad, ruote, manopole e manopola di navigazione hanno il nome sul pannello, che la mascherina copre; i pulsanti piccoli lo hanno stampato sul tasto, che resta in vista nel foro:
   - sotto ogni manopola la funzione a punti Matrice: SOUND, PERFORM, FX, KEY / BASS, LOOP, BPM, VOLUME;
   - pad: la fila alta ha DIM, MIN, MAJ, SUS nello spazio fra le due file (Spleen piccolo), la fila bassa 6, m7, M7, 9 a punti Matrice sotto; accanto, in piccolo, la batteria del banco B (`40` MIDI-135): B:CHH, B:OHH, B:TOM, B:CYM sopra, B:KICK, B:SNARE, B:RIM, B:CLAP sotto;
-  - sotto i pulsanti del trasporto: UNDO (e S:CLEAR), PAUSE, BEAT (e S:PANIC), LOOP, DUB (`40` MIDI-130); sotto SHIFT: PUSH; sotto − e +: BACK e MENU; sotto la manopola di navigazione: LIST; sotto le ruote BEND e MOD;
-  - sotto i controlli della MK4 stessa il loro nome, piccolo: OCT −, OCT +, ARP, LATCH, NOTE RPT, TAP, BANK (con B: DRUMS), DAW (con PRESET).
+  - sotto i pulsanti del trasporto, che hanno solo un'icona: PAUSE, BEAT (e S:PANIC), LOOP, DUB (`40` MIDI-130); sotto UNDO, che sul tasto dice già UNDO, solo S:CLEAR; sotto SHIFT: PUSH; sopra − e +: BACK e MENU; sotto la manopola di navigazione: LIST; sotto le ruote BEND e MOD;
+  - accanto ai controlli della MK4 stessa (OCT −/+, ARP, LATCH, NOTE REPEAT, TAP TEMPO, PLUGIN DAW) niente: hanno il nome sul tasto e Stame non li usa. Solo sotto BANK A/B: B: DRUMS, perché per Stame il banco B è la batteria.
+  - Scartato: annerire con un pennarello le scritte stampate sui tasti per dare a tutti la stessa identità. Il pennarello non si toglie senza rischiare la stampa del tasto, e le icone del trasporto sono più chiare di qualunque scritta.
 - **CASE-032** [D] Il fianco sinistro di betulla copre la guancia della MK4; la costola copre quella verso il pad.
 - **CASE-033** [D, **deciso da Luigi il 15/10/2026**] I LED dei pad della MK4 in tono con la plancia (accordi acqua, estensioni bianco). Si pilotano dall'host con Note On sul canale 7 (guida MK4 §10.3), senza SysEx; la prima prova si fa con Luigi davanti, reversibile, e poi diventa un'aggiunta di Stame accesa per default [V].
 
