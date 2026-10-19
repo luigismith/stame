@@ -473,7 +473,13 @@ static int render_scene(const char *dir)
     sc_pad(PAD_MENU);
     sc_run(200);
     render_to(dir, "menu");
+    for (int i = 0; i < 7; i++) sc_pad(PAD_DOWN);               /* Play Demo Song: la lista dei brani */
+    sc_pad(PAD_A);
+    sc_run(200);
+    render_to(dir, "demo_lista");
+    sc_back();                                                   /* torna al menu */
     sc_back();
+    sc_run(5200);                                                /* la pagina dei comandi, aperta dalla croce, si chiude dopo 5 s */
     if (vet.m.prefs.theme != THEME_DARK) sc_theme_toggle();      /* Notte */
     sc_chord(true);
     sc_run(400);

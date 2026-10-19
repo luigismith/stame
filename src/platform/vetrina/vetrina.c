@@ -152,7 +152,7 @@ static int perf_max(int mode)
 static bool perf_arp(void) { return S.perf_mode == PERF_ARP || S.perf_mode == PERF_ARP2; }
 
 /* ---- liste ---- */
-enum { L_NONE, L_SOUND, L_PERFORM, L_OPTIONS, L_PLATFORM, L_BEATS };
+enum { L_NONE, L_SOUND, L_PERFORM, L_OPTIONS, L_PLATFORM, L_BEATS, L_DEMO };
 
 /* lista dei Beat (UI-077): Exit, le quattro metriche del metronomo, poi i Beat */
 #define BEAT_ITEMS (5 + N_BEATS)
@@ -165,6 +165,7 @@ static int list_n(int kind)
     case L_OPTIONS: return 5;
     case L_PLATFORM: return 9;
     case L_BEATS: return BEAT_ITEMS;
+    case L_DEMO: return 1 + vet_demo_songs_n;
     default: return 0;
     }
 }
@@ -220,6 +221,15 @@ static void list_item(const vet_t *v, int kind, int i, ui_item_t *it)
         if (i == 6) ui_fmt_copy(it->value, sizeof it->value, v->demo_on ? "Auto" : "Off");
         break;
     }
+    case L_DEMO: {                                      /* MENU › Play Demo Song: i brani, segnato quello di turno */
+        if (i == 0) ui_fmt_copy(it->label, sizeof it->label, "Exit");
+        else {
+            ui_fmt_int(it->num, sizeof it->num, i, 1);
+            ui_fmt_copy(it->label, sizeof it->label, vet_demo_songs[i - 1].name);
+            if (i - 1 == v->demo_song % vet_demo_songs_n) it->mark = MK_CHECK;
+        }
+        break;
+    }
     default: break;
     }
 }
@@ -234,6 +244,7 @@ static void list_open(vet_t *v, int kind, uint8_t owner)
     case L_SOUND: v->list_sel = (uint16_t)S.sound; break;
     case L_PERFORM: v->list_sel = (uint16_t)S.perf_mode; break;
     case L_BEATS: v->list_sel = (uint16_t)beat_item(); break;
+    case L_DEMO: v->list_sel = (uint16_t)(1 + v->demo_song % vet_demo_songs_n); break;
     default: v->list_sel = 0; break;
     }
     gest_set_owner(&v->inp.gest, owner);
@@ -244,6 +255,9 @@ static void list_close(vet_t *v)
     v->list_kind = L_NONE;
     gest_set_owner(&v->inp.gest, ENC_COUNT);
 }
+
+/* dalla lista dei brani si torna al menu, sulla voce Play Demo Song */
+static void menu_back(vet_t *v) { list_open(v, L_PLATFORM, ENC_OPTIONS); v->list_sel = 7; }
 
 static void list_select(vet_t *v)
 {
@@ -281,11 +295,12 @@ static void list_select(vet_t *v)
         else if (i == 4) v->m.prefs.legend = (uint8_t)!v->m.prefs.legend;
         else if (i == 5) v->m.prefs.meters = (uint8_t)!v->m.prefs.meters;
         else if (i == 6) v->demo_on = (uint8_t)!v->demo_on;
-        else if (i == 7) {                              /* il brano successivo, subito */
-            if (v->demo_running) v->demo_song = (uint8_t)((v->demo_song + 1) % vet_demo_songs_n);
-            demo_start(v);
-        }
+        else if (i == 7) list_open(v, L_DEMO, ENC_OPTIONS);   /* la lista dei brani (Luigi, 19/10/2026) */
         else if (i == 8) v->quit = 1;
+        break;
+    case L_DEMO:
+        if (i == 0) menu_back(v);
+        else { vet_demo_select(v, i - 1); demo_start(v); }     /* subito, anche se un altro brano sta suonando */
         break;
     default: break;
     }
@@ -667,7 +682,8 @@ static void handle(vet_t *v, const pnl_event_t *e)
         else chord_up(v, e->a);
         break;
     case PNL_BACK:
-        if (v->list_kind) list_close(v);
+        if (v->list_kind == L_DEMO) menu_back(v);
+        else if (v->list_kind) list_close(v);
         else {
             ov_hide(v);
             v->page_until = v->now_ms;                  /* B chiude anche la pagina dei comandi */
@@ -676,7 +692,7 @@ static void handle(vet_t *v, const pnl_event_t *e)
         break;
     case PNL_MACRO:
         if (e->a == MACRO_SYSTEM_MENU) {
-            if (v->list_kind == L_PLATFORM) list_close(v); else list_open(v, L_PLATFORM, ENC_OPTIONS);
+            if (v->list_kind == L_PLATFORM || v->list_kind == L_DEMO) list_close(v); else list_open(v, L_PLATFORM, ENC_OPTIONS);
             v->m.layer.platform_menu = 1;
         } else if (e->a == MACRO_LOOP_STOP) looper_stop(v);
         else if (e->a == MACRO_LOOP_CLEAR) loop_send(v, LOOP_C_CLEAR);
@@ -1589,8 +1605,8 @@ const ui_model_t *vet_model(vet_t *v)
     ui_list_t *l = &m->layer.list;
     memset(l, 0, sizeof *l);
     if (v->list_kind) {
-        static const char *const PATH[] = { "", "SOUND", "PERFORM", "OPTIONS", "MENU", "BEATS" };
-        static const uint8_t KIND[] = { 0, LS_SOUND, LS_PERFORM, LS_OPTIONS, LS_PLATFORM, LS_BEATS };
+        static const char *const PATH[] = { "", "SOUND", "PERFORM", "OPTIONS", "MENU", "BEATS", "DEMO SONG" };
+        static const uint8_t KIND[] = { 0, LS_SOUND, LS_PERFORM, LS_OPTIONS, LS_PLATFORM, LS_BEATS, LS_PLATFORM };
         l->open = 1;
         l->owner = v->list_owner;
         l->kind = KIND[v->list_kind];
@@ -1602,7 +1618,7 @@ const ui_model_t *vet_model(vet_t *v)
         l->win_first = (uint16_t)first;
         for (int i = 0; i < UI_LIST_WIN && first + i < l->n; i++) list_item(v, v->list_kind, first + i, &l->win[i]);
     }
-    m->layer.platform_menu = v->list_kind == L_PLATFORM;
+    m->layer.platform_menu = v->list_kind == L_PLATFORM || v->list_kind == L_DEMO;
     m->layer.page = (v->list_kind || v->page_pinned || (int32_t)(v->page_until - v->now_ms) > 0) ? PAGE_CONTROLS : PAGE_PLAY;
 
     /* meter finti */

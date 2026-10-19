@@ -1433,12 +1433,12 @@ static const dstep_t SONG_5[] = {
 };
 
 const dsong_t vet_demo_songs[] = {
-    { "Demo song: Acacia", SONG_0, (uint16_t)(sizeof SONG_0 / sizeof SONG_0[0]), 230992u },
-    { "Demo song: Felce", SONG_1, (uint16_t)(sizeof SONG_1 / sizeof SONG_1[0]), 108943u },
-    { "Demo song: Pistillo", SONG_2, (uint16_t)(sizeof SONG_2 / sizeof SONG_2[0]), 106203u },
-    { "Demo song: Alga", SONG_3, (uint16_t)(sizeof SONG_3 / sizeof SONG_3[0]), 153613u },
-    { "Demo song: Cicuta", SONG_4, (uint16_t)(sizeof SONG_4 / sizeof SONG_4[0]), 66562u },
-    { "Demo song: Torba", SONG_5, (uint16_t)(sizeof SONG_5 / sizeof SONG_5[0]), 71379u },
+    { "Acacia", "Demo song: Acacia", SONG_0, (uint16_t)(sizeof SONG_0 / sizeof SONG_0[0]), 230992u },
+    { "Felce", "Demo song: Felce", SONG_1, (uint16_t)(sizeof SONG_1 / sizeof SONG_1[0]), 108943u },
+    { "Pistillo", "Demo song: Pistillo", SONG_2, (uint16_t)(sizeof SONG_2 / sizeof SONG_2[0]), 106203u },
+    { "Alga", "Demo song: Alga", SONG_3, (uint16_t)(sizeof SONG_3 / sizeof SONG_3[0]), 153613u },
+    { "Cicuta", "Demo song: Cicuta", SONG_4, (uint16_t)(sizeof SONG_4 / sizeof SONG_4[0]), 66562u },
+    { "Torba", "Demo song: Torba", SONG_5, (uint16_t)(sizeof SONG_5 / sizeof SONG_5[0]), 71379u },
 };
 
 const uint8_t vet_demo_songs_n = 6;

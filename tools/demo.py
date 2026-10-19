@@ -77,8 +77,9 @@ def place(pc, w):
 
 
 class Song:
-    def __init__(self, title):
-        self.title = title
+    def __init__(self, name):
+        self.name = name                 # nella lista del menu (MENU › Play Demo Song)
+        self.title = 'Demo song: ' + name
         self.steps = []                  # (tick, ordine, azione, a, b, c, d, commento)
         self.v = 24                      # Chord Voicing (W = v + 24)
         self.single = SINGLE_FULL
@@ -251,7 +252,7 @@ class Song:
 
 # ======================================================================== «Acacia» (14–15/10/2026)
 def acacia():
-    S = Song('Demo song: Acacia')
+    S = Song('Acacia')
     at = Song.at
     LOOP = '1:Gmaj7:2@{a} 3:Gmaj7:2@{b} | 1:Asus:2@{a} 3:A:2@{b} | 1:F#m7:2@{a} 3:F#m7:2@{b} | 1:Bm7:2@{a} 3:Bm:2@{b}'
     VERSE = ('1:B5:1.5@104 2.5:A5:.5@88 3:F#5:1@98 4:E5:.5@86 4.5:F#5:.5@90 |'
@@ -439,7 +440,7 @@ def acacia():
 # Bossa in La minore a 112 BPM con gli strumenti campionati: piano a coda, vibrafono, kalimba,
 # sax tenore, arpa e glockenspiel. Il piano registra il giro nel loop, la kalimba vi si aggiunge.
 def felce():
-    S = Song('Demo song: Felce')
+    S = Song('Felce')
     at = Song.at
     GIRO = '1:Am7:2@{a} 3:Am:2@{b} | 1:Fmaj7:2@{a} 3:F:2@{b} | 1:Dm7:2@{a} 3:G7:2@{b} | 1:Cmaj7:2@{a} 3:E7:2@{b}'
     VIBES = ('1:E5:1.5@96 2.5:G5:.5@84 3:A5:1@92 4:B5:1@88 |'
@@ -535,7 +536,7 @@ def felce():
 # (il kit 808 del Beat Boom Bap), poi sopra entrano FM piano, marimba, organo a canne nel loop,
 # flauto dolce e campane tubolari.
 def pistillo():
-    S = Song('Demo song: Pistillo')
+    S = Song('Pistillo')
     at = Song.at
     GIRO = '1:Em9:2@{a} 3:Em7:2@{b} | 1:Cmaj7:2@{a} 3:Cmaj7:2@{b} | 1:G:2@{a} 3:G6:2@{b} | 1:D7sus:2@{a} 3:D:2@{b}'
     GROOVE = ('1:KK@124 2:SN@114 2.5:KK@92 3:KK@118 4:SN@114 |'
@@ -639,7 +640,7 @@ def pistillo():
 # glockenspiel in overdub, ocarina, pad di ghiaccio e bicchieri. Brano originale nello spirito delle
 # musiche subacquee dei videogiochi anni '90 (Luigi: «quella musica bellissima di DK Country»).
 def alga():
-    S = Song('Demo song: Alga')
+    S = Song('Alga')
     at = Song.at
     GIRO = '1:Emaj7:4@{a} | 1:C#m7:4@{b} | 1:Amaj7:4@{a} | 1:Bsus9:2@{b} 3:B7sus:2@{b}'
     CAMPANE = ('1:B5:2@80 3:G#5:1@70 4:E5:1@66 |'
@@ -732,7 +733,7 @@ def alga():
 # charleston. Poi Hemlock Acid in Pattern con il basso Hemlock 303, il giro nel loop, un break che
 # cambia stile, e il drone di Black Hellebore.
 def cicuta():
-    S = Song('Demo song: Cicuta')
+    S = Song('Cicuta')
     at = Song.at
     GIRO = '1:Am:4@{a} | 1:Fmaj7:4@{b} | 1:Dm7:4@{a} | 1:Em7:4@{b}'
 
@@ -786,7 +787,7 @@ def cicuta():
 # Dub techno a 116 BPM: lo stab di Deadnettle Dub sul levare con il suo eco, il giro nel loop, Undertow e
 # Abyss Sub sotto, e la batteria in stile Dub che si inventa mentre suona.
 def torba():
-    S = Song('Demo song: Torba')
+    S = Song('Torba')
     at = Song.at
     STAB = ' | '.join('2.5:{c}:.25@{v} 4.5:{c}:.25@{w}'.format(c=c, v=96, w=84) for c in ('Cm7', 'Cm7', 'Fm7', 'Gm7'))
     PAD = '1:Cm9:4@70 | 1:Abmaj7:4@66 | 1:Fm9:4@68 | 1:Gm7:4@64'
@@ -862,7 +863,7 @@ def main():
                 line = f'{line:<62}/* {note} */'
             out.append(line.rstrip())
         out += ['};', '']
-        tabella.append(f'    {{ "{S.title}", SONG_{k}, (uint16_t)(sizeof SONG_{k} / sizeof SONG_{k}[0]), {int(round(ms))}u }},')
+        tabella.append(f'    {{ "{S.name}", "{S.title}", SONG_{k}, (uint16_t)(sizeof SONG_{k} / sizeof SONG_{k}[0]), {int(round(ms))}u }},')
         print(f'{S.title}: {len(steps)} passi, {notes} accordi e note, {ms / 1000:.1f} s')
     out += ['const dsong_t vet_demo_songs[] = {'] + tabella + ['};', '',
             f'const uint8_t vet_demo_songs_n = {len(BRANI)};', '']

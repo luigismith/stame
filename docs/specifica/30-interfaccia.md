@@ -1191,6 +1191,10 @@ Ghost Chord    On / Off                          (✓)
 Linnaeus Tag   On / Off                          (✓)  cartellino di Linneo (UI-161)
 Boot Sound     Off / On                          (✓)  logo sonoro all'avvio (UI-159), spento per default
 Debug          Off / On                          (✓)
+Demo           Auto / Off                             la demo dopo 20 s senza ingressi (vetrina)
+Play Demo Song → la lista dei brani della demo: Exit, poi un brano per riga con il numero;
+                 il segno sta su quello di turno; A su un brano lo fa partire subito, anche se
+                 un altro sta suonando; Exit e B tornano al menu, su questa voce (Luigi, 19/10/2026)
 Quit Stame     → Back / Quit now
 ```
 
