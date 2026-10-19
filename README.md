@@ -47,7 +47,7 @@ Saving User Sounds and loading a private factory bank; Waiting Room and loop len
 
 You need a **Miyoo Flip** with [Cirmolo](https://github.com/luigismith/cirmolo) or spruceOS, and the **MPK mini IV** on its **DAW** preset (the macro pad on a plain USB 2.0 hub, without Power Delivery, on the top USB-C port).
 
-- **With Cirmolo:** App › Music › **Install Stame**, with Wi-Fi on. It downloads the latest [release](https://github.com/luigismith/stame/releases), checks the archive and puts Stame in Music; run it again to update.
+- **With Cirmolo:** App › Music › **Install Stame**, with Wi-Fi on. It downloads the latest [release](https://github.com/luigismith/stame/releases), checks the archive and puts Stame in Music. Then the entry hides itself: when a newer release is out, Cirmolo shows it again at boot as **Update Stame** (Wi-Fi on).
 - **By hand:** download `Stame-<version>.7z` from the [release](https://github.com/luigismith/stame/releases) and unpack it at the root of the SD card: it creates `App/Stame`. On spruceOS Stame shows up among the apps.
 
 ## Build and install from source

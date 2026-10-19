@@ -47,7 +47,7 @@ Salvataggio degli User Sound e caricamento di un banco di fabbrica privato; Wait
 
 Serve una **Miyoo Flip** con [Cirmolo](https://github.com/luigismith/cirmolo) o spruceOS, e la **MPK mini IV** nel preset **DAW** (il macro pad su un hub USB 2.0 semplice, senza Power Delivery, sulla porta USB-C di sopra).
 
-- **Con Cirmolo:** App › Musica › **Installa Stame**, con il Wi-Fi acceso. Scarica l'ultima [release](https://github.com/luigismith/stame/releases), controlla l'archivio e mette Stame in Musica; rilanciandolo si aggiorna.
+- **Con Cirmolo:** App › Musica › **Installa Stame**, con il Wi-Fi acceso. Scarica l'ultima [release](https://github.com/luigismith/stame/releases), controlla l'archivio e mette Stame in Musica. Poi la voce si nasconde: quando esce una versione nuova, Cirmolo la rimostra all'avvio come **Aggiorna Stame** (con il Wi-Fi acceso).
 - **A mano:** scarica `Stame-<versione>.7z` dalla [release](https://github.com/luigismith/stame/releases) e scompattalo nella radice della scheda SD: crea `App/Stame`. Con spruceOS Stame compare fra le app.
 
 ## Compilare e installare dai sorgenti
