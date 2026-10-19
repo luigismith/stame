@@ -29,7 +29,7 @@ Il nome viene dal fiore: lo stame porta il polline, il pistillo lo riceve; Stame
 2. **Gira una manopola, la banda risponde.** K1 Sound, K2 Perform, K3 FX, K4 Key, K5 Bass, K6 Loop, K7 BPM, K8 Volume; premi il tasto gemello sul pad (T1–T8) per «premerla». T13 è un Lock, come il Caps Lock: le tre manopole a scatti del pad diventano Sound, Perform e Key.
 3. **REC, quattro battute, ⊕ per sovraincidere.** I pulsanti del trasporto della MPK sono il looper; STOP/PLAY accende il beat. T12 tenuto un secondo è il Panic, tre secondi il Reset.
 
-Il [manuale](docs/manuale/manuale.md) e il [prontuario](docs/manuale/prontuario.md) di una pagina dicono tutto il resto.
+Il [manuale](docs/manuale/manuale.md) e il [prontuario](docs/manuale/prontuario.md) di una pagina dicono tutto il resto; sul sito sono anche pagine web: [manuale](https://luigismith.github.io/stame/manuale.html), [prontuario](https://luigismith.github.io/stame/prontuario.html).
 
 ## Cosa c'è dentro
 

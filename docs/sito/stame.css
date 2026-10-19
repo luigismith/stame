@@ -126,6 +126,53 @@ pre code { background: none; border: 0; padding: 0; }
 .tabella th { font-family: var(--f-mono); font-weight: 500; font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
 .scorri { overflow-x: auto; }
 
+/* manuale e prontuario (tools/sito_manuale.py): un documento lungo, con l'indice delle sezioni */
+.indice { background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 14px 18px; margin-bottom: clamp(24px, 4vw, 40px); max-width: 760px; }
+.indice ol { margin: 8px 0 0; padding-left: 0; list-style: none; columns: 2 220px; column-gap: 28px; }
+.indice li { break-inside: avoid; padding-block: 2px; font-size: 0.93rem; }
+.indice a { text-decoration: none; }
+.indice a:hover { text-decoration: underline; }
+.documento { max-width: 820px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.documento h2 { font-size: clamp(1.3rem, 2.6vw, 1.7rem); color: var(--treble); margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--line); }
+.documento h3 { margin-top: 10px; }
+.documento h4 { margin: 6px 0 0; font-family: var(--f-mono); font-weight: 500; font-size: 0.9rem; letter-spacing: 0.06em; color: var(--dim); }
+.documento ul, .documento ol { margin: 0; padding-left: 1.3em; display: grid; gap: 6px; }
+.documento li > ul, .documento li > ol { margin-top: 6px; }
+.documento strong { font-weight: 600; }
+.documento > * { min-width: 0; }
+.documento figure { margin: 4px 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; justify-items: start; }
+.documento figure img { border: 1px solid var(--line); border-radius: 3px; background: var(--panel); }
+.documento figure:not(.disegno) img { width: min(100%, 640px); image-rendering: pixelated; }
+.documento figure.disegno img { width: 100%; background: #F4F5EF; padding: 6px; }
+.documento figcaption { font-size: 0.85rem; color: var(--dim); max-width: 70ch; }
+.documento .scorri { border: 1px solid var(--line); border-radius: 3px; background: color-mix(in srgb, var(--panel) 60%, transparent); }
+.documento .tabella td:first-child { white-space: nowrap; }
+
+@media print {
+  @page { size: A4; margin: 10mm; }
+  :root, :root[data-theme="notte"] { --bg: #fff; --mesh: #fff; --panel: #fff; --line: #9AA190; --text: #000; --dim: #333; --treble: #004A43; }
+  body { background: #fff; font-size: 8.5pt; line-height: 1.35; }
+  .barra, .piede, .bottoni, .indice { display: none; }
+  .sezione { padding-block: 0; border: 0; background: none; }
+  .contenitore { max-width: none; padding-inline: 0; }
+  .testata { margin-bottom: 6px; }
+  .testata h1 { font-size: 15pt; }
+  /* due colonne: il prontuario sta in un foglio A4 fronte e retro */
+  .documento { max-width: none; display: block; columns: 2; column-gap: 6mm; }
+  .documento > * { margin: 0 0 4px; }
+  .documento h2 { font-size: 10pt; margin: 4px 0 2px; padding-top: 3px; break-after: avoid; }
+  .documento figure, .documento .scorri, .documento p { break-inside: avoid; }
+  .documento figure.disegno img { width: 100%; padding: 0; }
+  .documento figure:not(.disegno) img { width: 70mm; }
+  .documento figcaption { display: none; }
+  .documento .scorri { border: 0; overflow: visible; background: none; }
+  .tabella { font-size: 7pt; line-height: 1.25; }
+  .tabella th { font-size: 6pt; letter-spacing: 0.04em; }
+  .tabella th, .tabella td { padding: 1px 3px; }
+  .documento .tabella td:first-child { white-space: normal; }
+  a { color: inherit; text-decoration: none; }
+}
+
 .piede { padding-block: 32px 48px; font-family: var(--f-mono); font-size: 0.8rem; color: var(--dim); }
 .piede .contenitore { display: grid; gap: 8px; }
 .piede a { color: var(--dim); }

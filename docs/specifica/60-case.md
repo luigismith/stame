@@ -34,22 +34,22 @@ Coordinate in mm: x verso destra dal bordo esterno del fianco sinistro, y dal re
 
 | Parte | x | y | z | Note |
 |---|---|---|---|---|
-| Fianchi | 0–16 e 561,5–577,5 | 0–244 | 0–46 | 4 strati di betulla da 4 mm, spigoli in cima arrotondati (r 8); lo strato più interno è d'appoggio |
-| Base | 16–560,5 | 0–244 | 0–6 | betulla 6 mm, due metà a coda di rondine (giunta a x = 310) |
-| Retro | 16–560,5 | 0–4 | 0–46 | due metà, linguette nelle tacche della base; finestre per alimentazione, audio e pedale |
-| Strato d'appoggio del retro | 16–560,5 | 4–8 | 6–42 | incollato davanti al retro, con le stesse finestre |
+| Fianchi | 0–16 e 567,5–583,5 | 0–244 | 0–46 | 4 strati di betulla da 4 mm, spigoli in cima arrotondati (r 8); lo strato più interno è d'appoggio |
+| Base | 16–566,5 | 0–244 | 0–6 | betulla 6 mm, due metà a coda di rondine (giunta a x = 310) |
+| Retro | 16–566,5 | 0–4 | 0–46 | due metà, linguette nelle tacche della base; finestre per alimentazione, audio e pedale |
+| Strato d'appoggio del retro | 16–566,5 | 4–8 | 6–42 | incollato davanti al retro, con le stesse finestre |
 | Zona dei cavi | 18–365,5 | 8–44 | 6–43 | dietro la MK4, sotto la mascherina: connettori della MK4 |
 | MK4 | 18–365,5 | 44–236 | 6–43 (51,7 con le manopole) | |
 | Mascherina | 12,2–371,3 | 4,2–138 | 43–46 | acrilico nero 3 mm, un pezzo; appoggia sul pannello della MK4 e sugli strati d'appoggio |
 | Costola | 367,5–375,5 | 8–244 | 0–46 | due strati di betulla 4 mm fra la MK4 e la parte destra; dietro, fra y 8 e 44, lascia sotto un passaggio per i cavi alto 24 mm |
-| Piano della Flip | 371,7–564,3 | 4,2–161 | 43–46 | acrilico nero 3 mm; porta culla e visiera della Flip e la legenda delle manopole del pad |
-| Culla della Flip | 423,4–512,6 | 54–137,4 | 46–53 | vassoio sul piano, bordi di 5 mm, aperto dietro |
-| Flip, metà con i tasti | 426–510 | 54,6–135 | 48–60,3 | in piano nella culla; cerniera dietro |
-| Flip, schermo | 426–510 | da 54,6 verso il retro | fino a ≈ 133 | a 65° dall'orizzontale, inclinato verso il retro |
-| Culla del pad | 375,8–560,2 | 161,3–239,7 | 6–53 | stampata, in piedi sulla base, fra costola, fianco e parete davanti |
-| Macro pad | 379–557 | 164,5–236,5 | 32–48 la piastra, ≈ 63 i tasti | nella culla, in linea con i tasti della MK4 (142–236) |
-| Parete davanti | 375,5–560,5 | 240–244 | 0–46 | betulla 4 mm, linguette nelle asole della base |
-| Hub | 425,5–510,5 | 111,7–143,7 | 8–23 | nel suo fermo, sotto il piano della Flip, dietro la culla del pad |
+| Piano della Flip | 371,7–571,3 | 4,2–156 | 43–46 | acrilico nero 3 mm; porta culla e visiera della Flip e la legenda delle manopole del pad |
+| Culla della Flip | 426,9–516,1 | 54–137,3 | 46–53 | vassoio sul piano, bordi di 5 mm, aperto dietro |
+| Flip, metà con i tasti | 429,5–513,5 | 54,6–135 | 48–60,3 | in piano nella culla; cerniera dietro |
+| Flip, schermo | 429,5–513,5 | da 54,6 verso il retro | fino a ≈ 133 | a 65° dall'orizzontale, inclinato verso il retro |
+| Culla del pad | 375,8–567,2 | 156,3–239,7 | 6–53 | stampata, in piedi sulla base, fra costola, fianco e parete davanti |
+| Macro pad | 379–564 | 159,5–236,5 | 32–48 la piastra, ≈ 63 i tasti | nella culla, in linea con i tasti della MK4 (144–236) |
+| Parete davanti | 375,5–566,5 | 240–244 | 0–46 | betulla 4 mm, linguette nelle asole della base |
+| Hub | 428,6–514,4 | 106,3–138,3 | 8–23 | nel suo fermo, sotto il piano della Flip, dietro la culla del pad |
 
 - **CASE-010** [D] La Flip DEVE stare aperta sul piano, nella sua culla, con la metà dei tasti **in piano** e lo schermo a **65° dall'orizzontale**, inclinato verso il retro (apertura della cerniera 115° [V]). Il centro dello schermo sta a circa 96 mm dal tavolo: da 60 cm, con gli occhi 35 cm sopra il tavolo, lo sguardo scende di 23° e arriva a 2° dalla perpendicolare allo schermo. L'altezza massima con lo schermo aperto è 133 mm; lo schermo non sporge dal retro della base.
 - **CASE-011** [D] La culla della Flip DEVE essere aperta davanti (jack e USB-C di sotto, per la ricarica), dietro (USB-C di sopra, OTG, verso l'hub) e sui lati (tasti del volume). Jack e USB-C stanno a 12 mm l'uno dall'altra: davanti basta un intaglio solo, da 6,5 mm prima del jack a 7 mm dopo la USB-C; i bordi laterali cominciano 4 mm dopo i tasti (posizioni dalle foto del 15/10/2026). Il piano ha una fessura dietro la culla per l'OTG e una davanti per jack e ricarica.
@@ -93,7 +93,7 @@ L'elenco completo, con quantità, materiali e minuteria, è in `hardware/case/RE
 
 - **CASE-050** [D] Il modello 3D della console (`out/stame_console.skp` con una scena per passo, `out/stame_console.obj`), le tavole del montaggio e i fogli di taglio DEVONO nascere dalla stessa geometria dei pezzi da tagliare e stampare: un pezzo cambiato in `genera.py` o una misura cambiata in `misure.py` cambiano tutto insieme. Il riferimento del case è sinistrorso, quindi ogni esportazione 3D lo specchia su y: senza, le culle uscirebbero al rovescio. Anche i rendering (`hardware/case/rendering.py`, Blender Cycles, `out/render/`) e la pagina del sito `docs/case.html` nascono da qui. Ogni pezzo inciso DEVE avere, nel mondo vero, il riferimento destrorso con la faccia incisa verso fuori: `genera.py` si ferma altrimenti (17/10/2026: il rendering ha mostrato le scritte dei fianchi esterni a specchio, ora corrette).
 
-Ingombro 577,5 × 244 mm; altezza 46 al telaio, 53 il bordo delle culle, 133 lo schermo aperto, 150 la visiera. Peso stimato con gli apparecchi: circa 2,5 kg [D].
+Ingombro 583,5 × 244 mm; altezza 46 al telaio, 53 il bordo delle culle, 133 lo schermo aperto, 150 la visiera. Peso stimato con gli apparecchi: circa 2,5 kg [D].
 
 ## 7b. La console tutta stampata, per chi non ha il laser
 Luigi, 18/10/2026: «crea anche tutto quello che serve per farla tutta stampata 3d (per chi non ha il laser)». La console di betulla e acrilico resta la prima; questa è la stessa console, con gli stessi pezzi, la stessa disposizione e lo stesso montaggio, fatta solo con una stampante. La genera `hardware/case/stampa3d.py` dalla geometria di `genera.py` (CASE-050), in `hardware/case/out/stampa3d/`.
@@ -112,7 +112,7 @@ Luigi, 18/10/2026: «crea anche tutto quello che serve per farla tutta stampata 
 - **Flip in piano sul tavolo, senza piano rialzato:** schermo troppo basso (sguardo a 30° dalla perpendicolare) e niente posto per l'hub.
 - **Torre con mensola e divisorio (bozza 4):** separava la MK4 dal pad e lasciava il pad in un pozzo; Luigi (18/10/2026) vuole tutto coperto e omogeneo.
 - **Mascherina alta sui piedini, che copre i controlli non usati (bozza 4):** Luigi la vuole appoggiata, con un foro per ogni controllo.
-- **Tutto stampato al posto del laser:** 577 mm non stanno nel piano da 250, e il legno dà il carattere anni Settanta della console: la prima resta di betulla e acrilico. Dal 18/10/2026 c'è però anche la versione tutta stampata, in tasselli, per chi non ha il laser (§7b).
+- **Tutto stampato al posto del laser:** 583 mm non stanno nel piano da 250, e il legno dà il carattere anni Settanta della console: la prima resta di betulla e acrilico. Dal 18/10/2026 c'è però anche la versione tutta stampata, in tasselli, per chi non ha il laser (§7b).
 - **Guscio unico che smonta la MK4:** è il lavoro della fase 2, lo strumento dedicato.
 
 ## 9. Prossimi passi

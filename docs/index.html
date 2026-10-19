@@ -30,7 +30,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       STAME
     </a>
     <nav aria-label="Sections">
-      <a href="#cosa">What</a><a href="#postazione">Rig</a><a href="#plancia">Panel</a><a href="#suono">Sound</a><a href="#case">Case</a><a href="#stato">Status</a><a href="#prova">Try it</a><a href="#documenti">Docs</a>
+      <a href="#cosa">What</a><a href="#postazione">Rig</a><a href="#plancia">Panel</a><a href="#suono">Sound</a><a href="#case">Case</a><a href="#stato">Status</a><a href="#prova">Try it</a><a href="#documenti">Docs</a><a href="manuale.html" hreflang="it">Manual</a>
     </nav>
     <div class="lingua">
       <a href="index.html" aria-current="page" hreflang="en">EN</a>
@@ -55,7 +55,8 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       <div class="bottoni">
         <a class="bottone primo" href="https://github.com/luigismith/stame">Source on GitHub</a>
         <a class="bottone" href="#prova">Build and install</a>
-        <a class="bottone" href="https://github.com/luigismith/stame/blob/main/docs/manuale/manuale.md" hreflang="it">Manual (Italian)</a>
+        <a class="bottone" href="manuale.html" hreflang="it">Manual (Italian)</a>
+        <a class="bottone" href="prontuario.html" hreflang="it">Quick reference (Italian)</a>
       </div>
       <p class="stato">Phase 1 · <b>showcase 0.1</b> running on the Flip · phase 2: dedicated hardware</p>
     </div>
@@ -151,7 +152,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     </div>
     <figure class="foto-grande">
       <a href="case.html"><img src="sito/img/case/render_eroe.jpg" alt="Rendering of the console: a birch plywood frame with layered sides and a single black top, the MPK mini IV under the engraved mask on the left, the macro pad with clear keycaps in its cradle on the right and the Flip open behind it" width="1600" height="900" loading="lazy"></a>
-      <figcaption>577.5 × 244 mm, 46 mm high. Drawn from the same geometry as the parts to cut and print: change one measurement and the sheets, the printed parts, the model and the instructions change with it. <a href="case.html">The case in detail: renders, the nine assembly steps, the cutting sheets →</a></figcaption>
+      <figcaption>583.5 × 244 mm, 46 mm high. Drawn from the same geometry as the parts to cut and print: change one measurement and the sheets, the printed parts, the model and the instructions change with it. <a href="case.html">The case in detail: renders, the nine assembly steps, the cutting sheets →</a></figcaption>
     </figure>
     <div class="galleria larga">
       <figure><img src="sito/img/case_passo_7.png" alt="Assembly step 7: the MPK in its place and the mask above it, highlighted in amber" width="1320" height="720" loading="lazy"><figcaption><b>Step 7 of 9.</b> The assembly instructions show each step with the new parts in amber: the MPK in its place, the mask on top, resting on it, with an opening for every control.</figcaption></figure>
@@ -235,7 +236,7 @@ sh tools/deploy.sh              # copies it over SSH (the Flip's address in tool
         <p><strong>Hold a pad, press a key.</strong> Top row Dim, Min, Maj, Sus; bottom row the extensions 6, m7, M7, 9. The key gives the root; the big knob of the pad moves the voicing window.</p>
         <p><strong>Turn a knob, the band answers.</strong> K1 Sound, K2 Perform, K3 FX, K4 Key, K5 Bass, K6 Loop, K7 BPM, K8 Volume; hold SHIFT and touch a knob to «push» it. T13 locks the pad's three knobs onto Sound, Perform and Key, with their clicks.</p>
         <p><strong>REC, play four bars, ⊕ to overdub.</strong> The transport buttons of the MPK are the looper; STOP/PLAY starts the beat; T11 turns the keys into drums and T10 puts the loop aside. T12 held for a second is Panic, three seconds is Reset.</p>
-        <p>The Italian <a href="https://github.com/luigismith/stame/blob/main/docs/manuale/manuale.md" hreflang="it">manual</a> and the one-page <a href="https://github.com/luigismith/stame/blob/main/docs/manuale/prontuario.md" hreflang="it">quick reference</a> have all of it.</p>
+        <p>The Italian <a href="manuale.html" hreflang="it">manual</a> and the one-page <a href="prontuario.html" hreflang="it">quick reference</a> have all of it.</p>
       </div>
     </div>
   </div>
@@ -249,7 +250,7 @@ sh tools/deploy.sh              # copies it over SSH (the Flip's address in tool
     </div>
     <div class="schede">
       <div class="scheda"><span class="etichetta">docs/specifica</span><h3>The functional specification</h3><p>Seven sections: overview, chords and performance, sound, interface, MIDI and controls, the Flip platform, the case. Every requirement has an ID and a source tag: [M] manual, [O] observed, [D] deduced, [V] to verify on a real unit. Open questions are listed, not hidden.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/specifica/00-panoramica.md" hreflang="it">Start from the overview</a></p></div>
-      <div class="scheda"><span class="etichetta">docs/manuale</span><h3>Manual and quick reference</h3><p>How to play the showcase on the Flip: the rig, chords, every control and its gestures, the looper step by step, beats, the macro pad with Hold, scenes, fill, Lock / View / Page, the live drum machine, the Flip's pages and menu, what to do when something is red.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/manuale/manuale.md" hreflang="it">Manual</a> · <a href="https://github.com/luigismith/stame/blob/main/docs/manuale/prontuario.md" hreflang="it">Quick reference</a></p></div>
+      <div class="scheda"><span class="etichetta">docs/manuale</span><h3>Manual and quick reference</h3><p>How to play the showcase on the Flip: the rig, chords, every control and its gestures, the looper step by step, beats, the macro pad with Hold, scenes, fill, Lock / View / Page, the live drum machine, the Flip's pages and menu, what to do when something is red.</p><p><a href="manuale.html" hreflang="it">Manual</a> · <a href="prontuario.html" hreflang="it">Quick reference</a></p></div>
       <div class="scheda"><span class="etichetta">docs/identita</span><h3>The identity</h3><p>The story, the mark, the two themes, the dot-matrix font drawn for Stame, the seven-segment digits, the botanical plate, the sound logo of the boot. The same language on the screen and on the case.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/identita/README.md" hreflang="it">Read it</a></p></div>
       <div class="scheda"><span class="etichetta">hardware/case</span><h3>The case</h3><p>A birch plywood console with an engraved black acrylic mask over the MPK, one black top, a cradle for the pad and one for the Flip, which holds the screen at 65°. Generated from a table of measurements: SVG and DXF for the laser, STL for the printer, a SketchUp model and the assembly instructions.</p><p><a href="#case">Draft 5</a> · <a href="https://github.com/luigismith/stame/blob/main/hardware/case/README.md" hreflang="it">README</a> · <a href="https://github.com/luigismith/stame/blob/main/docs/specifica/60-case.md" hreflang="it">Specification</a></p></div>
     </div>

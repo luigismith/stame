@@ -125,7 +125,7 @@ Le istruzioni con le tavole sono in `out/istruzioni_montaggio.pdf`. In breve:
 
 | | mm |
 |---|---|
-| ingombro | 577,5 × 244 |
+| ingombro | 583,5 × 244 |
 | cima della console (telaio e piano) | 46 |
 | piastra del pad / bordo delle culle | 48 / 53 |
 | altezza con lo schermo aperto | 133 lo schermo (a 65°), 150 la visiera |

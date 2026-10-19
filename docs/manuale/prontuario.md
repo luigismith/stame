@@ -1,6 +1,6 @@
 # Stame — prontuario
 
-Una pagina, da stampare. Vetrina 0.1, mappa del 17/10/2026. «prev.» = previsto dalla specifica, non ancora nella vetrina.
+Un foglio da stampare, fronte e retro. Vetrina 0.1, mappa del 17/10/2026. «prev.» = previsto dalla specifica, non ancora nella vetrina.
 
 ## Gesti (sulla MPK)
 

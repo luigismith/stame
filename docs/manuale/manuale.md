@@ -1,6 +1,6 @@
 # Stame — manuale d'uso
 
-Bozza 1, 15/10/2026. Per chi suona, non per chi programma: la specifica sta in `docs/specifica/`, il prontuario da stampare in `prontuario.md`.
+Bozza 1, 15/10/2026. Per chi suona, non per chi programma: la [specifica](../specifica/00-panoramica.md) sta in `docs/specifica/`; tutti i comandi in un foglio da stampare sono nel [prontuario](prontuario.md).
 
 Stame è uno strumento ad accordi: una mano tiene il tipo d'accordo e le estensioni, l'altra suona la fondamentale, ed esce un accordo intero con il suo voicing e il suo basso; le performance lo fanno muovere, il Beat e il looper fanno i loop mentre suoni. Tutto si suona, niente si programma a passi. E, avendo più tasti, più manopole e più potenza di uno strumento dedicato, Stame fa qualcosa in più. Nella fase 1 vive sulla **Miyoo Flip** (schermo e cervello) e si suona con la **Akai MPK mini IV** (tasti, pad e manopole) e un **macro pad** a 15 tasti e 3 manopole. Questo manuale descrive la **vetrina 0.1**, cioè quello che oggi gira sulla Flip; dove la specifica prevede di più, lo dice con un **«previsto»**.
 

@@ -30,7 +30,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       STAME
     </a>
     <nav aria-label="Sezioni">
-      <a href="#cosa">Cos'è</a><a href="#postazione">Postazione</a><a href="#plancia">Plancia</a><a href="#suono">Suono</a><a href="#case">Case</a><a href="#stato">Stato</a><a href="#prova">Provarlo</a><a href="#documenti">Documenti</a>
+      <a href="#cosa">Cos'è</a><a href="#postazione">Postazione</a><a href="#plancia">Plancia</a><a href="#suono">Suono</a><a href="#case">Case</a><a href="#stato">Stato</a><a href="#prova">Provarlo</a><a href="#documenti">Documenti</a><a href="manuale.html">Manuale</a>
     </nav>
     <div class="lingua">
       <a href="index.html" hreflang="en" lang="en">EN</a>
@@ -55,7 +55,8 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
       <div class="bottoni">
         <a class="bottone primo" href="https://github.com/luigismith/stame">Sorgenti su GitHub</a>
         <a class="bottone" href="#prova">Compilare e installare</a>
-        <a class="bottone" href="https://github.com/luigismith/stame/blob/main/docs/manuale/manuale.md">Manuale</a>
+        <a class="bottone" href="manuale.html">Manuale</a>
+        <a class="bottone" href="prontuario.html">Prontuario</a>
       </div>
       <p class="stato">Fase 1 · <b>vetrina 0.1</b> sulla Flip · fase 2: hardware dedicato</p>
     </div>
@@ -151,7 +152,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     </div>
     <figure class="foto-grande">
       <a href="case.it.html"><img src="sito/img/case/render_eroe.jpg" alt="Rendering della console: un telaio di compensato di betulla con i fianchi a strati e un piano nero solo, a sinistra la MPK mini IV sotto la mascherina incisa, a destra il macro pad con i tasti trasparenti nella sua culla e dietro la Flip aperta" width="1600" height="900" loading="lazy"></a>
-      <figcaption>577,5 × 244 mm, alta 46 mm. Disegnata dalla stessa geometria dei pezzi da tagliare e stampare: cambia una misura e cambiano insieme i fogli, i pezzi stampati, il modello e le istruzioni. <a href="case.it.html">Il case nel dettaglio: rendering, i nove passi del montaggio, i fogli di taglio →</a></figcaption>
+      <figcaption>583,5 × 244 mm, alta 46 mm. Disegnata dalla stessa geometria dei pezzi da tagliare e stampare: cambia una misura e cambiano insieme i fogli, i pezzi stampati, il modello e le istruzioni. <a href="case.it.html">Il case nel dettaglio: rendering, i nove passi del montaggio, i fogli di taglio →</a></figcaption>
     </figure>
     <div class="galleria larga">
       <figure><img src="sito/img/case_passo_7.png" alt="Passo 7 del montaggio: la MPK al suo posto e la mascherina sopra, in ambra" width="1320" height="720" loading="lazy"><figcaption><b>Passo 7 di 9.</b> Le istruzioni mostrano ogni passo con i pezzi nuovi in ambra: la MPK al suo posto, la mascherina sopra, appoggiata, con un foro per ogni controllo.</figcaption></figure>
@@ -235,7 +236,7 @@ sh tools/deploy.sh              # la copia via SSH (l'indirizzo della Flip in to
         <p><strong>Tieni un pad, premi un tasto.</strong> Fila alta Dim, Min, Maj, Sus; fila bassa le estensioni 6, m7, M7, 9. Il tasto dà la fondamentale; la manopola grande del pad sposta la finestra del voicing.</p>
         <p><strong>Gira una manopola, la banda risponde.</strong> K1 Sound, K2 Perform, K3 FX, K4 Key, K5 Bass, K6 Loop, K7 BPM, K8 Volume; tieni SHIFT e tocca la manopola per «premerla». T13 blocca le tre manopole del pad su Sound, Perform e Key, con i loro scatti.</p>
         <p><strong>REC, quattro battute, ⊕ per sovraincidere.</strong> I pulsanti del trasporto della MPK sono il looper; STOP/PLAY accende il beat; T11 fa dei tasti una batteria e T10 mette il loop da parte. T12 tenuto un secondo è il Panic, tre secondi il Reset.</p>
-        <p>Il <a href="https://github.com/luigismith/stame/blob/main/docs/manuale/manuale.md">manuale</a> e il <a href="https://github.com/luigismith/stame/blob/main/docs/manuale/prontuario.md">prontuario</a> di una pagina dicono tutto il resto.</p>
+        <p>Il <a href="manuale.html">manuale</a> e il <a href="prontuario.html">prontuario</a> di una pagina dicono tutto il resto.</p>
       </div>
     </div>
   </div>
@@ -249,7 +250,7 @@ sh tools/deploy.sh              # la copia via SSH (l'indirizzo della Flip in to
     </div>
     <div class="schede">
       <div class="scheda"><span class="etichetta">docs/specifica</span><h3>La specifica funzionale</h3><p>Sette sezioni: panoramica, accordi e performance, suono, interfaccia, MIDI e controlli, la piattaforma Flip, il case. Ogni requisito ha un ID e un'etichetta di fonte: [M] manuale, [O] osservato, [D] dedotto, [V] da verificare sull'originale. Le questioni aperte sono elencate, non nascoste.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/specifica/00-panoramica.md">Si parte dalla panoramica</a></p></div>
-      <div class="scheda"><span class="etichetta">docs/manuale</span><h3>Manuale e prontuario</h3><p>Come si suona la vetrina sulla Flip: la postazione, gli accordi, ogni controllo con i suoi gesti, il looper passo per passo, i Beat, il macro pad con Hold, scene, fill, Lock / View / Page, la drum machine dal vivo, le pagine e il menu della Flip, cosa fare quando qualcosa è rosso.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/manuale/manuale.md">Manuale</a> · <a href="https://github.com/luigismith/stame/blob/main/docs/manuale/prontuario.md">Prontuario</a></p></div>
+      <div class="scheda"><span class="etichetta">docs/manuale</span><h3>Manuale e prontuario</h3><p>Come si suona la vetrina sulla Flip: la postazione, gli accordi, ogni controllo con i suoi gesti, il looper passo per passo, i Beat, il macro pad con Hold, scene, fill, Lock / View / Page, la drum machine dal vivo, le pagine e il menu della Flip, cosa fare quando qualcosa è rosso.</p><p><a href="manuale.html">Manuale</a> · <a href="prontuario.html">Prontuario</a></p></div>
       <div class="scheda"><span class="etichetta">docs/identita</span><h3>L'identità</h3><p>La storia, il marchio, i due temi, il carattere a punti disegnato per Stame, le cifre a sette segmenti, la tavola botanica, il logo sonoro dell'avvio. La stessa lingua sullo schermo e sul case.</p><p><a href="https://github.com/luigismith/stame/blob/main/docs/identita/README.md">Leggila</a></p></div>
       <div class="scheda"><span class="etichetta">hardware/case</span><h3>Il case</h3><p>Una console di compensato di betulla con una mascherina di acrilico nero inciso sopra la MPK, un piano nero solo, una culla per il pad e una per la Flip, che tiene lo schermo a 65°. Generato da una tabella di misure: SVG e DXF per il laser, STL per la stampante, un modello SketchUp e le istruzioni di montaggio.</p><p><a href="#case">Bozza 5</a> · <a href="https://github.com/luigismith/stame/blob/main/hardware/case/README.md">README</a> · <a href="https://github.com/luigismith/stame/blob/main/docs/specifica/60-case.md">Specifica</a></p></div>
     </div>
