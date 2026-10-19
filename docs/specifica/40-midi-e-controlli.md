@@ -751,7 +751,7 @@ layers:
 | Manopola | Girata | Premuta |
 |---|---|---|
 | **M** | **Densità** 0…10 della parte scelta, o di tutto: 0 tace, 1 è lo scheletro dello stile, 10 suona tutto | **Play / Stop** del loop (come la pressione di BPM) |
-| **m1** | **Stile** (Groove): Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial | **Parte** che M regola: tutto, cassa, rullante, charleston, aperto, percussioni |
+| **m1** | **Stile** (Groove): Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial e, dal 19/10/2026, House, Garage, Jungle, DnB, Dubstep, Trap, Synthwave, Synthpop, Lo-Fi, Trip Hop, Chiptune, Glitch, EBM, Afrobeat, Tabla, Salsa, Reggaeton, Jazz, Arena, Preset (`10` ACC-215, MIDI-141) | **Parte** che M regola: tutto, cassa, rullante, charleston, aperto, percussioni |
 | **m2** | **Variazione** 0…99: 0 è lo stile com'è, ogni scatto un'idea nuova, tornando indietro si ritrova quella di prima | **Idea nuova**: una variazione a caso, ripetibile (`MACRO_KNOB_CLICK`) |
 
   Regole:

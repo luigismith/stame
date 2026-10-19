@@ -181,6 +181,48 @@ static void test_dieci_voci(void)
     CHECKM(on <= DRUM_VOICES / 2, "T-SND-59: %d voci di campanaccio ancora accese dopo un secondo", on);
 }
 
+/* TV-123 (ACC-218, ACC-215): la libreria dei Beat e degli stili. I Beat e gli stili di prima tengono i loro
+ * kit; i nuovi hanno un kit della libreria; ogni Beat suona e ha un fill; nomi unici che stanno nella plancia;
+ * ogni kit della libreria fa da kit ad almeno un Beat o a uno stile; ogni Beat ha uno stile vicino */
+static void test_beat_libreria(void)
+{
+    static const uint8_t KIT_PRIMA[20] = { KIT_CHIP, KIT_STUDIO, KIT_JAZZ, KIT_808, KIT_JAZZ, KIT_STUDIO, KIT_808,
+                                           KIT_808, KIT_STUDIO, KIT_JAZZ, KIT_STUDIO, KIT_JAZZ, KIT_CHIP, KIT_TECHNO,
+                                           KIT_TECHNO, KIT_808, KIT_TECHNO, KIT_TECHNO, KIT_808, KIT_808 };
+    static const uint8_t STILE_PRIMA[10] = { KIT_TECHNO, KIT_STUDIO, KIT_STUDIO, KIT_808, KIT_808, KIT_TECHNO,
+                                             KIT_JAZZ, KIT_808, KIT_808, KIT_TECHNO };
+    CHECK_EQ(BEAT_COUNT, 61);
+    CHECK_EQ(INV_GROOVES, 30);
+    for (int b = 0; b < 20; b++) CHECKM(beat_kit_of(b) == KIT_PRIMA[b], "TV-123: il Beat %d ha cambiato kit", b);
+    for (int g = 0; g < 10; g++) CHECKM(inv_groove_kit(g) == STILE_PRIMA[g], "TV-123: lo stile %d ha cambiato kit", g);
+    bool usato[DRUM_SYNTH_KITS] = { false };
+    beat_hit_t h[8];
+    for (int b = 1; b < BEAT_COUNT; b++) {
+        const char *n = beat_name(b);
+        CHECKM(n[0] && strlen(n) < 24, "TV-123: Beat %d senza nome o troppo lungo", b);
+        for (int c = 1; c < b; c++) CHECKM(strcmp(n, beat_name(c)) != 0, "TV-123: «%s» due volte", n);
+        if (b >= 20) CHECKM(beat_kit_of(b) >= KIT_SYNTH0, "TV-123: «%s» senza un kit della libreria", n);
+        if (beat_kit_of(b) >= KIT_SYNTH0) usato[beat_kit_of(b) - KIT_SYNTH0] = true;
+        int nb = 0, nf = 0, k0 = 0;
+        for (int s = 0; s < 16; s++) {
+            int k = beat_hits(b, s, h, 8);
+            nb += k;
+            for (int i = 0; i < k; i++) if (s == 0) k0++;
+            nf += beat_fill_hits(b, s, h, 8);
+        }
+        CHECKM(nb >= 6 && nf >= 6 && k0 > 0, "TV-123: «%s» suona %d colpi, il fill %d, il primo passo %d", n, nb, nf, k0);
+        CHECK(inv_groove_of_beat(b) >= 0 && inv_groove_of_beat(b) < INV_GROOVES);
+    }
+    for (int g = 0; g < INV_GROOVES; g++) {
+        const char *n = inv_groove_name(g);
+        CHECKM(n[0] && strlen(n) < 12, "TV-123: stile %d senza nome o troppo lungo", g);
+        for (int c = 0; c < g; c++) CHECKM(strcmp(n, inv_groove_name(c)) != 0, "TV-123: lo stile «%s» due volte", n);
+        if (g >= 10) CHECKM(inv_groove_kit(g) >= KIT_SYNTH0, "TV-123: lo stile «%s» senza un kit della libreria", n);
+        if (inv_groove_kit(g) >= KIT_SYNTH0) usato[inv_groove_kit(g) - KIT_SYNTH0] = true;
+    }
+    for (int i = 0; i < DRUM_SYNTH_KITS; i++) CHECKM(usato[i], "TV-123: il kit «%s» non è di nessun Beat né stile", drum_kits[i].name);
+}
+
 void test_kits(void)
 {
     test_livelli();
@@ -188,4 +230,5 @@ void test_kits(void)
     test_ricette();
     test_catalogo();
     test_dieci_voci();
+    test_beat_libreria();
 }

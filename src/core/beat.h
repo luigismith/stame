@@ -13,7 +13,7 @@
 
 enum { BEAT_M_OFF, BEAT_M_METRONOME, BEAT_M_PATTERN };    /* come ui_beat_mode_t */
 enum { METER_2_4, METER_3_4, METER_4_4, METER_6_8 };      /* metriche del metronomo (ACC-206, ACC-208) */
-#define BEAT_COUNT 20                                      /* 0 = provvisorio di ACC-210, 1…19 della vetrina */
+#define BEAT_COUNT 61                                      /* 0 = provvisorio di ACC-210, 1…60 della vetrina (ACC-218) */
 /* il catalogo dei kit (SND-541): i quattro a campioni, il Chip, poi la libreria sintetizzata nell'ordine di
  * drum_kits[] (DK_KIT_*). L'ordine dei primi cinque non cambia: K1 e la demo li contano così */
 enum { KIT_STUDIO, KIT_JAZZ, KIT_808, KIT_TECHNO, KIT_CHIP, KIT_SYNTH0 };
