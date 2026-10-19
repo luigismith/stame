@@ -548,6 +548,7 @@ Gli encoder dell'originale si premono, le manopole della MPK no. Luigi ha aggiun
 | Classe USB | dispositivo USB **composito**, revisione 1.00, senza nome di prodotto. Interfaccia 0: HID del produttore (pagina `0xFF00`), usata dal software di programmazione. Interfaccia 1: HID con due collezioni tastiera, una mouse e una per i tasti multimediali (pagina `0x0C`). Niente MIDI. Sulla Flip si legge da evdev, probabilmente su più nodi `/dev/input/event*` | [O su Windows, 15/10/2026; nodi evdev V VP-1] |
 | VID:PID | **`1189:8840`** (il `1189:8890` del 13/10 era dedotto e sbagliato) | [O, 15/10/2026] |
 | Strati | la configurazione a bordo ha **3 strati** da 24 azioni: 15 tasti più 3 azioni per manopola | [O, 15/10/2026] |
+| LED | dall'host si comanda solo l'**illuminazione di tutto il pad, per strato**, con lo stesso comando del software di programmazione sull'interfaccia 0 (pacchetti di 64 byte: `03 fe b0 <strato 1–3> 08 00 00 00 00 00 01 00 <codice>`, poi `03 fd fe ff`; `codice = colore << 4 \| modo`, modi 0 spento, 1 fisso in un colore, 5 fisso bianco, 2 e 3 lampo al tocco, 4 tasto acceso finché premuto; colori 1 rosso, 2 arancio, 3 giallo, 4 verde, 5 ciano, 6 blu, 7 viola). **Niente LED per singolo tasto, niente lampeggio comandato**: Stame non può accendere il tasto di Hold o far lampeggiare DRUMS a tempo (chiesto da Luigi il 19/10/2026). È una scrittura di configurazione: se finisce nella flash del pad si consuma (VP-8). Il 19/10/2026 Luigi ha scelto di non provare: Stame **non scrive sul pad** | [O dal sorgente di `ch57x-keyboard-tool`, k884x.rs, verificato dai suoi autori con catture USB; V VP-8] |
 
 **Verifiche del 15/10/2026** sul PC di Luigi, con `tools/pad_ascolta.py` (Raw Input di Windows, solo gli eventi del pad) [O]:
 - ogni tasto e ogni pressione di manopola manda **«giù» alla pressione e «su» al rilascio** (90–230 ms nelle prove): VP-3 è chiusa, i gesti «tenere» e «premere e ruotare» funzionano e i ripieghi di MIDI-125 non servono;
@@ -1010,7 +1011,7 @@ L'elenco completo dei 29 test è nelle [Questioni aperte](#questioni-aperte); co
 | 4 — comodità | VM-12 LED dei pad; VM-16 nomi delle manopole; VM-11 Program Change; VM-23 cambio di programma; VM-20 nota più bassa; VM-28 velocity dei pad | MIDI-087, MIDI-119 |
 | 5 — solo con l'ok di Luigi | VM-10 lettura SysEx; VM-21 backup dei programmi; VM-24 traffico dell'editor | MIDI-077 |
 
-Per il macro pad le verifiche sono VP-1…VP-7 (in [Questioni aperte](#questioni-aperte)). Prima di scrivere `pad_brimford` servono VP-1 (identità e nodi evdev), VP-2 (codici ammessi) e VP-3 («giù» e «su» delle pressioni).
+Per il macro pad le verifiche sono VP-1…VP-8 (in [Questioni aperte](#questioni-aperte)). Prima di scrivere `pad_brimford` servono VP-1 (identità e nodi evdev), VP-2 (codici ammessi) e VP-3 («giù» e «su» delle pressioni).
 
 ---
 
@@ -1129,6 +1130,7 @@ Per il principio di fedeltà queste opzioni esistono ma partono spente [D].
 | VP-5 | Posizione delle tre manopole rispetto ai tasti; quale è M, m1, m2; ordine delle manopole nella configurazione | Manopole a destra dei tasti, piccole in alto e grande in basso; indici 16–24 noti [O 15/10/2026]. Quale piccola è m1 e quale m2 resta da confermare sul pezzo; T13–T15 decisi il 15/10/2026 (Lock, View, Page: MIDI-131, MIDI-132) | MIDI-120, MIDI-122 |
 | VP-6 | Assorbimento dalla porta OTG, con la batteria interna in carica e con l'RGB acceso e spento; MPK e macro pad insieme sull'hub senza PD | Regge con l'hub; altrimenti hub alimentato | MIDI-128 |
 | VP-7 | L'RGB si può spegnere dalla configurazione e resta spento? | Spento | MIDI-122, MIDI-128 |
+| VP-8 | Il comando dei LED (§8.10) dalla Flip: funziona sull'hidraw dell'interfaccia 0? Il colore resta dopo stacca e riattacca (cioè è scritto nella flash, che si consuma) o sta solo in RAM? Solo con Luigi presente e con il suo ok | Non provato: il 19/10/2026 Luigi ha detto di fermarsi; i LED del suo pad sono spenti | §8.10 |
 
 ### Decisioni di progetto da confermare con Luigi (D)
 
@@ -1158,4 +1160,4 @@ Per il principio di fedeltà queste opzioni esistono ma partono spente [D].
 | `20-suono.md` | Mappa dei 135 indici NRPN per Sound e Bass e dei 53 drum; BENDRANGE; risposta a CC 1, 64, 120, 121, 123; pool di 16 voci e furto di voce; rilascio rapido per il panic | Messaggi d'ingresso già decodificati |
 | `30-interfaccia.md` | Resa di fuoco, overlay, avvisi (MPK occupata, programma non STAME, modo tascabile, macro pad senza mappa), menu Options > Audio and MIDI, menu di sistema (MENU) con Learn Pad, contrassegno «PAD», legende con i nomi del macro pad | Eventi `PNL_BACK`, `ENC_FOCUS`, `MACRO_SYSTEM_MENU`; stato del macro pad (MIDI-124, MIDI-127) |
 | `50-piattaforma-flip.md` | Thread di input e di scrittura MIDI, apertura rawmidi, evdev (gamepad cercato per nome, PLT-053; macro pad in esclusiva con `EVIOCGRAB` e traduzione in `MPAD_*`), file `Saves/stame/pad.map`, conversione da campioni a tempo reale per clock e note, budget di latenza e jitter, porta OTG e hub senza PD (PLT-091) | Requisiti di temporizzazione (MIDI-032), code (MIDI-004), sequenza di avvio (§8.9), hot-plug (§11, MIDI-127), riconoscimento del macro pad (MIDI-124) |
-| `90-questioni-aperte.md` | — | Le verifiche VO-1…15, VM-1…30, VP-1…7 e le decisioni D-1…8 |
+| `90-questioni-aperte.md` | — | Le verifiche VO-1…15, VM-1…30, VP-1…8 e le decisioni D-1…8 |
