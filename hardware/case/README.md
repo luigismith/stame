@@ -18,9 +18,10 @@ Cosa cambia nella bozza 5 (Luigi, 18/10/2026: «deve essere tutto coperto e omog
 ```
 python -I hardware/case/genera.py      pezzi (SVG laser, STL), fogli di taglio (SVG, DXF), dima, tavola
 python -I hardware/case/assieme.py     modello 3D (OBJ), dati per SketchUp, tavole del montaggio (PNG)
-python -I hardware/case/stampa3d.py    la console tutta stampata, per chi non ha il laser (out/stampa3d/)
+python -I hardware/case/stampa3d.py    la console tutta stampata a vasche, per chi non ha il laser (out/stampa3d/)
 python -I hardware/case/multicolore.py la stessa, per stampanti a più filamenti: le scritte le fa la stampa (out/stampa3d_multicolore/)
 python -I hardware/case/manuale.py     PDF: progetti di taglio, istruzioni di montaggio, istruzioni della versione stampata
+                                       (--stampa3d solo le due console stampate)
 python -I hardware/case/sketchup.py    codice per costruire il modello in SketchUp (out/sketchup/)
 python -I hardware/case/etichette.py   etichette dei tasti trasparenti del pad (A4, SVG e PDF)
 python -I hardware/case/rendering.py   rendering con Blender 5.2, Cycles sulla CPU, dieci viste (out/render/)
@@ -57,30 +58,36 @@ Il riferimento del case (x a destra, y verso il musicista, z in su) è sinistror
 
 ![La console tutta stampata](out/stampa3d/console_stampata.png)
 
-Per chi non ha il laser c'è la stessa console fatta solo con una stampante 3D (`docs/specifica/60-case.md` §7b). `stampa3d.py` prende i pezzi del laser da `genera.py` e li trasforma:
-- **gli strati incollati diventano un pezzo solo:** ogni fianco, ogni metà del retro con il suo strato d'appoggio, la costola; la base è una lastra sola;
-- **quello che non sta sul piatto si divide in tasselli** con le code di rondine, da incollare: la base in sei, la mascherina in due, la metà sinistra del retro in due. I pezzi lunghi che entrano in diagonale escono già ruotati;
-- **le scritte:** sui fianchi il marchio e il nome sono in rilievo, e con un cambio di filamento vengono di un altro colore. Sulla mascherina e sul piano della Flip le scritte del laser sono troppo fini per un ugello da 0,4: ogni gruppo ha una tasca profonda 0,4 mm, e le etichette si stampano su carta adesiva.
+Per chi non ha il laser c'è la stessa console fatta solo con una stampante 3D (`docs/specifica/60-case.md` §7b). Dal 19/10/2026 non ricopia più i pezzi del laser (Luigi: «sono sicuro che si possa ridurre il numero di pezzi e stampare più parti già assemblate in un unico modello»): `stampa3d.py` la fa **a vasche**.
+- **Una vasca è un tratto di console già montato**, stampato in piedi con il fondo sul piatto: il fondo, il fianco con il suo profilo, il retro con le finestre, la costola con il passaggio dei cavi, la parete davanti, gli appoggi del piano alla quota del feltro; nella vasca di destra anche il fermo dell'hub, la colonnina e la culla del pad. Niente squadrette, linguette o strati da incollare. Le sagome e le sedi sono quelle di `misure.py` e `genera.py`; il fondo è da 3 mm, pieno fino a 6 sotto la MK4, dietro il retro e lungo le giunte.
+- **Quante:** tre colonne, con una giunta a metà sotto la MK4 e una fra la costola e la culla del pad, che resta intera. Con un piatto da 240 (la Kobra S1: la console è profonda 240) ogni colonna è una vasca intera davanti-dietro; con un piatto più piccolo, da 208 in su, le colonne si dividono anche davanti-dietro, fra la colonnina e la culla: sei vasche.
+- **Le giunte:** nel fondo code di rondine verticali, che si infilano dall'alto calando una vasca accanto all'altra e tengono le vasche allineate; le pareti che attraversano la giunta (il retro, e con sei vasche i fianchi e la costola) si sormontano a mezzo spessore per 12 mm, con due viti M3 a brugola e il dado nella sua sede, che le tengono insieme in altezza. Niente colla, e la console si smonta. `prova_giunta.stl` è la giunta sotto la MK4 in piccolo, da stampare prima.
+- **Restano a parte** i pezzi che si tolgono per arrivare ai cavi: la mascherina, in due metà accostate (i fori sui comandi della MK4 tengono ogni metà al suo posto), e il piano della Flip; poi la culla della Flip e la cornice dello schermo.
+- **Le scritte:** sui fianchi il marchio e il nome sono in rilievo sulla faccia di fuori, che stampata in piedi è verticale. Sulla mascherina e sul piano della Flip le scritte del laser sono troppo fini per un ugello da 0,4: ogni gruppo ha una tasca profonda 0,4 mm, e le etichette si stampano su carta adesiva.
 
-Il piatto di riferimento è 210 × 210 mm, cioè le stampanti da 220 in su; `--piatto N` rigenera tutto per un piatto diverso. In tutto servono circa 1,3 kg di PETG o PLA: il telaio color legno o sabbia, i piani e le culle neri.
+Il piatto di riferimento è 210 × 210 mm, cioè le stampanti da 220 in su: sei vasche; `--piatto 240` rigenera tutto con tre. In tutto servono circa 1 kg di PETG o PLA (stima a fette, come lo slicer): le vasche color legno o sabbia, i piani e le culle neri.
 
 | File in `out/stampa3d/` | Cos'è |
 |---|---|
-| `istruzioni_stampa3d.pdf` | i pezzi e le impostazioni, i tasselli, le scritte, le differenze dal montaggio della console laser |
-| `pezzi.md` | l'elenco dei pezzi con le misure, le note e la stima del filamento |
-| `*.stl` | i pezzi, nel verso giusto, con la faccia in vista in alto |
+| `istruzioni_stampa3d.pdf` | i pezzi con i grammi e le impostazioni, le vasche e le giunte, le scritte, il montaggio |
+| `pezzi.md` | l'elenco dei pezzi con le misure, i grammi e le note, le giunte, le viti, il montaggio |
+| `vasca_*.stl` | le vasche, in piedi con il fondo sul piatto |
+| `mascherina_1.stl`, `_2.stl`, `piano_flip.stl` | i piani, con la faccia in vista in alto e le tasche delle etichette |
+| `culla_flip.stl`, `visiera.stl` | la culla della Flip e la cornice dello schermo, come in `genera.py` |
+| `prova_giunta.stl` | le due metà di una giunta, da stampare prima delle vasche |
 | `etichette_mascherina.pdf`, `.svg` | le etichette 1:1 da stampare al 100 % su carta adesiva, con la mappa delle tasche |
-| `tasselli.svg` | come si uniscono i tasselli, con i numeri dei file |
-| `console_stampata.png`, `console_stampata_retro.png` | la console montata, davanti e dietro |
+| `console_stampata.png`, `console_stampata_retro.png`, `vasche.png`, `giunta.png` | la console montata, davanti e dietro; le vasche staccate; la prova di giunta |
 
 ## A più colori: le scritte le fa la stampante
 
 ![La mascherina a più colori, come la si guarda](out/stampa3d_multicolore/anteprima_mascherina_1.png)
 
-Per una stampante a più filamenti (Luigi ha una Anycubic Kobra S1 con l'ACE Pro) c'è una versione in più, accanto a quella qui sopra, che resta com'è (`docs/specifica/60-case.md` §7c). `multicolore.py` prende gli stessi pezzi, per un piatto di 240 mm, e su mascherina, piano della Flip e fianchi stampa le scritte in un secondo colore, incassate a filo per 0,6 mm (tre strati) nella faccia in vista. La faccia in vista sta sul piatto: viene liscia, e il cambio di filamento serve solo nei primi tre strati.
+Per una stampante a più filamenti (Luigi ha una Anycubic Kobra S1 con l'ACE Pro) c'è una versione in più, accanto a quella qui sopra, che resta com'è (`docs/specifica/60-case.md` §7c). `multicolore.py` fa le stesse vasche per un piatto di 240 mm, cioè tre, intere davanti-dietro, e gli stessi pezzi che si tolgono, con le scritte stampate in un secondo colore, incassate a filo per 0,6 mm (tre strati).
 
+- Mascherina e piano della Flip si stampano con la faccia in vista sul piatto: viene liscia, e il cambio di filamento serve solo nei primi tre strati.
+- Nelle vasche di sinistra e di destra il marchio e il nome sono incassati nella faccia di fuori del fianco, che stampata in piedi è verticale: lì il filamento cambia in ogni strato fra il basso del marchio e la cima del nome, circa 126 strati per vasca (`pezzi.md` dice quanti). Chi non vuole i cambi stampa le vasche a un colore, con il marchio in rilievo.
 - Le incisioni del laser sono troppo fini per un ugello da 0,4: le scritte sono ridisegnate con Matrice, il carattere 5×7 di Stame, a quadretti da 0,45 mm (lettere alte 3,15 mm). Fra le due file di pad della MK4 non c'è posto: i tipi d'accordo vanno sotto, con l'estensione della stessa colonna («DIM/6», «B:CHH/KICK»).
-- Due filamenti: 1 nero, 2 sabbia. I piani sono neri con le scritte sabbia, i fianchi color telaio con le scritte nere.
+- Due filamenti: 1 nero, 2 sabbia. I piani sono neri con le scritte sabbia, le vasche color telaio con le scritte nere.
 - Ogni pezzo con le scritte esce in un `.3mf` (un oggetto con le parti «corpo» e «scritte», i filamenti già assegnati) e in due STL allineati, `_corpo` e `_scritte`, da importare insieme come un oggetto solo. Gli altri pezzi sono STL di un colore.
 - `pezzi.md` dice come caricarli in Anycubic Slicer Next; `anteprima_*.png` mostra ogni faccia come la si guarda; `istruzioni_multicolore.pdf` (tre pagine A4, `manuale.py --multicolore`) raccoglie pezzi, filamenti, slicer e anteprime da stampare.
 

@@ -141,28 +141,32 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
   <div class="contenitore">
     <div class="testata">
       <span class="etichetta">No laser</span>
-      <h2>The same console, all printed.</h2>
-      <p>For whoever has a 3D printer and no laser: the same parts, the same layout, the same assembly. Glued layers become one part; what does not fit on the bed is printed in dovetailed tiles to glue together; the lettering too fine for a 0.4 nozzle is printed on sticker paper and goes into its pockets. A 220 × 220 bed and about 1.3 kg of PETG or PLA are enough.</p>
+      <h2>The same console, all printed, in trays.</h2>
+      <p>For whoever has a 3D printer and no laser. The frame does not copy the laser parts: it is printed in trays, stretches of the console already assembled, standing on their floor on the bed. Each tray has its floor, the side with its profile, the back with its openings, the rib with the cable passage and the ledges for the top; the right one also the pad's cradle, the hub holder and the post. No brackets, no tabs, no glue. On a 240 bed (the Kobra S1) there are three trays, each the full depth; on a 220 bed six. The parts that come off to reach the cables stay separate, the mask in two halves and the Flip's deck, and so do the Flip's cradle and the screen frame. About 1 kg of PETG or PLA.</p>
     </div>
     <figure class="foto-grande">
-      <img src="sito/img/case/stampata.png" alt="The all-printed console: sand-coloured frame, black mask and deck, the mark and the name raised on the side, the MPK, the pad in its cradle and the open Flip" width="1320" height="720" loading="lazy">
-      <figcaption>Drawn from the same STL files that get printed: frame in a wood or sand colour, decks and cradles in black.</figcaption>
+      <img src="sito/img/case/stampata.png" alt="The all-printed console: six sand-coloured trays, black mask and deck, the mark and the name raised on the side, the MPK, the pad in its cradle and the open Flip" width="1320" height="720" loading="lazy">
+      <figcaption>Drawn from the same STL files that get printed, for a 210 bed: trays in a wood or sand colour, decks and cradles in black.</figcaption>
+    </figure>
+    <figure class="foto-grande">
+      <img src="sito/img/case/vasche.png" alt="The six trays apart, with the dovetails in the floor and the walls overlapping at the joints; above, lifted, the mask in two halves, the Flip's deck, its cradle and the frame" width="1310" height="791" loading="lazy">
+      <figcaption><b>The trays.</b> They are lowered next to each other: the dovetails in the floor drop into their sockets from above and keep the trays aligned; the walls that cross a joint overlap at half thickness, with two M3 screws and the nut in its pocket, and hold them together in height. The joints go where they cut no seat and no ledge: under the MPK, between the rib and the pad's cradle, in front of the post.</figcaption>
     </figure>
     <div class="galleria larga">
-      <figure><img src="sito/img/case/tasselli.png" alt="The tiles: the base in six, with dovetails on the joints; the left half of the back in two; the mask in two" loading="lazy"><figcaption><b>The tiles.</b> The base in six, the mask in two, the left half of the back in two, with dovetails (0.15 mm of play per side). The sides, the rib and the right half of the back fit diagonally and come already rotated.</figcaption></figure>
-      <figure><img src="sito/img/case/etichette_mascherina.png" alt="The mask's label sheet: the mark, STAME, the names of the knobs and buttons, black with light lettering" loading="lazy"><figcaption><b>The labels.</b> Each group of lettering on the mask and on the Flip's deck has a pocket 0.4 mm deep; the label is printed 1:1 on sticker paper and goes into it. On the sides the mark and the name are raised: with a filament change they come out in another colour.</figcaption></figure>
+      <figure><img src="sito/img/case/giunta.png" alt="The test joint: two small pieces with the back overlapping, the pockets for the screw heads and the nuts, a dovetail in the floor and its socket" loading="lazy"><figcaption><b>The test joint.</b> A piece of the joint under the MPK, to print before the trays (about 30 g): the two halves must drop together by hand, with 0.15 mm of play per side in the sockets, and the screws must tighten with the nut in its pocket.</figcaption></figure>
+      <figure><img src="sito/img/case/etichette_mascherina.png" alt="The mask's label sheet: the mark, STAME, the names of the knobs and buttons, black with light lettering" loading="lazy"><figcaption><b>The labels.</b> Each group of lettering on the mask and on the Flip's deck has a pocket 0.4 mm deep; the label is printed 1:1 on sticker paper and goes into it. On the sides the mark and the name are raised.</figcaption></figure>
     </div>
     <div class="schede" style="margin-top:16px">
-      <div class="scheda"><span class="etichetta">PDF</span><h3>Instructions for the printed version</h3><p>The parts with their sizes, the settings, how to glue the tiles, the lettering and what changes in the assembly (in Italian).</p><p><a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/stampa3d/istruzioni_stampa3d.pdf">istruzioni_stampa3d.pdf</a></p></div>
-      <div class="scheda"><span class="etichetta">STL</span><h3>Twenty-one files</h3><p>Each one the right way round, the visible face up, within a 210 × 210 mm bed.</p><p><a href="https://github.com/luigismith/stame/tree/main/hardware/case/out/stampa3d">stampa3d</a> · <a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/stampa3d/pezzi.md">list</a></p></div>
+      <div class="scheda"><span class="etichetta">PDF</span><h3>Instructions for the printed version</h3><p>The parts with their sizes and weights, the settings, how the trays join, the lettering and the assembly (in Italian).</p><p><a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/stampa3d/istruzioni_stampa3d.pdf">istruzioni_stampa3d.pdf</a></p></div>
+      <div class="scheda"><span class="etichetta">STL</span><h3>Twelve files</h3><p>Each one the right way round, the trays standing, within a 210 × 210 mm bed; with <code>stampa3d.py --piatto 240</code> there are three trays.</p><p><a href="https://github.com/luigismith/stame/tree/main/hardware/case/out/stampa3d">stampa3d</a> · <a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/stampa3d/pezzi.md">list</a></p></div>
       <div class="scheda"><span class="etichetta">PDF</span><h3>Labels</h3><p>To print at 100 % on sticker paper, with the map of the pockets and a spare set.</p><p><a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/stampa3d/etichette_mascherina.pdf">etichette_mascherina.pdf</a></p></div>
     </div>
     <div class="prosa" style="margin-top:28px">
       <h3>Multicolour: the printer writes the labels</h3>
-      <p>With a multi-filament printer (like the Anycubic Kobra S1 with the ACE Pro) there is one more version, next to this one: on the mask, the Flip's top and the sides the labels are inlaid flush in the visible face, three layers deep, in the other colour. The visible face is printed on the bed: it comes out smooth, and the filament changes only happen in the first three layers. The labels are redrawn in Matrice, Stame's 5×7 face, with 0.45 mm squares; the tops are black with sand lettering, the sides frame-coloured with black lettering. Each labelled part is a 3MF with both parts and the filaments already assigned.</p>
+      <p>With a multi-filament printer (like the Anycubic Kobra S1 with the ACE Pro) there is one more version, next to this one, for a 240 bed: the same three trays, with the labels printed in the other colour and inlaid flush, three layers deep. The mask and the Flip's deck are printed with the visible face on the bed: it comes out smooth, and the filament changes only happen in the first three layers. On the trays the mark and the name are in the outer face of the side, which is vertical when printed standing: there the filament changes in every layer of the lettering. The labels are redrawn in Matrice, Stame's 5×7 face, with 0.45 mm squares; the decks are black with sand lettering, the trays frame-coloured with black lettering. Each labelled part is a 3MF with both parts and the filaments already assigned.</p>
     </div>
     <figure class="foto-grande" style="margin-top:16px">
-      <img src="sito/img/case/multicolore_mascherina.png" alt="Half of the mask printed in two colours, as you look at it: black with sand pixel lettering, the mark, STAME and STAMEN HARMONICUM, BEND and MOD, the pads with DIM/6 and B:CHH/KICK below, B: DRUMS under BANK" width="1200" height="810" loading="lazy">
+      <img src="sito/img/case/multicolore_mascherina.png" alt="Half of the mask printed in two colours, as you look at it: black with sand pixel lettering, the mark, STAME and STAMEN HARMONICUM, BEND and MOD, the pads with DIM/6 and B:CHH/KICK below, B: DRUMS under BANK" width="1200" height="790" loading="lazy">
       <figcaption>The left half of the mask, drawn from the files you print. <a href="https://github.com/luigismith/stame/tree/main/hardware/case/out/stampa3d_multicolore">The multicolour files</a>, <a href="https://github.com/luigismith/stame/tree/main/hardware/case/out/stampa3d_multicolore/pezzi.md">how to load them in the slicer</a> and <a href="https://github.com/luigismith/stame/blob/main/hardware/case/out/stampa3d_multicolore/istruzioni_multicolore.pdf">the instructions to print</a> (in Italian).</figcaption>
     </figure>
   </div>
@@ -183,7 +187,7 @@ try { var t = localStorage.getItem('stame-tema'); if (t) document.documentElemen
     <div class="prosa" style="margin-top:16px">
 <pre><code>python -I hardware/case/genera.py      # parts, cutting sheets, STL
 python -I hardware/case/assieme.py     # 3D model, assembly drawings
-python -I hardware/case/stampa3d.py    # the all-printed console
+python -I hardware/case/stampa3d.py    # the all-printed console, in trays
 python -I hardware/case/manuale.py     # PDF: instructions, cutting sheets, printed version
 python -I hardware/case/etichette.py   # the keycap labels
 python -I hardware/case/rendering.py   # Blender renders (Cycles, GPU)</code></pre>

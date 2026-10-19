@@ -1,12 +1,15 @@
 """manuale.py — i documenti del case: progetti di taglio e istruzioni di montaggio, in PDF.
 
 Uso: python -I hardware/case/manuale.py      (dopo genera.py e assieme.py)
+     python -I hardware/case/manuale.py --stampa3d       solo le due console stampate, a vasche
+     python -I hardware/case/manuale.py --multicolore    solo quella a più colori
 
 Usa la suite ArtCraft: VectorCraft converte le pagine SVG in PDF vettoriali, PdfCraft le unisce e
 mette il titolo. Dove VectorCraft non c'è (il PC di lavoro) le pagine le stampa Edge senza finestra, alla
 loro misura e in vettoriale, con un profilo temporaneo (quello di chi usa Edge resta fuori). Escono out/taglio/progetti_di_taglio.pdf (i fogli 1:1, da mandare al laser o da
 stampare per controllo, e la dima) e out/istruzioni_montaggio.pdf (copertina con i pezzi e la
-minuteria, un passo per pagina, le misure da verificare).
+minuteria, un passo per pagina, le misure da verificare); per le console stampate a vasche
+out/stampa3d/istruzioni_stampa3d.pdf con etichette_mascherina.pdf, e out/stampa3d_multicolore/istruzioni_multicolore.pdf.
 """
 import base64
 import os
@@ -207,15 +210,18 @@ def istruzioni():
     return out
 
 
-MINUTERIA_STAMPA = [
-    'viti M3 × 10 svasate e dadi M3: 4 per la culla della Flip, sotto la Flip',
-    'viti M3 × 10 e dadi M3: 2 per la visiera, 6 per le squadrette nella base',
-    'viti autofilettanti per plastica 3 × 12 (o M3 con inserti a caldo): 6 per le squadrette nei fianchi, 2 per il fermo dell\'hub',
-    'colla cianoacrilica in gel o epossidica bicomponente, per i tasselli e le linguette',
-    'feltro adesivo da 1 mm in strisce sugli appoggi del piano; 6 piedini in gomma da 12 mm sotto la base',
-    'carta adesiva (o vinile da stampa) A4 per le etichette; taglierino e righello',
-    'hub USB fino a 142 × 58 × 17,5, meglio USB 2.0 semplice senza Power Delivery; cavi USB-C a 90° per la MK4 e per il pad; cavi corti',
-]
+def minuteria_stampa(viti, etichette=True):
+    """la minuteria della console stampata, con le viti delle giunte che servono per quel piatto"""
+    import stampa3d as S
+    out = ['viti M3 × 10 svasate e dadi M3: 4 per la culla della Flip, sotto la Flip',
+           f'{S.testo_viti(viti)}: le giunte delle vasche, ognuna nella sua sede',
+           'feltro adesivo da 1 mm in strisce sugli appoggi del piano; 6 piedini in gomma da 12 mm, due sotto ogni colonna di vasche',
+           'niente colla: le vasche si smontano (una goccia di cianoacrilica nelle code, se si vuole la console in un pezzo)']
+    if etichette:
+        out.append('carta adesiva (o vinile da stampa) A4 per le etichette; taglierino e righello')
+    out.append('hub USB fino a 142 × 58 × 17,5, meglio USB 2.0 semplice senza Power Delivery; cavi USB-C a 90° per la MK4 '
+               'e per il pad; cavi corti')
+    return out
 
 
 def _pagina_in(cartella, nome, corpo, n, tot, piede):
@@ -237,89 +243,111 @@ def _elenco(x, y, righe, larghezza, size=3.4, passo=4.9, punto='· '):
     return out, y
 
 
+def _giunte(n_vasche, viti):
+    """come si uniscono le vasche: le stesse parole nei due PDF"""
+    import stampa3d as S
+    return [
+        f'Le {n_vasche} vasche si calano una accanto all\'altra sul tavolo, in qualunque ordine: le code di rondine del fondo '
+        'entrano dall\'alto nelle loro sedi, e le pareti che attraversano la giunta si sormontano a mezzo spessore.',
+        'Perché così: stampate in piedi, code e sedi sono prismi dritti, senza sbalzi né supporti, e allineano le vasche da '
+        'sole. Le code però non tengono in altezza: per questo in ogni sormonto ci sono due viti M3, la testa nella sua sede '
+        'nella faccia di fuori, il dado nella sua sede in quella di dentro. Niente colla, e la console si smonta.',
+        'Le giunte stanno dove non tagliano sedi né appoggi: a metà sotto la MK4, che ci appoggia sopra; fra la costola e la '
+        'culla del pad, che resta intera; con sei vasche anche davanti alla colonnina, dietro la culla.',
+        f'Viti: {S.testo_viti(viti)}. Si stringono dopo aver calato le vasche, prima di mettere hub, piano e MK4.',
+        f'Prima delle vasche, prova_giunta.stl (circa 30 g): le due metà devono calarsi a mano, con '
+        f'{virgola(M.GIOCO_STAMPA, 2)} mm di gioco per lato nelle sedi delle code. Se la coda è dura, carta abrasiva '
+        'fine sui suoi fianchi; se balla, una goccia di colla.']
+
+
+def _montaggio():
+    return [
+        'Le vasche, come a pagina 2; poi le viti delle giunte. Piedini in gomma sotto.',
+        'L\'hub nel fermo, con le porte verso il davanti; i cavi come nella console laser (istruzioni_montaggio.pdf, passo 4): '
+        'quello della MK4 dietro e sotto il ponte della costola. Feltro sugli appoggi: retro, fianchi, costola, colonnina, '
+        'dente della culla del pad.',
+        'Il pad nella sua culla, con il cavo a 90° nella finestra di dietro.',
+        'La culla della Flip avvitata al piano (4 viti svasate, i dadi sotto), il piano sugli appoggi; la cornice sullo schermo.',
+        'La MK4 sulla pedana; le due metà della mascherina sopra, ogni controllo nel suo foro.',
+        'La Flip nella culla, i cavi nelle fessure; i tasti trasparenti del pad con le etichette (etichette_pad.pdf).']
+
+
 def istruzioni_stampa3d():
-    """out/stampa3d/istruzioni_stampa3d.pdf (i pezzi, i tasselli, le scritte e il montaggio) ed
+    """out/stampa3d/istruzioni_stampa3d.pdf (i pezzi, le vasche e le giunte, le scritte e il montaggio) ed
     etichette_mascherina.pdf (le etichette 1:1 e dove vanno)"""
     import stampa3d as S
-    righe, totale, _ = S.genera()
+    righe, totale, _, viti = S.genera()
     cart = S.OUT3D
     pag = os.path.join(cart, 'pagine')
     os.makedirs(pag, exist_ok=True)
     for n in os.listdir(pag):
         os.remove(os.path.join(pag, n))
     piatto = M.PIATTO_COMUNE[0]
-    piede = 'Stame · la console tutta stampata, bozza 5'
+    n_vasche = sum(1 for r in righe if r['nome'].startswith('vasca_'))
+    piede = 'Stame · la console tutta stampata, a vasche'
     tot = 3
     pagine = []
     # 1: i pezzi
     telaio = sum(r['grammi'] for r in righe if r['colore'] == 'telaio')
     corpo = [testo(14, 22, ['Stame — la console tutta stampata'], 11, 700, '#141B18'),
-             testo(14, 31, [f'Per chi non ha il laser · bozza 5, 18/10/2026 · piatto da {piatto:.0f} × {piatto:.0f} mm '
-                            '(stampanti da 220 in su)'], 4.4, 400, '#555'),
-             immagine(ritaglia_in(os.path.join(cart, 'console_stampata.png'), pag), 150, 34, 138, 90),
+             testo(14, 31, [f'Per chi non ha il laser · a vasche, 19/10/2026 · piatto da {piatto:.0f} × {piatto:.0f} mm '
+                            '(stampanti da 220 in su; con 240, stampa3d.py --piatto 240: tre vasche)'], 4.0, 400, '#555'),
+             immagine(ritaglia_in(os.path.join(cart, 'console_stampata.png'), pag), 150, 36, 138, 90),
              testo(14, 44, ['I pezzi'], 5.2, 700)]
     y = 51
     for r in righe:
         dx, dy, dz = r['dim']
         q = f' ×{r["quanti"]}' if r['quanti'] > 1 else ''
-        rot = f', ruotato di {r["angolo"]}°' if r['angolo'] else ''
         corpo.append(testo(14, y, [f'{r["nome"]}.stl{q}'], 3.2, 700))
-        corpo.append(testo(52, y, [f'{dx:.0f} × {dy:.0f} × {dz:.0f} mm{rot}'], 3.2))
-        y += 4.5
+        corpo.append(testo(64, y, [f'{dx:.0f} × {dy:.0f} × {dz:.0f} mm'], 3.2))
+        corpo.append(testo(104, y, [f'{r["grammi"]:.0f} g'], 3.2))
+        y += 4.6
     corpo.append(testo(14, y + 3, a_capo(f'Filamento: circa {virgola(totale / 1000)} kg, di cui {virgola(telaio / 1000)} kg per '
-                                         'il telaio (color legno o sabbia) e il resto in nero.', 62), 3.4, 400, '#333'))
-    corpo.append(testo(150, 134, ['Impostazioni'], 5.2, 700))
-    el, yy = _elenco(150, 141, [
+                                         'le vasche (color legno o sabbia) e il resto in nero.', 64), 3.4, 400, '#333'))
+    el, y2 = _elenco(14, y + 16, ['Ogni vasca è un tratto di console già montato: fondo, pareti, appoggi del piano e sedi. Si '
+                                  'stampa in piedi, con il fondo sul piatto; niente squadrette, linguette o strati da incollare.'],
+                     64, 3.3, 4.6)
+    corpo += el
+    corpo.append(testo(150, 136, ['Impostazioni'], 5.2, 700))
+    el, yy = _elenco(150, 143, [
         'PETG o PLA, ugello 0,4, strati da 0,2; 3 perimetri, 4 strati pieni sopra e sotto, riempimento giroide al 20 %.',
-        'Ogni file esce nel verso giusto, con la faccia in vista in alto; i pezzi lunghi sono già ruotati in diagonale.',
-        'Senza supporti, tranne la visiera (si stampa sul tettuccio).',
-        'Prima un tassello di prova: le code di rondine devono entrare a mano, con 0,15 mm di gioco per lato.'], 70, 3.3, 4.6)
+        'Ogni file esce nel verso giusto: le vasche in piedi, mascherina e piano con la faccia in vista in alto.',
+        'Senza supporti: nelle vasche ci sono solo ponti corti (il passaggio dei cavi sotto la costola, le finestre della '
+        'culla del pad). La cornice dello schermo si stampa sul bordo davanti.',
+        'Le vasche sono alte 45 mm e larghe quasi quanto il piatto: piatto pulito, una tesa di 5 mm se gli angoli si alzano.'],
+        70, 3.3, 4.6)
     corpo += el
     pagine.append(_pagina_in(pag, '01_pezzi', '\n'.join(corpo), 1, tot, piede))
-    # 2: i tasselli
-    png = os.path.join(pag, 'tasselli.png')
-    svg_png(os.path.join(cart, 'tasselli.svg'), png)
-    corpo = [testo(14, 22, ['I tasselli'], 10, 700, '#141B18'),
-             testo(14, 31, a_capo('Quello che non sta sul piatto si stampa in tasselli a coda di rondine: la base in sei, '
-                                  'la mascherina in due, una metà del retro in due. Il numero è quello del file.', 150), 4.0, 400, '#333'),
-             immagine(png, 10, 42, 180, 150)]
-    el, yy = _elenco(196, 46, [
-        'Prova a secco: ogni coda entra nella sua sede a mano, al massimo con un colpo leggero. Se è dura, carta '
-        'abrasiva fine sui fianchi della coda, non sulla sede.',
-        'Colla cianoacrilica in gel o epossidica bicomponente nelle sedi; unire su un piano dritto (vetro o piano di '
-        'lavoro), premere e tenere fermo con pesi o morsetti finché la colla tira.',
-        'La base: prima le due file da tre, poi le due file insieme. Controllare con una riga che resti piana.',
-        'La mascherina: le due metà con la faccia in vista in giù sul vetro, così la giunta resta a filo.',
-        'Una passata di carta abrasiva sulla giunta della faccia in vista, se serve.'], 46, 3.4, 4.9)
+    # 2: le vasche e le giunte
+    corpo = [testo(14, 22, ['Le vasche e le giunte'], 10, 700, '#141B18'),
+             immagine(os.path.join(cart, 'vasche.png'), 8, 28, 184, 110),
+             immagine(os.path.join(cart, 'giunta.png'), 14, 140, 76, 55),
+             testo(92, 152, a_capo('La prova di giunta: a sinistra il retro passa la giunta con le sedi delle teste, a '
+                                   'destra le sedi dei dadi; sotto, la coda di rondine e la sua sede.', 52), 3.2, 400, '#555')]
+    el, _ = _elenco(196, 32, _giunte(n_vasche, viti), 46, 3.3, 4.7)
     corpo += el
-    pagine.append(_pagina_in(pag, '02_tasselli', '\n'.join(corpo), 2, tot, piede))
+    pagine.append(_pagina_in(pag, '02_vasche', '\n'.join(corpo), 2, tot, piede))
     # 3: scritte e montaggio
     png = os.path.join(pag, 'mappa.png')
     svg_png(os.path.join(cart, 'etichette_mappa.svg'), png)
     corpo = [testo(14, 22, ['Scritte e montaggio'], 10, 700, '#141B18'),
              testo(14, 34, ['Le scritte'], 5.2, 700)]
     el, y = _elenco(14, 41, [
-        f'Fianchi: il marchio e il nome escono di {virgola(M.RILIEVO)} mm. Per averli in un altro colore, nello slicer un cambio '
-        f'di filamento (pausa, M600) alla quota {virgola(M.FIANCO)} mm, dove comincia il rilievo.',
-        f'Mascherina e piano della Flip: le scritte del laser sono troppo fini per un ugello da 0,4, quindi si stampano su '
-        f'carta. Ogni gruppo ha una tasca profonda {virgola(M.TASCA)} mm; etichette_mascherina.pdf, al 100 %, su carta adesiva '
-        'opaca o vinile da stampa (meglio con una pellicola trasparente sopra).',
-        'Ritagliare con taglierino e righello lungo il bordo grigio; posare con una pinzetta nella tasca con lo stesso '
-        'numero. Quattro scritte fra le file dei pad non hanno la tasca (manca il posto): si posano sulla faccia.'], 70, 3.4, 4.9)
+        f'Fianchi: il marchio e il nome escono di {virgola(M.RILIEVO)} mm dalla faccia di fuori, che stampata in piedi è '
+        'verticale: vengono del colore della vasca. A più colori, con le scritte stampate: istruzioni_multicolore.pdf.',
+        f'Mascherina e piano della Flip: le scritte del laser sono troppo fini per un ugello da 0,4 e si stampano su carta. '
+        f'Ogni gruppo ha una tasca profonda {virgola(M.TASCA)} mm; etichette_mascherina.pdf al 100 % su carta adesiva opaca o '
+        'vinile da stampa, ritagliate lungo il bordo grigio e posate con una pinzetta nella tasca con lo stesso numero.',
+        'La mascherina è in due metà accostate, senza giunta: i fori sui comandi della MK4 tengono ogni metà al suo posto, e '
+        'per arrivare ai cavi si sollevano una per volta.'], 70, 3.4, 4.9)
     corpo += el
-    corpo.append(testo(14, y + 5, ['Il montaggio'], 5.2, 700))
-    el, y = _elenco(14, y + 12, [
-        'Come in istruzioni_montaggio.pdf, passi 1-9, con queste differenze:',
-        'passo 1: la base è già una lastra sola (i tasselli incollati);',
-        'passo 2: ogni metà del retro e la costola sono un pezzo solo, senza strati da incollare; nelle tacche e nelle '
-        'asole con la colla dei tasselli, o a secco se stanno strette;',
-        'passo 3: i fianchi sono un pezzo solo; le squadrette si avvitano con le viti per plastica (o inserti a caldo);',
-        'passi 4-9: uguali.'], 70, 3.4, 4.9)
+    corpo.append(testo(14, y + 4, ['Il montaggio'], 5.2, 700))
+    el, y = _elenco(14, y + 11, [f'{k}. {p}' for k, p in enumerate(_montaggio(), 1)], 70, 3.4, 4.9, '')
     corpo += el
     corpo.append(testo(150, 34, ['Minuteria'], 5.2, 700))
-    el, _ = _elenco(150, 41, MINUTERIA_STAMPA, 66, 3.3, 4.6)
+    el, ym = _elenco(150, 41, minuteria_stampa(viti), 66, 3.3, 4.6)
     corpo += el
-    corpo.append(immagine(png, 150, 104, 134, 94))
+    corpo.append(immagine(png, 150, ym + 2, 134, H - 18 - ym))
     pagine.append(_pagina_in(pag, '03_scritte', '\n'.join(corpo), 3, tot, piede))
     pdfs = []
     for p in pagine:
@@ -340,17 +368,19 @@ def istruzioni_stampa3d():
 
 
 def istruzioni_multicolore():
-    """out/stampa3d_multicolore/istruzioni_multicolore.pdf: i pezzi con i filamenti, lo slicer, le scritte, i
-    tasselli e il montaggio della console stampata a più colori (multicolore.py, 60-case.md §7c)"""
+    """out/stampa3d_multicolore/istruzioni_multicolore.pdf: i pezzi con i filamenti, lo slicer, le scritte, le
+    vasche e il montaggio della console stampata a più colori (multicolore.py, 60-case.md §7c)"""
     import multicolore as MC
-    righe, totale, report = MC.genera()
+    righe, totale, report, viti = MC.genera()
     cart = MC.OUT
     pag = os.path.join(cart, 'pagine')
     os.makedirs(pag, exist_ok=True)
     for n in os.listdir(pag):
         os.remove(os.path.join(pag, n))
     piatto = M.PRINT_BED[0]
-    piede = 'Stame · la console stampata a più colori, bozza 5'
+    n_vasche = sum(1 for r in righe if r['nome'].startswith('vasca_'))
+    cambi = max((r.get('cambi', 0) for r in righe if r['nome'].startswith('vasca_')), default=0)
+    piede = 'Stame · la console stampata a più colori, a vasche'
     tot = 3
     pagine = []
     filamento = {'piano': '1 nero, scritte 2', 'telaio': '2 sabbia, scritte 1'}
@@ -365,22 +395,20 @@ def istruzioni_multicolore():
         return out
     # 1: i pezzi e i filamenti
     corpo = [testo(14, 22, ['Stame — la console stampata a più colori'], 11, 700, '#141B18'),
-             testo(14, 31, [f'Per stampanti a più filamenti (Anycubic Kobra S1 con l\'ACE Pro) · bozza 5, 19/10/2026 · '
-                            f'piatto da {piatto:.0f} × {piatto:.0f} mm'], 4.4, 400, '#555'),
+             testo(14, 31, [f'Per stampanti a più filamenti (Anycubic Kobra S1 con l\'ACE Pro) · a vasche, 19/10/2026 · '
+                            f'piatto da {piatto:.0f} × {piatto:.0f} mm: {n_vasche} vasche intere davanti-dietro'], 4.2, 400, '#555'),
              testo(14, 44, ['I pezzi'], 5.2, 700)]
     y = 51
     for r in righe:
         dx, dy, dz = r['dim']
         due = '.3mf' in r['file']
         nome = f'{r["nome"]}.3mf' if due else f'{r["nome"]}.stl'
-        q = r['file'].split('×')[-1].strip() if '×' in r['file'] else ''
-        q = q if q not in ('', '1') else ''
-        rot = f', ruotato {r["angolo"]}°' if r['angolo'] else ''
         fil = filamento[r['colore']] if due else da_solo.get(r['colore'], '1 nero')
-        corpo.append(testo(14, y, [nome + (f' ×{q}' if q else '')], 3.1, 700))
-        corpo.append(testo(52, y, [f'{dx:.0f} × {dy:.0f} × {dz:.0f} mm{rot}'], 3.1))
-        corpo.append(testo(100, y, [fil], 3.1, 700 if due else 400, '#7A5A00' if due else '#333'))
-        y += 4.3
+        corpo.append(testo(14, y, [nome], 3.1, 700))
+        corpo.append(testo(52, y, [f'{dx:.0f} × {dy:.0f} × {dz:.0f} mm'], 3.1))
+        corpo.append(testo(88, y, [f'{r["grammi"]:.0f} g'], 3.1))
+        corpo.append(testo(104, y, [fil], 3.1, 700 if due else 400, '#7A5A00' if due else '#333'))
+        y += 4.4
     corpo.append(testo(14, y + 3, a_capo(f'Filamento: circa {virgola(totale / 1000)} kg in tutto. In grassetto i pezzi con le '
                                          'scritte: un file .3mf con due parti, e accanto gli stessi in due STL (_corpo, _scritte).',
                                          64), 3.3, 400, '#333'))
@@ -389,8 +417,8 @@ def istruzioni_multicolore():
     el, _ = _elenco(150, 147, [
         '1 nero e 2 sabbia (o il colore scelto per il telaio). Si scambiano il ruolo:',
         'mascherina e piano della Flip: corpo 1, scritte 2, come l\'incisione del laser sull\'acrilico nero;',
-        'fianchi: corpo 2, scritte 1, come la bruciatura sul legno;',
-        'gli altri pezzi del telaio col 2; culle, visiera, fermo e squadrette col 1.'], 66, 3.3, 4.6)
+        'vasche: corpo 2, scritte 1 nei fianchi, come la bruciatura sul legno;',
+        'la vasca di centro e la prova di giunta col 2; la culla della Flip e la cornice col 1.'], 66, 3.3, 4.6)
     corpo += el
     pagine.append(_pagina_in(pag, '01_pezzi', '\n'.join(corpo), 1, tot, piede))
     # 2: nello slicer
@@ -401,54 +429,45 @@ def istruzioni_multicolore():
         'Controllali nell\'elenco degli oggetti.',
         'Se lo slicer lo apre come due oggetti, o se preferisci gli STL: importa insieme _corpo.stl e _scritte.stl e, '
         'alla domanda, caricali come un oggetto solo con più parti; poi assegna i filamenti a mano (pagina 1).',
-        'Non girare il pezzo: la faccia in vista è già sul piatto. Il piatto liscio la fa lucida, quello testurizzato le '
-        'dà la sua grana. Non spostare le due parti l\'una rispetto all\'altra.',
-        f'Strati da 0,2, primo strato da 0,2. Le scritte sono profonde {virgola(MC.SCRITTA_H)} mm, cioè i primi tre strati: '
-        'i cambi di filamento sono solo lì, e il resto del pezzo è di un colore.',
-        'Torre di spurgo sì. Se lo slicer lo permette, spurgo nel riempimento: il corpo è quasi tutto pieno di riempimento.',
+        'Non girare i pezzi: le vasche stanno in piedi con il fondo sul piatto, mascherina e piano con la faccia in vista sul '
+        'piatto (liscia sul piatto liscio, con la sua grana su quello testurizzato). Non spostare le due parti.',
+        f'Strati da 0,2, primo strato da 0,2. Nei piani le scritte sono profonde {virgola(MC.SCRITTA_H)} mm, i primi tre '
+        f'strati. Nelle vasche il fianco è verticale: il filamento cambia in ogni strato fra il marchio e il nome, circa '
+        f'{cambi} strati, quindi la vasca con il fianco dura di più e spurga di più.',
+        'Torre di spurgo sì. Se lo slicer lo permette, spurgo nel riempimento. Se i cambi nelle vasche sono troppi, le '
+        'vasche a un colore (../stampa3d, con --piatto 240) hanno il marchio in rilievo.',
         'Il primo strato deve essere perfetto: piatto pulito e sgrassato, livellamento fatto, velocità bassa. Le lettere '
         'hanno il tratto di una linea dell\'ugello (0,45 mm).',
         'Il resto come la console stampata a un colore: PETG o PLA, ugello 0,4, 3 perimetri, 4 strati pieni sopra e sotto, '
-        'riempimento giroide al 20 %, senza supporti tranne la visiera.',
-        'Prima un tassello di prova: le code di rondine devono entrare a mano, con 0,15 mm di gioco per lato.'], 74, 3.4, 4.9)
+        'riempimento giroide al 20 %, senza supporti. Prima delle vasche, prova_giunta.stl.'], 74, 3.4, 4.9)
     corpo += el
     corpo.append(immagine(anteprima('mascherina_2'), 156, 38, 128, 86))
     corpo.append(immagine(anteprima('piano_flip'), 156, 128, 128, 66))
     pagine.append(_pagina_in(pag, '02_slicer', '\n'.join(corpo), 2, tot, piede))
-    # 3: scritte, tasselli e montaggio
+    # 3: scritte, vasche e montaggio
     fuori = [f'{n}: {"; ".join(f)}' for n, (_, f, _) in report.items() if f]
-    corpo = [testo(14, 22, ['Scritte, tasselli e montaggio'], 10, 700, '#141B18'),
+    corpo = [testo(14, 22, ['Scritte, vasche e montaggio'], 10, 700, '#141B18'),
              testo(14, 34, ['Le scritte'], 5.2, 700)]
     el, y = _elenco(14, 41, [
-        'Ridisegnate con Matrice, il carattere 5×7 di Stame, a quadretti da 0,45 mm: lettere alte 3,15 mm. Le incisioni del '
-        'laser sono troppo fini per un ugello da 0,4. Logo e punti del nome restano quelli del laser.',
-        'Sulla mascherina, fra le due file di pad ci sono 2,8 mm: i tipi d\'accordo e i piatti del banco B vanno sotto i pad, '
-        'con l\'estensione e il tamburo della stessa colonna. «DIM/6»: DIM sul pad di sopra, 6 su quello di sotto; '
-        '«B:CHH/KICK»: il charleston sopra e la cassa sotto, nel banco B.',
-        'Niente carta né tasche: le scritte sono nel pezzo.'
+        'Ridisegnate con Matrice, il carattere 5×7 di Stame, a quadretti da 0,45 mm: lettere alte 3,15 mm. Logo e punti del '
+        'nome restano quelli del laser. Sulla mascherina i tipi d\'accordo e i piatti del banco B vanno sotto i pad, con '
+        'l\'estensione e il tamburo della stessa colonna: «DIM/6», «B:CHH/KICK».'
         + (' Restano fuori, perché non ci stanno: ' + '; '.join(fuori) + '.' if fuori else '')], 70, 3.4, 4.9)
     corpo += el
-    divisi = [r['nome'] for r in righe if r['nome'][-2:-1] == '_' and r['nome'][-1].isdigit()]
-    gruppi = {}
-    for n in divisi:
-        gruppi.setdefault(n[:-2], []).append(n)
-    corpo.append(testo(14, y + 4, ['I tasselli'], 5.2, 700))
-    el, y = _elenco(14, y + 11, [
-        'Quello che non sta sul piatto si stampa in tasselli a coda di rondine: '
-        + ', '.join(f'{k} in {len(v)}' for k, v in gruppi.items()) + '. Il numero è quello del file.',
-        'Colla cianoacrilica in gel o epossidica nelle sedi; unire su un piano dritto. La mascherina: le due metà con la '
-        'faccia in vista in giù sul vetro, così la giunta resta a filo.'], 70, 3.4, 4.9)
+    corpo.append(testo(14, y + 4, ['Le vasche'], 5.2, 700))
+    el, y = _elenco(14, y + 11, _giunte(n_vasche, viti)[:2] + [_giunte(n_vasche, viti)[3]], 70, 3.4, 4.9)
     corpo += el
     corpo.append(testo(14, y + 4, ['Il montaggio'], 5.2, 700))
-    el, y = _elenco(14, y + 11, [
-        'Come in istruzioni_montaggio.pdf, con le differenze della console stampata (istruzioni_stampa3d.pdf, pagina 3): '
-        'base in tasselli, retro, costola e fianchi in un pezzo, squadrette con viti per plastica o inserti a caldo.'], 70, 3.4, 4.9)
+    el, y = _elenco(14, y + 11, ['Come nella console a un colore (istruzioni_stampa3d.pdf, pagine 2 e 3): le vasche calate '
+                                 'una accanto all\'altra e avvitate, l\'hub, il pad, il piano con la culla, la MK4 e le due '
+                                 'metà della mascherina, la Flip. Niente etichette di carta: le scritte sono nei pezzi.'],
+                    70, 3.4, 4.9)
     corpo += el
-    corpo.append(testo(150, 34, ['I fianchi'], 5.2, 700))
+    corpo.append(testo(150, 34, ['I fianchi, come si guardano da fuori'], 5.2, 700))
     corpo.append(immagine(anteprima('fianco_sx'), 150, 38, 136, 30))
     corpo.append(immagine(anteprima('fianco_dx'), 150, 70, 136, 30))
     corpo.append(testo(150, 110, ['Minuteria'], 5.2, 700))
-    el, _ = _elenco(150, 117, [m for m in MINUTERIA_STAMPA if 'carta adesiva' not in m], 66, 3.3, 4.6)
+    el, _ = _elenco(150, 117, minuteria_stampa(viti, etichette=False), 66, 3.3, 4.6)
     corpo += el
     pagine.append(_pagina_in(pag, '03_scritte', '\n'.join(corpo), 3, tot, piede))
     pdfs = []
@@ -511,6 +530,11 @@ def taglio():
 
 def main():
     if '--multicolore' in sys.argv:                  # solo le istruzioni della console a più colori
+        print(istruzioni_multicolore())
+        return
+    if '--stampa3d' in sys.argv:                     # solo le due console stampate, a un colore e a più colori
+        for p in istruzioni_stampa3d():
+            print(p)
         print(istruzioni_multicolore())
         return
     G.genera()

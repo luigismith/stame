@@ -1,6 +1,8 @@
 """sito_case.py — immagini del case per il sito (docs/sito/img/case_*).
 
-Uso: python -I tools/sito_case.py      (dopo hardware/case/genera.py e assieme.py)
+Uso: python -I tools/sito_case.py              (dopo hardware/case/genera.py e assieme.py)
+     python -I tools/sito_case.py --stampata    solo la console stampata a vasche (dopo stampa3d.py e
+                                                multicolore.py): non servono scipy né VectorCraft
 
 Le tavole di hardware/case/out/montaggio hanno il titolo in italiano dentro l'immagine: per il sito,
 che è in due lingue, si ritagliano senza titolo. La mascherina viene da mascherina.svg, resa con
@@ -8,11 +10,11 @@ VectorCraft e ricolorata: acrilico nero, incisioni chiare.
 """
 import os
 import subprocess
+import sys
 import tempfile
 
 import numpy as np
 from PIL import Image
-from scipy import ndimage
 
 QUI = os.path.dirname(os.path.abspath(__file__))
 RADICE = os.path.dirname(QUI)
@@ -37,6 +39,7 @@ def tavole():
 
 
 def mascherina():
+    from scipy import ndimage
     with tempfile.TemporaryDirectory() as tmp:
         png = os.path.join(tmp, 'm.png')
         subprocess.run([VC, 'convert', os.path.join(CASE, 'mascherina.svg'), png, '--scale', '4'],
@@ -114,31 +117,55 @@ def pagina():
         print('case/etichette.png', im.size)
 
 
+def _svg_png(svg, png, scala):
+    """SVG in PNG con VectorCraft; dove non c'è (il PC di lavoro) con Edge e PdfCraft, come manuale.py"""
+    if os.path.exists(VC):
+        subprocess.run([VC, 'convert', svg, png, '--scale', str(scala)], check=True, capture_output=True)
+    else:
+        sys.path.insert(0, os.path.join(RADICE, 'hardware', 'case'))
+        import manuale
+        manuale.svg_png(svg, png, scala)
+
+
+def _sul_fondo(im, m):
+    """ritagliata sul disegno, con m pixel di margine (il fondo è il colore dell'angolo)"""
+    a = np.abs(np.asarray(im.convert('RGB')).astype(int) - np.asarray(im.convert('RGB'))[0, 0].astype(int)).sum(axis=2)
+    ys, xs = np.nonzero(a > 24)
+    return im.crop((max(xs.min() - m, 0), max(ys.min() - m, 0), min(xs.max() + m, im.width), min(ys.max() + m, im.height)))
+
+
 def stampata():
-    """la console tutta stampata (hardware/case/stampa3d.py): il disegno, i tasselli, le etichette"""
+    """la console tutta stampata, a vasche (hardware/case/stampa3d.py e multicolore.py): la console montata, le
+    vasche staccate, la giunta, le etichette di carta, la mascherina a più colori. Non usa scipy"""
     s3 = os.path.join(CASE, 'stampa3d')
     im = Image.open(os.path.join(s3, 'console_stampata.png')).convert('RGB').crop((90, 200, 1410, 920))
     im = im.quantize(colors=128, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
     im.save(os.path.join(CARTELLA, 'stampata.png'), optimize=True)
     print('case/stampata.png', im.size)
+    for nome, colori in (('vasche', 128), ('giunta', 96)):
+        im = _sul_fondo(Image.open(os.path.join(s3, nome + '.png')), 24)
+        im = im.quantize(colors=colori, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
+        im.save(os.path.join(CARTELLA, nome + '.png'), optimize=True)
+        print(f'case/{nome}.png', im.size)
     with tempfile.TemporaryDirectory() as tmp:
-        for nome, scala in (('tasselli', 3), ('etichette_mascherina', 5)):
-            png = os.path.join(tmp, nome + '.png')
-            subprocess.run([VC, 'convert', os.path.join(s3, nome + '.svg'), png, '--scale', str(scala)], check=True, capture_output=True)
-            im = Image.open(png).convert('RGB')
-            a = 255 - np.asarray(im.convert('L'))
-            ys, xs = np.nonzero(a > 8)
-            m = 8 * scala
-            im = im.crop((max(xs.min() - m, 0), max(ys.min() - m, 0), min(xs.max() + m, im.width), min(ys.max() + m, im.height)))
-            if nome == 'etichette_mascherina':          # la prima serie, senza quella di ricambio
-                im = im.crop((0, 0, im.width, int(im.height * 0.52)))
-            im = im.quantize(colors=96, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
-            im.save(os.path.join(CARTELLA, nome + '.png'), optimize=True)
-            print(f'case/{nome}.png', im.size)
+        png = os.path.join(tmp, 'etichette_mascherina.png')
+        _svg_png(os.path.join(s3, 'etichette_mascherina.svg'), png, 5)
+        im = _sul_fondo(Image.open(png), 40)
+        im = im.crop((0, 0, im.width, int(im.height * 0.52)))      # la prima serie, senza quella di ricambio
+        im = im.quantize(colors=96, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
+        im.save(os.path.join(CARTELLA, 'etichette_mascherina.png'), optimize=True)
+        print('case/etichette_mascherina.png', im.size)
+    im = Image.open(os.path.join(CASE, 'stampa3d_multicolore', 'anteprima_mascherina_1.png')).convert('RGB')
+    im = im.crop((0, 30, im.width, im.height))                     # senza la riga del titolo
+    im = im.resize((1200, round(im.height * 1200 / im.width)), Image.LANCZOS)
+    im = im.quantize(colors=64, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
+    im.save(os.path.join(CARTELLA, 'multicolore_mascherina.png'), optimize=True)
+    print('case/multicolore_mascherina.png', im.size)
 
 
 if __name__ == '__main__':
-    tavole()
-    mascherina()
-    pagina()
+    if '--stampata' not in sys.argv:
+        tavole()
+        mascherina()
+        pagina()
     stampata()

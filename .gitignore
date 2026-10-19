@@ -16,3 +16,6 @@ __pycache__/
 /docs/manuale/img/react.png
 /docs/manuale/img/rec.png
 /docs/manuale/img/transpose.png
+
+# i progetti dello slicer di Luigi (non generati)
+/hardware/case/out/stampa3d/*.3mf

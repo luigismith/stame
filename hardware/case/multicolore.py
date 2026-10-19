@@ -5,12 +5,14 @@ essere quella appoggiata sul piatto che viene meglio)»).
 
 Uso: python -I hardware/case/multicolore.py [--piatto 240]     scrive in hardware/case/out/stampa3d_multicolore/
 
-Gli stessi pezzi di stampa3d.py (60-case.md §7c, CASE-067…070), con due differenze:
-- mascherina, piano della Flip e fianchi hanno le scritte incassate a filo nella faccia in vista, profonde
-  SCRITTA_H (tre strati da 0,2), in un secondo filamento. Ogni pezzo esce in due STL allineati (_corpo e
-  _scritte) e in un 3MF che li tiene insieme come due parti di un oggetto;
-- la faccia in vista sta sul piatto: viene liscia (o con la grana del piatto) e il cambio di colore
-  serve solo nei primi tre strati.
+Le stesse vasche di stampa3d.py (60-case.md §7c, CASE-067…070; con il piatto da 240 tre, intere davanti-dietro),
+con le scritte stampate in un secondo filamento, incassate a filo per SCRITTA_H (tre strati da 0,2):
+- mascherina (in due metà) e piano della Flip si stampano con la faccia in vista sul piatto: viene liscia (o con
+  la grana del piatto) e il cambio di colore serve solo nei primi tre strati;
+- le vasche con i fianchi hanno il marchio e il nome incassati nella faccia di fuori del fianco, che stampata in
+  piedi è verticale: lì il filamento cambia in ogni strato dove ci sono le scritte.
+Ogni pezzo con le scritte esce in due STL allineati (_corpo e _scritte) e in un 3MF che li tiene insieme come due
+parti di un oggetto, con i filamenti già assegnati.
 Le incisioni del laser sono troppo fini per un ugello da 0,4 (pixel da 0,12–0,26 mm): le scritte si
 ridisegnano con Matrice, il carattere 5×7 di Stame, a quadretti da 0,45 mm (lettere alte 3,15 mm). Le
 scritte vicine fanno un blocco, che si impagina di nuovo (righe una sotto l'altra, colonne che non si
@@ -384,7 +386,7 @@ def con_scritte(pz, nome_laser, copia=0):
     pz.tasche, pz.rilievi = [], []
     pz.regioni = regioni(svg, pz.F, fr, posate, forme)
     pz.disegno = fr                   # per l'anteprima: dove va la riga di scrittura
-    pz.faccia = max(w1 for _, _, _, w1 in pz.strati)
+    pz.faccia = pz.T if pz.T else max(w1 for _, _, _, w1 in pz.strati)     # le pareti: la faccia di fuori
     return posate, fuori, scartate
 
 
@@ -511,93 +513,124 @@ def anteprima(path, corpo, scritte, titolo, verso=0.0, filamenti=(1, 2)):
     out.save(path, optimize=True)
 
 
+def _scrivi(nome, corpo, scritte, colore, piatto, minimo):
+    """corpo e scritte già nel verso della stampa: appoggiati insieme sul piatto, in due STL e in un 3MF; torna la
+    riga dell'elenco (ingombro, chiuso, sta, grammi) e gli strati con il cambio di filamento"""
+    tutto = Mesh(f'Stame {nome}')
+    tutto.unisci(corpo)
+    tutto.unisci(scritte)
+    (x0, y0, z0), _ = tutto.ingombro()
+    corpo, scritte, tutto = (m.portato(sposta(-x0, -y0, -z0)) for m in (corpo, scritte, tutto))
+    corpo.nome, scritte.nome = f'Stame {nome} corpo', f'Stame {nome} scritte'
+    corpo.salva(os.path.join(OUT, f'{nome}_corpo.stl'))
+    scritte.salva(os.path.join(OUT, f'{nome}_scritte.stl'))
+    fil_c, fil_s = FILAMENTI[colore]
+    salva_3mf(os.path.join(OUT, f'{nome}.3mf'), nome, [('corpo', corpo, fil_c), ('scritte', scritte, fil_s)])
+    dim, _, sta, _ = S.verifica(tutto, piatto, minimo)
+    (_, _, za), (_, _, zb) = scritte.ingombro()
+    return dict(nome=nome, file=f'`{nome}.3mf` (o `{nome}_corpo.stl` + `{nome}_scritte.stl`)', dim=dim, colore=colore,
+                chiuso=corpo.controlla() and scritte.controlla(), sta=sta, grammi=S.grammi(corpo) + S.grammi(scritte),
+                cambi=round((zb - za) / 0.2))
+
+
 def genera(piatto=None):
     piatto = piatto or M.PRINT_BED[0]
     G.genera()
-    os.makedirs(OUT, exist_ok=True)
-    for n in os.listdir(OUT):
+    report = {}
+    masch, pf = S.piano('mascherina', 1), S.piano('piano_flip', 1)
+    fianchi = {'sx': S.fianco('sx'), 'dx': S.fianco('dx')}
+    for pz, nl in ((masch, 'mascherina'), (pf, 'piano_flip'), (fianchi['sx'], 'fianco_sx_esterno'), (fianchi['dx'], 'fianco_dx_esterno')):
+        report[pz.nome] = con_scritte(pz, nl)
+    vv = S.vasche(piatto, fianchi, lambda pz, t: solidi(pz, t) if t['regioni'] else (S.solido(pz, t), None))
+    os.makedirs(OUT, exist_ok=True)          # dopo le vasche: se il piatto non basta, la cartella resta com'è
+    for n in os.listdir(OUT):                # il resto (il PDF di manuale.py) resta
         if n.endswith(('.stl', '.3mf', '.md', '.png')):
             os.remove(os.path.join(OUT, n))
-    colorati = [(S.piano('mascherina', 1), 'mascherina'), (S.piano('piano_flip', 1), 'piano_flip'),
-                (S.fianco('sx'), 'fianco_sx_esterno'), (S.fianco('dx'), 'fianco_dx_esterno')]
-    report = {}
-    for pz, nl in colorati:
-        report[pz.nome] = con_scritte(pz, nl)
-        pz.nota = 'scritte incassate nella faccia in vista, che sta sul piatto'
-    altri = [S.base(), S.retro('sx'), S.retro('dx'), S.costola(), S.fronte()]
-    righe, totale = [], 0.0
-    nomi_colorati = {p.nome for p, _ in colorati}
-    for pz in [p for p, _ in colorati] + altri:
-        tasselli = S.dividi(pz, piatto)
-        for k, t in enumerate(tasselli, 1):
-            nome = pz.nome if len(tasselli) == 1 else f'{pz.nome}_{k}'
-            if pz.nome in nomi_colorati and any(r['testo'] for r in t['regioni']):
-                corpo, scritte = solidi(pz, t)
-                corpo, scritte = orienta(pz, t, corpo, True), orienta(pz, t, scritte, True)
-                (x0, y0, z0), _ = corpo.ingombro()
-                corpo, scritte = corpo.portato(sposta(-x0, -y0, -z0)), scritte.portato(sposta(-x0, -y0, -z0))
-                corpo.nome, scritte.nome = f'Stame {nome} corpo', f'Stame {nome} scritte'
-                corpo.salva(os.path.join(OUT, f'{nome}_corpo.stl'))
-                scritte.salva(os.path.join(OUT, f'{nome}_scritte.stl'))
-                fil_c, fil_s = FILAMENTI[pz.colore]
-                salva_3mf(os.path.join(OUT, f'{nome}.3mf'), nome, [('corpo', corpo, fil_c), ('scritte', scritte, fil_s)])
-                # l'anteprima: la stessa cosa girata a faccia in su
+    righe, totale, viti = [], 0.0, []
+    # le vasche, in piedi: il marchio e il nome nella faccia di fuori dei fianchi
+    for v in vv:
+        nota = v['nota'] + '; in piedi, il fondo sul piatto'
+        viti += v['viti']
+        if v['scritte'].prismi:
+            r = _scrivi(v['nome'], v['corpo'].portato(G.SPECCHIO), v['scritte'].portato(G.SPECCHIO), 'telaio', piatto, 0.5)
+            r['nota'] = nota + f'; marchio e nome nel fianco, che è verticale: il filamento cambia in {r["cambi"]} strati'
+            for pz, t in v['facce']:
                 vc, vs = solidi(pz, t)
-                anteprima(os.path.join(OUT, f'anteprima_{nome}.png'), orienta(pz, t, vc, False), orienta(pz, t, vs, False),
-                          f'{nome}: la faccia in vista', _verso_scrittura(pz, t), FILAMENTI[pz.colore])
-                ms, file = corpo, f'`{nome}.3mf` (o `{nome}_corpo.stl` + `{nome}_scritte.stl`)'
-                chiuso = corpo.controlla() and scritte.controlla()
-            else:
-                ms = S.per_la_stampa(pz, t, S.solido(pz, t))
-                ms.nome = f'Stame {nome}'
-                ms.salva(os.path.join(OUT, nome + '.stl'))
-                file, chiuso = f'`{nome}.stl`', ms.controlla()
-            (x0, y0, z0), (x1, y1, z1) = ms.ingombro()
-            g = S.grammi(ms)
-            totale += g
-            righe.append(dict(nome=nome, file=file, dim=(x1 - x0, y1 - y0, z1 - z0), colore=pz.colore, nota=pz.nota,
-                              angolo=t['angolo'], grammi=g, chiuso=chiuso,
-                              sta=(x1 - x0) <= piatto + 0.01 and (y1 - y0) <= piatto + 0.01))
+                anteprima(os.path.join(OUT, f'anteprima_{pz.nome}.png'), orienta(pz, t, vc, False), orienta(pz, t, vs, False),
+                          f'{pz.nome}: la faccia di fuori di {v["nome"]}', _verso_scrittura(pz, t), FILAMENTI[pz.colore])
+        else:
+            ms = v['corpo'].portato(G.SPECCHIO).a_terra()
+            ms.nome = f'Stame {v["nome"]}'
+            ms.salva(os.path.join(OUT, v['nome'] + '.stl'))
+            dim, chiuso, sta, _ = S.verifica(ms, piatto, 0.5)
+            r = dict(nome=v['nome'], file=f'`{v["nome"]}.stl`', dim=dim, colore='telaio', chiuso=chiuso, sta=sta,
+                     grammi=S.grammi(ms), nota=nota)
+        righe.append(r)
+    # mascherina e piano della Flip, con la faccia in vista sul piatto
+    for nome, pz, t in S.pezzi_piani(piatto, masch, pf):
+        corpo, scritte = solidi(pz, t)
+        r = _scrivi(nome, orienta(pz, t, corpo, True), orienta(pz, t, scritte, True), pz.colore, piatto, 0.3)
+        r['nota'] = ('la metà ' + ('sinistra' if nome.endswith('_1') else 'destra') + ' della mascherina; '
+                     if nome[-2] == '_' else '') + 'scritte incassate nella faccia in vista, che sta sul piatto'
+        vc, vs = solidi(pz, t)
+        anteprima(os.path.join(OUT, f'anteprima_{nome}.png'), orienta(pz, t, vc, False), orienta(pz, t, vs, False),
+                  f'{nome}: la faccia in vista', _verso_scrittura(pz, t), FILAMENTI[pz.colore])
+        righe.append(r)
     for s in G.STAMPATI:
+        if s['nome'] not in ('culla_flip', 'visiera'):
+            continue
         ms = s['mesh'].portato(G.SPECCHIO).portato(s['posa']).a_terra()
         ms.salva(os.path.join(OUT, s['nome'] + '.stl'))
-        (x0, y0, z0), (x1, y1, z1) = ms.ingombro()
-        g = S.grammi(ms) * s['quanti']
-        totale += g
-        righe.append(dict(nome=s['nome'], file=f'`{s["nome"]}.stl` × {s["quanti"]}', dim=(x1 - x0, y1 - y0, z1 - z0),
-                          colore=s['materiale'], nota=s['nota'], angolo=0, grammi=g, chiuso=ms.controlla(),
-                          sta=(x1 - x0) <= piatto and (y1 - y0) <= piatto))
-    scrivi_elenco(righe, totale, piatto, report)
-    return righe, totale, report
+        dim, chiuso, sta, _ = S.verifica(ms, piatto)
+        righe.append(dict(nome=s['nome'], file=f'`{s["nome"]}.stl`', dim=dim, colore=s['materiale'], nota=s['nota'],
+                          grammi=S.grammi(ms) * s['quanti'], chiuso=chiuso, sta=sta))
+    ms = S.prova_giunta().portato(G.SPECCHIO).a_terra()
+    ms.nome = 'Stame prova della giunta'
+    ms.salva(os.path.join(OUT, 'prova_giunta.stl'))
+    dim, chiuso, sta, _ = S.verifica(ms, piatto, 0.3)
+    righe.append(dict(nome='prova_giunta', file='`prova_giunta.stl`', dim=dim, colore='telaio', chiuso=chiuso, sta=sta,
+                      grammi=S.grammi(ms), nota='la giunta sotto la MK4 in piccolo, le due metà insieme: da stampare prima'))
+    totale = sum(r['grammi'] for r in righe)
+    scrivi_elenco(righe, totale, piatto, report, viti)
+    return righe, totale, report, viti
 
 
-def scrivi_elenco(righe, totale, piatto, report):
+def scrivi_elenco(righe, totale, piatto, report, viti):
     v = S._v
+    n_vasche = sum(1 for r in righe if r['nome'].startswith('vasca_'))
     L = ['# Stame — la console stampata a più colori', '',
          f'Generato da `hardware/case/multicolore.py` per un piatto di {piatto:.0f} × {piatto:.0f} mm (Anycubic Kobra S1 '
-         'con l\'ACE Pro, o un\'altra stampante a più filamenti). Gli stessi pezzi di `../stampa3d/`; mascherina, piano della '
-         'Flip e fianchi hanno le scritte stampate: incassate a filo nella faccia in vista, che sta sul piatto. Le '
-         'istruzioni da stampare, con le anteprime dei pezzi, sono in `istruzioni_multicolore.pdf`.', '',
-         '| File | Ingombro (mm) | Colore | Note |', '|---|---|---|---|']
+         f'con l\'ACE Pro, o un\'altra stampante a più filamenti). Le stesse {n_vasche} vasche di `../stampa3d/` (con `--piatto '
+         f'{piatto:.0f}`), stampate in piedi con il fondo sul piatto, e gli stessi pezzi che si tolgono; le scritte le fa la '
+         'stampa, nel secondo filamento: incassate a filo nella faccia in vista di mascherina e piano della Flip, che sta sul '
+         'piatto, e nella faccia di fuori dei fianchi. Le istruzioni da stampare, con le anteprime, sono in '
+         '`istruzioni_multicolore.pdf`.', '',
+         '| File | Ingombro (mm) | Grammi | Colore | Note |', '|---|---|---|---|---|']
     for r in righe:
         dx, dy, dz = r['dim']
-        nota = r['nota'] + (f'; ruotato di {r["angolo"]}° per stare sul piatto' if r['angolo'] else '')
-        L.append(f'| {r["file"]} | {dx:.0f} × {dy:.0f} × {v(dz)} | {S.COLORI.get(r["colore"], r["colore"])} | {nota} |')
-    L += ['', f'Filamento: circa {v(totale / 1000)} kg in tutto, quasi tutto del colore del corpo.', '',
+        L.append(f'| {r["file"]} | {dx:.0f} × {dy:.0f} × {v(dz)} | {r["grammi"]:.0f} | '
+                 f'{S.COLORI.get(r["colore"], r["colore"])} | {r["nota"]} |')
+    cambi = max((r.get('cambi', 0) for r in righe if r['nome'].startswith('vasca_')), default=0)
+    L += ['', f'Filamento: circa {v(totale / 1000)} kg in tutto, quasi tutto del colore del corpo. Viti delle giunte: '
+          f'{S.testo_viti(viti)}.', '',
           '## In Anycubic Slicer Next', '',
           '1. Apri il `.3mf` del pezzo: arriva un oggetto con due parti, «corpo» e «scritte». Se lo slicer lo apre come due '
           'oggetti, o se preferisci gli STL: importa insieme `_corpo.stl` e `_scritte.stl` e, alla domanda, caricali come un '
           'oggetto solo con più parti.',
           '2. Due filamenti in tutto: 1 nero, 2 sabbia (o il colore scelto per il telaio). Mascherina e piano della Flip: '
-          'corpo 1 e scritte 2, come l\'incisione del laser sull\'acrilico nero. Fianchi: corpo 2 e scritte 1, come la '
-          'bruciatura sul legno. Nel `.3mf` è già così; con gli STL si assegna a mano. Gli altri pezzi del telaio vanno '
-          'col 2, culle e visiera col 1.',
-          '3. Non girare il pezzo: la faccia in vista è già sul piatto. Il piatto liscio la fa lucida, quello testurizzato '
-          'le dà la sua grana.',
-          f'4. Strati da 0,2 e primo strato da 0,2: le scritte sono profonde {v(SCRITTA_H)} mm, cioè tre strati, quindi i '
-          'cambi di filamento sono solo lì. Torre di spurgo sì; spurgo nel riempimento se lo slicer lo offre.',
-          '5. Il resto come la console stampata: 3 perimetri, 4 strati pieni, riempimento al 20 %, senza supporti tranne la '
-          'visiera. Il primo strato deve essere perfetto: piatto pulito, livellamento fatto.', '',
+          'corpo 1 e scritte 2, come l\'incisione del laser sull\'acrilico nero. Vasche: corpo 2 e scritte 1, come la '
+          'bruciatura sul legno. Nel `.3mf` è già così; con gli STL si assegna a mano. La vasca di centro e la prova di '
+          'giunta col 2, la culla della Flip e la cornice col 1.',
+          '3. Non girare i pezzi: le vasche stanno in piedi con il fondo sul piatto, mascherina e piano con la faccia in vista '
+          'sul piatto. Il piatto liscio la fa lucida, quello testurizzato le dà la sua grana.',
+          f'4. Strati da 0,2 e primo strato da 0,2: nei piani le scritte sono profonde {v(SCRITTA_H)} mm, cioè i primi tre '
+          f'strati. Nelle vasche il fianco è verticale e le scritte sono profonde {v(SCRITTA_H)} mm nella faccia di fuori: il '
+          f'filamento cambia in ogni strato fra il basso del marchio e la cima del nome, circa {cambi} strati per vasca. '
+          'Torre di spurgo sì; spurgo nel riempimento se lo slicer lo offre. Se i cambi sono troppi, le vasche di '
+          '`../stampa3d/` hanno il marchio in rilievo, di un colore.',
+          '5. Il resto come la console stampata a un colore: 3 perimetri, 4 strati pieni, riempimento al 20 %, senza '
+          'supporti (la cornice si stampa sul bordo davanti). Il primo strato deve essere perfetto: piatto pulito, '
+          'livellamento fatto. Prima delle vasche, `prova_giunta.stl`.', '',
           '## Le scritte', '',
           'Le incisioni del laser sono troppo fini per un ugello da 0,4: qui le scritte sono ridisegnate con Matrice, il '
           'carattere 5×7 di Stame, a quadretti da 0,45 mm (lettere alte 3,15 mm) o da 0,40 dove non c\'è posto. Logo e punti '
@@ -607,7 +640,7 @@ def scrivi_elenco(righe, totale, piatto, report):
           'anteprime `anteprima_*.png` mostrano ogni faccia come la si guarda.', '']
     for nome, (posate, fuori, scartate) in report.items():
         passi = sorted({P for *_, P in posate})
-        riga = f'- **{nome}**: {len(posate)} scritte'
+        riga = f'- **{nome}**: {len(posate)} {"scritta" if len(posate) == 1 else "scritte"}'
         if passi:
             riga += ' a ' + ' e '.join(f'{v(P, 2)} mm' for P in passi)
         if fuori:
@@ -615,7 +648,7 @@ def scrivi_elenco(righe, totale, piatto, report):
         if scartate:
             riga += f'; {scartate} tratti fini che non sono scritte (righe di separazione) non si stampano'
         L.append(riga + '.')
-    L.append('')
+    L += ['', 'Le giunte delle vasche e il montaggio sono come nella console a un colore: `../stampa3d/pezzi.md`.', '']
     with open(os.path.join(OUT, 'pezzi.md'), 'w', encoding='utf-8', newline='\n') as f:
         f.write('\n'.join(L))
 
@@ -624,13 +657,13 @@ def main():
     piatto = None
     if '--piatto' in sys.argv:
         piatto = float(sys.argv[sys.argv.index('--piatto') + 1])
-    righe, totale, report = genera(piatto)
+    righe, totale, report, _ = genera(piatto)
     print(f'STAMPA A PIÙ COLORI (piatto {piatto or M.PRINT_BED[0]:.0f} mm) -> {OUT}')
     for r in righe:
         dx, dy, dz = r['dim']
         avvisi = ('' if r['chiuso'] else '  GUSCIO APERTO') + ('' if r['sta'] else '  NON STA NEL PIATTO')
-        rot = f'  ruotato {r["angolo"]}°' if r['angolo'] else ''
-        print(f'  {r["nome"]:22s} {dx:6.1f} x {dy:6.1f} x {dz:5.1f}  {r["grammi"]:6.0f} g{rot}{avvisi}')
+        cambi = f'  {r["cambi"]} strati con il cambio' if r.get('cambi') else ''
+        print(f'  {r["nome"]:22s} {dx:6.1f} x {dy:6.1f} x {dz:5.1f}  {r["grammi"]:6.0f} g{cambi}{avvisi}')
     print(f'  filamento: circa {totale / 1000:.2f} kg')
     for nome, (posate, fuori, scartate) in report.items():
         print(f'  {nome}: {len(posate)} scritte, fuori {len(fuori)}: {fuori}; tratti fini scartati {scartate}')
@@ -638,3 +671,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
