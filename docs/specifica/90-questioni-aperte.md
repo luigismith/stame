@@ -69,7 +69,7 @@ Prima di scrivere il profilo `mpk_stame` servono almeno:
 - **VP-2**: il software sikaicase o `ch57x-keyboard-tool` ammettono F13–F24 e KP1–KP9 (se no, Learn Pad, MIDI-123);
 - **VP-3**: tasti e pressioni delle manopole mandano «giù» e «su» separati (serve per tenere, per Tn + Kn e per m1 come modificatore).
 
-Poi: VP-4 scatti persi o accorpati nelle rotazioni veloci; VP-5 posizione delle manopole e quale è M, m1, m2; VP-6 consumo sulla porta OTG insieme alla MPK, sull'hub senza PD; VP-7 RGB spento; VP-8 il comando dei LED dalla Flip (solo colore globale per strato: non provato, Luigi il 19/10/2026 ha detto di fermarsi).
+Poi: VP-4 scatti persi o accorpati nelle rotazioni veloci; VP-5 posizione delle manopole e quale è M, m1, m2; VP-6 consumo sulla porta OTG insieme alla MPK, sull'hub senza PD; VP-7 RGB spento; VP-8 chiusa il 19/10/2026: il colore dei LED (solo globale per strato) finisce nella flash a ogni scrittura, quindi Stame non lo comanda; si sceglie una volta dal PC.
 
 ### 3.4 Sulla Miyoo Flip
 | Gruppo | Dove | Le più importanti |
