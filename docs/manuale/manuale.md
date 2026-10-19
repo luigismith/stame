@@ -67,7 +67,7 @@ Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 
 | **Key** | la tonalità (accende la Key mode) | Key mode on/off | previsto: scelta rapida | **Transpose** ±12 |
 | **Bass** | i 24 bassi (Round Root, Sub Floor, Pluck Bass, Reed Bass, Velvet Sub, Wood Bass, Taproot, Peat Sub, Bark Bass, Pod Bass, Thorn Bass, Moss Sub, Reese Root, Acid Sedge, Henbane Sub, Fen Rumble, Spore Bass, Ironroot, Hemlock 303, Square Acid, Abyss Sub, Growl Reese, Detroit Sub, Coal FM Bass) | basso on/off | previsto: lista dei modi | — |
 | **Loop** | con il loop in corso sceglie fra le tre voci in Z3 (OVERDUB, PAUSE, CLEAR o UNDO; STOP, PLAY…) | da fermo **REC** (con un loop messo da parte con T10, lo riprende); altrimenti esegue la voce scelta | previsto: 2 s = Save Loop / uscita morbida (oggi T10 del pad) | — |
-| **BPM** | 60…200 (o il **tap tempo** su T2) | Beat o metronomo on/off (anche STOP/PLAY della MPK) | lista: **2/4, 3/4, 4/4, 6/8** (metronomo) e i 14 Beat **Funk, Bossa, Motorik, Lounge, Shuffle, Halftime, Boom Bap, Disco, Samba, Ballad, Train, Chip, Techno, Dub**, ognuno con il suo kit (studio, jazz, 808, techno; Chip è la sintesi) | **Beat Volume** 0…99 |
+| **BPM** | 60…200 (o il **tap tempo** su T2) | Beat o metronomo on/off (anche STOP/PLAY della MPK) | lista: **2/4, 3/4, 4/4, 6/8** (metronomo) e i 60 Beat, ognuno con il suo kit: i diciannove di sempre (**Funk, Bossa, Motorik, Lounge, Shuffle, Halftime, Boom Bap, Disco, Samba, Ballad, Train, Chip, Techno, Dub, Acid, Industrial, Minimal, Electro, Trap**, con i kit studio, jazz, 808, techno e la sintesi Chip) e, dal 19/10, 41 di genere con i kit della libreria sintetizzata (§6.4) | **Beat Volume** 0…99 |
 | **Volume** | volume master 0…99 | batteria della Flip | — | **Bass Volume** 0…99 |
 | **Options** | cambia la vista (fuori dalla lista) | lista: Exit, View, Play Style, Single Notes, Secret Chords | — | — |
 | **Chord Voicing** (M) | finestra ±1 semitono per scatto | Split ↔ Octave | — | — |
@@ -182,13 +182,13 @@ Il looper registra **eventi** (note), non audio: cambiando BPM cambia la velocit
 
 ## 6. Beat e metronomo
 
-![La lista di BPM tenuto: metriche del metronomo e i 14 Beat](img/lista_beat.png)
+![La lista di BPM tenuto: metriche del metronomo e i 60 Beat, con il kit di ognuno](img/lista_beat.png)
 
 - **BPM premuto** (SHIFT + K7, oppure **STOP/PLAY** della MPK) accende e spegne il Beat scelto; con un metronomo scelto, accende il clic. Il trasporto riparte dalla battuta 1.
 - **T3 METRO** del pad accende un metronomo indipendente dal Beat: clicca sui battiti anche sopra un Beat, e da solo mette in moto il trasporto. In testata «METRO».
 - **T2 TAP**: batti il tempo sul tasto; dal secondo tocco il BPM segue la media degli ultimi quattro.
 - **T4 FILL**: finché lo tieni il Beat suona la sua battuta di riempimento (rullate, tom), poi torna al pattern. In testata «FILL».
-- **BPM tenuto** apre la lista: le quattro metriche (2/4, 3/4, 4/4, 6/8) scelgono il metronomo; sotto, i diciannove Beat. La spunta segna la scelta.
+- **BPM tenuto** apre la lista: le quattro metriche (2/4, 3/4, 4/4, 6/8) scelgono il metronomo; sotto, i sessanta Beat, con il loro kit a destra (§6.4). La spunta segna la scelta.
 - **BPM premuto e girato** regola il volume del Beat.
 - Con il looper in moto, spegnere il Beat lo zittisce soltanto: il tempo del loop continua.
 - In alto a destra: i battiti della battuta come celle che si accendono, il BPM a sette segmenti.
@@ -207,7 +207,7 @@ Stessa filosofia degli accordi: premi tasti, muovi manopole, il loop di batteria
 
 - **I pad del banco B** della MPK sono otto pad di batteria con la velocity, sempre, anche senza DRUMS: premi BANK e suoni la batteria sopra gli accordi del loop. Fila bassa cassa, rullante, rimshot, battimani; fila alta charleston chiuso e aperto, tom basso, piatto.
 - Con **DRUMS acceso** cinque manopole cambiano mestiere, e le celle lo scrivono:
-  - **K1 KIT**: il kit (Beat = quello del Beat scelto, poi Studio, Jazz, 808, Techno, Chip);
+  - **K1 KIT**: il kit, fra quaranta (Beat = quello del Beat scelto, poi Studio, Jazz, 808, Techno, Chip e i 35 della libreria sintetizzata, §6.4); **SHIFT + K1** apre la lista dei kit;
   - **K2 ROLL**: tieni un tasto o un pad e il colpo si ripete a tempo: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32. Il primo colpo è il tuo, le ripetizioni entrano nel loop sulla griglia;
   - **K3 DRIVE**: sporca la batteria, da 0 (pulita) a 10 (schiacciata e grossa). **SHIFT + K3 girata** è il **filtro**: a sinistra chiude gli alti (LP, fino a una batteria sorda, da dub), a destra toglie i bassi (HP, fino a una batteria sottile, da build-up); 0 è spento. Il metronomo non passa dall'effetto;
   - **K4 SWING**: sposta in avanti i sedicesimi in levare, da Off (dritto) a 75 % (quasi terzina). Vale per il Beat, per il loop inventato, per i colpi di batteria del loop e per il Roll, anche quelli già registrati;
@@ -223,7 +223,7 @@ Con **DRUMS acceso** sei in modalità crea: le tre manopole del pad inventano il
 | Manopola | Girata | Premuta |
 |---|---|---|
 | **M** | **densità**: 0 tace, 1 è lo scheletro dello stile, 10 suona tutto | **play / stop** del loop |
-| **m1** | **stile**: Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial | sceglie la **parte** che M regola: tutto, cassa, rullante, charleston, aperto, percussioni |
+| **m1** | **stile**, fra trenta: Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial, House, Garage, Jungle, DnB, Dubstep, Trap, Synthwave, Synthpop, Lo-Fi, Trip Hop, Chiptune, Glitch, EBM, Afrobeat, Tabla, Salsa, Reggaeton, Jazz, Arena, Preset | sceglie la **parte** che M regola: tutto, cassa, rullante, charleston, aperto, percussioni |
 | **m2** | **variazione** 0…99: ogni scatto un'idea nuova, tornando indietro ritrovi quella di prima | un'**idea nuova** a caso |
 
 - Il primo tocco prende il posto del Beat che suonava, nello stile più vicino: se suonava il Funk si comincia dal Funk.
@@ -232,6 +232,57 @@ Con **DRUMS acceso** sei in modalità crea: le tre manopole del pad inventano il
 - **m2 premuta e girata** regola il volume del Beat.
 - Il loop dura due battute: la seconda chiude con qualche colpo in più quando la variazione non è 0.
 - Sulla plancia la zona dell'accordo mostra la griglia: una riga per parte con la sua densità, una colonna per sedicesimo, i colpi forti accesi, la colonna che suona segnata.
+- Ogni stile ha il suo kit (House la 909, Tabla la tabla, Jazz le spazzole…); K1 lo cambia.
+
+### 6.4 La libreria: quaranta kit e sessanta Beat
+
+![La lista dei kit (SHIFT + K1 sotto DRUMS): numero, nome, SMP o SYN e lo stile](img/lista_kit.png)
+
+Oltre ai quattro kit di campioni e al Chip ci sono **35 kit sintetizzati**: niente campioni, ogni colpo nasce da oscillatori, rumore e filtri, come una drum machine vera. Suonano anche senza il banco dei campioni. Si scelgono con **K1** sotto DRUMS (il numero è quello della tabella) o dalla **lista dei kit**: **SHIFT + K1**, la manopola di navigazione scorre, premuta sceglie; il kit vale subito, anche sul Beat che suona, e la lista resta aperta per provarne un altro. «Beat» (0) torna al kit del Beat o dello stile.
+
+| K1 | Kit | Com'è |
+|---:|---|---|
+| 1–4 | Studio, Jazz, 808, Techno | i campioni di sempre |
+| 5 | Chip | la sintesi in stile CR-78 di sempre |
+| 6 | 808 Boom | la cassa lunga e tonda, i charleston a sei onde quadre |
+| 7 | 808 Trap | la cassa che dura due secondi e satura, charleston stretti |
+| 8 | 909 House | la cassa con lo schiocco, il rullante largo, il ride |
+| 9 | 909 Rave | la stessa, schiacciata dal drive |
+| 10 | CR Rhythm | la scatola ritmica dei preset: claves, tamburello, bongo |
+| 11 | 606 Tick | leggera e sottile |
+| 12 | Hex Toms | i tom elettronici che cadono |
+| 13 | Syndrum Disco | i «piu piu» della disco |
+| 14 | Robot Pop | colpi di filtro: l'electro dei robot |
+| 15 | Linn Pop | gli anni Ottanta: battente, rullante grosso, tamburello |
+| 16 | Gated 80s | rullante e tom con il gate |
+| 17 | Minimal Click | clic, tic e bip |
+| 18 | Dub Yard | tonda, profonda, scura |
+| 19 | 2-Step | secca e schioccante, per la garage |
+| 20 | Jungle | acustica accordata in alto, con la grana del campionatore |
+| 21 | Iron Mill | metallo distorto: incudini e lamiera |
+| 22 | Scrap Yard | latte, bidoni e molle |
+| 23 | Glitch Bits | colpi tagliati, pochi bit, un piatto al contrario |
+| 24 | Data Rot | la macchina guasta |
+| 25 | Laser Lab | zap e laser |
+| 26 | Lo-Fi Dust | attutita e polverosa |
+| 27 | Tape Crate | il boom bap del vinile |
+| 28 | 8-Bit | le quadre e il rumore di una console |
+| 29 | Arcade | zap, power-up e monetine |
+| 30 | Acoustic Room | una batteria acustica, sintetizzata |
+| 31 | Brushes | spazzole, feltro e ride |
+| 32 | Stadium Rock | la batteria grande, con il drive |
+| 33 | Afro Hand | djembe, dundun, shekere, campana |
+| 34 | Tabla Mist | tabla, manjira, ghungroo |
+| 35 | Gamelan | kendang, bonang, saron, kempul, gong |
+| 36 | Latin Perc | surdo, timbales, claves, guiro, campana, agogo |
+| 37 | Taiko | odaiko, shime, legni, kane |
+| 38 | Darbuka Sand | doum e tek, riq, bendir, cimbalini |
+| 39 | Cajon Box | cajón, palmas, shaker, woodblock |
+| 40 | Deep Space | morbida e lontana; il piatto cresce |
+
+Nei kit del mondo i tasti non cambiano ruolo: Do resta il tamburo grave, Re e Re♯ i colpi secchi, Mi e Fa♯ i sonagli, La♯ la campana.
+
+**I Beat di genere** (dal 20 al 60 della lista), ognuno con un kit della libreria e il suo fill: House e Deep House (909 House), Tech House (Minimal Click), Garage (2-Step), Breakbeat, Jungle e Drum & Bass (Jungle), Dubstep (Iron Mill), Footwork (808 Trap), Robot (Robot Pop), Synthwave (Gated 80s), Italo (Linn Pop), Lo-Fi (Lo-Fi Dust), Trip Hop (Tape Crate), Ambient Pulse (Deep Space), Chiptune (8-Bit), Arcade, Glitch (Glitch Bits), IDM (Data Rot), EBM (Iron Mill), Factory (Scrap Yard), Rave (909 Rave), Rock (Acoustic Room), Swing Jazz e Brush Ballad (Brushes), Afrobeat e Djembe (Afro Hand), Teental (la tabla nei suoi sedici matra), Rhythm Box (CR Rhythm), Gamelan (il ciclo con il gong), Salsa e Cumbia (Latin Perc: la clave, il guiro), Reggaeton e Dancehall (808 Boom), Taiko, Maqsum (Darbuka Sand), Flamenco e Unplugged (Cajon Box), Sci-Fi (Laser Lab), Steppers (Dub Yard), Syndrum (Syndrum Disco). Con **K4 SWING** molti cambiano carattere: Swing Jazz, Garage e Lo-Fi vogliono lo swing intorno al 60–66 %.
 
 ## 7. Il macro pad
 
@@ -371,6 +422,7 @@ Sono sei brani originali di Stame, suonati a giro: **«Acacia»** (poco meno di 
 - **Fuoco**: il controllo su cui agisce la manopola di navigazione (e, senza MPK, croce e A della Flip); lo sposta la pressione di qualunque encoder.
 - **Hold**: l'accordo resta a suonare dopo il rilascio (T1).
 - **Key mode**: la tonalità accesa: i tasti suonano i gradi.
+- **Kit**: i suoni della batteria (dodici strumenti, uno per tasto); quaranta, scelti con K1 sotto DRUMS o con la lista di SHIFT + K1 (§6.4).
 - **Lock (Perform, FX)**: il valore non cambia al cambio di suono.
 - **Mod**: Bass Voicing premuto (m1 o Y), il modificatore delle combinazioni.
 - **Overlay**: il nome e il valore del controllo toccato, nella banda.

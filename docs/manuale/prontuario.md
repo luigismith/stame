@@ -88,21 +88,21 @@ T14: Geek Out e ritorno. T15: pagina dei comandi aperta finché non lo ripremi (
 | Key | tonalità | Key mode | prev. scelta rapida | Transpose ±12 |
 | Bass | 24 bassi | basso on/off | prev. modi | — |
 | Loop | voce del menu | REC / voce | prev. 2 s Save | — |
-| BPM | 60…200 (o T2 Tap) | Beat on/off | lista metriche e Beat | Beat Volume |
+| BPM | 60…200 (o T2 Tap) | Beat on/off | lista metriche e 60 Beat | Beat Volume |
 | Volume | 0…99 | batteria | — | Bass Volume |
 | Options | vista | lista | — | — |
 | Ch. Voicing | ±1 semitono | Split/Octave | — | — |
 | Bs. Voicing | ottava del basso | Mod | — | — |
 
 Options: Exit · View (React, Chord, Keyboard, Chord+Kb, Notes, Geek Out) · Play Style (Simple, Advanced, Free) · Single Notes (Split, Octave) · Secret Chords (On, Off).
-Lista di BPM: 2/4 · 3/4 · 4/4 · 6/8 · Funk · Bossa · Motorik · Lounge · Shuffle · Halftime · Boom Bap · Disco · Samba · Ballad · Train · Chip · Techno · Dub · Acid · Industrial · Minimal · Electro · Trap. Batteria a tastiera (T11): tasti C…B = cassa, rimshot, rullante, battimani, charleston chiuso, tom basso, charleston aperto, tom alto, maracas, conga, campanaccio, piatto; i colpi entrano nel loop al sedicesimo.
+Lista di BPM: 2/4 · 3/4 · 4/4 · 6/8 · Funk · Bossa · Motorik · Lounge · Shuffle · Halftime · Boom Bap · Disco · Samba · Ballad · Train · Chip · Techno · Dub · Acid · Industrial · Minimal · Electro · Trap · e 41 di genere, ognuno con un kit sintetizzato: House · Deep House · Tech House · Garage · Breakbeat · Jungle · Drum & Bass · Dubstep · Footwork · Robot · Synthwave · Italo · Lo-Fi · Trip Hop · Ambient Pulse · Chiptune · Arcade · Glitch · IDM · EBM · Factory · Rave · Rock · Swing Jazz · Brush Ballad · Afrobeat · Djembe · Teental · Rhythm Box · Gamelan · Salsa · Cumbia · Reggaeton · Dancehall · Taiko · Maqsum · Flamenco · Unplugged · Sci-Fi · Steppers · Syndrum (accanto a ogni Beat, il suo kit). Batteria a tastiera (T11): tasti C…B = cassa, rimshot, rullante, battimani, charleston chiuso, tom basso, charleston aperto, tom alto, maracas, conga, campanaccio, piatto; i colpi entrano nel loop al sedicesimo.
 Menu: Exit · Panic · Theme (Giorno di default) · Linnaeus Tag · Legend · Meters · Demo · Play Demo Song (la lista dei sei brani: uno a scelta, subito) · Quit Stame.
 
 ## Drum machine (DRUMS acceso)
 
-K1 Kit (Beat, Studio, Jazz, 808, Techno, Chip) · K2 Roll (tieni il tasto: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32) · K3 Drive 0…10, SHIFT + K3 girata filtro (LP 10…1 · Off · HP 1…10) · K4 Swing (Off, 52 %…75 %: Beat, loop e Roll) · K5 Accent 0…10 · i pad del banco B suonano sempre. Swing e FX restano fuori da DRUMS: in testata SWING e DRUM FX.
+K1 Kit: 0 Beat (quello del Beat), 1–4 a campioni (Studio, Jazz, 808, Techno), 5 Chip, 6–40 la libreria sintetizzata (808 Boom, 808 Trap, 909 House, 909 Rave, CR Rhythm, 606 Tick, Hex Toms, Syndrum Disco, Robot Pop, Linn Pop, Gated 80s, Minimal Click, Dub Yard, 2-Step, Jungle, Iron Mill, Scrap Yard, Glitch Bits, Data Rot, Laser Lab, Lo-Fi Dust, Tape Crate, 8-Bit, Arcade, Acoustic Room, Brushes, Stadium Rock, Afro Hand, Tabla Mist, Gamelan, Latin Perc, Taiko, Darbuka Sand, Cajon Box, Deep Space) · **SHIFT + K1** la lista dei kit (nav scorre, premuta sceglie) · K2 Roll (tieni il tasto: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32) · K3 Drive 0…10, SHIFT + K3 girata filtro (LP 10…1 · Off · HP 1…10) · K4 Swing (Off, 52 %…75 %: Beat, loop e Roll) · K5 Accent 0…10 · i pad del banco B suonano sempre. Swing e FX restano fuori da DRUMS: in testata SWING e DRUM FX.
 
-**Crea** (le manopole del pad, finché DRUMS è acceso): **M** densità 0…10 · premuta play/stop · **m1** stile (Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial) · premuta la parte di M (tutto, cassa, rullante, charleston, aperto, perc.) · **m2** variazione 0…99 · premuta idea nuova · premuta e girata volume del Beat. Ripremi T11: l'editing si chiude, il loop resta.
+**Crea** (le manopole del pad, finché DRUMS è acceso): **M** densità 0…10 · premuta play/stop · **m1** stile (Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial, House, Garage, Jungle, DnB, Dubstep, Trap, Synthwave, Synthpop, Lo-Fi, Trip Hop, Chiptune, Glitch, EBM, Afrobeat, Tabla, Salsa, Reggaeton, Jazz, Arena, Preset) · premuta la parte di M (tutto, cassa, rullante, charleston, aperto, perc.) · **m2** variazione 0…99 · premuta idea nuova · premuta e girata volume del Beat. Ripremi T11: l'editing si chiude, il loop resta.
 
 ## Looper
 

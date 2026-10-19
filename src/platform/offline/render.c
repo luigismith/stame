@@ -535,6 +535,14 @@ static int render_scene(const char *dir)
     for (int i = 0; i < 32; i++) sc_daw(26, 0x7F);              /* di nuovo a zero: le scene dopo sono senza */
     for (int i = 0; i < 48; i++) sc_daw(27, 0x7F);
     sc_run(100);
+    /* la lista dei kit (UI-177): SHIFT + K1 sotto DRUMS, la manopola nav scende fino al primo della libreria */
+    sc_push(0, 60);
+    sc_run(100);
+    sc_daw(14, 6);
+    sc_run(200);
+    render_to(dir, "lista_kit");
+    sc_back();
+    sc_run(200);
     sc_pad(MPAD_T11);
     sc_run(2200);
     /* Drop (T13 tenuto, MIDI-140): il loop di batteria suona ancora; l'accordo resta, Beat e basso tacciono */

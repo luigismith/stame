@@ -77,6 +77,7 @@ Poi: VP-4 scatti persi o accorpati nelle rotazioni veloci; VP-5 posizione delle 
 | Piattaforma (T-PLT-01…16) | `50` §15, §18 | parametri reali del PCM e underrun a 256 frame; latenza tasto → suono; `SCHED_FIFO`; PCM libero dopo PyUI; sospensione e coperchio; come spruce chiude le app |
 | Plancia (VF-UI-01…04) | `30` §9.2 | leggibilità a un braccio di distanza; colori sul pannello; glifi di Spleen; tempo di disegno ≤ 4 ms |
 | Tasti | `30`, `40` | posizione di MENU, SELECT e START; comodità di X + manopola e di A tenuto + croce; levetta a 12 settori del modo tascabile; numerazione evdev del gamepad con il macro pad collegato all'avvio (PLT-053, MIDI-090) |
+| Suoni e batteria del 19/10/2026 | `20` SND-540…543, `10` ACC-218 | ascolto dei suoni 151–200 (livelli a −17 dBFS misurati sul PC) e dei 35 kit della libreria con i loro Beat: bilanciamento fra gli strumenti, quanto sporcano i kit con meno bit, il campanaccio e i metalli a sei quadre semplici; CPU del thread audio con dieci voci di metallo e il synth pieno (stima del 5 % di un core, SND-543) |
 
 ## 4. Dati che mancano del tutto
 Senza l'originale o una sua registrazione non si possono ricavare:
