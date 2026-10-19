@@ -64,7 +64,7 @@ typedef struct {
     uint8_t  metro_on;                  /* metronomo indipendente dal Beat (T3 del pad, MIDI-133) */
     uint8_t  kit, roll, accent;         /* drum machine (40 MIDI-135): kit scelto (0 = del Beat), Roll 0…6, Accent 0…10 */
     char     kit_name[16];              /* nome del kit scelto, «Beat» con il kit del Beat (20 SND-541) */
-    char     kit_info[24];              /* «Synth, analog», «Samples, acoustic»; con il kit del Beat: «Funk: Studio» */
+    char     kit_info[32];              /* «Synth, analog», «Samples, acoustic»; con il kit del Beat: «Funk: Studio» */
     uint8_t  swing, drive;              /* Swing in tick 0…12 (10 ACC-216), Drive 0…10 (20 SND-538) */
     int8_t   filt;                      /* filtro della batteria: −10 passa-basso … 0 spento … +10 passa-alto */
     uint8_t  drop;                      /* T13 tenuto (40 MIDI-140): Beat, loop di batteria e basso tacciono */
