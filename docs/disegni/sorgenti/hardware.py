@@ -200,9 +200,9 @@ def pad():
     X0, Y0 = 6.0, 15.0
     mx, my, mr = M.PAD_KNOB['M']
     lobo = M.PAD_LOBO['lungo']
-    o = [rc(X0 + mx - lobo / 2, Y0 + D - 3, lobo, 3 + M.PAD_LOBO['sporge'], rx=2, fill='#E3E6DF', stroke='#8E968A', sw=0.6),
+    o = [rc(X0 + W - lobo, Y0 + D - 3, lobo, 3 + M.PAD_LOBO['sporge'], rx=M.PAD_R, fill='#E3E6DF', stroke='#8E968A', sw=0.6),
          rc(X0, Y0, W, D, rx=M.PAD_R, sw=0.6, fill='#E3E6DF', stroke='#8E968A'),
-         rc(X0 + mx - lobo / 2 + 0.4, Y0 + D - 1.2, lobo - 0.8, 1.8, fill='#E3E6DF', stroke='none')]
+         rc(X0 + W - lobo + 0.4, Y0 + D - 1.2, lobo - M.PAD_R, 1.8, fill='#E3E6DF', stroke='none')]
     lato = 18.0
     for k in range(15):
         r, c = divmod(k, 5)

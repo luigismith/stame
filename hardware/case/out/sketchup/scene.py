@@ -13,7 +13,7 @@ set_ro("HIGHLIGHT_COLOR", TypedValue(color_value=SUColor(0, 1, 255, 255)))
 set_ro("LOCKED_COLOR", TypedValue(color_value=SUColor(255, 0, 0, 255)))
 
 xmin, ymin, zmin = 0.0, -9.61, 0.0
-xmax, ymax, zmax = 22.74, 0.0, 5.89
+xmax, ymax, zmax = 22.97, 0.0, 5.89
 cx, cy = (xmin + xmax) / 2, (ymin + ymax) / 2
 w, d, h = xmax - xmin, ymax - ymin, zmax - zmin
 

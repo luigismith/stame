@@ -13,6 +13,13 @@ da due foto che concordano entro 0,5 mm. Il pad è stato rimisurato il 18/10/202
 Luigi (vista dall'alto raddrizzata sui tasti 1u, viste di fianco per le altezze, ±2 %): contorno
 con il lobo davanti, strati, manopole e porte; le altezze vanno confermate con il righello [V].
 
+Il 19/10/2026 Luigi ha fotografato MK4 e pad con il metro (private/foto/*_metro_*). Sulla MK4 tornano
+la profondità (192) e l'inizio dei tasti (100, non 98); la larghezza letta è 345, sotto i 347,5 della
+scheda, che restano come ingombro della sede. Sul pad il metro posa sulla piastra, quindi il contorno
+si legge senza errore di prospettiva: 185 × 75, cioè il 3 % in più delle foto del 18/10 (due foto da
+punti diversi concordano entro 0,7 mm). La USB-C non è a 80 mm: il cavo entra fra m1 e m2, a 148; a
+78 c'è un interruttore che sporge di circa un millimetro.
+
 Composizione (decisa da Luigi il 15/10/2026): MPK mini IV a sinistra; a destra il macro pad in linea
 con i tasti e, dietro, la Flip aperta. Bozza 5 (18/10/2026): un telaio solo con la cima alla stessa
 quota, la mascherina che appoggia sulla MK4, il pad in una culla come quella della Flip, hub e cavi
@@ -44,8 +51,9 @@ FIANCO_STRATI = 4                 # fianchi: 4 strati da PLY incollati = 16 mm
 
 # ---- apparecchi ----
 # MPK mini IV: 347,5 × 192 × 45,7 con le manopole (rivenditori), corpo 37 (Akai) [M, guida MK4 §1];
-# i tasti cominciano a 98 mm dal bordo posteriore e sono alti circa 30 mm dal tavolo [D, foto]
-MK4 = dict(w=347.5, d=192.0, h=37.0, h_knobs=45.7, keybed_y=98.0, key_top=30.0)
+# col metro (19/10/2026) 345 × 192 [O]: la sede tiene i 347,5 della scheda. I tasti cominciano a
+# 100 mm dal bordo posteriore [O, metro] e sono alti circa 30 mm dal tavolo [D, foto]
+MK4 = dict(w=347.5, d=192.0, h=37.0, h_knobs=45.7, keybed_y=100.0, key_top=30.0)
 # Miyoo Flip chiusa 84 × 80,35 × 24,5 [O schede]; metà con i tasti 12,25 [D]; apertura della
 # cerniera [V]: qui serve almeno 115°
 FLIP = dict(w=84.0, d=80.35, h=24.5, half=12.25)
@@ -54,28 +62,30 @@ FLIP_JACK_DX = -6.0
 FLIP_USBC_DX = 6.3
 # tasti sul fianco destro, vicino alla cerniera: fra 6 e 16 mm dal bordo posteriore [D, foto]
 FLIP_TASTI_LATO = (6.0, 16.0)
-# macro pad BRIMFORD: 15 tasti in 3 file da 5 e 3 manopole a destra [O]. Misure dalle dieci foto di
-# Luigi del 18/10/2026 (fuori da git): copritasti 1u come metro (base 18 mm), la vista dall'alto
-# raddrizzata sulla griglia dei 15 tasti (scarto 3 px), le viste di fianco per le altezze; ±2 % sulle
-# misure d'insieme [D]. x dal bordo dei tasti verso le manopole, y dal retro verso il musicista.
-PAD = dict(w=179.0, d=73.5, h=31.5, pitch_x=20.8, pitch_y=21.9, k0=(15.5, 16.0))
-# il lobo davanti, dal lato della manopola grande: negli ultimi 40 mm la piastra sporge 2 mm oltre il
-# bordo davanti dei tasti, con un gradino arrotondato; l'angolo davanti verso le manopole ha R 30, gli
-# altri tre R 5 [D, foto 2, 5, 6, 9]
-PAD_LOBO = dict(sporge=2.0, lungo=40.0, r=30.0)
+# macro pad BRIMFORD: 15 tasti in 3 file da 5 e 3 manopole a destra [O]. Contorno col metro posato
+# sulla piastra (19/10/2026): 185 × 75 [O, ±0,5]; passo e primo tasto dalle stesse foto, corretti per
+# la quota dei copritasti [D, ±0,5]. x dal bordo dei tasti verso le manopole, y dal retro verso il
+# musicista.
+PAD = dict(w=185.0, d=75.0, h=31.5, pitch_x=21.4, pitch_y=22.1, k0=(15.5, 12.6))
+# il lobo davanti, dal lato delle manopole: da 3 mm dopo l'ultima colonna di tasti (x 113) la piastra
+# sporge circa 2 mm oltre il bordo davanti dei tasti, con un gradino arrotondato; l'angolo davanti
+# verso le manopole ha R 30, gli altri tre R 5 [D, foto del 18/10 e del 19/10]
+PAD_LOBO = dict(sporge=2.0, lungo=72.0, r=30.0)
 PAD_R = 5.0
-PAD_D_TOT = PAD['d'] + PAD_LOBO['sporge']    # 75,5: la profondità sul lobo
-# manopole del pad: centro (x, y dal retro) e raggio del cappello [D, foto]; m1 è la piccola vicina ai
-# tasti, m2 quella sul bordo, M la grande davanti (specifica 40 §8.10). Tutte arrivano 20 mm sopra la
-# piastra; le piccole sono un cappello zigrinato alto 14,5 su un dado da 5, la grande ha una flangia
-# alla base, raggio 17 [D]
-PAD_KNOB = {'m1': (130.0, 19.0, 10.0), 'm2': (165.0, 19.0, 10.0), 'M': (148.0, 61.0, 15.0)}
+PAD_D_TOT = PAD['d'] + PAD_LOBO['sporge']    # 77: la profondità sul lobo
+# manopole del pad: centro (x, y dal retro) e raggio del cappello; m1 è la piccola vicina ai tasti, m2
+# quella sul bordo, M la grande davanti (specifica 40 §8.10). x di m1 e m2 dal metro [O, ±1], il resto
+# [D]. Tutte arrivano 20 mm sopra la piastra; le piccole sono un cappello zigrinato alto 14,5 su un
+# dado da 5, la grande ha una flangia alla base, raggio 17 [D]
+PAD_KNOB = {'m1': (133.5, 18.0, 10.0), 'm2': (169.0, 18.0, 10.0), 'M': (151.5, 62.0, 15.0)}
 PAD_KNOB_H = 20.0
 PAD_FLANGIA = 17.0
-# porte sul retro [D, foto 1 e 10]: la USB-C sotto la seconda colonna di tasti contando dalle manopole;
-# verso il bordo dei tasti un'apertura piccola (≈ 5 mm, un tasto o un interruttore), da lasciare libera
-PAD_USB_X = 80.0
-PAD_PORTA2_X = 38.0
+# sul retro [O, foto del 19/10/2026]: la USB-C fra m1 e m2, con il LED verde accanto; un interruttore
+# a slitta a 78, la cui levetta sporge di circa 1 mm (la culla la lascia libera); a 36 un altro
+# elemento, sotto la piastra, che non sporge
+PAD_USB_X = 148.0
+PAD_INTERRUTTORE_X = 78.0
+PAD_PORTA2_X = 36.0
 # strati dal fondo [D, ±1,5]: la fascia scura (distanziali, circuito, fondo nero), l'acrilico
 # trasparente, la piastra satinata con gli interruttori; la faccia della piastra è il riferimento
 PAD_STRATI = (('fondo', 6.0), ('trasparente', 3.5), ('satinata', 2.0))
@@ -134,7 +144,7 @@ APPOGGIO_Y = RETRO_Y + PLY        # 8: da qui comincia la zona dei cavi, sotto l
 MK4_X0 = FIANCO + 2.0             # 2 mm di gioco ai lati della MK4
 MK4_Y0 = 44.0                     # 36 mm di zona dei cavi dietro la MK4 (USB a 90°)
 BASE_Y1 = MK4_Y0 + MK4['d'] + 8.0 # 244: 8 mm davanti ai tasti
-MASCHERINA_Y1 = MK4_Y0 + 94.0     # 138: il bordo davanti della mascherina, 4 mm prima dei tasti
+MASCHERINA_Y1 = MK4_Y0 + 94.0     # 138: il bordo davanti della mascherina, 6 mm prima dei tasti
 COSTOLA_X0 = MK4_X0 + MK4['w'] + 2.0   # 367,5: la costola fra la MK4 e la culla del pad, due strati
 COSTOLA_X1 = COSTOLA_X0 + 2 * PLY      # 375,5
 GIUNTA_PIANO = COSTOLA_X0 + PLY        # 371,5: mascherina e piano della Flip si incontrano qui

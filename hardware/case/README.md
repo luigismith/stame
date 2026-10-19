@@ -9,7 +9,7 @@ Un telaio di betulla tiene insieme la MPK mini IV, il macro pad BRIMFORD e la Mi
 Cosa cambia nella bozza 5 (Luigi, 18/10/2026: «deve essere tutto coperto e omogeneo. non mi piace tanto la divisione che hai creato tra mpk e pad, e per il pad vorrei una culla simile a quella che hai fatto per il flip»):
 - **Un piano solo.** Fianchi, retro, costola e parete davanti arrivano tutti a 46 mm. Dentro c'è un piano di acrilico nero in due pezzi, alla stessa quota: la mascherina a sinistra e il piano della Flip a destra. Hub e cavi stanno sotto, coperti; non ci sono più la torre, la mensola e il divisorio.
 - **La mascherina appoggia sulla MK4** e ha un foro per ogni controllo, anche per quelli che Stame non usa (Luigi: «falla che si poggia bene con i fori anche per i controlli non utilizzati»). Sui controlli di Stame ci sono le sue legende; su quelli della MK4 stessa (OCT, ARP, LATCH, NOTE REPEAT, TAP, BANK, DAW) il loro nome, piccolo. Dietro copre la zona dei cavi fino al retro, con la targa di Stame.
-- **La culla del pad** è come quella della Flip: il pad ci sta con la piastra 2 mm sopra il piano e il bordo sale 5 mm oltre la piastra. Dentro segue il contorno vero del pad, misurato il 18/10/2026 sulle foto di Luigi: il lobo davanti dal lato delle manopole, gli angoli, la USB-C sul retro. Sta in piedi sulla base, poggia il pad su sei costole e regge con un dente il bordo del piano della Flip. Davanti ha la tacca per la manopola grande, dietro la finestra per la spina del pad.
+- **La culla del pad** è come quella della Flip: il pad ci sta con la piastra 2 mm sopra il piano e il bordo sale 5 mm oltre la piastra. Dentro segue il contorno vero del pad, misurato sulle foto di Luigi del 18/10/2026 e con il metro il 19/10/2026: il lobo davanti dal lato delle manopole, gli angoli, la USB-C e l'interruttore sul retro. Sta in piedi sulla base, poggia il pad su sei costole e regge con un dente il bordo del piano della Flip. Davanti ha la tacca per la manopola grande, dietro la finestra per la spina del pad.
 - **Gli appoggi.** Lo strato più interno di fianchi, retro e costola è più basso dove sopra c'è il piano: con una striscia di feltro da 1 mm, il piano ci appoggia alla quota della MK4.
 - **Il cartellino non c'è più**: i tasti del pad hanno le etichette sotto il coperchio, e le manopole del pad hanno la loro legenda sul piano, fra le due culle.
 
@@ -77,7 +77,7 @@ Il piatto di riferimento è 210 × 210 mm, cioè le stampanti da 220 in su; `--p
 1. **Misurare** le voci [V] di `misure.py`. I controlli della MK4 e le porte della Flip sono stati rimisurati sulle foto il 17/10/2026 (±1 mm); restano:
    - altezza del pannello della MK4 (37 mm, `MK4['h']`): la mascherina ci appoggia, e il piano della Flip va alla stessa quota;
    - altezza dei pulsanti piccoli della MK4: con la mascherina appoggiata stanno 1-2 mm sotto la sua faccia;
-   - altezza del corpo del pad (`PAD_CORPO`, 11,5 mm dalle foto del 18/10/2026) e quota della sua presa USB-C (`PAD_USB_Z`, 9 mm; la presa è sul retro, a 80 mm dal bordo dei tasti): decidono le costole e la finestra della culla del pad;
+   - altezza del corpo del pad (`PAD_CORPO`, 11,5 mm dalle foto del 18/10/2026) e quota della sua presa USB-C (`PAD_USB_Z`, 9 mm): decidono le costole e la finestra della culla del pad. Il contorno (185 × 75), la presa (sul retro fra m1 e m2, a 148 mm dal bordo dei tasti) e l'interruttore a slitta (a 78) sono stati misurati con il metro il 19/10/2026;
    - angolo di apertura della Flip (serve almeno 115°);
    - misure dell'hub (`HUB`).
 

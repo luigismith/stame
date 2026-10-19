@@ -738,11 +738,13 @@ def piano_flip():
         svg.cerchio(*P(x, y), 1.7)
     for fx, fy, fw, fh in fessure:
         svg.rett(*P(fx, fy), fw, fh, 3.0)
-    # le manopole del pad, fra le due culle: dietro i tasti del pad ne resta in vista una striscia
-    xa = M.FLIP_X + 24.0
+    # le manopole del pad, fra le due culle: dietro i tasti del pad ne resta in vista una striscia. La
+    # legenda sta a sinistra della fessura della Flip: a destra, dietro m1 e m2, c'è la tacca della spina
     ya = CULLA_FLIP_Y1 + 3.0
     px = 0.12
     colonne = (0.0, 5.0, 21.0, 32.0)
+    largo = max(c + pixel_w(t, px) for riga in MANOPOLE_PAD for c, t in zip(colonne, riga))
+    xa = FESSURA_FRONTE[0] - 3.0 - largo
     for c, testo in zip(colonne[1:], ('', 'LOCK', 'DRUMS')):
         if testo:
             svg.pixel(*P(xa + c, ya), px, testo)
@@ -963,10 +965,12 @@ def culla_pad():
                      if len(q) >= 3 and abs(area(q)) > 0.01]
         for p in pezzi:
             ms.prisma(p, za, zb)
-    # dietro: la finestra della spina, che esce dal pad 9 mm sopra il fondo e scende verso l'hub
+    # dietro: la finestra della spina, che esce dal pad 9 mm sopra il fondo e scende verso l'hub, e
+    # quella della levetta dell'interruttore, che sporge dal retro più del gioco
     fa, fb = SPINA_PAD_X - 11.0, SPINA_PAD_X + 11.0
+    sa, sb = M.PAD_X0 + M.PAD_INTERRUTTORE_X - 5.0, M.PAD_X0 + M.PAD_INTERRUTTORE_X + 5.0
     zf = min(SPINA_PAD_TOP + 1.0, zr - 2.0)
-    parete(retro, z0, zf, [(fa, fb)])
+    parete(retro, z0, zf, [(sa, sb), (fa, fb)])
     parete(retro, zf, zr)
     parete(destra, z0, zr)
     parete(sinistra, z0, zr)
@@ -978,7 +982,7 @@ def culla_pad():
     d = M.CULLA_DENTE
     za = M.Z_APPOGGIO
     dente = [(y0 - d, za), (y0 - d, za - 2.0), (y0, za - 2.0 - d), (y0, za)]
-    for a, b in ((x0, fa), (fb, x1)):
+    for a, b in ((x0, sa), (sb, fa), (fb, x1)):
         ms.prisma_x(dente, a, b)
     # sei costole sotto il pad, da parete a parete
     for k in range(1, 7):
