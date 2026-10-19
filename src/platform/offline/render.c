@@ -280,6 +280,71 @@ static int render_suoni(const char *dir)
     return 0;
 }
 
+/* ---- la libreria dei kit sintetizzati (SND-542): per ogni strumento di ogni kit il picco mono di un colpo
+ * a 127 con guadagno 1, come dizionario PICCO_DB da incollare in tools/kits.py; e per ogni kit un WAV
+ * d'ascolto, <cartella>/kit_NN.wav: i dodici strumenti uno dopo l'altro, poi due battute del Funk ---- */
+static int render_kits(const char *dir)
+{
+    static drums_t k;
+    float L[DSP_BLOCK], R[DSP_BLOCK];
+    int16_t out[DSP_BLOCK * 2];
+    printf("PICCO_DB = {\n");
+    for (int ki = 0; ki < DRUM_SYNTH_KITS; ki++) {
+        printf("    '%s': (", drum_kits[ki].name);
+        for (int i = 0; i < DRUM_KIT_INST; i++) {
+            const drum_rec_t *r = &drum_kits[ki].r[i];
+            float th = (r->pan + 1.0f) * 0.25f * 3.14159265f, gs = cosf(th) + sinf(th), pk = 0.0f;
+            drums_init(&k, 48000.0f, 7);
+            drums_volume(&k, 99);
+            drums_set_synth(&k, &drum_kits[ki]);
+            drums_hit(&k, (uint8_t)i, 127);
+            for (int b = 0; b < 48000 * 7 / DSP_BLOCK && k.v[0].on; b++) {
+                memset(L, 0, sizeof L);
+                memset(R, 0, sizeof R);
+                drums_render16(&k, L, R);
+                for (int s = 0; s < DSP_BLOCK; s++) {
+                    float y = fabsf((L[s] + R[s]) / gs);
+                    if (y > pk) pk = y;
+                }
+            }
+            printf("%.2f%s", 20.0 * log10((double)(pk / r->gain) + 1e-12), i < DRUM_KIT_INST - 1 ? ", " : "");
+        }
+        printf("),\n");
+        char path[512];
+        snprintf(path, sizeof path, "%s/kit_%02d.wav", dir, ki + 1);
+        FILE *f = fopen(path, "wb");
+        if (!f) { printf("errore: %s\n", path); return 1; }
+        wav_header(f, 0);
+        drums_init(&k, 48000.0f, 7);
+        drums_volume(&k, 72);
+        drums_set_synth(&k, &drum_kits[ki]);
+        uint32_t frames = 0;
+        const uint32_t step16 = 6000u;                       /* un sedicesimo a 120 BPM */
+        for (uint32_t n = 0; n < 12u * 24000u + 32u * step16 + 48000u; n += DSP_BLOCK) {
+            if (n < 12u * 24000u && n % 24000u == 0) drums_hit(&k, (uint8_t)(n / 24000u), 110);
+            uint32_t m = n - 12u * 24000u;
+            if (n >= 12u * 24000u && m % step16 == 0 && m / step16 < 32u) {
+                beat_hit_t h[8];
+                int nh = beat_hits(1, (int)(m / step16 % 16u), h, 8);
+                for (int j = 0; j < nh; j++) drums_hit(&k, h[j].inst, h[j].vel);
+            }
+            memset(L, 0, sizeof L);
+            memset(R, 0, sizeof R);
+            drums_render16(&k, L, R);
+            for (int s = 0; s < DSP_BLOCK; s++) {
+                out[2 * s] = (int16_t)(fmaxf(-1.0f, fminf(1.0f, L[s])) * 32767.0f);
+                out[2 * s + 1] = (int16_t)(fmaxf(-1.0f, fminf(1.0f, R[s])) * 32767.0f);
+            }
+            fwrite(out, sizeof out[0], DSP_BLOCK * 2, f);
+            frames += DSP_BLOCK;
+        }
+        wav_header(f, frames);
+        fclose(f);
+    }
+    printf("}\n");
+    return 0;
+}
+
 /* ---- scene: le schermate del manuale, pilotando la vetrina con gli ingressi veri (tasti del macro
  * pad, note della MPK, tasti della Flip) e scattando a ogni stato ---- */
 static uint32_t sc_now;
@@ -470,6 +535,14 @@ static int render_scene(const char *dir)
     for (int i = 0; i < 32; i++) sc_daw(26, 0x7F);              /* di nuovo a zero: le scene dopo sono senza */
     for (int i = 0; i < 48; i++) sc_daw(27, 0x7F);
     sc_run(100);
+    /* la lista dei kit (UI-177): SHIFT + K1 sotto DRUMS, la manopola nav scende fino al primo della libreria */
+    sc_push(0, 60);
+    sc_run(100);
+    sc_daw(14, 6);
+    sc_run(200);
+    render_to(dir, "lista_kit");
+    sc_back();
+    sc_run(200);
     sc_pad(MPAD_T11);
     sc_run(2200);
     /* Drop (T13 tenuto, MIDI-140): il loop di batteria suona ancora; l'accordo resta, Beat e basso tacciono */
@@ -536,6 +609,7 @@ int main(int argc, char **argv)
     if (!bank) fprintf(stderr, "banco dei campioni: %s (suoni SMP e kit muti)\n", banco_errore());
     vet_snd_set_bank(bank);
     if (argc >= 3 && !strcmp(argv[1], "--suoni")) return render_suoni(argv[2]);
+    if (argc >= 3 && !strcmp(argv[1], "--kits")) return render_kits(argv[2]);
     if (argc < 2) {
         printf("uso: stame-render <cartella> [--mpk] [ms…] [--boot ms…] [--tutti passo_ms]\n"
                "     stame-render --wav file.wav [ms] [--mpk] [--song N]   (la vetrina con il synth, dall'avvio)\n"

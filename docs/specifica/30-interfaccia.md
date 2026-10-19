@@ -575,7 +575,7 @@ Il manuale dice che si esce anche «ripremendo Options» [M]; dato che premere O
 | Perform | premere Perform | Exit, Strum, Strum 2 Octaves, Slop, Arpeggiate, Arp 2 Octaves, Pattern, Harp | ● sul modo attivo; indice per Arpeggiate | [O QS 444-520] |
 | FX | premere FX | Exit, poi gli slot del suono (Reverb, FX1, FX2, Filter) con il nome dell'effetto e il valore («Off» o 1–10) | valore | [O QS 653-664] |
 | Bass | tenere Bass 1 s | Exit, Chords Only, Unison, Bass Single Notes, Solo | ✓ | [M MAN; O QS 810-842, LP 1356] |
-| Beats | tenere BPM 1 s | Exit, 2/4, 3/4, 4/4, 6/8, poi i Beat «01 Nome» … | ✓ | [M MAN; V V-UI-20] |
+| Beats | tenere BPM 1 s | Exit, 2/4, 3/4, 4/4, 6/8, poi i Beat «01 Nome» …; sulla Flip, con il kit di ogni Beat nella colonna info (UI-177) | ✓ | [M MAN; V V-UI-20] |
 | Save Sound | tenere Sound | Exit, Save, Save As, Delete | — | [M MAN; V V-UI-13] |
 | Save Loop | tenere Loop 2 s | Exit, Save As Loop XX, Save As, Load Loop, Delete Loop | — | [M MAN; V V-UI-12] |
 
@@ -966,7 +966,7 @@ Un testo che non sta nella cella si tronca con «…».
 | Bass Voicing | BS.VOICING | «23» | nota d'inizio: «C♯2» | Y | m1 |
 
 - Le legende riprendono la mappa di 40 (§8.9b, §8.10, §9.1, mappa del 16/10/2026): sono la **legenda viva** della MK4 e del macro pad. Restano nelle celle anche con la plancia calma: la pagina dei comandi si guarda da vicino e, finché il case non c'è, è l'unico promemoria della mappa. «S+K1» è SHIFT + K1 della MK4, il PUSH (40 MIDI-130). Con il macro pad collegato (`pad_link` = `PADL_OPEN`) si usa l'ultima colonna: Options, Chord Voicing e Bass Voicing passano a T9, M e m1.
-- **Sotto DRUMS** (40 MIDI-135, MIDI-139) sette celle cambiano mestiere, con i loro testi: Sound «KIT» (kit, dettaglio il Beat o «Drums»), Perform «ROLL» («Hold a key»), FX «DRIVE» con il filtro nel dettaglio («Filter LP 4»), e «FILTER» mentre si gira premuta, con il drive nel dettaglio; Key «SWING» («Off», «58%»; dettaglio «Beat and loop»), Bass «ACCENT» («Velocity»), Chord Voicing «DENSITY» e Bass Voicing «GROOVE» (UI-176).
+- **Sotto DRUMS** (40 MIDI-135, MIDI-139) sette celle cambiano mestiere, con i loro testi: Sound «KIT» («NN Nome» o «Beat», dettaglio tipo e stile o il kit del Beat, UI-177; prima del 19/10/2026 il dettaglio era il Beat o «Drums»), Perform «ROLL» («Hold a key»), FX «DRIVE» con il filtro nel dettaglio («Filter LP 4»), e «FILTER» mentre si gira premuta, con il drive nel dettaglio; Key «SWING» («Off», «58%»; dettaglio «Beat and loop»), Bass «ACCENT» («Velocity»), Chord Voicing «DENSITY» e Bass Voicing «GROOVE» (UI-176).
 - Options non ha una manopola sulla MPK: si ruota con la manopola di navigazione della MK4 dopo averlo premuto, perché la pressione porta lì il fuoco (MIDI-104). Senza macro pad Chord Voicing e Bass Voicing non hanno una manopola sulla MPK: si raggiungono con L1/R1 della Flip o con la levetta destra (40 MIDI-138); Y è il Mod.
 - **Senza tastiera** (`mpk_link` diverso da `MPK_OPEN`) restano scritti solo i comandi diretti: BPM «START», Options «SEL», Bass Voicing «Y»; con il pad Options, Chord Voicing e Bass Voicing passano a T9, M e m1. Gli altri controlli si raggiungono con il fuoco della Flip (L1/R1 e la croce).
 - Con la **Plus** (`plat.mpk_model` = 0) valgono le legende di prima: banco B («K2 B3», «K6 B5 REC», «B7 SEL», «B4»), X e Y; con il pad T9, M e m1. REC e PLAY sono i tasti del trasporto (sulla MK4: REC e STOP/PLAY).
@@ -1219,6 +1219,11 @@ Quit Stame     → Back / Quit now
 - nella pagina dei comandi le celle CH.VOICING e BS.VOICING diventano DENSITY (valore, barra, parte) e GROOVE (stile, «Var N»); la cella BPM e la riga di Geek Out scrivono stile e variazione al posto del numero del Beat.
 
   La griglia la calcola il thread della UI con le stesse funzioni del motore (`inv_build`, `inv_hits`), dagli stessi parametri: non passa dallo snapshot. La zona si ridisegna quando cambia un parametro o il passo che suona.
+
+**UI-177** [D, 19/10/2026] **La lista dei kit** (`40` MIDI-141, `20` SND-541). Sotto DRUMS la pressione di K1 apre la lista «DRUM KITS» (`LS_KITS`), come le liste di UI-077 e con la loro chiusura dopo 10 s (UI-076):
+- la prima voce è «Beat», il kit che porta il Beat (o lo stile inventato), con il suo nome nella colonna info; poi i 40 kit «NN Nome», con nella colonna info il tipo e lo stile come motore e famiglia dei suoni: «SMP  acoustic» per i quattro a campioni, «SYN  classic» per il Chip, «SYN  analog», «SYN  world»… per la libreria; la spunta segna il kit scelto;
+- la cella KIT della pagina dei comandi (UI-152) scrive il valore «NN Nome», o «Beat», e nel dettaglio «Synth, analog», «Samples, acoustic», o con il kit del Beat «Funk: Studio», «Acid: 808»; la banda (`OV_KIT`) scrive «Kit», il numero, il nome e lo stesso dettaglio. I testi li compone la piattaforma in `tempo.kit_name` e `tempo.kit_info` (il nucleo della UI non conosce il catalogo);
+- nella lista dei Beat (UI-077) la colonna info di ogni Beat scrive il suo kit.
 
 ---
 

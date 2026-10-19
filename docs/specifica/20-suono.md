@@ -644,12 +644,68 @@ Etichette dei parametri `[O: frontend dell'editor 1.0.2 dell'originale]`; descri
 
 - **SND-535** `dsp_render16` **DEVE** sommare un bus stereo della batteria fornito dal chiamante, già processato dai suoi Drum FX (Reverb e Saturator, `10-accordi-e-performance.md`), dopo il riverbero e prima del volume master.
 - **SND-536** Volume master: `g_master(v)` con `v` 0–99 `[M: master 0–99]`, poi il soft clipper di SND-046.
-- **SND-537** **Kit a campioni** (aggiunta di Stame, 15/10/2026: le batterie sintetizzate «fanno cagare», Luigi). Ogni Beat ha un kit: il nome di un set del banco (SND-374) le cui zone hanno per nota l'id dello strumento di `drums.h` (0 = cassa … 11 = piatto) e, dove serve, layer di velocity (`vel_lo`); oppure nessun kit, e suona la sintesi in stile CR-78 (il kit «Chip»). `drums_hit` prende la zona dello strumento dal kit del Beat corrente e la legge con interpolazione lineare al passo `rate / fs`, senza intonazione; se lo strumento non è nel kit (i clic del metronomo, o un kit parziale) ricade nella sintesi. Il charleston chiuso strozza l'aperto anche quando è un campione (dissolvenza di 6 ms). Kit della prima versione: `kit_studio` (VCSL: cassa, rullante a due layer, cross stick, battimani, charleston, tom, shaker, conga, campanaccio, piatto), `kit_jazz` (Sonic Pi e VCSL), `kit_808` (Sonic Pi), e dal 15/10/2026 notte `kit_techno` (Sonic Pi più il battimani di VCSL, scelto misurando i candidati: cassa `bd_klub`, charleston `hat_bdu` e `hat_gump`, ride `ride_tri`) per i Beat Techno e Dub. I 14 Beat della vetrina e i loro kit sono in `src/core/beat.c`.
+- **SND-537** **Kit a campioni** (aggiunta di Stame, 15/10/2026: le batterie sintetizzate «fanno cagare», Luigi). Ogni Beat ha un kit: il nome di un set del banco (SND-374) le cui zone hanno per nota l'id dello strumento di `drums.h` (0 = cassa … 11 = piatto) e, dove serve, layer di velocity (`vel_lo`); oppure nessun kit, e suona la sintesi in stile CR-78 (il kit «Chip»); dal 19/10/2026 anche uno dei kit sintetizzati della libreria (SND-541). `drums_hit` prende la zona dello strumento dal kit del Beat corrente e la legge con interpolazione lineare al passo `rate / fs`, senza intonazione; se lo strumento non è nel kit (i clic del metronomo, o un kit parziale) ricade nella sintesi. Il charleston chiuso strozza l'aperto anche quando è un campione (dissolvenza di 6 ms). Kit della prima versione: `kit_studio` (VCSL: cassa, rullante a due layer, cross stick, battimani, charleston, tom, shaker, conga, campanaccio, piatto), `kit_jazz` (Sonic Pi e VCSL), `kit_808` (Sonic Pi), e dal 15/10/2026 notte `kit_techno` (Sonic Pi più il battimani di VCSL, scelto misurando i candidati: cassa `bd_klub`, charleston `hat_bdu` e `hat_gump`, ride `ride_tri`) per i Beat Techno e Dub. I Beat della vetrina e i loro kit sono in `src/core/beat.c` (dal 19/10/2026 sessanta, `10` ACC-218).
 - **SND-538** **FX del bus della batteria** (aggiunta di Stame, `40` MIDI-135; Luigi, 16/10/2026: «drive e filtro sul bus della batteria»; fatto il 19/10/2026). `drums_render16` passa i colpi del kit per un drive e poi per un filtro, prima di sommarli al bus di SND-535; i clic del metronomo (ACC-207) ne restano fuori.
   - **Drive** `d` = 0…1 (K3, 0…10): `g = 10^(0,9·d)` (fino a +18 dB), `w = tanh(g·x) · 0,5 / tanh(0,5·g)` con il campione di mezzo, cioè sovracampionato 2× come il DRIVE di §10.3, e `y = x + √d · (w − x)`: un picco di 0,5 resta 0,5 e le code salgono.
   - **Filtro** `p` = −1…+1 (K3 premuta e girata, −10…+10): SVF trapezoidale con Q 1; per `p` < 0 passa-basso da 20 kHz a 150 Hz, per `p` > 0 passa-alto da 20 Hz a 3 kHz, in scala esponenziale; 0 spento. Agli estremi interni (vicino a 0) il filtro è trasparente, quindi il passaggio fra passa-basso e passa-alto non fa clic.
   - Drive e filtro inseguono il valore con 15 ms, a blocchi di 16 campioni; i coefficienti si calcolano una volta per blocco. Con drive 0 e filtro 0 il bus esce com'è, bit per bit (TV-121). I Drum FX dell'originale (Reverb e Saturator, SND-535, QA-SND-30) restano da specificare: questo è un FX in più, non il loro.
 - **SND-539** **Il muto del Drop** (`40` MIDI-140, `10` ACC-217; 19/10/2026). Il motore Bass ha un guadagno di muto che va a 0 o torna a 1 con una rampa lineare di 5 ms, moltiplicato per quello del volume (SND-453); le voci del basso continuano, quindi una nota tenuta ricompare al rientro. Nel kit i colpi programmati (Beat e loop, `drums_hit_prog`) passano per un bus loro, prima dell'FX di SND-538, con la stessa rampa; a zero le loro voci si spengono, perché le code non ricompaiano al rientro, e dopo un Drop finito il primo colpo riparte pieno. Durante il Drop i colpi programmati non partono; quelli suonati dal vivo e i clic del metronomo non passano dal muto.
+
+### 10.7 La libreria dei kit sintetizzati
+
+Aggiunta di Stame `[D]`, chiesta da Luigi il 19/10/2026: «voglio anche una libreria enorme di batterie», con i suoni sintetizzati preferiti a quelli campionati. Il Chip, i quattro kit a campioni e tutto quello che fanno restano come sono; la libreria si aggiunge dopo di loro.
+
+- **SND-540** **La ricetta di uno strumento** (`drum_rec_t` in `src/dsp/drums.h`). Ogni kit sintetizzato ha una ricetta per ognuno dei dodici strumenti di ACC-212, nello stesso ordine, così Beat, loop inventato, tasti, pad e Roll suonano qualunque kit. Una voce della ricetta, per campione:
+  - **tono** di una di quattro forme, con il salto di pitch `f = f0 · (1 + pa · e^(−t/tp))` (pa negativo: il pitch sale, come il bayan della tabla) e l'ampiezza `tone · e^(−t/ta)`: **seno** con un secondo parziale (rapporto `r2`, livello `l2`); **quadra** limitata in banda (PolyBLEP, come SND-250) con il secondo parziale; **FM**, un seno modulato in fase da un seno a `r2 · f`, con indice `l2` in cicli che decade con il tono; **metallo**, quadre su un set di rapporti (`r2`): il charleston analogico (205,3 · 304,4 · 369,6 · 522,7 · 540 · 800 Hz in rapporto alla prima), il campanaccio (540 e 800 Hz), i modi di una piastra circolare (1 · 2,756 · 5,404 · 8,933 · 13,344 · 18,64: campane, gong, incudini) e un piatto più fitto. Le due quadre del campanaccio sono limitate in banda; le sei degli altri set sono semplici (il ripiegamento finisce nel fruscio del passa-alto, e costano un terzo);
+  - **rumore** bianco (xorshift, SND-005), tenuto per `nhold` campioni (il canale di rumore delle console), di livello `noise · e^(−t/tn)`; con `bursts` > 1 parte a colpi ogni 9,5 ms, ognuno con una costante di 3,5 ms, e dopo l'ultimo decade con `tn` (il battimani);
+  - **clic**: il rumore per 1,2 ms (costante di tempo), di livello `click`;
+  - **filtro** a variabili di stato trapezoidale con frequenza `fc` e Q `q`, passa-basso, passa-banda a guadagno 1 al centro o passa-alto, coefficienti calcolati al colpo; prende il rumore, anche il tono con il flag `DK_ALL`, sempre il metallo. Il clic non ci passa;
+  - poi **drive** `y = tanh((1 + drive) · y)`; **riduzione di campionamento** (si tiene un campione ogni `hold`); **riduzione di bit** (`y` arrotondato a `1/bits`); **attacco** lineare di `att` secondi; gli ultimi **4 ms** della durata `dur` sfumano a zero, così un gate che chiude (il rullante degli anni Ottanta) non fa clic; infine `gain`, la velocity (`(vel/127)^1,5`, come i campioni) e il pan a potenza costante.
+
+  La voce si spegne alla fine di `dur` o quando tono e rumore sono sotto 10⁻⁴. Il charleston chiuso strozza l'aperto come per i campioni (6 ms). Gli inviluppi e gli stati del filtro sotto 10⁻¹⁵ si azzerano a ogni blocco (SND-703): il clic e il salto di pitch arrivano ai denormali in un decimo di secondo. I clic del metronomo restano la sintesi di sempre con qualunque kit.
+- **SND-541** **Il catalogo dei kit** (`core/beat.c`, `beat_kit_*`). Indici 0…39: i quattro a campioni (Studio, Jazz, 808, Techno, SND-537), il **Chip** in stile CR-78 di sempre, poi i **35 kit della libreria** nell'ordine di `drum_kits[]` (`src/dsp/drum_kits.c`, generato da `tools/kits.py`). L'ordine dei primi cinque non cambia: K1, la demo e i Beat che c'erano li contano così. Un kit a campioni suona il set del banco e, dove il set non ha lo strumento o il banco manca, il Chip, come prima; un kit della libreria suona solo le sue ricette, quindi non dipende dal banco. Ogni kit ha uno **stile**: «acoustic», «jazz», «analog», «techno» per i quattro a campioni, «classic» per il Chip, quello della libreria per gli altri. Il kit che suona è quello scelto a mano con K1 (`40` MIDI-135, MIDI-141), altrimenti quello dello stile della batteria che si inventa (`10` ACC-215), altrimenti quello del Beat (`10` ACC-218).
+
+| K1 | Kit | Stile | Carattere |
+|---:|---|---|---|
+| 6 | 808 Boom | analog | la cassa lunga e tonda, charleston a sei quadre, campanaccio a due |
+| 7 | 808 Trap | analog | la cassa che dura due secondi e satura, charleston stretti, un battimani grande |
+| 8 | 909 House | analog | la cassa con lo schiocco e il clic, il rullante a rumore largo, il ride |
+| 9 | 909 Rave | analog | la stessa schiacciata: drive dappertutto, tom che precipitano |
+| 10 | CR Rhythm | analog | le scatole ritmiche dei preset: claves, tamburello, bongo, charleston di rumore |
+| 11 | 606 Tick | analog | leggera e sottile, tutto corto |
+| 12 | Hex Toms | electronic | i tom elettronici che cadono, il rullante che spazza |
+| 13 | Syndrum Disco | electronic | i colpi della disco: tom con il pitch che precipita di due ottave |
+| 14 | Robot Pop | electronic | risonanze strette, colpi di filtro: l'electro dei robot |
+| 15 | Linn Pop | eighties | gli anni Ottanta: la cassa con il battente, un rullante grosso, il tamburello |
+| 16 | Gated 80s | eighties | il rullante e i tom con il gate: la coda si chiude di colpo |
+| 17 | Minimal Click | techno | micro suoni: clic, tic e bip |
+| 18 | Dub Yard | dub | tonda, profonda e scura; il rimshot che risuona |
+| 19 | 2-Step | garage | la cassa secca, il rullante che schiocca, charleston fini |
+| 20 | Jungle | breaks | acustica accordata in alto, con la grana del campionatore (24 kHz) |
+| 21 | Iron Mill | industrial | metallo distorto: incudini, tubi, lamiera |
+| 22 | Scrap Yard | industrial | latte, bidoni e molle: rottame in FM |
+| 23 | Glitch Bits | glitch | colpi tagliati, pochi bit, un piatto al contrario |
+| 24 | Data Rot | glitch | la macchina guasta: bip che salgono, ronzii, rumore a gradini |
+| 25 | Laser Lab | sci-fi | zap e laser: la cassa che precipita, tom che salgono, un fruscio che cresce |
+| 26 | Lo-Fi Dust | lo-fi | attutita e polverosa, a 24 kHz e 8 bit |
+| 27 | Tape Crate | lo-fi | il boom bap del vinile: 16 kHz e 6 bit, la cassa che spinge |
+| 28 | 8-Bit | chip | le quadre e il canale di rumore di una console, a 4 bit |
+| 29 | Arcade | chip | il cabinato: zap, power-up, monetine |
+| 30 | Acoustic Room | acoustic | una batteria acustica sintetizzata: battente, cordiera, piatti |
+| 31 | Brushes | acoustic | spazzole, feltro e ride, per il jazz |
+| 32 | Stadium Rock | acoustic | la batteria grande dello stadio, con il drive |
+| 33 | Afro Hand | world | djembe, dundun, shekere, gankogui |
+| 34 | Tabla Mist | world | la tabla (il bayan che sale, il dayan che risuona), manjira, ghungroo |
+| 35 | Gamelan | world | kendang, bonang, saron, kempul e il gong |
+| 36 | Latin Perc | world | surdo, timbales, claves, guiro, cabasa, campana mambo, agogo |
+| 37 | Taiko | world | odaiko, shime, hyoshigi, chappa, kane |
+| 38 | Darbuka Sand | world | doum e tek, riq, bendir, zills |
+| 39 | Cajon Box | acoustic | cajón, palmas, shaker, woodblock |
+| 40 | Deep Space | ambient | morbida e lontana: colpi che si aprono piano, il piatto che cresce |
+
+  Nei kit del mondo i dodici posti di ACC-212 cambiano strumento ma non ruolo: la cassa è il tamburo grave, rullante e battimani i colpi secchi, i charleston i sonagli, il campanaccio la campana.
+- **SND-542** **I livelli.** Ogni strumento colpito a 127 arriva al picco (mono, prima del volume del Beat) di: cassa −1, rimshot −3, rullante −1,5, battimani −2, charleston chiuso −4, tom basso −2, charleston aperto −4, tom alto −2, maracas −5, conga −2,5, campanaccio −4, piatto −5 dBFS. La cassa è al livello dei campioni (−1 dBFS, SND-375); i metalli un po' sotto, perché i Beat li battono a ogni ottavo. `stame-render --kits <cartella>` misura il picco di ogni ricetta con guadagno 1 (seme 7, come i test) e scrive il dizionario `PICCO_DB` da incollare in `tools/kits.py`, che pone `gain = 10^((livello − picco)/20)`; scrive anche un WAV d'ascolto per kit (i dodici colpi, poi due battute del Funk). T-SND-55 controlla i livelli entro −1/+0,5 dB.
+- **SND-543** **Il costo.** Misurato sul PC (`-O2`), per voce e per campione: cassa a seno ~14 ns, rullante ~20 ns, FM ~16 ns, metallo ~23 ns, contro ~6 ns del Chip. Il caso peggiore sono dieci voci di metallo (DRUM_VOICES), ~230 ns per campione sul PC: sull'A55 `[D]`, con il doppio dei cicli, circa 1800 cicli per campione, il 5 % di un core a 1,8 GHz; con il synth al caso peggiore di §13 si resta sotto il 30 % di SND-700. Un Beat tipico ha tre o quattro voci accese, di cui una di metallo. Niente heap: le ricette sono tabelle costanti (~30 KB), lo stato è nella voce.
 
 ---
 
@@ -846,6 +902,11 @@ Dettagli della piattaforma (RK3566, 4 × Cortex-A55, frequenze, affinità dei th
 | T-SND-31 | Basso tenuto + 16 note del Sound | la voce del basso non viene rubata |
 | T-SND-32 | Stealing di una voce a pieno volume | nessun salto campione-campione > 0,05 oltre il contenuto del segnale; dissolvenza di 2 ms |
 | T-SND-33 | CC120 | silenzio entro un blocco, stati RP azzerati |
+| T-SND-55 | Ogni strumento di ogni kit della libreria a velocity 127 (SND-540, SND-542) | uscita finita; picco mono al livello di SND-542 entro −1/+0,5 dB; voce spenta entro `dur` |
+| T-SND-56 | Il Chip e i clic del metronomo (SND-541) | energia e picco di ogni strumento uguali a quelli di prima della libreria (entro 10⁻⁵); il clic non cambia con un kit della libreria |
+| T-SND-57 | Ricette: stesso seme; charleston aperto e poi chiuso; battimani dell'808 Boom (SND-540) | colpi identici; l'aperto spento entro 100 ms; i colpi del battimani a 9,5 e 19 ms |
+| T-SND-58 | Il catalogo (SND-541, `10` ACC-218) | 40 kit, i primi cinque di sempre nell'ordine di sempre; nomi unici sotto i 16 caratteri; ricetta solo nella libreria, set solo nei kit a campioni; i kit dei Beat e degli stili esistono; `mot_kit` porta la ricetta al kit |
+| T-SND-59 | Dieci voci di metallo per un secondo (SND-543) | nessun NaN né picco oltre 8; le voci si spengono |
 
 ### 14.3 Golden file
 
@@ -893,7 +954,7 @@ Dettagli della piattaforma (RK3566, 4 × Cortex-A55, frequenze, affinità dei th
 | QA-SND-27 | Fase iniziale degli oscillatori VA e degli operatori FM; PW su SAW e TRI | casuale VA, 0 FM; PW ignorato | Note ripetute registrate: forma d'onda all'attacco |
 | QA-SND-28 | Curve di volume (GAIN, GAIN dell'oscillatore, master, basso), headroom e saturazione del mixer | §3, SND-045, SND-265 | Misure di livello in dB |
 | QA-SND-29 | Scala del DETUNE (±1 semitono?) | ±1 semitono | Battimenti tra due oscillatori con DETUNE noti |
-| QA-SND-30 | Chi specifica la sintesi del kit di batteria e i Drum FX | `10-accordi-e-performance.md` | Decisione tra le sezioni |
+| QA-SND-30 | Chi specifica la sintesi del kit di batteria e i Drum FX | `10-accordi-e-performance.md` | Decisione tra le sezioni. La sintesi dei kit di Stame sta qui, §10.7 (19/10/2026); restano da specificare i Drum FX dell'originale |
 | QA-SND-31 | Comportamento esatto di POLY LEGATO | SND-204 | Note legate con inviluppo lento |
 | QA-SND-32 | Bit-identità tra l'editor dell'originale e l'hardware | non assunta | Stesso preset registrato dall'editor e dall'originale, confronto SND-822 |
 

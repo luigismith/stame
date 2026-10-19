@@ -10,71 +10,192 @@ typedef struct {
     char lv[INV_PARTS][17];
 } groove_def_t;
 
-enum { KIT_I_STUDIO, KIT_I_JAZZ, KIT_I_808, KIT_I_TECHNO };   /* indici di beat_kit_name */
-
 static const groove_def_t GROOVES[INV_GROOVES] STAME_ROM = {
     /*                                                       0123456789abcdef */
-    { "Techno", KIT_I_TECHNO, DRUM_CLAP, { DRUM_RIMSHOT, DRUM_COWBELL, DRUM_TOM_HI },
+    { "Techno", KIT_TECHNO, DRUM_CLAP, { DRUM_RIMSHOT, DRUM_COWBELL, DRUM_TOM_HI },
       { "9000900190009030",                                  /* cassa in quattro, una spinta prima del 4 */
         "0000800100008002",                                  /* battimani sul 2 e sul 4 */
         "3504350435043504",                                  /* sedicesimi fra un aperto e l'altro */
         "0070007000700070",                                  /* aperto in levare */
         "0002000300020020" } },
-    { "Rock", KIT_I_STUDIO, DRUM_SNARE, { DRUM_TOM_LO, DRUM_TOM_HI, DRUM_COWBELL },
+    { "Rock", KIT_STUDIO, DRUM_SNARE, { DRUM_TOM_LO, DRUM_TOM_HI, DRUM_COWBELL },
       { "9001000290500030",
         "0000900201009103",
         "8272827282728272",                                  /* crome, i sedicesimi solo in alto */
         "0000001000000030",
         "0000000000000223" } },                              /* i tom chiudono la battuta */
-    { "Funk", KIT_I_STUDIO, DRUM_SNARE, { DRUM_CONGA, DRUM_COWBELL, DRUM_RIMSHOT },
+    { "Funk", KIT_STUDIO, DRUM_SNARE, { DRUM_CONGA, DRUM_COWBELL, DRUM_RIMSHOT },
       { "9003006020700401",
         "0200900403029031",                                  /* note fantasma attorno al 2 e al 4 */
         "7565756575657565",
         "0000002000000050",
         "0030000300300003" } },
-    { "Break", KIT_I_808, DRUM_SNARE, { DRUM_RIMSHOT, DRUM_TOM_LO, DRUM_CONGA },
+    { "Break", KIT_808, DRUM_SNARE, { DRUM_RIMSHOT, DRUM_TOM_LO, DRUM_CONGA },
       { "9060000200840000",                                  /* la cassa spezzata del breakbeat */
         "0000900506009024",
         "7363736373637363",
         "0000000000000050",
         "0000000000000303" } },
-    { "Halftime", KIT_I_808, DRUM_SNARE, { DRUM_CLAP, DRUM_RIMSHOT, DRUM_TOM_HI },
+    { "Halftime", KIT_808, DRUM_SNARE, { DRUM_CLAP, DRUM_RIMSHOT, DRUM_TOM_HI },
       { "9003002000620000",
         "0000000090000012",                                  /* il rullante sul 3 */
         "6353635363536353",
         "0000003000000020",
         "0000000060000000" } },
-    { "Dub", KIT_I_TECHNO, DRUM_RIMSHOT, { DRUM_MARACAS, DRUM_CONGA, DRUM_TOM_LO },
+    { "Dub", KIT_TECHNO, DRUM_RIMSHOT, { DRUM_MARACAS, DRUM_CONGA, DRUM_TOM_LO },
       { "6000700090007000",                                  /* one drop in basso, steppers in alto */
         "0000300090004002",
         "0373037303730373",
         "0000000000000040",
         "4243424342434243" } },
-    { "Bossa", KIT_I_JAZZ, DRUM_RIMSHOT, { DRUM_MARACAS, DRUM_CONGA, DRUM_COWBELL },
+    { "Bossa", KIT_JAZZ, DRUM_RIMSHOT, { DRUM_MARACAS, DRUM_CONGA, DRUM_COWBELL },
       { "9006800690068006",
         "8008008000800800",                                  /* la clave sul rimshot */
         "6262626262626262",
         "0000000000000000",
         "0404040404040404" } },
-    { "Electro", KIT_I_808, DRUM_CLAP, { DRUM_COWBELL, DRUM_TOM_HI, DRUM_CONGA },
+    { "Electro", KIT_808, DRUM_CLAP, { DRUM_COWBELL, DRUM_TOM_HI, DRUM_CONGA },
       { "9002006000703000",
         "0000900001009003",
         "6464646464646464",
         "0000000000000040",
         "0000030000030000" } },
     /* 18/10/2026, Luigi: «più cupi, più profondi, più grevi, più bassi, più acidi» */
-    { "Acid", KIT_I_808, DRUM_CLAP, { DRUM_RIMSHOT, DRUM_COWBELL, DRUM_TOM_LO },
+    { "Acid", KIT_808, DRUM_CLAP, { DRUM_RIMSHOT, DRUM_COWBELL, DRUM_TOM_LO },
       { "9000900290009003",                                  /* cassa in quattro e due spinte */
         "0000800000008002",
         "4646464646464646",                                  /* i sedicesimi in levare più forti */
         "0070007000700070",
         "0003002000030020" } },
-    { "Industrial", KIT_I_TECHNO, DRUM_SNARE, { DRUM_RIMSHOT, DRUM_COWBELL, DRUM_TOM_LO },
+    { "Industrial", KIT_TECHNO, DRUM_SNARE, { DRUM_RIMSHOT, DRUM_COWBELL, DRUM_TOM_LO },
       { "9002700090027000",                                  /* la cassa che inciampa prima del 2 e del 4 */
         "0000900030009004",
         "5050505050505050",
         "0000000000000000",
         "0300030003000300" } },                              /* colpi di metallo in levare */
+    /* 19/10/2026, Luigi: «una libreria enorme di batterie» (ACC-215, ACC-218): venti stili di genere, ognuno
+     * con un kit della libreria sintetizzata (20 SND-541) */
+    /*                                                       0123456789abcdef */
+    { "House", KIT_SYN(DK_KIT_909_HOUSE), DRUM_CLAP, { DRUM_RIMSHOT, DRUM_CONGA, DRUM_COWBELL },
+      { "9000900090009000",
+        "0000900000009003",
+        "7030603070306030",                                  /* il chiuso sui quarti strozza l'aperto */
+        "0080008000800080",
+        "0003002000300020" } },
+    { "Garage", KIT_SYN(DK_KIT_2_STEP), DRUM_SNARE, { DRUM_RIMSHOT, DRUM_MARACAS, DRUM_CONGA },
+      { "9000000020900030",                                  /* il due passi: la cassa salta il 2 e il 4 */
+        "0000900000009002",
+        "3060306030603060",
+        "0000000000000040",
+        "0002002000020020" } },
+    { "Jungle", KIT_SYN(DK_KIT_JUNGLE), DRUM_SNARE, { DRUM_RIMSHOT, DRUM_TOM_HI, DRUM_CYMBAL },
+      { "9070000000980000",                                  /* il break tagliato */
+        "0000900603009006",
+        "6464646464646464",
+        "0000000000000050",
+        "0000000000000303" } },
+    { "DnB", KIT_SYN(DK_KIT_JUNGLE), DRUM_SNARE, { DRUM_RIMSHOT, DRUM_MARACAS, DRUM_CYMBAL },
+      { "9000000000900030",
+        "0000900000009002",
+        "7363736373637363",
+        "0000000000000040",
+        "4242424242424242" } },
+    { "Dubstep", KIT_SYN(DK_KIT_808_TRAP), DRUM_SNARE, { DRUM_RIMSHOT, DRUM_TOM_LO, DRUM_CLAP },
+      { "9000000003600000",                                  /* metà tempo: il rullante sul 3 */
+        "0000000090000001",
+        "6030603060306030",
+        "0000000000000050",
+        "0000030000030000" } },
+    { "Trap", KIT_SYN(DK_KIT_808_TRAP), DRUM_CLAP, { DRUM_RIMSHOT, DRUM_COWBELL, DRUM_TOM_HI },
+      { "9000000300900000",
+        "0000000090000000",
+        "7474747474747575",                                  /* alle densità alte i rulli di charleston */
+        "0000000000000030",
+        "0000000000000203" } },
+    { "Synthwave", KIT_SYN(DK_KIT_GATED_80S), DRUM_SNARE, { DRUM_TOM_HI, DRUM_CONGA, DRUM_TOM_LO },
+      { "9000000090600000",
+        "0000900000009000",
+        "8282828282828282",
+        "0000000000000030",
+        "0000000000000234" } },                              /* i tom con il gate chiudono */
+    { "Synthpop", KIT_SYN(DK_KIT_HEX_TOMS), DRUM_SNARE, { DRUM_TOM_HI, DRUM_TOM_LO, DRUM_CONGA },
+      { "9000900090009000",
+        "0000900000009000",
+        "7373737373737373",
+        "0000003000000030",
+        "0000000300000032" } },
+    { "Lo-Fi", KIT_SYN(DK_KIT_LO_FI_DUST), DRUM_SNARE, { DRUM_RIMSHOT, DRUM_MARACAS, DRUM_CONGA },
+      { "9000000500900020",
+        "0000900000009003",
+        "7363736373637363",
+        "0000000000000040",
+        "0000000000030000" } },
+    { "Trip Hop", KIT_SYN(DK_KIT_TAPE_CRATE), DRUM_SNARE, { DRUM_RIMSHOT, DRUM_TOM_LO, DRUM_CYMBAL },
+      { "9000000090600000",
+        "0000900000009000",
+        "6262626262626262",
+        "0000000000000300",
+        "0000003000000000" } },
+    { "Chiptune", KIT_SYN(DK_KIT_8_BIT), DRUM_SNARE, { DRUM_CONGA, DRUM_TOM_HI, DRUM_COWBELL },
+      { "9003009090030090",
+        "0000900000009002",
+        "6565656565656565",
+        "0000000000000000",
+        "0040004000400040" } },
+    { "Glitch", KIT_SYN(DK_KIT_GLITCH_BITS), DRUM_SNARE, { DRUM_CLAP, DRUM_TOM_LO, DRUM_CYMBAL },
+      { "9004000402904000",
+        "0000900300009300",
+        "6353536356353563",
+        "0000000000000000",
+        "0300000300030003" } },
+    { "EBM", KIT_SYN(DK_KIT_IRON_MILL), DRUM_SNARE, { DRUM_COWBELL, DRUM_TOM_LO, DRUM_RIMSHOT },
+      { "9090909090909090",                                  /* la cassa a crome */
+        "0000900000009000",
+        "0070007000700070",
+        "0000000000000000",
+        "0000003000000030" } },
+    { "Afrobeat", KIT_SYN(DK_KIT_AFRO_HAND), DRUM_SNARE, { DRUM_COWBELL, DRUM_CONGA, DRUM_MARACAS },
+      { "9000009000900000",
+        "0000900300009030",
+        "7575757575757575",
+        "0000000000000000",
+        "8080080808008080" } },                              /* la campana */
+    { "Tabla", KIT_SYN(DK_KIT_TABLA_MIST), DRUM_SNARE, { DRUM_RIMSHOT, DRUM_CONGA, DRUM_TOM_HI },
+      { "9779977900000779",                                  /* il teental: il bayan tace nel khali */
+        "0770077007700770",
+        "3000300030003000",
+        "0000000000000000",
+        "9009900990099009" } },
+    { "Salsa", KIT_SYN(DK_KIT_LATIN_PERC), DRUM_RIMSHOT, { DRUM_COWBELL, DRUM_CONGA, DRUM_TOM_HI },
+      { "0006000000060000",
+        "9009009000909000",                                  /* la clave 3-2 */
+        "4343434343434343",
+        "0000000000000000",
+        "8080808080808080" } },
+    { "Reggaeton", KIT_SYN(DK_KIT_808_BOOM), DRUM_SNARE, { DRUM_RIMSHOT, DRUM_CLAP, DRUM_TOM_HI },
+      { "9000900090009000",
+        "0009009000090090",                                  /* il dembow */
+        "6363636363636363",
+        "0000000000000000",
+        "0000000000000303" } },
+    { "Jazz", KIT_SYN(DK_KIT_BRUSHES), DRUM_SNARE, { DRUM_CYMBAL, DRUM_RIMSHOT, DRUM_TOM_LO },
+      { "5000300050003000",
+        "0000004000000040",
+        "0000900000009000",                                  /* il piede sul 2 e sul 4 */
+        "0000000000000000",
+        "9000900690009006" } },                              /* il ride: ding, ding-a-ding */
+    { "Arena", KIT_SYN(DK_KIT_STADIUM_ROCK), DRUM_SNARE, { DRUM_CYMBAL, DRUM_TOM_LO, DRUM_TOM_HI },
+      { "9000000090500000",
+        "0000900000009000",
+        "8383838383838383",
+        "0000000000000040",
+        "7000000000000034" } },
+    { "Preset", KIT_SYN(DK_KIT_606_TICK), DRUM_SNARE, { DRUM_COWBELL, DRUM_CONGA, DRUM_RIMSHOT },
+      { "9000900090009000",                                  /* la scatola ritmica dei preset */
+        "0000900000009000",
+        "7575757575757575",
+        "0000000000000060",
+        "0030000300300003" } },
 };
 
 /* quanto la variazione può spostare ogni parte, in quarti: cassa e rullante tengono lo stile, le
@@ -158,13 +279,20 @@ const char *inv_groove_name(int groove)
     return groove >= 0 && groove < INV_GROOVES ? GROOVES[groove].name : "";
 }
 
-int inv_groove_kit(int groove) { return groove >= 0 && groove < INV_GROOVES ? GROOVES[groove].kit : KIT_I_STUDIO; }
+int inv_groove_kit(int groove) { return groove >= 0 && groove < INV_GROOVES ? GROOVES[groove].kit : KIT_STUDIO; }
 
 int inv_groove_of_beat(int beat)
 {
     /* Provvisorio, Funk, Bossa, Motorik, Lounge, Shuffle, Halftime, Boom Bap, Disco, Samba, Ballad, Train,
-     * Chip, Techno, Dub, Acid, Industrial, Minimal, Electro, Trap (beat.c) */
-    static const uint8_t G[BEAT_COUNT] = { 1, 2, 6, 0, 6, 1, 4, 3, 0, 6, 1, 1, 7, 0, 5, 8, 9, 0, 7, 4 };
+     * Chip, Techno, Dub, Acid, Industrial, Minimal, Electro, Trap; poi i Beat di genere del 19/10/2026: House,
+     * Deep House, Tech House, Garage, Breakbeat, Jungle, Drum & Bass, Dubstep, Footwork, Robot, Synthwave,
+     * Italo, Lo-Fi, Trip Hop, Ambient Pulse, Chiptune, Arcade, Glitch, IDM, EBM, Factory, Rave, Rock, Swing
+     * Jazz, Brush Ballad, Afrobeat, Djembe, Teental, Rhythm Box, Gamelan, Salsa, Cumbia, Reggaeton, Dancehall,
+     * Taiko, Maqsum, Flamenco, Unplugged, Sci-Fi, Steppers, Syndrum (beat.c) */
+    static const uint8_t G[BEAT_COUNT] = {
+        1, 2, 6, 0, 6, 1, 4, 3, 0, 6, 1, 1, 7, 0, 5, 8, 9, 0, 7, 4,
+        10, 10, 0, 11, 3, 12, 13, 14, 15, 7, 16, 17, 18, 19, 19, 20, 20, 21, 21, 22, 9,
+        0, 28, 27, 27, 23, 23, 24, 29, 24, 25, 25, 26, 26, 23, 24, 25, 1, 7, 5, 17 };
     return beat >= 0 && beat < BEAT_COUNT ? G[beat] : 0;
 }
 

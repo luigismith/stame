@@ -18,8 +18,7 @@ const char *ui_fmt_fx_name(uint8_t type);
 const char *ui_fmt_engine(uint8_t engine);                   /* VA, FM, RP */
 const char *ui_fmt_view_short(uint8_t view);
 const char *ui_fmt_play_style(uint8_t style);
-/* drum machine (40 MIDI-135): kit scelto (0 = «Beat», poi Studio, Jazz, 808, Techno, Chip) e suddivisione del Roll */
-const char *ui_fmt_kit(uint8_t kit);
+/* drum machine (40 MIDI-135): suddivisione del Roll (il nome del kit lo scrive la piattaforma in tempo.kit_name) */
 const char *ui_fmt_roll(uint8_t roll);
 const char *ui_fmt_part(uint8_t part);
 /* swing in tick (0 = «Off», poi 52%…75%, 10 ACC-216) e filtro della batteria (Off, LP 1…10, HP 1…10) */

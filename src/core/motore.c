@@ -221,12 +221,14 @@ void mot_perf(motore_t *m, uint8_t mode, uint8_t amount)
     perf_set(&m->perf, amount ? mode : PM_OFF, amount);
 }
 
-/* il kit del Beat scelto (SND-537): il set del banco con quel nome, o la sintesi se manca */
+/* il kit in uso (SND-537, SND-541): quello scelto a mano, o dello stile inventato, o del Beat. Un kit a
+ * campioni è il set del banco con quel nome (senza banco, il Chip); uno della libreria la sua ricetta */
 static void apply_kit(motore_t *m)
 {
-    const char *kit = m->kit_sel ? beat_kit_name(m->kit_sel - 1)
-                    : m->inv_on ? beat_kit_name(inv_groove_kit(m->inv.groove)) : beat_kit(m->beat);
-    drums_set_kit(&m->drums, m->bank, kit ? smp_set_find(m->bank, kit) : NULL);
+    int k = m->kit_sel ? m->kit_sel - 1 : m->inv_on ? inv_groove_kit(m->inv.groove) : beat_kit_of(m->beat);
+    const char *set = beat_kit_name(k);
+    drums_set_kit(&m->drums, m->bank, set ? smp_set_find(m->bank, set) : NULL);
+    drums_set_synth(&m->drums, beat_kit_synth(k));
 }
 
 void mot_set_bank(motore_t *m, const smp_bank_t *bank)

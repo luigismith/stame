@@ -153,7 +153,7 @@ static int perf_max(int mode)
 static bool perf_arp(void) { return S.perf_mode == PERF_ARP || S.perf_mode == PERF_ARP2; }
 
 /* ---- liste ---- */
-enum { L_NONE, L_SOUND, L_PERFORM, L_OPTIONS, L_PLATFORM, L_BEATS, L_DEMO };
+enum { L_NONE, L_SOUND, L_PERFORM, L_OPTIONS, L_PLATFORM, L_BEATS, L_DEMO, L_KITS };
 
 /* lista dei Beat (UI-077): Exit, le quattro metriche del metronomo, poi i Beat */
 #define BEAT_ITEMS (5 + N_BEATS)
@@ -167,11 +167,24 @@ static int list_n(int kind)
     case L_PLATFORM: return 9;
     case L_BEATS: return BEAT_ITEMS;
     case L_DEMO: return 1 + vet_demo_songs_n;
+    case L_KITS: return 1 + KIT_COUNT;                  /* «Beat», poi la libreria (UI-177) */
     default: return 0;
     }
 }
 
 static int beat_item(void) { return S.beat_mode == BEAT_PATTERN ? 5 + S.beat : 1 + S.meter; }
+
+/* il kit che suona (SND-541): quello scelto a mano, o dello stile inventato, o del Beat; come apply_kit del motore */
+static int kit_used(void)
+{
+    return S.kit ? S.kit - 1 : S.inv ? inv_groove_kit(S.groove) : beat_kit_of(S.beat + 1);
+}
+
+/* «SYN  analog», «SMP  acoustic»: per la lista dei kit, come motore e famiglia dei suoni */
+static void kit_tag(char *buf, int n, int k)
+{
+    ui_fmt_cat(buf, n, k < KIT_CHIP ? "SMP  " : "SYN  ", beat_kit_style(k));
+}
 
 static void list_item(const vet_t *v, int kind, int i, ui_item_t *it)
 {
@@ -206,10 +219,22 @@ static void list_item(const vet_t *v, int kind, int i, ui_item_t *it)
         else {
             ui_fmt_int(it->num, sizeof it->num, i - 4, 2);
             ui_fmt_copy(it->label, sizeof it->label, BEATS_NAME(i - 5));
+            ui_fmt_copy(it->info, sizeof it->info, beat_kit_label(beat_kit_of(i - 4)));   /* il suo kit (ACC-218) */
         }
         if (i && i == beat_item()) it->mark = MK_CHECK;
         break;
     }
+    case L_KITS:                                        /* la libreria dei kit (UI-177, SND-541) */
+        if (i == 0) {
+            ui_fmt_copy(it->label, sizeof it->label, "Beat");
+            ui_fmt_copy(it->info, sizeof it->info, beat_kit_label(S.inv ? inv_groove_kit(S.groove) : beat_kit_of(S.beat + 1)));
+        } else {
+            ui_fmt_int(it->num, sizeof it->num, i, 2);
+            ui_fmt_copy(it->label, sizeof it->label, beat_kit_label(i - 1));
+            kit_tag(it->info, sizeof it->info, i - 1);
+        }
+        if (i == S.kit) it->mark = MK_CHECK;
+        break;
     case L_PLATFORM: {
         /* Panic al secondo posto (UI-129: MENU, giù, A) */
         static const char *const L[] = { "Exit", "Panic", "Theme", "Linnaeus Tag", "Legend", "Meters", "Demo",
@@ -246,6 +271,7 @@ static void list_open(vet_t *v, int kind, uint8_t owner)
     case L_PERFORM: v->list_sel = (uint16_t)S.perf_mode; break;
     case L_BEATS: v->list_sel = (uint16_t)beat_item(); break;
     case L_DEMO: v->list_sel = (uint16_t)(1 + v->demo_song % vet_demo_songs_n); break;
+    case L_KITS: v->list_sel = (uint16_t)S.kit; break;
     default: v->list_sel = 0; break;
     }
     gest_set_owner(&v->inp.gest, owner);
@@ -302,6 +328,10 @@ static void list_select(vet_t *v)
     case L_DEMO:
         if (i == 0) menu_back(v);
         else { vet_demo_select(v, i - 1); demo_start(v); }     /* subito, anche se un altro brano sta suonando */
+        break;
+    case L_KITS:                                        /* come K1 girata sotto DRUMS (MIDI-135) */
+        S.kit = clampi(i, 0, KIT_COUNT);
+        snd_push(v, VS_KIT, 0, (uint8_t)S.kit, 0);
         break;
     default: break;
     }
@@ -542,6 +572,7 @@ static void press(vet_t *v, int enc)
         if (enc == v->list_owner) { list_select(v); return; }
         list_close(v);
     }
+    if (S.drums && enc == ENC_SOUND) { list_open(v, L_KITS, ENC_SOUND); return; }   /* K1 premuta: la lista dei kit (UI-177) */
     if (S.drums && enc == ENC_CHORD_VOICING) { inv_play(v); return; }       /* M premuta: play e stop (MIDI-139) */
     if (S.drums && enc == ENC_BASS_VOICING) {                                /* m1 premuta: la parte di M */
         if (!S.mod_used) inv_part(v);
@@ -1364,7 +1395,8 @@ void vet_tick(vet_t *v, uint32_t now_ms)
     }
     /* overlay e liste che scadono */
     if (v->m.layer.ov.kind != OV_NONE && (int32_t)(now_ms - v->ov_until) >= 0) ov_hide(v);
-    if ((v->list_kind == L_SOUND || v->list_kind == L_PERFORM || v->list_kind == L_BEATS) && now_ms - v->list_ms > LIST_IDLE_MS)
+    if ((v->list_kind == L_SOUND || v->list_kind == L_PERFORM || v->list_kind == L_BEATS || v->list_kind == L_KITS) &&
+        now_ms - v->list_ms > LIST_IDLE_MS)
         list_close(v);
     if (v->m.msg_plat.level && (int32_t)(now_ms - v->m.msg_plat.until_ms) >= 0) v->m.msg_plat.level = MSG_NONE;
 
@@ -1522,6 +1554,18 @@ static void fill_tempo_looper(vet_t *v, ui_model_t *m)
         ui_fmt_copy(t->beat_name, sizeof t->beat_name, inv_groove_name(S.groove));
         t->beat_index = 0;
     }
+    /* il kit (SND-541): il nome di quello scelto, o «Beat» e il kit che il Beat o lo stile portano */
+    int ku = kit_used();
+    t->kit_info[0] = 0;
+    if (S.kit) {
+        ui_fmt_copy(t->kit_name, sizeof t->kit_name, beat_kit_label(ku));
+        ui_fmt_cat(t->kit_info, sizeof t->kit_info, ku < KIT_CHIP ? "Samples, " : "Synth, ",
+                   beat_kit_style(ku));
+    } else {
+        ui_fmt_copy(t->kit_name, sizeof t->kit_name, "Beat");
+        ui_fmt_cat(t->kit_info, sizeof t->kit_info, t->beat_name, ": ");
+        ui_fmt_cat(t->kit_info, sizeof t->kit_info, t->kit_info, beat_kit_label(ku));
+    }
     if (v->inv_ui.groove != S.groove || v->inv_ui.var != S.variation || !v->inv_ui.inst[INV_HAT])
         inv_build(&v->inv_ui, S.groove, S.variation);   /* la stessa griglia che suona il motore */
     uint8_t dens[INV_PARTS];
@@ -1641,8 +1685,8 @@ const ui_model_t *vet_model(vet_t *v)
     ui_list_t *l = &m->layer.list;
     memset(l, 0, sizeof *l);
     if (v->list_kind) {
-        static const char *const PATH[] = { "", "SOUND", "PERFORM", "OPTIONS", "MENU", "BEATS", "DEMO SONG" };
-        static const uint8_t KIND[] = { 0, LS_SOUND, LS_PERFORM, LS_OPTIONS, LS_PLATFORM, LS_BEATS, LS_PLATFORM };
+        static const char *const PATH[] = { "", "SOUND", "PERFORM", "OPTIONS", "MENU", "BEATS", "DEMO SONG", "DRUM KITS" };
+        static const uint8_t KIND[] = { 0, LS_SOUND, LS_PERFORM, LS_OPTIONS, LS_PLATFORM, LS_BEATS, LS_PLATFORM, LS_KITS };
         l->open = 1;
         l->owner = v->list_owner;
         l->kind = KIND[v->list_kind];

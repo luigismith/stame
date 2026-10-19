@@ -699,7 +699,7 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 
 ### 10.6 La batteria che si inventa
 - **ACC-215** `[D]` (18/10/2026, `40` MIDI-139) Il Beat può venire da un **generatore** invece che dalla tabella di un Beat (`core/inventa.c`). Il loop è lungo **due battute di 4/4 in sedicesimi** (32 passi) e ha **cinque parti**: cassa, rullante (o battimani o rimshot, secondo lo stile), charleston chiuso, charleston aperto, percussioni.
-  - Ogni **stile** dà a ogni passo di ogni parte una **priorità** da 0 (mai) a 9 (sempre: lo **scheletro** dello stile). Stili: Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro e, dal 18/10/2026 sera, Acid e Industrial; ognuno ha il suo kit (Techno, Dub e Industrial il kit techno, Rock e Funk studio, Break, Halftime, Electro e Acid 808, Bossa jazz), salvo un kit scelto a mano (MIDI-135).
+  - Ogni **stile** dà a ogni passo di ogni parte una **priorità** da 0 (mai) a 9 (sempre: lo **scheletro** dello stile). Stili: Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro e, dal 18/10/2026 sera, Acid e Industrial; ognuno ha il suo kit (Techno, Dub e Industrial il kit techno, Rock e Funk studio, Break, Halftime, Electro e Acid 808, Bossa jazz), salvo un kit scelto a mano (MIDI-135). Dal 19/10/2026 (ACC-218) altri venti, ognuno con un kit della libreria sintetizzata (`20` SND-541): House (909 House), Garage (2-Step), Jungle e DnB (Jungle), Dubstep e Trap (808 Trap), Synthwave (Gated 80s), Synthpop (Hex Toms), Lo-Fi (Lo-Fi Dust), Trip Hop (Tape Crate), Chiptune (8-Bit), Glitch (Glitch Bits), EBM (Iron Mill), Afrobeat (Afro Hand), Tabla (Tabla Mist: il teental, con il bayan che tace nel khali), Salsa (Latin Perc: la clave 3-2 come scheletro del rullante), Reggaeton (808 Boom: il dembow), Jazz (Brushes: il ride e il piede del charleston sul 2 e sul 4), Arena (Stadium Rock), Preset (606 Tick). Trenta in tutto; m1 li scorre nell'ordine.
   - La **densità** di una parte, 0…10, fa suonare i passi con priorità ≥ 10 − densità: 0 tace, 1 suona solo lo scheletro, 10 tutto quello che lo stile prevede. I colpi di una densità restano a quella dopo.
   - La **variazione**, 0…99, sposta le priorità di una quantità pseudocasuale **ripetibile** (dipende solo da stile, variazione, parte e passo): da un livello alla variazione 1 fino a tre livelli, pesata per parte (le percussioni si muovono più di cassa e rullante). Lo scheletro non si sposta; un passo a 0 può prendere una priorità bassa e comparire alle densità alte. La variazione sceglie anche fra tre percussioni dello stile. Nella seconda battuta i primi dodici sedicesimi sono uguali alla prima; gli ultimi quattro hanno una variazione loro e rullante e percussioni più probabili: una piccola chiusa. Alla variazione 0 le due battute sono uguali.
   - Velocity: 52 + 7 × priorità, più 6 sui battiti. Charleston chiuso e aperto non suonano insieme.
@@ -711,6 +711,23 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
   - per il Roll (`40` MIDI-135): una ripetizione che cade su un sedicesimo dispari suona spostata ed entra nel loop dritta.
   Metronomo e count-in restano dritti; le note degli accordi non si quantizzano e non si spostano. Il default è 0: senza toccare K4 sotto DRUMS lo swing non c'è, come vuole ACC-203 per la configurazione di default.
 - **ACC-217** `[D]` (19/10/2026, `40` MIDI-140) **Drop.** Finché è attivo, i colpi del Beat e quelli di batteria del loop non partono e il motore Bass tace (`20` SND-539); passi del Beat e loop vanno avanti in silenzio, così al rientro sono a tempo. Il Drop comincia subito. Al rilascio finisce sul **battito dopo** della metrica in uso (96 tick in 4/4), oppure subito se il rilascio cade entro un sedicesimo (24 tick) dopo un battito: chi lascia un filo in ritardo sull'uno non perde una battuta. A trasporto fermo finisce subito; una nuova pressione durante l'attesa la annulla. Metronomo, count-in, colpi suonati dal vivo e accordi non cambiano.
+
+### 10.7 La libreria dei Beat
+- **ACC-218** `[D]` (19/10/2026, `40` MIDI-141; Luigi: «voglio anche una libreria enorme di batterie») Ai 19 Beat della vetrina si aggiungono **41 Beat di genere**, sessanta in tutto (`BEAT_COUNT` = 61 con il provvisorio di ACC-210). Sono tabelle come quelle di ACC-209 (una battuta di 4/4 in sedicesimi, fino a sei strumenti, `X` = 110, `x` = 80), ognuna con il suo **fill** (MIDI-133) e un **kit della libreria sintetizzata** (`20` SND-541): i Beat suonano anche senza il banco dei campioni. I primi diciannove e i loro kit non cambiano; il menu dei Beat dell'originale (ACC-208) resta quello che è, questa è la lista dei Beat di Stame.
+
+| Genere | Beat (kit) |
+|---|---|
+| house e techno | House e Deep House (909 House), Tech House (Minimal Click), Rave (909 Rave) |
+| garage e breaks | Garage (2-Step), Breakbeat, Jungle e Drum & Bass (Jungle) |
+| bassi pesanti | Dubstep (Iron Mill), Footwork (808 Trap), Reggaeton e Dancehall (808 Boom) |
+| elettronica | Robot (Robot Pop), Synthwave (Gated 80s), Italo (Linn Pop), Syndrum (Syndrum Disco), Sci-Fi (Laser Lab) |
+| lo-fi e downtempo | Lo-Fi (Lo-Fi Dust), Trip Hop (Tape Crate), Ambient Pulse (Deep Space), Steppers (Dub Yard) |
+| chip e glitch | Chiptune (8-Bit), Arcade (Arcade), Glitch (Glitch Bits), IDM (Data Rot) |
+| industriale | EBM (Iron Mill), Factory (Scrap Yard) |
+| acustici | Rock (Acoustic Room), Swing Jazz e Brush Ballad (Brushes), Unplugged e Flamenco (Cajon Box), Rhythm Box (CR Rhythm) |
+| dal mondo | Afrobeat e Djembe (Afro Hand), Teental (Tabla Mist: i sedici matra dha dhin dhin dha…), Gamelan (il ciclo con il gong, il kempul e il kenong), Salsa e Cumbia (Latin Perc: clave 3-2, campana, tumbao; il guiro), Taiko, Maqsum (Darbuka Sand: dum tek . tek dum . tek .) |
+
+  Ogni Beat ha uno stile vicino della batteria che si inventa (ACC-215, `inv_groove_of_beat`): il primo tocco delle manopole sotto DRUMS parte da lì (House → House, Teental → Tabla, Rock → Arena…). Nella lista dei Beat accanto a ogni nome c'è il suo kit (`30` UI-177). TV-123.
 
 ---
 
@@ -938,6 +955,7 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 | TV-119 | batteria che si inventa (ACC-215): ogni stile, variazioni 0, 7, … 98, densità 0…10 | stessa variazione = stessa griglia; scheletro fermo; i colpi di d restano a d + 1; 0 tace, 1 è lo scheletro; il fill aggiunge colpi; un Beat del menu la spegne |
 | TV-120 | swing (ACC-216) di 6 e di 12 tick: Beat con un colpo sul passo 1, colpi dal vivo nel loop a pos 37 e 100, Roll a 1/16 in overdub | il passo 1 suona a 30, non a 24; i pari restano dritti; il colpo a pos 37 va a t = 24 e suona a 36 nel giro dopo, quello a 100 resta a 96; il Roll suona a 174 e non a 168, a 192 dritto, e registra solo sulla griglia dritta; senza swing tutto torna dritto |
 | TV-122 | Drop (ACC-217): Beat sui passi 0, 4, 8, metronomo acceso; pressione a pos 100, rilascio a 230, di nuovo a 300 e rilascio a 394, poi con un piatto del Beat che suona | dopo 5 ms nessuna voce del Beat e basso a zero; durante il Drop il Beat tace, il metronomo e un colpo dal vivo suonano; rilasciato a 230 aspetta e rientra a 288, con il primo colpo pieno; rilasciato a 394 rientra subito; il piatto di prima non ricompare; da fermo il rilascio è subito |
+| TV-123 | libreria dei Beat e degli stili (ACC-218, ACC-215): i 60 Beat e i 30 stili | i primi 19 Beat e i primi 10 stili tengono il loro kit; i nuovi hanno un kit della libreria (`20` SND-541); ogni Beat suona sul passo 0, ha almeno 6 colpi e un fill di almeno 6; nomi unici entro 23 e 11 caratteri; ogni kit della libreria è di almeno un Beat o uno stile; ogni Beat ha uno stile vicino |
 | TV-121 | FX del bus della batteria (`20` SND-538): drive 0…10, filtro −10…+10, clic del metronomo | spento (anche dopo essere stato acceso) il bus è identico bit per bit; drive 10 alza l'energia della cassa di oltre il 30 % con il picco sotto 1,2; passa-basso chiuso: il charleston sotto il 5 %; passa-alto aperto: la cassa sotto il 10 %; il clic identico con il filtro chiuso |
 
 ---

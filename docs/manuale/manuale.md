@@ -61,13 +61,13 @@ Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 
 
 | Controllo | Gira | Premi | Tieni 1 s | Premi e gira |
 |---|---|---|---|---|
-| **Sound** | i 150 suoni: 99 di sintesi (Glass Pollen, Night Greenhouse, Anther Keys, Slow Stamen, Fern Pluck, Copper Reed, Orbit Choir, Moss Strings, Dew Mallet, Tape Fern, Seed Organ, Sun Room, Linnaeus Lead, Petal Brass, Root Drone, Vetro Pad, Moonflower, Thistle Lead, Lichen Organ, Nectar EP, Ivy Pluck, Bramble Brass, Cocoon Pad, Spore Bells, Rootstock, Birch Keys, Pollen Choir, Reed Marsh, Clover Strings, Frost Pad, Cactus Pluck, Heliotrope, Underbrush, Dandelion, Sundew, Lotus Flute, Pine Organ e, cupi e techno, Nightshade, Belladonna, Mandrake Stab, Dub Moss, Acid Nettle, Hogweed Hoover, Cypress Saw, Mycelium, Puffball Pulse, Charred Keys, Charcoal Organ, Tar Drone, Wolfsbane Lead, Datura Bells, Bog Rumble, Blackthorn Sync, Ironwood Perc, Burdock Chords e, ancora più cupi, gravi e acidi, Hemlock Acid, Aconite Square, Mandragora Acid, Yew Shadow, Black Hellebore, Deadnettle Dub, Peat Choir, Spleenwort Organ, Bitterroot Lead, Witchgrass Pulse, Mire Bells, Undertow, Tar Pit Keys, Nightjar Brass, Gravel Stab, Ink Cap Drone e, dal 18/10, Steel Petal, Clav Vine, Ebow Fern, Solina Sedge, Pizzicato Moss, Toy Thicket, Nylon Bramble e i ventuno di sintesi fra i venticinque che sorprendono, §4.1) e 51 campionati (Grand Piano, Upright Piano, FM Piano, Vibraphone, Marimba, Glockenspiel, Tubular Bells, Concert Harp, Kalimba, Harpsichord, Pipe Organ, Alto Recorder, Tenor Sax, TX Piano, Clavisynth, Knight Upright, Italian Cembalo, Lute Stop, Grand Organ, Flute Organ, Full Organ, Sop. Recorder, Tenor Recorder, Bass Recorder, Ocarina, Harmonica, Chromatic Harp, Saxello, Didgeridoo, Strumstick, Dan Tranh, Bowed Psaltery, Pluck Psaltery, Mbira, Nyunga Nyunga, Kenya Kalimba, Hand Chimes, Tube Glock, Bowed Vibes, Balafon, Xylophone, Wine Glasses, Hothouse Piano, Seedling Box, Harmonium Moss, Sitar Tranh, Harp Rain, Drunk Glasses, Throat Song, Rain Marimba, Megaphone Moss); ogni suono porta il suo Perform | lista dei suoni per nome | previsto: Save / Save As / Delete | — |
+| **Sound** | i 200 suoni: 149 di sintesi (Glass Pollen, Night Greenhouse, Anther Keys, Slow Stamen, Fern Pluck, Copper Reed, Orbit Choir, Moss Strings, Dew Mallet, Tape Fern, Seed Organ, Sun Room, Linnaeus Lead, Petal Brass, Root Drone, Vetro Pad, Moonflower, Thistle Lead, Lichen Organ, Nectar EP, Ivy Pluck, Bramble Brass, Cocoon Pad, Spore Bells, Rootstock, Birch Keys, Pollen Choir, Reed Marsh, Clover Strings, Frost Pad, Cactus Pluck, Heliotrope, Underbrush, Dandelion, Sundew, Lotus Flute, Pine Organ e, cupi e techno, Nightshade, Belladonna, Mandrake Stab, Dub Moss, Acid Nettle, Hogweed Hoover, Cypress Saw, Mycelium, Puffball Pulse, Charred Keys, Charcoal Organ, Tar Drone, Wolfsbane Lead, Datura Bells, Bog Rumble, Blackthorn Sync, Ironwood Perc, Burdock Chords e, ancora più cupi, gravi e acidi, Hemlock Acid, Aconite Square, Mandragora Acid, Yew Shadow, Black Hellebore, Deadnettle Dub, Peat Choir, Spleenwort Organ, Bitterroot Lead, Witchgrass Pulse, Mire Bells, Undertow, Tar Pit Keys, Nightjar Brass, Gravel Stab, Ink Cap Drone e, dal 18/10, Steel Petal, Clav Vine, Ebow Fern, Solina Sedge, Pizzicato Moss, Toy Thicket, Nylon Bramble, i ventuno di sintesi fra i venticinque che sorprendono, §4.1, e dal 19/10 i cinquanta dal 151 al 200, tutti di sintesi, §4.2) e 51 campionati (Grand Piano, Upright Piano, FM Piano, Vibraphone, Marimba, Glockenspiel, Tubular Bells, Concert Harp, Kalimba, Harpsichord, Pipe Organ, Alto Recorder, Tenor Sax, TX Piano, Clavisynth, Knight Upright, Italian Cembalo, Lute Stop, Grand Organ, Flute Organ, Full Organ, Sop. Recorder, Tenor Recorder, Bass Recorder, Ocarina, Harmonica, Chromatic Harp, Saxello, Didgeridoo, Strumstick, Dan Tranh, Bowed Psaltery, Pluck Psaltery, Mbira, Nyunga Nyunga, Kenya Kalimba, Hand Chimes, Tube Glock, Bowed Vibes, Balafon, Xylophone, Wine Glasses, Hothouse Piano, Seedling Box, Harmonium Moss, Sitar Tranh, Harp Rain, Drunk Glasses, Throat Song, Rain Marimba, Megaphone Moss); ogni suono porta il suo Perform | lista dei suoni per nome | previsto: Save / Save As / Delete | — |
 | **Perform** | la quantità del modo: Strum, Strum 2 Oct, Slop e Harp 1…10; Arpeggiate e Arp 2 Oct il tipo 1…6; Pattern il numero 1…13; 0 = spento | lista dei modi | **Lock**: il Perform non cambia più al cambio di suono (la cella mostra LOCK) | — |
 | **FX** | intensità 0…10 dell'effetto principale del suono (REVERB, CHORUS, ENSEMBLE, PHASER, FLANGER, DRIVE, TREMOLO, DELAY) | mostra l'effetto | **Lock** dell'effetto | — |
 | **Key** | la tonalità (accende la Key mode) | Key mode on/off | previsto: scelta rapida | **Transpose** ±12 |
 | **Bass** | i 24 bassi (Round Root, Sub Floor, Pluck Bass, Reed Bass, Velvet Sub, Wood Bass, Taproot, Peat Sub, Bark Bass, Pod Bass, Thorn Bass, Moss Sub, Reese Root, Acid Sedge, Henbane Sub, Fen Rumble, Spore Bass, Ironroot, Hemlock 303, Square Acid, Abyss Sub, Growl Reese, Detroit Sub, Coal FM Bass) | basso on/off | previsto: lista dei modi | — |
 | **Loop** | con il loop in corso sceglie fra le tre voci in Z3 (OVERDUB, PAUSE, CLEAR o UNDO; STOP, PLAY…) | da fermo **REC** (con un loop messo da parte con T10, lo riprende); altrimenti esegue la voce scelta | previsto: 2 s = Save Loop / uscita morbida (oggi T10 del pad) | — |
-| **BPM** | 60…200 (o il **tap tempo** su T2) | Beat o metronomo on/off (anche STOP/PLAY della MPK) | lista: **2/4, 3/4, 4/4, 6/8** (metronomo) e i 14 Beat **Funk, Bossa, Motorik, Lounge, Shuffle, Halftime, Boom Bap, Disco, Samba, Ballad, Train, Chip, Techno, Dub**, ognuno con il suo kit (studio, jazz, 808, techno; Chip è la sintesi) | **Beat Volume** 0…99 |
+| **BPM** | 60…200 (o il **tap tempo** su T2) | Beat o metronomo on/off (anche STOP/PLAY della MPK) | lista: **2/4, 3/4, 4/4, 6/8** (metronomo) e i 60 Beat, ognuno con il suo kit: i diciannove di sempre (**Funk, Bossa, Motorik, Lounge, Shuffle, Halftime, Boom Bap, Disco, Samba, Ballad, Train, Chip, Techno, Dub, Acid, Industrial, Minimal, Electro, Trap**, con i kit studio, jazz, 808, techno e la sintesi Chip) e, dal 19/10, 41 di genere con i kit della libreria sintetizzata (§6.4) | **Beat Volume** 0…99 |
 | **Volume** | volume master 0…99 | batteria della Flip | — | **Bass Volume** 0…99 |
 | **Options** | cambia la vista (fuori dalla lista) | lista: Exit, View, Play Style, Single Notes, Secret Chords | — | — |
 | **Chord Voicing** (M) | finestra ±1 semitono per scatto | Split ↔ Octave | — | — |
@@ -109,6 +109,63 @@ Dal 126 al 150 ogni suono fa una cosa che non ti aspetti. Sono fatti con il moto
 
 I dodici prima (114–125) coprono quello che mancava: Hothouse Piano (un pianoforte che diventa pad), Seedling Box (un carillon), Harmonium Moss, Steel Petal (lo steel drum), Clav Vine (il clavinet), Ebow Fern, Sitar Tranh, Harp Rain (una cascata d'arpa in ping-pong), Solina Sedge (la string machine), Pizzicato Moss, Toy Thicket (il pianino giocattolo) e Nylon Bramble (la chitarra di nylon).
 
+### 4.2 Dal 151 al 200: cinquanta suoni di sintesi, per genere
+
+Tutti fatti con gli oscillatori, l'FM e il Reed Piano: non chiedono il banco dei campioni e suonano anche senza. Molti portano il loro Perform (la lista dei suoni lo mostra nella famiglia, il Perform si vede nella cella).
+
+| N. | Suono | Genere | Com'è |
+|---|---|---|---|
+| 151 | Neon Orchid | synthwave | ottoni di tre seghe con la sub, coro e delay a 1/8 |
+| 152 | Palm Arp | synthwave | il pizzico degli arpeggi notturni, in ping-pong (Arp 2 Oct) |
+| 153 | Sunset Lead | synthwave | lead in glide; la ruota della modulazione porta il vibrato |
+| 154 | Chrome Pad | synthwave | pad caldo con il filtro che respira piano |
+| 155 | Night Drive | synthwave | accordi a tempo con il Pattern: la guida notturna |
+| 156 | Vapor Bells | synthwave | campane FM con il coro largo (Harp) |
+| 157 | Dusty Petals | lo-fi | piano elettrico scuro con il nastro che ondeggia |
+| 158 | Cassette Moss | lo-fi | pad con wow e flutter, come una cassetta |
+| 159 | Attic Keys | lo-fi | un piano di feltro in soffitta, che si spegne presto |
+| 160 | Silk Koto | pizzico | il koto: un pizzico FM e la corda che cala (Harp) |
+| 161 | Faded Polaroid | lo-fi | accordi stonati appena, sbiaditi |
+| 162 | Warehouse Organ | house | l'organo della house con il clic, a Pattern |
+| 163 | Deep Chord | house | l'accordo della deep house, scuro e con l'eco |
+| 164 | Garage Keys | house | il piano elettrico FM della garage |
+| 165 | Rave Stab | house | lo stab da rave: quattro oscillatori e il drive |
+| 166 | Filter Disco | house | archi disco con il filtro che si apre e il phaser |
+| 167 | Glacier Bloom | ambient | l'FM che sboccia in un secondo e resta |
+| 168 | Aurora Veil | ambient | un velo alto che gira nello stereo |
+| 169 | Tidepool | ambient | gocce di campana che cadono, in ping-pong (Harp) |
+| 170 | Cloud Forest | ambient | nebbia: rumore filtrato sulla nota e un filo di tono |
+| 171 | Starfield | ambient | scintille a caso nel cielo, ognuna da un'altra parte |
+| 172 | Slow Tide | ambient | la marea sul filtro, una volta ogni venti secondi |
+| 173 | Pixel Square | chiptune | la quadra pulita; il vibrato arriva dopo |
+| 174 | Arcade Arp | chiptune | duty al 12,5 %, per l'arpeggio veloce (Arp 2 Oct) |
+| 175 | Cartridge Pad | chiptune | triangolo e quadra con il tremolo della cartuccia |
+| 176 | Pocket Bell | chiptune | il blip: ogni nota parte un'ottava sopra e cade |
+| 177 | Coin Sparkle | chiptune | la moneta: una quarta sotto, poi la nota (Arp) |
+| 178 | Tonewheel Fern | organo | tiranti 8', 4', 2 2/3' e 2', percussione e rotante veloce |
+| 179 | Cathedral Moss | organo | l'organo a canne con il sedici piedi e la chiesa |
+| 180 | Velvet EP | piano elettrico | morbido, con il tremolo stereo |
+| 181 | Clavichord Seed | piano elettrico | il clavicordo FM, nasale e secco (Pattern) |
+| 182 | Bur Reed | piano elettrico | la lamella che ringhia, con il tremolo |
+| 183 | Gossamer Strings | archi | la string machine morbida e lenta |
+| 184 | Bowed Bark | archi | l'arco grave; il vibrato arriva dopo |
+| 185 | Horn Bloom | ottoni | il corno: più lo tocchi forte, più è chiaro |
+| 186 | Brass Thicket | ottoni | ottoni anni Ottanta, con lo scoop all'attacco |
+| 187 | Crystal Dew | campane | vetro: due portanti FM e rapporti alti (Harp) |
+| 188 | Bronze Lotus | campane | la campana del tempio, inarmonica e lunga |
+| 189 | Teak Mallet | mallet | marimba di sintesi, a Pattern |
+| 190 | Vibe Garden | mallet | il vibrafono con il motore acceso |
+| 191 | Trance Bramble | trance | quattro seghe larghe a pizzico, a Pattern |
+| 192 | Viper Bugloss | lead | sync che si apre e si chiude; la ruota lo spinge |
+| 193 | Wah Petal | funk | il wah a inviluppo: ogni colpo dice «uà» (Pattern) |
+| 194 | Pulse Hedge | techno | lo stab di quinta di Detroit |
+| 195 | Fog Chord | dub techno | accordo nella nebbia, eco lunga e riverbero chiuso |
+| 196 | Fern Choir | voce | un coro con il passa-banda che fa la vocale |
+| 197 | Pan Reed | flauto | il flauto di Pan: il soffio all'attacco |
+| 198 | Jangle Vine | pizzico | dodici corde: la corda e la sua ottava (Strum) |
+| 199 | Thumb Pod | pizzico | la kalimba di sintesi (Pattern) |
+| 200 | Linnaeus Garden | pad | il giardino intero: lento, largo, con la quinta |
+
 ## 5. Il looper, passo per passo
 
 ![Il loop suona: PLAY, giro e battuta, le note del loop in viola sulla tastiera](img/looper.png)
@@ -125,13 +182,13 @@ Il looper registra **eventi** (note), non audio: cambiando BPM cambia la velocit
 
 ## 6. Beat e metronomo
 
-![La lista di BPM tenuto: metriche del metronomo e i 14 Beat](img/lista_beat.png)
+![La lista di BPM tenuto: metriche del metronomo e i 60 Beat, con il kit di ognuno](img/lista_beat.png)
 
 - **BPM premuto** (SHIFT + K7, oppure **STOP/PLAY** della MPK) accende e spegne il Beat scelto; con un metronomo scelto, accende il clic. Il trasporto riparte dalla battuta 1.
 - **T3 METRO** del pad accende un metronomo indipendente dal Beat: clicca sui battiti anche sopra un Beat, e da solo mette in moto il trasporto. In testata «METRO».
 - **T2 TAP**: batti il tempo sul tasto; dal secondo tocco il BPM segue la media degli ultimi quattro.
 - **T4 FILL**: finché lo tieni il Beat suona la sua battuta di riempimento (rullate, tom), poi torna al pattern. In testata «FILL».
-- **BPM tenuto** apre la lista: le quattro metriche (2/4, 3/4, 4/4, 6/8) scelgono il metronomo; sotto, i diciannove Beat. La spunta segna la scelta.
+- **BPM tenuto** apre la lista: le quattro metriche (2/4, 3/4, 4/4, 6/8) scelgono il metronomo; sotto, i sessanta Beat, con il loro kit a destra (§6.4). La spunta segna la scelta.
 - **BPM premuto e girato** regola il volume del Beat.
 - Con il looper in moto, spegnere il Beat lo zittisce soltanto: il tempo del loop continua.
 - In alto a destra: i battiti della battuta come celle che si accendono, il BPM a sette segmenti.
@@ -150,7 +207,7 @@ Stessa filosofia degli accordi: premi tasti, muovi manopole, il loop di batteria
 
 - **I pad del banco B** della MPK sono otto pad di batteria con la velocity, sempre, anche senza DRUMS: premi BANK e suoni la batteria sopra gli accordi del loop. Fila bassa cassa, rullante, rimshot, battimani; fila alta charleston chiuso e aperto, tom basso, piatto.
 - Con **DRUMS acceso** cinque manopole cambiano mestiere, e le celle lo scrivono:
-  - **K1 KIT**: il kit (Beat = quello del Beat scelto, poi Studio, Jazz, 808, Techno, Chip);
+  - **K1 KIT**: il kit, fra quaranta (Beat = quello del Beat scelto, poi Studio, Jazz, 808, Techno, Chip e i 35 della libreria sintetizzata, §6.4); **SHIFT + K1** apre la lista dei kit;
   - **K2 ROLL**: tieni un tasto o un pad e il colpo si ripete a tempo: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32. Il primo colpo è il tuo, le ripetizioni entrano nel loop sulla griglia;
   - **K3 DRIVE**: sporca la batteria, da 0 (pulita) a 10 (schiacciata e grossa). **SHIFT + K3 girata** è il **filtro**: a sinistra chiude gli alti (LP, fino a una batteria sorda, da dub), a destra toglie i bassi (HP, fino a una batteria sottile, da build-up); 0 è spento. Il metronomo non passa dall'effetto;
   - **K4 SWING**: sposta in avanti i sedicesimi in levare, da Off (dritto) a 75 % (quasi terzina). Vale per il Beat, per il loop inventato, per i colpi di batteria del loop e per il Roll, anche quelli già registrati;
@@ -166,7 +223,7 @@ Con **DRUMS acceso** sei in modalità crea: le tre manopole del pad inventano il
 | Manopola | Girata | Premuta |
 |---|---|---|
 | **M** | **densità**: 0 tace, 1 è lo scheletro dello stile, 10 suona tutto | **play / stop** del loop |
-| **m1** | **stile**: Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial | sceglie la **parte** che M regola: tutto, cassa, rullante, charleston, aperto, percussioni |
+| **m1** | **stile**, fra trenta: Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial, House, Garage, Jungle, DnB, Dubstep, Trap, Synthwave, Synthpop, Lo-Fi, Trip Hop, Chiptune, Glitch, EBM, Afrobeat, Tabla, Salsa, Reggaeton, Jazz, Arena, Preset | sceglie la **parte** che M regola: tutto, cassa, rullante, charleston, aperto, percussioni |
 | **m2** | **variazione** 0…99: ogni scatto un'idea nuova, tornando indietro ritrovi quella di prima | un'**idea nuova** a caso |
 
 - Il primo tocco prende il posto del Beat che suonava, nello stile più vicino: se suonava il Funk si comincia dal Funk.
@@ -175,6 +232,57 @@ Con **DRUMS acceso** sei in modalità crea: le tre manopole del pad inventano il
 - **m2 premuta e girata** regola il volume del Beat.
 - Il loop dura due battute: la seconda chiude con qualche colpo in più quando la variazione non è 0.
 - Sulla plancia la zona dell'accordo mostra la griglia: una riga per parte con la sua densità, una colonna per sedicesimo, i colpi forti accesi, la colonna che suona segnata.
+- Ogni stile ha il suo kit (House la 909, Tabla la tabla, Jazz le spazzole…); K1 lo cambia.
+
+### 6.4 La libreria: quaranta kit e sessanta Beat
+
+![La lista dei kit (SHIFT + K1 sotto DRUMS): numero, nome, SMP o SYN e lo stile](img/lista_kit.png)
+
+Oltre ai quattro kit di campioni e al Chip ci sono **35 kit sintetizzati**: niente campioni, ogni colpo nasce da oscillatori, rumore e filtri, come una drum machine vera. Suonano anche senza il banco dei campioni. Si scelgono con **K1** sotto DRUMS (il numero è quello della tabella) o dalla **lista dei kit**: **SHIFT + K1**, la manopola di navigazione scorre, premuta sceglie; il kit vale subito, anche sul Beat che suona, e la lista resta aperta per provarne un altro. «Beat» (0) torna al kit del Beat o dello stile.
+
+| K1 | Kit | Com'è |
+|---:|---|---|
+| 1–4 | Studio, Jazz, 808, Techno | i campioni di sempre |
+| 5 | Chip | la sintesi in stile CR-78 di sempre |
+| 6 | 808 Boom | la cassa lunga e tonda, i charleston a sei onde quadre |
+| 7 | 808 Trap | la cassa che dura due secondi e satura, charleston stretti |
+| 8 | 909 House | la cassa con lo schiocco, il rullante largo, il ride |
+| 9 | 909 Rave | la stessa, schiacciata dal drive |
+| 10 | CR Rhythm | la scatola ritmica dei preset: claves, tamburello, bongo |
+| 11 | 606 Tick | leggera e sottile |
+| 12 | Hex Toms | i tom elettronici che cadono |
+| 13 | Syndrum Disco | i «piu piu» della disco |
+| 14 | Robot Pop | colpi di filtro: l'electro dei robot |
+| 15 | Linn Pop | gli anni Ottanta: battente, rullante grosso, tamburello |
+| 16 | Gated 80s | rullante e tom con il gate |
+| 17 | Minimal Click | clic, tic e bip |
+| 18 | Dub Yard | tonda, profonda, scura |
+| 19 | 2-Step | secca e schioccante, per la garage |
+| 20 | Jungle | acustica accordata in alto, con la grana del campionatore |
+| 21 | Iron Mill | metallo distorto: incudini e lamiera |
+| 22 | Scrap Yard | latte, bidoni e molle |
+| 23 | Glitch Bits | colpi tagliati, pochi bit, un piatto al contrario |
+| 24 | Data Rot | la macchina guasta |
+| 25 | Laser Lab | zap e laser |
+| 26 | Lo-Fi Dust | attutita e polverosa |
+| 27 | Tape Crate | il boom bap del vinile |
+| 28 | 8-Bit | le quadre e il rumore di una console |
+| 29 | Arcade | zap, power-up e monetine |
+| 30 | Acoustic Room | una batteria acustica, sintetizzata |
+| 31 | Brushes | spazzole, feltro e ride |
+| 32 | Stadium Rock | la batteria grande, con il drive |
+| 33 | Afro Hand | djembe, dundun, shekere, campana |
+| 34 | Tabla Mist | tabla, manjira, ghungroo |
+| 35 | Gamelan | kendang, bonang, saron, kempul, gong |
+| 36 | Latin Perc | surdo, timbales, claves, guiro, campana, agogo |
+| 37 | Taiko | odaiko, shime, legni, kane |
+| 38 | Darbuka Sand | doum e tek, riq, bendir, cimbalini |
+| 39 | Cajon Box | cajón, palmas, shaker, woodblock |
+| 40 | Deep Space | morbida e lontana; il piatto cresce |
+
+Nei kit del mondo i tasti non cambiano ruolo: Do resta il tamburo grave, Re e Re♯ i colpi secchi, Mi e Fa♯ i sonagli, La♯ la campana.
+
+**I Beat di genere** (dal 20 al 60 della lista), ognuno con un kit della libreria e il suo fill: House e Deep House (909 House), Tech House (Minimal Click), Garage (2-Step), Breakbeat, Jungle e Drum & Bass (Jungle), Dubstep (Iron Mill), Footwork (808 Trap), Robot (Robot Pop), Synthwave (Gated 80s), Italo (Linn Pop), Lo-Fi (Lo-Fi Dust), Trip Hop (Tape Crate), Ambient Pulse (Deep Space), Chiptune (8-Bit), Arcade, Glitch (Glitch Bits), IDM (Data Rot), EBM (Iron Mill), Factory (Scrap Yard), Rave (909 Rave), Rock (Acoustic Room), Swing Jazz e Brush Ballad (Brushes), Afrobeat e Djembe (Afro Hand), Teental (la tabla nei suoi sedici matra), Rhythm Box (CR Rhythm), Gamelan (il ciclo con il gong), Salsa e Cumbia (Latin Perc: la clave, il guiro), Reggaeton e Dancehall (808 Boom), Taiko, Maqsum (Darbuka Sand), Flamenco e Unplugged (Cajon Box), Sci-Fi (Laser Lab), Steppers (Dub Yard), Syndrum (Syndrum Disco). Con **K4 SWING** molti cambiano carattere: Swing Jazz, Garage e Lo-Fi vogliono lo swing intorno al 60–66 %.
 
 ## 7. Il macro pad
 
@@ -314,6 +422,7 @@ Sono sei brani originali di Stame, suonati a giro: **«Acacia»** (poco meno di 
 - **Fuoco**: il controllo su cui agisce la manopola di navigazione (e, senza MPK, croce e A della Flip); lo sposta la pressione di qualunque encoder.
 - **Hold**: l'accordo resta a suonare dopo il rilascio (T1).
 - **Key mode**: la tonalità accesa: i tasti suonano i gradi.
+- **Kit**: i suoni della batteria (dodici strumenti, uno per tasto); quaranta, scelti con K1 sotto DRUMS o con la lista di SHIFT + K1 (§6.4).
 - **Lock (Perform, FX)**: il valore non cambia al cambio di suono.
 - **Mod**: Bass Voicing premuto (m1 o Y), il modificatore delle combinazioni.
 - **Overlay**: il nome e il valore del controllo toccato, nella banda.
