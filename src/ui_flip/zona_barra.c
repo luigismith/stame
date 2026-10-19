@@ -223,6 +223,17 @@ static void overlay(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
     case OV_DRUM_LOOP:
         e.label = "Drum Loop"; e.text = v ? "Play" : "Stop";
         break;
+    case OV_SWING:                                            /* drum machine (MIDI-135): K4, K3 e K3 premuta */
+        e.label = "Swing"; e.text = ui_fmt_swing((uint8_t)v);
+        break;
+    case OV_DRIVE:
+        ui_fmt_int(d, sizeof d, v, 2);
+        e.label = "Drum Drive"; e.digits = d;
+        e.gauge = v * 100;
+        break;
+    case OV_FILTER:
+        e.label = "Drum Filter"; e.text = ui_fmt_filter(t, sizeof t, v);
+        break;
     default:
         return;
     }

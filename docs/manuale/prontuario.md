@@ -98,7 +98,7 @@ Menu: Exit · Panic · Theme (Giorno di default) · Linnaeus Tag · Legend · Me
 
 ## Drum machine (DRUMS acceso)
 
-K1 Kit (Beat, Studio, Jazz, 808, Techno, Chip) · K2 Roll (tieni il tasto: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32) · K5 Accent 0…10 · i pad del banco B suonano sempre. Prev.: K4 Swing, K3 FX sulla batteria.
+K1 Kit (Beat, Studio, Jazz, 808, Techno, Chip) · K2 Roll (tieni il tasto: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32) · K3 Drive 0…10, SHIFT + K3 girata filtro (LP 10…1 · Off · HP 1…10) · K4 Swing (Off, 52 %…75 %: Beat, loop e Roll) · K5 Accent 0…10 · i pad del banco B suonano sempre. Swing e FX restano fuori da DRUMS: in testata SWING e DRUM FX.
 
 **Crea** (le manopole del pad, finché DRUMS è acceso): **M** densità 0…10 · premuta play/stop · **m1** stile (Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial) · premuta la parte di M (tutto, cassa, rullante, charleston, aperto, perc.) · **m2** variazione 0…99 · premuta idea nuova · premuta e girata volume del Beat. Ripremi T11: l'editing si chiude, il loop resta.
 
@@ -108,4 +108,4 @@ REC → count-in di 1 battuta → 4 battute registrate → PLAY. Poi: ⊕ overdu
 
 ## Testata
 
-batteria sempre · **NO MPK** (lampeggia) · **MPK FACTORY** (solo Plus) · **PAD** rosso = pad non aperto o senza mappa · **POCKET** (prev.) · **LOCK SOUND PERFORM KEY** · **DRUMS** · **HOLD** · **METRO** · **FILL** · **CLIP** 1,5 s · **XRUN** 2 s. In Geek Out: MPK, IN/OUT, VOX, CPU (misurato), livelli, PAD.
+batteria sempre · **NO MPK** (lampeggia) · **MPK FACTORY** (solo Plus) · **PAD** rosso = pad non aperto o senza mappa · **POCKET** (prev.) · **LOCK SOUND PERFORM KEY** · **DRUMS** · **HOLD** · **METRO** · **FILL** · **SWING** · **DRUM FX** · **CLIP** 1,5 s · **XRUN** 2 s. In Geek Out: MPK, IN/OUT, VOX, CPU (misurato), livelli, PAD.

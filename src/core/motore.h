@@ -23,6 +23,8 @@
 #include "../dsp/drums.h"
 
 #define MOT_NONE 0xFFu
+#define MOT_SWING_MAX 12u               /* swing (ACC-216): ritardo massimo dei sedicesimi dispari, 12 tick = 75 % */
+#define MOT_SWQ 16                      /* colpi del loop in attesa dello swing */
 
 /* stato per l'interfaccia, scritto dal thread audio a ogni periodo e letto senza lock dal thread
  * della UI con un seqlock (PLT-017): seq è dispari mentre l'audio scrive; la UI copia i campi con
@@ -56,6 +58,11 @@ typedef struct {
     uint8_t  metro_on, fill;            /* metronomo indipendente dal Beat e Fill tenuto (MIDI-133) */
     uint8_t  kit_sel;                   /* drum machine (MIDI-135): 0 = il kit del Beat, 1…KIT_COUNT a mano */
     uint8_t  roll_div;                  /* Roll: tick fra due ripetizioni di un tasto tenuto, 0 = spento */
+    uint8_t  swing;                     /* swing (ACC-216): tick di ritardo dei sedicesimi dispari, 0…MOT_SWING_MAX */
+    int32_t  sw_step;                   /* passo dispari del Beat che aspetta lo swing (−1 = nessuno) e quando suona */
+    uint32_t sw_due;
+    uint8_t  swq_n;                     /* colpi del loop sui sedicesimi dispari, in attesa dello swing */
+    struct { uint32_t due; uint8_t inst, vel; } swq[MOT_SWQ];
     uint8_t  inv_on;                    /* il Beat viene dalla batteria che si inventa (MIDI-139) */
     uint8_t  inv_dens[INV_PARTS];       /* densità delle cinque parti, 0…10 */
     inv_t    inv;                       /* stile, variazione e priorità del loop inventato */
@@ -80,13 +87,18 @@ void mot_note(motore_t *m, int engine, uint8_t note, uint8_t vel);
 void mot_chord_start(motore_t *m);              /* KEY_DOWN di un accordo nuovo */
 /* batteria a tastiera (ACC-211): il tasto k (0 = Do … 11 = Si) colpisce lo strumento k del kit del
  * Beat (ACC-212) e, se il looper registra, entra nel loop quantizzato al sedicesimo più vicino della
- * griglia del loop (da t0, l'inizio del giro) */
+ * griglia del loop (da t0, l'inizio del giro), con lo swing se c'è (ACC-216) */
 void mot_drum(motore_t *m, uint8_t k, uint8_t vel);
 /* drum machine (MIDI-135): rilascio del tasto k (ferma il Roll), kit a mano (0 = quello del Beat),
  * Roll in tick fra due ripetizioni (0 = spento): un tasto tenuto si ripete sulla griglia del loop o del trasporto */
 void mot_drum_off(motore_t *m, uint8_t k);
 void mot_kit(motore_t *m, uint8_t sel);
 void mot_roll(motore_t *m, uint8_t div_ticks);
+/* swing (ACC-216): i sedicesimi dispari della griglia (dal tick della battuta 1 per il Beat, da t0 per il
+ * loop) suonano ticks dopo; il loop tiene i colpi sulla griglia dritta e lo swing vale a ogni giro */
+void mot_swing(motore_t *m, uint8_t ticks);
+/* FX del bus della batteria (SND-538): drive 0…10, filtro −10…+10 (passa-basso … spento … passa-alto) */
+void mot_drum_fx(motore_t *m, uint8_t drive, int8_t filt);
 /* la batteria che si inventa (MIDI-139, ACC-215): il Beat suona il loop di inventa.h con lo stile e la
  * variazione dati, finché non si sceglie un Beat del menu (mot_beat); le densità valgono dal passo dopo */
 void mot_inventa(motore_t *m, uint8_t groove, uint8_t var);

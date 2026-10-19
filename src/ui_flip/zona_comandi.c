@@ -56,7 +56,8 @@ uint64_t uf_sig_cell(const ui_model_t *m, int k)
                       m->plat.pad_link, m->prefs.legend, m->prefs.theme, c->knob_lock, m->plat.mpk_model,
                       m->tempo.drums_on, m->tempo.kit, m->tempo.roll, m->tempo.accent, m->plat.mpk_link };
     h = uf_h(h, f, sizeof f);
-    uint8_t g[5] = { m->tempo.inv, m->tempo.groove, m->tempo.variation, m->tempo.density, m->tempo.part };   /* MIDI-139 */
+    uint8_t g[8] = { m->tempo.inv, m->tempo.groove, m->tempo.variation, m->tempo.density, m->tempo.part,   /* MIDI-139 */
+                     m->tempo.swing, m->tempo.drive, (uint8_t)m->tempo.filt };                           /* MIDI-135 */
     h = uf_h(h, g, sizeof g);
     h = uf_h(h, m->tempo.dens, sizeof m->tempo.dens);
     if (c->st[k].flags & CF_PRESSED) {
@@ -132,6 +133,22 @@ static void cell_text(const ui_model_t *m, int k, cell_txt_t *t)
             t->title = "ACCENT";
             ui_fmt_int(t->value, sizeof t->value, m->tempo.accent, 2);
             ui_fmt_copy(t->detail, sizeof t->detail, "Velocity");
+        }
+        return;
+    }
+    if (m->tempo.drums_on && (k == ENC_FX || k == ENC_KEY)) {   /* K3 drive e filtro, K4 swing (MIDI-135) */
+        if (k == ENC_FX) {
+            t->title = sec ? "FILTER" : "DRIVE";
+            if (sec) ui_fmt_filter(t->value, sizeof t->value, m->tempo.filt);
+            else ui_fmt_int(t->value, sizeof t->value, m->tempo.drive, 2);
+            if (sec) ui_fmt_int(a, sizeof a, m->tempo.drive, 2);
+            else ui_fmt_filter(a, sizeof a, m->tempo.filt);
+            ui_fmt_cat(t->detail, sizeof t->detail, sec ? "Drive " : "Filter ", a);
+            if (!sec) t->gauge = m->tempo.drive * 100;
+        } else {
+            t->title = "SWING";
+            ui_fmt_copy(t->value, sizeof t->value, ui_fmt_swing(m->tempo.swing));
+            ui_fmt_copy(t->detail, sizeof t->detail, "Beat and loop");
         }
         return;
     }

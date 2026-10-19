@@ -36,7 +36,8 @@ enum { VS_NOTE_ON, VS_NOTE_OFF, VS_CHORD_START, VS_PATCH, VS_PARAM, VS_MASTER, V
        VS_DRUM,                         /* a = tasto 0…11, b = velocity: batteria a tastiera (ACC-211) */
        VS_METRO, VS_FILL,               /* a = on: metronomo indipendente e Fill del Beat (MIDI-133) */
        VS_DRUM_OFF, VS_KIT, VS_ROLL,    /* drum machine (MIDI-135): a = tasto rilasciato, kit (0 = del Beat), tick del Roll */
-       VS_INV, VS_INV_DENS };           /* batteria che si inventa (MIDI-139): a = stile, b = variazione; a = parte, b = densità */
+       VS_INV, VS_INV_DENS,             /* batteria che si inventa (MIDI-139): a = stile, b = variazione; a = parte, b = densità */
+       VS_SWING, VS_DRUM_FX };          /* drum machine (MIDI-135): a = tick dello swing; a = drive 0…10, b = filtro + 10 */
 typedef struct { uint8_t type, engine, a, b, timed; uint32_t at; } vet_snd_t;   /* engine: 0 Sound, 1 Bass */
 
 /* statistiche del thread audio della piattaforma (PLT-021), scritte dal callback e lette dalla UI:

@@ -22,6 +22,9 @@ const char *ui_fmt_play_style(uint8_t style);
 const char *ui_fmt_kit(uint8_t kit);
 const char *ui_fmt_roll(uint8_t roll);
 const char *ui_fmt_part(uint8_t part);
+/* swing in tick (0 = «Off», poi 52%…75%, 10 ACC-216) e filtro della batteria (Off, LP 1…10, HP 1…10) */
+const char *ui_fmt_swing(uint8_t ticks);
+char *ui_fmt_filter(char *buf, int n, int filt);
 /* Nome di Linneo del numero di classi di nota di un accordo: 3 -> "TRIANDRIA" (identità). */
 const char *ui_fmt_linnaeus(int n_pcs);
 

@@ -23,6 +23,7 @@ void mot_init(motore_t *m, dsp_t *d, uint32_t fs, uint32_t seed)
     m->meter = METER_4_4;
     inv_build(&m->inv, 0, 0);
     memset(m->inv_dens, 5, sizeof m->inv_dens);
+    m->sw_step = -1;
     memset(m->pre, MOT_NONE, sizeof m->pre);
     memset(m->lp_out, MOT_NONE, sizeof m->lp_out);
 }
@@ -80,12 +81,21 @@ static void apply_perf(motore_t *m, const perf_ev_t *ev, int n)
     for (int i = 0; i < n; i++) treble(m, ev[i].note, ev[i].on ? ev[i].vel : 0);
 }
 
+/* un sedicesimo dispari della griglia: lo swing lo sposta (ACC-216) */
+static bool odd16(uint32_t t) { return t % STEP_TICKS == 0 && ((t / STEP_TICKS) & 1u); }
+
 /* il loop suona con il transpose corrente (ACC-221); il note-off spegne la nota che è partita */
 static void apply_loop(motore_t *m, const loop_ev_t *ev, int n)
 {
     for (int i = 0; i < n; i++) {
         if (ev[i].role == LOOP_DRUM) {                            /* colpo registrato: il kit, senza transpose */
-            if (ev[i].vel) drums_hit(&m->drums, ev[i].note, ev[i].vel);
+            if (!ev[i].vel) continue;
+            if (m->swing && odd16(ev[i].t) && m->swq_n < MOT_SWQ) {        /* sul sedicesimo dispari aspetta lo swing */
+                m->swq[m->swq_n].due = m->tick + m->swing;
+                m->swq[m->swq_n].inst = ev[i].note;
+                m->swq[m->swq_n].vel = ev[i].vel;
+                m->swq_n++;
+            } else drums_hit(&m->drums, ev[i].note, ev[i].vel);
             continue;
         }
         uint8_t r = ev[i].role == LOOP_BASS ? 1 : 0, src = ev[i].note & 127u;
@@ -112,7 +122,7 @@ static bool loop_moving(const looper_t *l)
 static void transport(motore_t *m, bool restart)
 {
     bool on = m->beat_on || m->metro_on || loop_moving(&m->loop);
-    if (on && (!m->tr_on || restart)) m->tr_t0 = m->tick;
+    if (on && (!m->tr_on || restart)) { m->tr_t0 = m->tick; m->sw_step = -1; }
     m->tr_on = on;
 }
 
@@ -131,10 +141,18 @@ void mot_drum(motore_t *m, uint8_t k, uint8_t vel)
     m->drum_held[k] = vel;                                        /* per il Roll (MIDI-135) */
     m->drum_t[k] = m->tick;
     /* il sedicesimo più vicino sulla griglia del loop, che parte da t0 e non dal tick 0: sul tick
-     * assoluto ogni colpo finiva spostato di t0 mod 24 (fino a 60 ms a 120 BPM) */
-    int32_t x = (int32_t)(m->tick - m->loop.t0) + (int32_t)(STEP_TICKS / 2u);
-    int32_t f = x >= 0 ? x / (int32_t)STEP_TICKS : -((-x + (int32_t)STEP_TICKS - 1) / (int32_t)STEP_TICKS);
-    loop_record_hit(&m->loop, m->loop.t0 + (uint32_t)(f * (int32_t)STEP_TICKS), m->tick, k, vel);
+     * assoluto ogni colpo finiva spostato di t0 mod 24 (fino a 60 ms a 120 BPM). Con lo swing i
+     * dispari stanno sw tick dopo (ACC-216): si sceglie il punto più vicino della griglia spostata e
+     * si registra il suo posto dritto, così lo swing vale anche quando cambia. A pari distanza vince il
+     * punto dopo, come l'arrotondamento senza swing */
+    const int32_t st = (int32_t)STEP_TICKS, sw = m->swing;
+    int32_t x = (int32_t)(m->tick - m->loop.t0);
+    int32_t i0 = x >= 0 ? x / st : -((-x + st - 1) / st), best = i0, bd = INT32_MAX;
+    for (int32_t i = i0 - 1; i <= i0 + 1; i++) {
+        int32_t g = i * st + ((i & 1) ? sw : 0), d = x > g ? x - g : g - x;
+        if (d <= bd) { bd = d; best = i; }
+    }
+    loop_record_hit(&m->loop, m->loop.t0 + (uint32_t)(best * st), m->tick, k, vel);
 }
 
 void mot_note(motore_t *m, int engine, uint8_t note, uint8_t vel)
@@ -257,6 +275,10 @@ void mot_kit(motore_t *m, uint8_t sel)
 
 void mot_roll(motore_t *m, uint8_t div_ticks) { m->roll_div = div_ticks; }
 
+void mot_swing(motore_t *m, uint8_t ticks) { m->swing = ticks > MOT_SWING_MAX ? (uint8_t)MOT_SWING_MAX : ticks; }
+
+void mot_drum_fx(motore_t *m, uint8_t drive, int8_t filt) { drums_fx(&m->drums, drive, filt); }
+
 void mot_inventa(motore_t *m, uint8_t groove, uint8_t var)
 {
     if (!m->inv_on || groove != m->inv.groove || var != m->inv.var) inv_build(&m->inv, groove, var);
@@ -278,6 +300,7 @@ void mot_loop(motore_t *m, int cmd)
     loop_ev_t ev[LOOP_OUT_MAX];
     apply_loop(m, ev, loop_cmd(&m->loop, cmd, m->tick, ev, LOOP_OUT_MAX));
     uint8_t st = m->loop.state;
+    if (st != LOOP_PLAY && st != LOOP_OVERDUB) m->swq_n = 0;     /* fermo: i colpi in attesa dello swing non suonano */
     /* registrazione nuova o ripresa dalla pausa: il trasporto riparte con il loop (ACC-222) */
     transport(m, st != was && (st == LOOP_COUNT_IN || (was == LOOP_PAUSE && st == LOOP_PLAY)));
 }
@@ -288,6 +311,8 @@ void mot_all_off(motore_t *m)
     apply_perf(m, ev, perf_release(&m->perf, m->tick, ev, 48));
     memset(m->held, 0, sizeof m->held);
     memset(m->drum_held, 0, sizeof m->drum_held);
+    m->swq_n = 0;
+    m->sw_step = -1;
     dsp_all_notes_off(m->d);
     drums_all_off(&m->drums);
     memset(m->lp_out, MOT_NONE, sizeof m->lp_out);
@@ -296,30 +321,53 @@ void mot_all_off(motore_t *m)
 
 /* ---------------------------------------------------------------- tempo */
 
+/* i colpi del passo step del Beat: del loop inventato (due battute, passo 0…31) o della tabella */
+static int beat_step(const motore_t *m, uint32_t step, beat_hit_t *h, int max)
+{
+    if (m->inv_on) return inv_hits(&m->inv, m->inv_dens, (int)(step % INV_STEPS), m->fill != 0, h, max);
+    return (m->fill ? beat_fill_hits : beat_hits)(m->beat, (int)(step % 16u), h, max);
+}
+
 static void tick_run(motore_t *m)
 {
     perf_ev_t pe[48];
     apply_perf(m, pe, perf_run(&m->perf, m->tick, pe, 48));
     loop_ev_t le[LOOP_OUT_MAX];
     apply_loop(m, le, loop_run(&m->loop, m->tick, le, LOOP_OUT_MAX));
+    for (int i = 0; i < m->swq_n;) {                              /* i colpi del loop spostati dallo swing (ACC-216) */
+        if ((int32_t)(m->tick - m->swq[i].due) >= 0) {
+            drums_hit(&m->drums, m->swq[i].inst, m->swq[i].vel);
+            m->swq[i] = m->swq[--m->swq_n];
+        } else i++;
+    }
     if (m->roll_div) {                                            /* Roll (MIDI-135): i tasti tenuti si ripetono sulla griglia */
-        uint32_t base = loop_moving(&m->loop) ? m->loop.t0 : m->tr_on ? m->tr_t0 : 0u;
-        if ((m->tick - base) % m->roll_div == 0)
+        uint32_t base = loop_moving(&m->loop) ? m->loop.t0 : m->tr_on ? m->tr_t0 : 0u, q = m->tick - base, sw = m->swing;
+        /* un punto sul sedicesimo dispari suona sw tick dopo ed entra nel loop al suo posto dritto */
+        bool dritto = q % m->roll_div == 0 && !(sw && odd16(q));
+        bool spostato = sw && q >= sw && (q - sw) % m->roll_div == 0 && odd16(q - sw);
+        if (dritto || spostato)
             for (int k = 0; k < DRUM_COUNT; k++)
                 if (m->drum_held[k] && m->tick - m->drum_t[k] >= m->roll_div / 2u) {   /* non subito dopo il colpo della mano */
                     drums_hit(&m->drums, (uint8_t)k, m->drum_held[k]);
-                    loop_record_hit(&m->loop, m->tick, m->tick, (uint8_t)k, m->drum_held[k]);
+                    loop_record_hit(&m->loop, dritto ? m->tick : m->tick - sw, m->tick, (uint8_t)k, m->drum_held[k]);
                 }
     }
-    if (!m->tr_on) return;
+    if (!m->tr_on) { m->sw_step = -1; return; }
     uint32_t pos = m->tick - m->tr_t0;
     beat_hit_t h[8];
     int n = 0;
-    if (m->beat_on && m->beat_sel == BEAT_M_PATTERN && pos % STEP_TICKS == 0) {
-        if (m->inv_on)                                            /* due battute: il passo va da 0 a 31 */
-            n = inv_hits(&m->inv, m->inv_dens, (int)((pos / STEP_TICKS) % INV_STEPS), m->fill != 0, h, 6);
-        else n = (m->fill ? beat_fill_hits : beat_hits)(m->beat, (int)((pos / STEP_TICKS) % 16u), h, 6);
-    }
+    if (m->beat_on && m->beat_sel == BEAT_M_PATTERN) {
+        if (m->sw_step >= 0 && (int32_t)(m->tick - m->sw_due) >= 0) {   /* il passo dispari, con lo swing (ACC-216) */
+            n = beat_step(m, (uint32_t)m->sw_step, h, 6);
+            m->sw_step = -1;
+        }
+        if (pos % STEP_TICKS == 0) {
+            uint32_t step = pos / STEP_TICKS;
+            /* lo swing di un passo si fissa al suo posto dritto: cambiarlo intanto non lo salta né lo raddoppia */
+            if ((step & 1u) && m->swing) { m->sw_step = (int32_t)step; m->sw_due = m->tick + m->swing; }
+            else n += beat_step(m, step, h + n, 6 - n);
+        }
+    } else m->sw_step = -1;
     /* il metronomo (dal Beat o da T3), e il count-in del looper con qualunque Beat (ACC-223) */
     if ((m->beat_on && m->beat_sel == BEAT_M_METRONOME) || m->metro_on || m->loop.state == LOOP_COUNT_IN)
         n += metro_hits(m->beat_sel == BEAT_M_PATTERN ? METER_4_4 : m->meter, pos, h + n, 8 - n);

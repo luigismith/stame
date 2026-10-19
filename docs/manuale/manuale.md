@@ -144,16 +144,18 @@ Lo stesso principio degli accordi, per la batteria: **T11 DRUMS** del pad (oppur
 
 ### 6.2 La drum machine dal vivo
 
-![La pagina dei comandi sotto DRUMS: le celle KIT, ROLL e ACCENT al posto di Sound, Perform e Bass](img/drums_comandi.png)
+![La pagina dei comandi sotto DRUMS: le celle KIT, ROLL, DRIVE, SWING e ACCENT al posto di Sound, Perform, FX, Key e Bass](img/drums_comandi.png)
 
 Stessa filosofia degli accordi: premi tasti, muovi manopole, il loop di batteria nasce mentre suoni. Niente da programmare a passi.
 
 - **I pad del banco B** della MPK sono otto pad di batteria con la velocity, sempre, anche senza DRUMS: premi BANK e suoni la batteria sopra gli accordi del loop. Fila bassa cassa, rullante, rimshot, battimani; fila alta charleston chiuso e aperto, tom basso, piatto.
-- Con **DRUMS acceso** tre manopole cambiano mestiere, e le celle lo scrivono:
+- Con **DRUMS acceso** cinque manopole cambiano mestiere, e le celle lo scrivono:
   - **K1 KIT**: il kit (Beat = quello del Beat scelto, poi Studio, Jazz, 808, Techno, Chip);
   - **K2 ROLL**: tieni un tasto o un pad e il colpo si ripete a tempo: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32. Il primo colpo è il tuo, le ripetizioni entrano nel loop sulla griglia;
+  - **K3 DRIVE**: sporca la batteria, da 0 (pulita) a 10 (schiacciata e grossa). **SHIFT + K3 girata** è il **filtro**: a sinistra chiude gli alti (LP, fino a una batteria sorda, da dub), a destra toglie i bassi (HP, fino a una batteria sottile, da build-up); 0 è spento. Il metronomo non passa dall'effetto;
+  - **K4 SWING**: sposta in avanti i sedicesimi in levare, da Off (dritto) a 75 % (quasi terzina). Vale per il Beat, per il loop inventato, per i colpi di batteria del loop e per il Roll, anche quelli già registrati;
   - **K5 ACCENT**: quanto conta la forza del tocco, da 0 (colpi tutti uguali) a 10 (tutta la dinamica).
-- Previsti: K4 Swing sulla griglia, K3 effetto sulla batteria.
+- Swing, drive e filtro restano anche quando spegni DRUMS: finché ci sono, la testata scrive **SWING** e **DRUM FX**. Per toglierli, riaccendi DRUMS e riportali a Off e 0.
 
 ### 6.3 Crea: il loop di batteria con le tre manopole del pad
 

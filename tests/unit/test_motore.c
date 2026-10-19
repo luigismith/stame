@@ -1,4 +1,4 @@
-/* test_motore.c — performance, Beat, looper e clock (specifica 10, §13.8–§13.9: TV-90…103, TV-110…116). */
+/* test_motore.c — performance, Beat, looper e clock (specifica 10, §13.8–§13.9: TV-90…103, TV-110…121). */
 #include "test.h"
 #include "../../src/core/motore.h"
 #include <math.h>
@@ -779,8 +779,196 @@ static void test_inventa(void)
     CHECK_EQ(M.inv_on, 0);
 }
 
+/* il colpo dello strumento inst è partito adesso (non è la coda di uno vecchio) */
+static bool fresh_hit(const motore_t *m, uint8_t inst)
+{
+    for (int i = 0; i < DRUM_VOICES; i++)
+        if (m->drums.v[i].on && m->drums.v[i].inst == inst && m->drums.v[i].t < 0.004f) return true;
+    return false;
+}
+
+static bool any_voice(const motore_t *m)
+{
+    for (int i = 0; i < DRUM_VOICES; i++) if (m->drums.v[i].on) return true;
+    return false;
+}
+
+/* TV-120: lo swing (ACC-216) sposta i sedicesimi dispari del Beat, della griglia del loop e del Roll */
+static void test_swing(void)
+{
+    static dsp_t D;
+    static motore_t M;
+    dsp_init(&D, 48000.0f, 1);
+    mot_init(&M, &D, 48000, 1);                                   /* 120 BPM: 250 campioni per tick */
+    mot_swing(&M, 40);
+    CHECK_EQ(M.swing, MOT_SWING_MAX);
+    /* un Beat che suona sul passo 1 (il primo sedicesimo dispari) */
+    beat_hit_t h[8];
+    int b = 1;
+    while (b < BEAT_COUNT && beat_hits(b, 1, h, 8) == 0) b++;
+    CHECKM(b < BEAT_COUNT, "TV-120: serve un Beat con un colpo sul passo 1");
+    mot_beat(&M, BEAT_M_PATTERN, (uint8_t)b);
+    mot_swing(&M, 6);
+    mot_beat_on(&M, true);                                        /* battuta 1 al tick 0 */
+    render_tick(&M, 24);
+    CHECKM(!any_voice(&M), "TV-120: con lo swing il passo 1 non suona al tick 24");
+    render_tick(&M, 30);
+    CHECKM(any_voice(&M), "TV-120: il passo 1 suona al tick 30 (24 + 6)");
+    render_tick(&M, 48 + 384);                                    /* i pari restano dritti: il passo 2 della battuta dopo */
+    bool pari = any_voice(&M) || beat_hits(b, 2, h, 8) == 0;
+    CHECKM(pari, "TV-120: i sedicesimi pari non si spostano");
+    mot_swing(&M, 0);
+    render_tick(&M, 768 + 24);
+    CHECKM(any_voice(&M), "TV-120: senza swing il passo 1 torna al tick 24");
+    mot_beat_on(&M, false);
+    mot_all_off(&M);
+
+    /* il loop: i colpi dal vivo vanno al punto più vicino della griglia spostata e si registrano dritti */
+    mot_init(&M, &D, 48000, 1);
+    mot_swing(&M, 12);
+    mot_loop(&M, LOOP_C_PRESS);
+    static float l[16], r[16];
+    while (M.loop.state != LOOP_REC) mot_render(&M, l, r, 16);
+    uint32_t t0 = M.loop.t0;
+    while (M.tick < t0 + 37) mot_render(&M, l, r, 16);
+    mot_drum(&M, DRUM_SNARE, 100);                                /* pos 37: con 12 tick di swing il più vicino è 36, il dispari 1 */
+    CHECK_EQ(M.loop.n, 1);
+    CHECKM(M.loop.ev[0].t == 24, "TV-120: il colpo a pos 37 si registra a t = 24 (dritto), non a 48: t = %u", (unsigned)M.loop.ev[0].t);
+    while (M.tick < t0 + 100) mot_render(&M, l, r, 16);
+    mot_drum(&M, DRUM_KICK, 100);                                 /* pos 100: il più vicino è 96, pari */
+    CHECK(M.loop.n == 2 && M.loop.ev[1].t == 96);
+    /* al giro dopo il rullante suona a t0 + len + 24 + 12, non a + 24 */
+    uint32_t g2 = t0 + M.loop.len;
+    render_tick(&M, g2 + 24);
+    CHECKM(!fresh_hit(&M, DRUM_SNARE), "TV-120: il colpo del loop sul dispari non suona al posto dritto");
+    render_tick(&M, g2 + 36);
+    CHECKM(fresh_hit(&M, DRUM_SNARE), "TV-120: il colpo del loop sul dispari suona 12 tick dopo");
+    render_tick(&M, g2 + 96);
+    CHECKM(fresh_hit(&M, DRUM_KICK), "TV-120: il colpo sul pari resta al suo posto");
+
+    /* il Roll a 1/16: i punti dispari suonano spostati ed entrano nel loop dritti */
+    mot_loop(&M, LOOP_C_OVERDUB);
+    mot_swing(&M, 6);
+    mot_roll(&M, 24);
+    uint32_t g3 = t0 + 2 * M.loop.len;
+    while (M.tick < g3 + 150) mot_render(&M, l, r, 16);
+    mot_drum(&M, DRUM_CLOSED_HAT, 90);
+    uint16_t n0 = M.loop.n;
+    render_tick(&M, g3 + 168);                                   /* 168 = 7 × 24, dispari: non ancora */
+    CHECKM(!fresh_hit(&M, DRUM_CLOSED_HAT), "TV-120: il Roll non suona sul dispari dritto");
+    render_tick(&M, g3 + 174);
+    CHECKM(fresh_hit(&M, DRUM_CLOSED_HAT), "TV-120: il Roll suona sul dispari spostato");
+    render_tick(&M, g3 + 192);
+    CHECKM(fresh_hit(&M, DRUM_CLOSED_HAT), "TV-120: il Roll suona sul pari dritto");
+    mot_drum_off(&M, DRUM_CLOSED_HAT);
+    bool dritti = M.loop.n > n0;
+    for (int i = 0; i < M.loop.n; i++)
+        if (M.loop.ev[i].note == DRUM_CLOSED_HAT && M.loop.ev[i].t % 24 != 0) dritti = false;
+    CHECKM(dritti, "TV-120: i colpi del Roll entrano nel loop sulla griglia dritta");
+    mot_roll(&M, 0);
+    mot_loop(&M, LOOP_C_RESET);
+    CHECK_EQ(M.swq_n, 0);
+}
+
+/* energia di 16 frame per n blocchi: il kit sintetizzato, un colpo all'inizio */
+static double drum_energy(drums_t *k, uint8_t inst, int blocks, float *peak)
+{
+    double e = 0.0;
+    float l[16], r[16];
+    drums_hit(k, inst, 127);
+    for (int b = 0; b < blocks; b++) {
+        memset(l, 0, sizeof l); memset(r, 0, sizeof r);
+        drums_render16(k, l, r);
+        for (int s = 0; s < 16; s++) {
+            e += (double)l[s] * (double)l[s];
+            if (fabsf(l[s]) > *peak) *peak = fabsf(l[s]);
+            if (l[s] != l[s]) return -1.0;                        /* NaN */
+        }
+    }
+    return e;
+}
+
+/* il bus con l'FX fermo al valore dato: 200 ms, l'inseguimento di 15 ms arriva a 1e−4 in 140 */
+static void fx_settle(drums_t *k, uint8_t drive, int8_t filt)
+{
+    float l[16], r[16];
+    drums_fx(k, drive, filt);
+    for (int b = 0; b < 600; b++) { memset(l, 0, sizeof l); memset(r, 0, sizeof r); drums_render16(k, l, r); }
+}
+
+/* TV-121: l'FX del bus della batteria (SND-538): spento è trasparente, il drive comprime, il filtro
+ * toglie gli alti o i bassi, i clic del metronomo non ci passano */
+static void test_drum_fx(void)
+{
+    static drums_t A, B;
+    float pa = 0.0f, pb = 0.0f;
+    drums_init(&A, 48000.0f, 7);
+    drums_init(&B, 48000.0f, 7);
+    fx_settle(&A, 0, 0);
+    fx_settle(&B, 8, -6);
+    fx_settle(&B, 0, 0);                                          /* acceso e poi spento: torna trasparente */
+    float l1[16], r1[16], l2[16], r2[16];
+    bool uguali = true;
+    drums_hit(&A, DRUM_SNARE, 110);
+    drums_hit(&B, DRUM_SNARE, 110);
+    for (int b = 0; b < 200; b++) {
+        memset(l1, 0, sizeof l1); memset(r1, 0, sizeof r1); memset(l2, 0, sizeof l2); memset(r2, 0, sizeof r2);
+        drums_render16(&A, l1, r1);
+        drums_render16(&B, l2, r2);
+        if (memcmp(l1, l2, sizeof l1) || memcmp(r1, r2, sizeof r1)) uguali = false;
+    }
+    CHECKM(uguali, "TV-121: con drive 0 e filtro 0 il bus esce com'è");
+
+    drums_init(&A, 48000.0f, 7);
+    drums_init(&B, 48000.0f, 7);
+    fx_settle(&B, 10, 0);
+    double e0 = drum_energy(&A, DRUM_KICK, 600, &pa), e1 = drum_energy(&B, DRUM_KICK, 600, &pb);
+    CHECKM(e0 > 0.0 && e1 > 1.3 * e0, "TV-121: drive 10 alza l'energia della cassa (%.3f → %.3f)", e0, e1);
+    CHECKM(pb < 1.2f, "TV-121: drive 10, picco %.2f", (double)pb);
+
+    drums_init(&A, 48000.0f, 7);
+    drums_init(&B, 48000.0f, 7);
+    fx_settle(&B, 0, -10);
+    e0 = drum_energy(&A, DRUM_CLOSED_HAT, 300, &pa);
+    e1 = drum_energy(&B, DRUM_CLOSED_HAT, 300, &pb);
+    CHECKM(e1 < 0.05 * e0, "TV-121: passa-basso chiuso, il charleston quasi sparisce (%.4f su %.4f)", e1, e0);
+
+    drums_init(&A, 48000.0f, 7);
+    drums_init(&B, 48000.0f, 7);
+    fx_settle(&B, 0, 10);
+    e0 = drum_energy(&A, DRUM_KICK, 600, &pa);
+    e1 = drum_energy(&B, DRUM_KICK, 600, &pb);
+    CHECKM(e1 < 0.1 * e0, "TV-121: passa-alto aperto, la cassa quasi sparisce (%.4f su %.4f)", e1, e0);
+
+    /* i clic del metronomo restano quelli di sempre anche con il filtro chiuso */
+    drums_init(&A, 48000.0f, 7);
+    drums_init(&B, 48000.0f, 7);
+    fx_settle(&A, 0, 0);
+    fx_settle(&B, 10, -10);
+    drums_hit(&A, DRUM_CLICK_ACCENT, 120);
+    drums_hit(&B, DRUM_CLICK_ACCENT, 120);
+    uguali = true;
+    for (int b = 0; b < 60; b++) {
+        memset(l1, 0, sizeof l1); memset(r1, 0, sizeof r1); memset(l2, 0, sizeof l2); memset(r2, 0, sizeof r2);
+        drums_render16(&A, l1, r1);
+        drums_render16(&B, l2, r2);
+        if (memcmp(l1, l2, sizeof l1)) uguali = false;
+    }
+    CHECKM(uguali, "TV-121: il clic del metronomo non passa dall'FX");
+
+    /* il motore lo passa al kit */
+    static dsp_t D;
+    static motore_t M;
+    dsp_init(&D, 48000.0f, 1);
+    mot_init(&M, &D, 48000, 1);
+    mot_drum_fx(&M, 30, -40);
+    CHECK(M.drums.drive_t == 1.0f && M.drums.fpos_t == -1.0f);
+}
+
 void test_motore(void)
 {
+    test_swing();
+    test_drum_fx();
     test_inventa();
     test_looper_revisione();
     test_motore_revisione();

@@ -20,6 +20,13 @@ void drums_init(drums_t *k, float fs, uint32_t seed)
     k->inv_fs = 1.0f / fs;
     k->rng = seed ? seed : 1u;
     k->gain = 0.36f;
+    k->fx_a = 1.0f - expf(-16.0f / (0.015f * fs));           /* 15 ms, a blocchi di 16 */
+}
+
+void drums_fx(drums_t *k, uint8_t drive, int8_t filt)
+{
+    k->drive_t = (float)(drive > 10 ? 10 : drive) / 10.0f;
+    k->fpos_t = (float)(filt < -10 ? -10 : filt > 10 ? 10 : filt) / 10.0f;
 }
 
 void drums_volume(drums_t *k, uint8_t v)
@@ -168,16 +175,74 @@ static float sample(drums_t *k, drum_voice_t *v)
     return y;
 }
 
+/* FX del bus (SND-538), su 16 frame in place. Drive: tanh con il campione di mezzo (2×, come il DRIVE
+ * degli FX del suono), guadagno fino a +18 dB e uscita normalizzata perché un picco di 0,5 resti 0,5,
+ * mescolato con la radice della quantità. Filtro: SVF trapezoidale con Q 1, frequenza esponenziale fra
+ * 20 kHz e 150 Hz (passa-basso) o fra 20 Hz e 3 kHz (passa-alto); a ±0 è trasparente, quindi il
+ * passaggio fra i due modi non fa clic. Coefficienti una volta per blocco. */
+#define DRIVE_REF 0.5f
+
+static void bus_fx(drums_t *k, float *L, float *R)
+{
+    k->drive += k->fx_a * (k->drive_t - k->drive);
+    k->fpos += k->fx_a * (k->fpos_t - k->fpos);
+    if (fabsf(k->drive - k->drive_t) < 1e-4f) k->drive = k->drive_t;
+    if (fabsf(k->fpos - k->fpos_t) < 1e-4f) k->fpos = k->fpos_t;
+    float *ch[2] = { L, R };
+    if (k->drive == 0.0f && k->fpos == 0.0f) {                     /* spento: il bus esce com'è */
+        for (int c = 0; c < 2; c++) { k->drv_prev[c] = ch[c][15]; k->ic1[c] = k->ic2[c] = 0.0f; }
+        return;
+    }
+    float dr = k->drive, mix = sqrtf(dr);
+    float g = expf(dr * 2.0723266f);                               /* 10^(0,9 · dr) */
+    float norm = DRIVE_REF / tanh_f(g * DRIVE_REF);
+    float p = k->fpos, a1 = 0.0f, a2 = 0.0f, a3 = 0.0f;
+    if (p != 0.0f) {
+        float fc = p < 0.0f ? 20000.0f * expf(p * 4.8978398f)       /* ln(20000 / 150) */
+                            : 20.0f * expf(p * 5.0106353f);          /* ln(3000 / 20) */
+        float gg = tanf(DSP_PI * clampf(fc, 10.0f, 0.45f * k->fs) * k->inv_fs);
+        a1 = 1.0f / (1.0f + gg * (gg + 1.0f));
+        a2 = gg * a1;
+        a3 = gg * a2;
+    }
+    for (int c = 0; c < 2; c++) {
+        float *x = ch[c];
+        for (int s = 0; s < 16; s++) {
+            float y = x[s];
+            if (dr > 0.0f) {
+                float mid = 0.5f * (k->drv_prev[c] + y);
+                k->drv_prev[c] = y;
+                float w = 0.5f * (tanh_f(g * mid) + tanh_f(g * y)) * norm;
+                y += mix * (w - y);
+            } else k->drv_prev[c] = y;
+            if (p != 0.0f) {
+                float v3 = y - k->ic2[c];
+                float v1 = a1 * k->ic1[c] + a2 * v3;
+                float v2 = k->ic2[c] + a2 * k->ic1[c] + a3 * v3;
+                k->ic1[c] = 2.0f * v1 - k->ic1[c];
+                k->ic2[c] = 2.0f * v2 - k->ic2[c];
+                y = p < 0.0f ? v2 : y - v1 - v2;
+            }
+            x[s] = y;
+        }
+        k->ic1[c] = undenorm(k->ic1[c]);
+        k->ic2[c] = undenorm(k->ic2[c]);
+    }
+}
+
 void drums_render16(drums_t *k, float *L, float *R)
 {
+    float bl[16] = { 0 }, br[16] = { 0 };                         /* il bus con l'FX; i clic vanno diretti */
     for (int i = 0; i < DRUM_VOICES; i++) {
         drum_voice_t *v = &k->v[i];
         if (!v->on) continue;
         float gl = v->gl * v->amp * k->gain, gr = v->gr * v->amp * k->gain;
+        bool clic = v->inst >= DRUM_CLICK_ACCENT;
+        float *ol = clic ? L : bl, *or_ = clic ? R : br;
         for (int s = 0; s < 16; s++) {
             float y = sample(k, v);
-            L[s] += y * gl;
-            R[s] += y * gr;
+            ol[s] += y * gl;
+            or_[s] += y * gr;
             v->t += k->inv_fs;
         }
         v->bp1 = undenorm(v->bp1);
@@ -186,4 +251,6 @@ void drums_render16(drums_t *k, float *L, float *R)
         if (v->z) { if (v->e1 < 1e-4f) v->on = 0; }                /* la fine del campione la segna sample() */
         else if (v->t >= DUR[v->inst] || (v->e1 < 1e-4f && v->e2 < 1e-4f && v->inst != DRUM_CLAP)) v->on = 0;
     }
+    bus_fx(k, bl, br);
+    for (int s = 0; s < 16; s++) { L[s] += bl[s]; R[s] += br[s]; }
 }

@@ -5,6 +5,10 @@
  * in stile CR-78 (il kit «Chip»). Cassa, rullante, charleston chiuso e aperto, battimani, rimshot,
  * tom bassi e alti, campanaccio, maracas, conga, piatto, e i due clic del metronomo. Rende un bus
  * stereo che il chiamante passa a dsp_render16 (drum_L, drum_R). C11 puro, niente heap.
+ *
+ * Sul bus, prima dell'uscita, l'FX della drum machine (40 MIDI-135, 20 SND-538): un drive sovracampionato
+ * 2× e un filtro a variabili di stato, passa-basso a sinistra e passa-alto a destra. I clic del
+ * metronomo non ci passano. Spento (drive 0 e filtro 0) il bus esce com'è.
  */
 #ifndef STAME_DSP_DRUMS_H
 #define STAME_DSP_DRUMS_H
@@ -38,6 +42,12 @@ typedef struct {
     const smp_bank_t *bank;     /* banco e kit in uso (NULL = tutto sintesi) */
     const smp_set_t *kit;
     drum_voice_t v[DRUM_VOICES];
+    /* FX del bus: valori attuali, che seguono i bersagli a blocchi (15 ms), e stati */
+    float fx_a;                 /* coefficiente per blocco dell'inseguimento */
+    float drive, drive_t;       /* drive 0…1 */
+    float fpos, fpos_t;         /* filtro −1 (passa-basso chiuso) … 0 (spento) … +1 (passa-alto aperto) */
+    float drv_prev[2];          /* ultimo campione all'ingresso del drive, per il campione di mezzo */
+    float ic1[2], ic2[2];       /* stati del filtro */
 } drums_t;
 
 void drums_init(drums_t *k, float fs, uint32_t seed);
@@ -45,6 +55,8 @@ void drums_init(drums_t *k, float fs, uint32_t seed);
 void drums_set_kit(drums_t *k, const smp_bank_t *bank, const smp_set_t *kit);
 void drums_hit(drums_t *k, uint8_t inst, uint8_t vel);
 void drums_volume(drums_t *k, uint8_t v);          /* 0…99 */
+/* FX del bus: drive 0…10, filtro −10 (passa-basso a 150 Hz) … 0 (spento) … +10 (passa-alto a 3 kHz) */
+void drums_fx(drums_t *k, uint8_t drive, int8_t filt);
 /* somma 16 frame del kit in L e R (che il chiamante azzera) */
 void drums_render16(drums_t *k, float *L, float *R);
 void drums_all_off(drums_t *k);

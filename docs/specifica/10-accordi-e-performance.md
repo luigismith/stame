@@ -705,6 +705,11 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
   - Velocity: 52 + 7 × priorità, più 6 sui battiti. Charleston chiuso e aperto non suonano insieme.
   - Il **Fill** (T4, MIDI-133) aggiunge tre punti di densità alle parti che suonano e rende più probabili rullante e percussioni negli ultimi quattro sedicesimi della battuta.
   - Il passo è contato dal tick della battuta 1 del trasporto (ACC-204), quindi resta allineato al looper.
+- **ACC-216** `[D]` (19/10/2026, `40` MIDI-135, deciso da Luigi il 16/10/2026: «Swing sulla griglia del loop e dei Beat») **Swing.** I sedicesimi dispari, il secondo e il quarto di ogni quarto, suonano `s` tick dopo il loro posto, con `s` = 0…12: 0 è dritto, 12 mette il sedicesimo dispari al 75 % dell'ottavo (a 96 PPQN un tick vale circa il 2 %). Lo swing vale:
+  - per i passi del Beat, della tabella o del loop inventato, contati dalla battuta 1 del trasporto; lo swing di un passo si fissa al suo posto dritto, così cambiarlo mentre suona non salta né raddoppia un passo;
+  - per i colpi di batteria del loop, contati da t0: il loop li tiene sulla griglia dritta e lo swing li sposta a ogni giro, quindi vale anche per quello che è già registrato. Un colpo dal vivo va al punto più vicino della griglia spostata (a pari distanza quello dopo) e si registra al suo posto dritto;
+  - per il Roll (`40` MIDI-135): una ripetizione che cade su un sedicesimo dispari suona spostata ed entra nel loop dritta.
+  Metronomo e count-in restano dritti; le note degli accordi non si quantizzano e non si spostano. Il default è 0: senza toccare K4 sotto DRUMS lo swing non c'è, come vuole ACC-203 per la configurazione di default.
 
 ---
 
@@ -930,6 +935,8 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 | TV-117 | `HARD_EXIT` da `PLAYING` con loop non salvato | stato `IDLE`, loop cancellato, nessuna nota aperta |
 | TV-118 | 2 strati che suonano 15 note treble insieme | 14 note aperte; la più vecchia riceve note-off prima della 15ª |
 | TV-119 | batteria che si inventa (ACC-215): ogni stile, variazioni 0, 7, … 98, densità 0…10 | stessa variazione = stessa griglia; scheletro fermo; i colpi di d restano a d + 1; 0 tace, 1 è lo scheletro; il fill aggiunge colpi; un Beat del menu la spegne |
+| TV-120 | swing (ACC-216) di 6 e di 12 tick: Beat con un colpo sul passo 1, colpi dal vivo nel loop a pos 37 e 100, Roll a 1/16 in overdub | il passo 1 suona a 30, non a 24; i pari restano dritti; il colpo a pos 37 va a t = 24 e suona a 36 nel giro dopo, quello a 100 resta a 96; il Roll suona a 174 e non a 168, a 192 dritto, e registra solo sulla griglia dritta; senza swing tutto torna dritto |
+| TV-121 | FX del bus della batteria (`20` SND-538): drive 0…10, filtro −10…+10, clic del metronomo | spento (anche dopo essere stato acceso) il bus è identico bit per bit; drive 10 alza l'energia della cassa di oltre il 30 % con il picco sotto 1,2; passa-basso chiuso: il charleston sotto il 5 %; passa-alto aperto: la cassa sotto il 10 %; il clic identico con il filtro chiuso |
 
 ---
 

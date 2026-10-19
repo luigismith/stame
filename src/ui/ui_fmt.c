@@ -71,6 +71,22 @@ const char *ui_fmt_roll(uint8_t roll)
     return roll < 7 ? N[roll] : "?";
 }
 
+/* lo swing come lo scrivono le drum machine: dove cade il sedicesimo dispari nell'ottavo, 50 % = dritto */
+const char *ui_fmt_swing(uint8_t ticks)
+{
+    static const char *const N[13] = { "Off", "52%", "54%", "56%", "58%", "60%", "63%", "65%", "67%", "69%",
+                                       "71%", "73%", "75%" };
+    return ticks < 13 ? N[ticks] : "?";
+}
+
+char *ui_fmt_filter(char *buf, int n, int filt)
+{
+    if (filt == 0) return ui_fmt_copy(buf, n, "Off");
+    char d[8];
+    ui_fmt_int(d, sizeof d, filt < 0 ? -filt : filt, 1);
+    return ui_fmt_cat(buf, n, filt < 0 ? "LP " : "HP ", d);
+}
+
 const char *ui_fmt_perf_short(uint8_t mode)
 {
     static const char *const N[PERF_COUNT] = {

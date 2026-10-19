@@ -461,12 +461,19 @@ static int render_scene(const char *dir)
     for (int i = 0; i < 3; i++) { sc_pad(MPAD_M2_CW); sc_run(120); }
     sc_pad(MPAD_M1_PUSH); sc_run(1500);
     render_to(dir, "drums_inventa");
-    /* la pagina dei comandi sotto DRUMS: le celle KIT, ROLL e ACCENT (MIDI-135) */
+    /* la pagina dei comandi sotto DRUMS: le celle KIT, ROLL, DRIVE, SWING e ACCENT (MIDI-135), con drive 4 e
+     * swing 58 % (K3 vale 8 unità per scatto, K4 12); in testata SWING e DRUM FX */
+    for (int i = 0; i < 32; i++) sc_daw(26, 1);
+    for (int i = 0; i < 48; i++) sc_daw(27, 1);
+    sc_run(100);
     sc_pad(MPAD_T15);
     sc_run(200);
     render_to(dir, "drums_comandi");
     sc_pad(MPAD_T15);
     sc_run(200);
+    for (int i = 0; i < 32; i++) sc_daw(26, 0x7F);              /* di nuovo a zero: le scene dopo sono senza */
+    for (int i = 0; i < 48; i++) sc_daw(27, 0x7F);
+    sc_run(100);
     sc_pad(MPAD_T11);
     sc_run(2200);
     /* menu della piattaforma, poi la stessa pagina di gioco nel tema Notte */

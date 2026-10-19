@@ -33,6 +33,8 @@ void vet_snd_apply(motore_t *m, const vet_snd_t *e)
     case VS_ROLL:        mot_roll(m, e->a); break;
     case VS_INV:         mot_inventa(m, e->a, e->b); break;
     case VS_INV_DENS:    mot_inventa_dens(m, e->a, e->b); break;
+    case VS_SWING:       mot_swing(m, e->a); break;
+    case VS_DRUM_FX:     mot_drum_fx(m, e->a, (int8_t)((int)e->b - 10)); break;
     default: break;
     }
 }

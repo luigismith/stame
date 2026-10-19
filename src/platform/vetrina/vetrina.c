@@ -38,6 +38,7 @@ typedef struct {
     uint8_t tap_n;
     uint8_t scene_keep;                 /* una scena ha appena messo suono, Perform ed effetto: snd_sync non li rimette */
     int kit, roll, accent;              /* drum machine (MIDI-135): kit 0 = del Beat, Roll 0…6, Accent 0…10 */
+    int swing, drive, filt;             /* Swing 0…12 tick, Drive 0…10, filtro −10 (passa-basso) … +10 (passa-alto) */
     uint8_t inv;                        /* il Beat è la batteria che si inventa (MIDI-139) */
     int groove, variation, density;     /* stile, variazione e densità di tutto (0…10) */
     int8_t dens_off[INV_PARTS];         /* scarto di ogni parte dalla densità di tutto; −10 = muta */
@@ -356,6 +357,14 @@ static void looper_stop(vet_t *v) { loop_send(v, LOOP_C_STOP); }
 /* drum machine (MIDI-135): suddivisioni del Roll in tick e velocity con l'Accent (0 = colpi uguali, 10 = com'è) */
 static const uint8_t ROLL_TICKS[7] = { 0, 96, 48, 32, 24, 16, 12 };
 
+/* kit, swing e FX della batteria al thread audio, tutti insieme (inizio e fine della demo) */
+static void drum_machine_push(vet_t *v)
+{
+    snd_push(v, VS_KIT, 0, (uint8_t)S.kit, 0);
+    snd_push(v, VS_SWING, 0, (uint8_t)S.swing, 0);
+    snd_push(v, VS_DRUM_FX, 0, (uint8_t)S.drive, (uint8_t)(S.filt + 10));
+}
+
 /* ---- la batteria che si inventa (MIDI-139): sotto DRUMS le tre manopole del pad creano il loop. M gira
  * la densità (di tutto o della parte scelta) e premuta fa play e stop; m1 gira lo stile e premuta sceglie
  * la parte; m2 gira la variazione e premuta dà un'idea nuova. Ripremere DRUMS chiude l'editing: il loop
@@ -442,6 +451,24 @@ static void turn(vet_t *v, int enc, int d, bool pressed)
             overlay(v, OV_ACCENT, ENC_BASS, S.accent);
             return;
         }
+        if (enc == ENC_KEY) {                           /* K4: lo swing dei sedicesimi (ACC-216) */
+            S.swing = clampi(S.swing + d, 0, MOT_SWING_MAX);
+            snd_push(v, VS_SWING, 0, (uint8_t)S.swing, 0);
+            overlay(v, OV_SWING, ENC_KEY, S.swing);
+            return;
+        }
+    }
+    if (S.drums && enc == ENC_FX) {                     /* K3: drive, premuta e girata il filtro (SND-538) */
+        if (pressed) {
+            S.filt = clampi(S.filt + d, -10, 10);
+            S.sec[ENC_FX] = 1;
+            overlay(v, OV_FILTER, ENC_FX, S.filt);
+        } else {
+            S.drive = clampi(S.drive + d, 0, 10);
+            overlay(v, OV_DRIVE, ENC_FX, S.drive);
+        }
+        snd_push(v, VS_DRUM_FX, 0, (uint8_t)S.drive, (uint8_t)(S.filt + 10));
+        return;
     }
     switch (enc) {
     case ENC_SOUND:
@@ -933,6 +960,8 @@ static void demo_reset(vet_t *v)
     S.beat_mode = BEAT_PATTERN; S.beat = 0; S.beat_on = 0; S.inv = 0;
     S.groove = 0; S.variation = 0; S.density = 5; S.part = 0;   /* la batteria che si inventa da capo (MIDI-139) */
     memset(S.dens_off, 0, sizeof S.dens_off);
+    S.kit = 0; S.swing = 0; S.drive = 0; S.filt = 0;           /* la demo suona com'è scritta (MIDI-135) */
+    drum_machine_push(v);
     v->snd_sound = -1;                          /* suono, Perform ed effetto da capo (ACC-162) */
     v->inp.gest.focus = ENC_SOUND;
     v->page_until = v->now_ms;
@@ -977,6 +1006,7 @@ static void demo_stop(vet_t *v)
     S.beat_on = 0;
     S.drums = 0;
     memset(S.sec, 0, sizeof S.sec);
+    drum_machine_push(v);                               /* kit, swing e FX di chi suonava */
     if (S.sound != v->snd_sound) {                      /* il suono di prima, con il suo Perform e il suo effetto */
         int t;
         snd_push(v, VS_PATCH, 0, (uint8_t)S.sound, 0);
@@ -1475,6 +1505,9 @@ static void fill_tempo_looper(vet_t *v, ui_model_t *m)
     t->kit = (uint8_t)S.kit;                              /* drum machine (MIDI-135) */
     t->roll = (uint8_t)S.roll;
     t->accent = (uint8_t)S.accent;
+    t->swing = (uint8_t)S.swing;
+    t->drive = (uint8_t)S.drive;
+    t->filt = (int8_t)S.filt;
     t->inv = S.inv;                                       /* batteria che si inventa (MIDI-139) */
     t->groove = (uint8_t)S.groove;
     t->variation = (uint8_t)S.variation;
