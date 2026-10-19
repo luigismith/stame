@@ -3,14 +3,17 @@
 Uso: python -I hardware/case/manuale.py      (dopo genera.py e assieme.py)
 
 Usa la suite ArtCraft: VectorCraft converte le pagine SVG in PDF vettoriali, PdfCraft le unisce e
-mette il titolo. Escono out/taglio/progetti_di_taglio.pdf (i fogli 1:1, da mandare al laser o da
+mette il titolo. Dove VectorCraft non c'è (il PC di lavoro) le pagine le stampa Edge senza finestra, alla
+loro misura e in vettoriale, con un profilo temporaneo (quello di chi usa Edge resta fuori). Escono out/taglio/progetti_di_taglio.pdf (i fogli 1:1, da mandare al laser o da
 stampare per controllo, e la dima) e out/istruzioni_montaggio.pdf (copertina con i pezzi e la
 minuteria, un passo per pagina, le misure da verificare).
 """
 import base64
 import os
+import re
 import subprocess
 import sys
+import tempfile
 
 QUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, QUI)
@@ -20,6 +23,8 @@ import misure as M                   # noqa: E402
 
 VC = r'C:\Program Files\VectorCraft\vectorcraft-cli.exe'
 PC = r'C:\Program Files\PdfCraft\pdfcraft-cli.exe'
+EDGE = (r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe',
+        r'C:\Program Files\Microsoft\Edge\Application\msedge.exe')
 OUT = G.OUT
 PAG = os.path.join(OUT, 'montaggio', 'pagine')
 W, H = 297.0, 210.0                                         # A4 orizzontale, mm
@@ -33,7 +38,33 @@ def esegui(*args):
 
 
 def svg_pdf(svg, pdf):
-    esegui(VC, 'convert', svg, pdf)
+    if os.path.exists(VC):
+        esegui(VC, 'convert', svg, pdf)
+    else:
+        edge_pdf(svg, pdf)
+
+
+def edge_pdf(svg, pdf):
+    """la pagina SVG in PDF con Edge senza finestra: una pagina alla misura del disegno (width e height in mm),
+    margini zero, l'SVG dentro l'HTML così testi e tratti restano vettoriali"""
+    edge = next((e for e in EDGE if os.path.exists(e)), None)
+    if not edge:
+        raise SystemExit('per i PDF serve VectorCraft o Microsoft Edge')
+    testo_svg = open(svg, encoding='utf-8').read()
+    w = float(re.search(r'width="([0-9.]+)mm"', testo_svg).group(1))
+    h = float(re.search(r'height="([0-9.]+)mm"', testo_svg).group(1))
+    corpo = re.sub(r'^<\?xml[^>]*>\s*', '', testo_svg)
+    html = os.path.abspath(pdf[:-4] + '.html')
+    with open(html, 'w', encoding='utf-8', newline='\n') as f:
+        f.write(f'<!doctype html><html><head><meta charset="utf-8"><style>@page {{ size: {w}mm {h}mm; margin: 0 }}'
+                f'html, body {{ margin: 0; padding: 0 }} svg {{ display: block }}</style></head><body>{corpo}</body></html>')
+    with tempfile.TemporaryDirectory() as profilo:
+        subprocess.run([edge, '--headless', '--disable-gpu', f'--user-data-dir={profilo}', '--no-pdf-header-footer',
+                        '--virtual-time-budget=3000', f'--print-to-pdf={os.path.abspath(pdf)}', 'file:///' + html.replace(os.sep, '/')],
+                       capture_output=True, timeout=180)
+    os.remove(html)
+    if not os.path.exists(pdf):
+        raise SystemExit(f'Edge non ha scritto {pdf}')
 
 
 def unisci(pdfs, out, titolo):
@@ -112,7 +143,7 @@ MINUTERIA = [
 
 VERIFICARE = [
     'MK4: dima su carta (controlli dalle foto, ±1 mm); altezza del pannello (37 mm) e dei pulsanti piccoli',
-    'Macro pad (dalle foto del 18/10): corpo 11,5 mm, USB-C sul retro a 80 mm dal bordo dei tasti e 9 dal fondo, prima di stampare la culla',
+    "Macro pad: misurato col metro il 19/10 (185 × 75, corpo 16,2, USB-C fra m1 e m2 a 8,3 dal fondo); resta l'altezza dell'interruttore sul retro",
     'Flip: angolo massimo dello schermo (serve 115°: schermo a 65°); porte e tasti presi dalle foto',
     'Hub: misure reali (fermo dell\'hub) e consumo di MK4 + pad dalla batteria della Flip',
     'Prova di taglio su un ritaglio: potenza, velocità e gioco delle linguette (0,2 mm per lato)',
@@ -308,10 +339,138 @@ def istruzioni_stampa3d():
     return out, out_e
 
 
+def istruzioni_multicolore():
+    """out/stampa3d_multicolore/istruzioni_multicolore.pdf: i pezzi con i filamenti, lo slicer, le scritte, i
+    tasselli e il montaggio della console stampata a più colori (multicolore.py, 60-case.md §7c)"""
+    import multicolore as MC
+    righe, totale, report = MC.genera()
+    cart = MC.OUT
+    pag = os.path.join(cart, 'pagine')
+    os.makedirs(pag, exist_ok=True)
+    for n in os.listdir(pag):
+        os.remove(os.path.join(pag, n))
+    piatto = M.PRINT_BED[0]
+    piede = 'Stame · la console stampata a più colori, bozza 5'
+    tot = 3
+    pagine = []
+    filamento = {'piano': '1 nero, scritte 2', 'telaio': '2 sabbia, scritte 1'}
+    da_solo = {'telaio': '2 sabbia', 'petg_sabbia': '2 sabbia'}
+
+    def anteprima(nome):
+        """l'anteprima senza la riga del titolo (la pagina ha il suo)"""
+        from PIL import Image
+        im = Image.open(os.path.join(cart, f'anteprima_{nome}.png'))
+        out = os.path.join(pag, f'anteprima_{nome}.png')
+        im.crop((0, 30, im.width, im.height)).save(out)
+        return out
+    # 1: i pezzi e i filamenti
+    corpo = [testo(14, 22, ['Stame — la console stampata a più colori'], 11, 700, '#141B18'),
+             testo(14, 31, [f'Per stampanti a più filamenti (Anycubic Kobra S1 con l\'ACE Pro) · bozza 5, 19/10/2026 · '
+                            f'piatto da {piatto:.0f} × {piatto:.0f} mm'], 4.4, 400, '#555'),
+             testo(14, 44, ['I pezzi'], 5.2, 700)]
+    y = 51
+    for r in righe:
+        dx, dy, dz = r['dim']
+        due = '.3mf' in r['file']
+        nome = f'{r["nome"]}.3mf' if due else f'{r["nome"]}.stl'
+        q = r['file'].split('×')[-1].strip() if '×' in r['file'] else ''
+        q = q if q not in ('', '1') else ''
+        rot = f', ruotato {r["angolo"]}°' if r['angolo'] else ''
+        fil = filamento[r['colore']] if due else da_solo.get(r['colore'], '1 nero')
+        corpo.append(testo(14, y, [nome + (f' ×{q}' if q else '')], 3.1, 700))
+        corpo.append(testo(52, y, [f'{dx:.0f} × {dy:.0f} × {dz:.0f} mm{rot}'], 3.1))
+        corpo.append(testo(100, y, [fil], 3.1, 700 if due else 400, '#7A5A00' if due else '#333'))
+        y += 4.3
+    corpo.append(testo(14, y + 3, a_capo(f'Filamento: circa {virgola(totale / 1000)} kg in tutto. In grassetto i pezzi con le '
+                                         'scritte: un file .3mf con due parti, e accanto gli stessi in due STL (_corpo, _scritte).',
+                                         64), 3.3, 400, '#333'))
+    corpo.append(immagine(anteprima('mascherina_1'), 150, 36, 136, 94))
+    corpo.append(testo(150, 140, ['Due filamenti'], 5.2, 700))
+    el, _ = _elenco(150, 147, [
+        '1 nero e 2 sabbia (o il colore scelto per il telaio). Si scambiano il ruolo:',
+        'mascherina e piano della Flip: corpo 1, scritte 2, come l\'incisione del laser sull\'acrilico nero;',
+        'fianchi: corpo 2, scritte 1, come la bruciatura sul legno;',
+        'gli altri pezzi del telaio col 2; culle, visiera, fermo e squadrette col 1.'], 66, 3.3, 4.6)
+    corpo += el
+    pagine.append(_pagina_in(pag, '01_pezzi', '\n'.join(corpo), 1, tot, piede))
+    # 2: nello slicer
+    corpo = [testo(14, 22, ['Nello slicer'], 10, 700, '#141B18'),
+             testo(14, 31, ['Anycubic Slicer Next, o un altro slicer per più filamenti'], 4.4, 400, '#555')]
+    el, y = _elenco(14, 42, [
+        'Apri il .3mf del pezzo: arriva un oggetto con due parti, «corpo» e «scritte», con i filamenti già assegnati. '
+        'Controllali nell\'elenco degli oggetti.',
+        'Se lo slicer lo apre come due oggetti, o se preferisci gli STL: importa insieme _corpo.stl e _scritte.stl e, '
+        'alla domanda, caricali come un oggetto solo con più parti; poi assegna i filamenti a mano (pagina 1).',
+        'Non girare il pezzo: la faccia in vista è già sul piatto. Il piatto liscio la fa lucida, quello testurizzato le '
+        'dà la sua grana. Non spostare le due parti l\'una rispetto all\'altra.',
+        f'Strati da 0,2, primo strato da 0,2. Le scritte sono profonde {virgola(MC.SCRITTA_H)} mm, cioè i primi tre strati: '
+        'i cambi di filamento sono solo lì, e il resto del pezzo è di un colore.',
+        'Torre di spurgo sì. Se lo slicer lo permette, spurgo nel riempimento: il corpo è quasi tutto pieno di riempimento.',
+        'Il primo strato deve essere perfetto: piatto pulito e sgrassato, livellamento fatto, velocità bassa. Le lettere '
+        'hanno il tratto di una linea dell\'ugello (0,45 mm).',
+        'Il resto come la console stampata a un colore: PETG o PLA, ugello 0,4, 3 perimetri, 4 strati pieni sopra e sotto, '
+        'riempimento giroide al 20 %, senza supporti tranne la visiera.',
+        'Prima un tassello di prova: le code di rondine devono entrare a mano, con 0,15 mm di gioco per lato.'], 74, 3.4, 4.9)
+    corpo += el
+    corpo.append(immagine(anteprima('mascherina_2'), 156, 38, 128, 86))
+    corpo.append(immagine(anteprima('piano_flip'), 156, 128, 128, 66))
+    pagine.append(_pagina_in(pag, '02_slicer', '\n'.join(corpo), 2, tot, piede))
+    # 3: scritte, tasselli e montaggio
+    fuori = [f'{n}: {"; ".join(f)}' for n, (_, f, _) in report.items() if f]
+    corpo = [testo(14, 22, ['Scritte, tasselli e montaggio'], 10, 700, '#141B18'),
+             testo(14, 34, ['Le scritte'], 5.2, 700)]
+    el, y = _elenco(14, 41, [
+        'Ridisegnate con Matrice, il carattere 5×7 di Stame, a quadretti da 0,45 mm: lettere alte 3,15 mm. Le incisioni del '
+        'laser sono troppo fini per un ugello da 0,4. Logo e punti del nome restano quelli del laser.',
+        'Sulla mascherina, fra le due file di pad ci sono 2,8 mm: i tipi d\'accordo e i piatti del banco B vanno sotto i pad, '
+        'con l\'estensione e il tamburo della stessa colonna. «DIM/6»: DIM sul pad di sopra, 6 su quello di sotto; '
+        '«B:CHH/KICK»: il charleston sopra e la cassa sotto, nel banco B.',
+        'Niente carta né tasche: le scritte sono nel pezzo.'
+        + (' Restano fuori, perché non ci stanno: ' + '; '.join(fuori) + '.' if fuori else '')], 70, 3.4, 4.9)
+    corpo += el
+    divisi = [r['nome'] for r in righe if r['nome'][-2:-1] == '_' and r['nome'][-1].isdigit()]
+    gruppi = {}
+    for n in divisi:
+        gruppi.setdefault(n[:-2], []).append(n)
+    corpo.append(testo(14, y + 4, ['I tasselli'], 5.2, 700))
+    el, y = _elenco(14, y + 11, [
+        'Quello che non sta sul piatto si stampa in tasselli a coda di rondine: '
+        + ', '.join(f'{k} in {len(v)}' for k, v in gruppi.items()) + '. Il numero è quello del file.',
+        'Colla cianoacrilica in gel o epossidica nelle sedi; unire su un piano dritto. La mascherina: le due metà con la '
+        'faccia in vista in giù sul vetro, così la giunta resta a filo.'], 70, 3.4, 4.9)
+    corpo += el
+    corpo.append(testo(14, y + 4, ['Il montaggio'], 5.2, 700))
+    el, y = _elenco(14, y + 11, [
+        'Come in istruzioni_montaggio.pdf, con le differenze della console stampata (istruzioni_stampa3d.pdf, pagina 3): '
+        'base in tasselli, retro, costola e fianchi in un pezzo, squadrette con viti per plastica o inserti a caldo.'], 70, 3.4, 4.9)
+    corpo += el
+    corpo.append(testo(150, 34, ['I fianchi'], 5.2, 700))
+    corpo.append(immagine(anteprima('fianco_sx'), 150, 38, 136, 30))
+    corpo.append(immagine(anteprima('fianco_dx'), 150, 70, 136, 30))
+    corpo.append(testo(150, 110, ['Minuteria'], 5.2, 700))
+    el, _ = _elenco(150, 117, [m for m in MINUTERIA_STAMPA if 'carta adesiva' not in m], 66, 3.3, 4.6)
+    corpo += el
+    pagine.append(_pagina_in(pag, '03_scritte', '\n'.join(corpo), 3, tot, piede))
+    pdfs = []
+    for p in pagine:
+        pdf = p[:-4] + '.pdf'
+        svg_pdf(p, pdf)
+        pdfs.append(pdf)
+    out = os.path.join(cart, 'istruzioni_multicolore.pdf')
+    unisci(pdfs, out, 'Stame — la console stampata a più colori')
+    return out
+
+
 def svg_png(svg, png, scala=4):
     """la pagina SVG in PNG, ritagliata sul disegno (fuori resta solo il bianco)"""
     from PIL import Image, ImageChops
-    esegui(VC, 'convert', svg, png, '--scale', str(scala))
+    if os.path.exists(VC):
+        esegui(VC, 'convert', svg, png, '--scale', str(scala))
+    else:                             # senza VectorCraft: Edge fa il PDF, PdfCraft lo rende in PNG
+        pdf = png[:-4] + '.tmp.pdf'
+        edge_pdf(svg, pdf)
+        esegui(PC, 'render', pdf, '--page', '1', '--dpi', str(int(25.4 * scala)), '--out', png)
+        os.remove(pdf)
     im = Image.open(png).convert('RGB')
     box = ImageChops.difference(im, Image.new('RGB', im.size, (255, 255, 255))).getbbox()
     if box:
@@ -351,11 +510,15 @@ def taglio():
 
 
 def main():
+    if '--multicolore' in sys.argv:                  # solo le istruzioni della console a più colori
+        print(istruzioni_multicolore())
+        return
     G.genera()
     print(taglio())
     print(istruzioni())
     for p in istruzioni_stampa3d():
         print(p)
+    print(istruzioni_multicolore())
 
 
 if __name__ == '__main__':

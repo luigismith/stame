@@ -82,7 +82,7 @@ Per una stampante a più filamenti (Luigi ha una Anycubic Kobra S1 con l'ACE Pro
 - Le incisioni del laser sono troppo fini per un ugello da 0,4: le scritte sono ridisegnate con Matrice, il carattere 5×7 di Stame, a quadretti da 0,45 mm (lettere alte 3,15 mm). Fra le due file di pad della MK4 non c'è posto: i tipi d'accordo vanno sotto, con l'estensione della stessa colonna («DIM/6», «B:CHH/KICK»).
 - Due filamenti: 1 nero, 2 sabbia. I piani sono neri con le scritte sabbia, i fianchi color telaio con le scritte nere.
 - Ogni pezzo con le scritte esce in un `.3mf` (un oggetto con le parti «corpo» e «scritte», i filamenti già assegnati) e in due STL allineati, `_corpo` e `_scritte`, da importare insieme come un oggetto solo. Gli altri pezzi sono STL di un colore.
-- `pezzi.md` dice come caricarli in Anycubic Slicer Next; `anteprima_*.png` mostra ogni faccia come la si guarda.
+- `pezzi.md` dice come caricarli in Anycubic Slicer Next; `anteprima_*.png` mostra ogni faccia come la si guarda; `istruzioni_multicolore.pdf` (tre pagine A4, `manuale.py --multicolore`) raccoglie pezzi, filamenti, slicer e anteprime da stampare.
 
 ## Prima di tagliare
 

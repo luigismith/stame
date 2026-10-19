@@ -458,11 +458,14 @@ def salva_3mf(path, nome, parti):
     rels = ('<?xml version="1.0" encoding="UTF-8"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
             '<Relationship Target="/3D/3dmodel.model" Id="rel0" '
             'Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>\n')
+    # data fissa nello zip: rigenerare lo stesso pezzo dà lo stesso file
     with zipfile.ZipFile(path, 'w', zipfile.ZIP_DEFLATED) as z:
-        z.writestr('[Content_Types].xml', tipi)
-        z.writestr('_rels/.rels', rels)
-        z.writestr('3D/3dmodel.model', modello)
-        z.writestr('Metadata/model_settings.config', impostazioni)
+        for nome, testo in (('[Content_Types].xml', tipi), ('_rels/.rels', rels),
+                            ('3D/3dmodel.model', modello),
+                            ('Metadata/model_settings.config', impostazioni)):
+            info = zipfile.ZipInfo(nome, date_time=(2026, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED
+            z.writestr(info, testo)
 
 
 def _verso_scrittura(pz, t):
@@ -573,7 +576,8 @@ def scrivi_elenco(righe, totale, piatto, report):
     L = ['# Stame — la console stampata a più colori', '',
          f'Generato da `hardware/case/multicolore.py` per un piatto di {piatto:.0f} × {piatto:.0f} mm (Anycubic Kobra S1 '
          'con l\'ACE Pro, o un\'altra stampante a più filamenti). Gli stessi pezzi di `../stampa3d/`; mascherina, piano della '
-         'Flip e fianchi hanno le scritte stampate: incassate a filo nella faccia in vista, che sta sul piatto.', '',
+         'Flip e fianchi hanno le scritte stampate: incassate a filo nella faccia in vista, che sta sul piatto. Le '
+         'istruzioni da stampare, con le anteprime dei pezzi, sono in `istruzioni_multicolore.pdf`.', '',
          '| File | Ingombro (mm) | Colore | Note |', '|---|---|---|---|']
     for r in righe:
         dx, dy, dz = r['dim']

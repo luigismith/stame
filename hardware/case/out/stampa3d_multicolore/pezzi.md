@@ -1,6 +1,6 @@
 # Stame — la console stampata a più colori
 
-Generato da `hardware/case/multicolore.py` per un piatto di 240 × 240 mm (Anycubic Kobra S1 con l'ACE Pro, o un'altra stampante a più filamenti). Gli stessi pezzi di `../stampa3d/`; mascherina, piano della Flip e fianchi hanno le scritte stampate: incassate a filo nella faccia in vista, che sta sul piatto.
+Generato da `hardware/case/multicolore.py` per un piatto di 240 × 240 mm (Anycubic Kobra S1 con l'ACE Pro, o un'altra stampante a più filamenti). Gli stessi pezzi di `../stampa3d/`; mascherina, piano della Flip e fianchi hanno le scritte stampate: incassate a filo nella faccia in vista, che sta sul piatto. Le istruzioni da stampare, con le anteprime dei pezzi, sono in `istruzioni_multicolore.pdf`.
 
 | File | Ingombro (mm) | Colore | Note |
 |---|---|---|---|
