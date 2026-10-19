@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 602.5 300.0" width="1566" height="780" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
+<rect x="0" y="0" width="602.5" height="300.0" fill="#F7F6F1"/>
+<rect x="20.00" y="76.00" width="347.50" height="192.00" rx="5" fill="#2E3330" stroke="#1E2220" stroke-width="0.8"/>
+<rect x="23.00" y="174.00" width="341.50" height="91.00" rx="2" fill="#F4F5EF" stroke="none" stroke-width="0.5"/>
+<text x="193.75" y="120.00" font-size="12" fill="#E8EBE4" text-anchor="middle" font-weight="700" dominant-baseline="central">MPK mini IV · preset DAW</text>
+<text x="193.75" y="138.00" font-size="7.5" fill="#E8EBE4" text-anchor="middle" font-weight="400" dominant-baseline="central">pad e manopole sopra, i tasti davanti</text>
+<text x="193.75" y="222.00" font-size="8" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">tasti</text>
+<rect x="403.50" y="194.50" width="179.00" height="73.50" rx="5.0" fill="#E3E6DF" stroke="#8E968A" stroke-width="0.8"/>
+<text x="473.00" y="231.25" font-size="10" fill="#141B18" text-anchor="middle" font-weight="700" dominant-baseline="central">macro pad</text>
+<text x="560.50" y="208.50" font-size="7" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">m1  m2</text>
+<text x="551.50" y="256.00" font-size="8" fill="#424C47" text-anchor="middle" font-weight="700" dominant-baseline="central">M</text>
+<rect x="451.00" y="64.15" width="84.00" height="32.00" rx="4" fill="#CED4C2" stroke="#8E968A" stroke-width="0.8"/>
+<text x="493.00" y="80.15" font-size="7" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central">schermo, inclinato</text>
+<rect x="451.00" y="98.15" width="84.00" height="80.35" rx="6" fill="#E6E8E3" stroke="#8E968A" stroke-width="0.8"/>
+<text x="493.00" y="138.32" font-size="9" fill="#141B18" text-anchor="middle" font-weight="700" dominant-baseline="central">Flip, aperta</text>
+<rect x="317.50" y="12.00" width="85.00" height="32.00" rx="3" fill="#D9DECE" stroke="#8E968A" stroke-width="0.8"/>
+<text x="360.00" y="28.00" font-size="6.5" fill="#141B18" text-anchor="middle" font-weight="600" dominant-baseline="central">hub USB 2.0, senza PD</text>
+<path d="M329.5,44.0 C329.5,66.0 298.0,54.0 298.0,76.0" fill="none" stroke="#424C47" stroke-width="1.2"/>
+<path d="M382.5,44.0 C385.5,74.0 385.5,154.5 385.5,186.5 S401.5,204.5 403.5,204.5" fill="none" stroke="#424C47" stroke-width="1.2"/>
+<path d="M402.5,28.0 C441.0,28.0 493.0,38.2 493.0,64.2" fill="none" stroke="#424C47" stroke-width="1.2"/>
+<text x="50.00" y="18.00" font-size="6.5" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">tre cavi in un hub, e un cavo solo alla porta USB-C di sopra della Flip</text>
+<text x="50.00" y="30.00" font-size="6.0" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central" font-style="italic">(mai forzare la porta in modalità host)</text>
+<text x="283.75" y="286.00" font-size="8" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central" font-style="italic">chi suona sta davanti ai tasti, con lo sguardo sullo schermo della Flip</text>
+</svg>

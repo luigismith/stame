@@ -16,6 +16,8 @@ Con MPK e pad ogni comando ha una casa: girare e premere sulla MPK, liste sulla 
 
 ## MPK mini IV (preset DAW)
 
+![La MPK mini IV: pad dei banchi A e B, manopole K1…K8, SHIFT = PUSH, navigazione, trasporto, tasti](img/mk4.svg)
+
 | Comando | Funzione |
 |---|---|
 | tasti | fondamentale (solo il nome della nota) |
@@ -36,6 +38,8 @@ Con MPK e pad ogni comando ha una casa: girare e premere sulla MPK, liste sulla 
 
 ## Macro pad
 
+![Il macro pad con le manopole a destra: i quindici tasti e le tre manopole](img/pad.svg)
+
 | | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|
 | alto | T1 HOLD | T2 TAP | T3 METRO | T4 FILL (tenuto) | **T13 LOCK** |
@@ -53,6 +57,8 @@ Scene: tocco = richiama (suono, basso, Perform, FX, tonalità, basso on/off), te
 T14: Geek Out e ritorno. T15: pagina dei comandi aperta finché non lo ripremi (o −).
 
 ## Flip (sempre viva)
+
+<img src="img/flip.svg" alt="I tasti della Flip e i loro comandi (disposizione schematica)" width="70%">
 
 | Tasto | Funzione |
 |---|---|
@@ -88,7 +94,7 @@ T14: Geek Out e ritorno. T15: pagina dei comandi aperta finché non lo ripremi (
 
 Options: Exit · View (React, Chord, Keyboard, Chord+Kb, Notes, Geek Out) · Play Style (Simple, Advanced, Free) · Single Notes (Split, Octave) · Secret Chords (On, Off).
 Lista di BPM: 2/4 · 3/4 · 4/4 · 6/8 · Funk · Bossa · Motorik · Lounge · Shuffle · Halftime · Boom Bap · Disco · Samba · Ballad · Train · Chip · Techno · Dub · Acid · Industrial · Minimal · Electro · Trap. Batteria a tastiera (T11): tasti C…B = cassa, rimshot, rullante, battimani, charleston chiuso, tom basso, charleston aperto, tom alto, maracas, conga, campanaccio, piatto; i colpi entrano nel loop al sedicesimo.
-Menu: Exit · Panic · Theme (Giorno di default) · Linnaeus Tag · Legend · Meters · Demo · Play Demo Song · Quit Stame.
+Menu: Exit · Panic · Theme (Giorno di default) · Linnaeus Tag · Legend · Meters · Demo · Play Demo Song (la lista dei sei brani: uno a scelta, subito) · Quit Stame.
 
 ## Drum machine (DRUMS acceso)
 

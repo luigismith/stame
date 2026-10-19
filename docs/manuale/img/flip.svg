@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 204.0 119.3" width="530" height="310" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
+<rect x="0" y="0" width="204.0" height="119.3" fill="#F7F6F1"/>
+<rect x="60.00" y="20.00" width="84.00" height="80.35" rx="8" fill="#E6E8E3" stroke="#8E968A" stroke-width="0.6"/>
+<rect x="87.00" y="17.50" width="30.00" height="3.50" rx="1.5" fill="#C9CFC0" stroke="none" stroke-width="0.5"/>
+<text x="102.00" y="4.00" font-size="2.5" fill="#424C47" text-anchor="middle" font-weight="400" dominant-baseline="central" font-style="italic">cerniera: di là c'è lo schermo, verso chi suona</text>
+<rect x="62.00" y="9.50" width="22.00" height="4.40" rx="1.5" fill="#F2DCCB" stroke="#853A00" stroke-width="0.5"/>
+<text x="73.00" y="11.70" font-size="2.5" fill="#853A00" text-anchor="middle" font-weight="600" dominant-baseline="central">L2  Tap tempo</text>
+<rect x="62.00" y="14.50" width="22.00" height="4.40" rx="1.5" fill="#D8E5CA" stroke="#285C00" stroke-width="0.5"/>
+<text x="73.00" y="16.70" font-size="2.5" fill="#285C00" text-anchor="middle" font-weight="600" dominant-baseline="central">L1  fuoco −</text>
+<rect x="120.00" y="9.50" width="22.00" height="4.40" rx="1.5" fill="#F2DCCB" stroke="#853A00" stroke-width="0.5"/>
+<text x="131.00" y="11.70" font-size="2.5" fill="#853A00" text-anchor="middle" font-weight="600" dominant-baseline="central">R2  Fill (tenuto)</text>
+<rect x="120.00" y="14.50" width="22.00" height="4.40" rx="1.5" fill="#D8E5CA" stroke="#285C00" stroke-width="0.5"/>
+<text x="131.00" y="16.70" font-size="2.5" fill="#285C00" text-anchor="middle" font-weight="600" dominant-baseline="central">R1  fuoco +</text>
+<rect x="77.50" y="37.00" width="9.00" height="26.00" rx="1.5" fill="#D8E5CA" stroke="#285C00" stroke-width="0.5"/>
+<rect x="69.00" y="45.50" width="26.00" height="9.00" rx="1.5" fill="#D8E5CA" stroke="#285C00" stroke-width="0.5"/>
+<rect x="77.70" y="45.70" width="8.60" height="8.60" rx="0" fill="#D8E5CA" stroke="none" stroke-width="0.5"/>
+<text x="82.00" y="41.50" font-size="3.0" fill="#285C00" text-anchor="middle" font-weight="400" dominant-baseline="central">▲</text>
+<text x="82.00" y="58.50" font-size="3.0" fill="#285C00" text-anchor="middle" font-weight="400" dominant-baseline="central">▼</text>
+<text x="73.50" y="50.00" font-size="3.0" fill="#285C00" text-anchor="middle" font-weight="400" dominant-baseline="central">◀</text>
+<text x="90.50" y="50.00" font-size="3.0" fill="#285C00" text-anchor="middle" font-weight="400" dominant-baseline="central">▶</text>
+<circle cx="122.00" cy="41.00" r="4.30" fill="#EEE3C4" stroke="#634A00" stroke-width="0.6"/>
+<text x="122.00" y="41.00" font-size="3.6" fill="#634A00" text-anchor="middle" font-weight="700" dominant-baseline="central">X</text>
+<circle cx="131.00" cy="50.00" r="4.30" fill="#D8E5CA" stroke="#285C00" stroke-width="0.6"/>
+<text x="131.00" y="50.00" font-size="3.6" fill="#285C00" text-anchor="middle" font-weight="700" dominant-baseline="central">A</text>
+<circle cx="122.00" cy="59.00" r="4.30" fill="#D8E5CA" stroke="#285C00" stroke-width="0.6"/>
+<text x="122.00" y="59.00" font-size="3.6" fill="#285C00" text-anchor="middle" font-weight="700" dominant-baseline="central">B</text>
+<circle cx="113.00" cy="50.00" r="4.30" fill="#EEE3C4" stroke="#634A00" stroke-width="0.6"/>
+<text x="113.00" y="50.00" font-size="3.6" fill="#634A00" text-anchor="middle" font-weight="700" dominant-baseline="central">Y</text>
+<circle cx="82.00" cy="78.00" r="7.50" fill="#CFE4E0" stroke="#005A51" stroke-width="0.7"/>
+<circle cx="82.00" cy="78.00" r="4.20" fill="#FFFFFF" stroke="#005A51" stroke-width="0.4"/>
+<text x="82.00" y="78.00" font-size="3.2" fill="#005A51" text-anchor="middle" font-weight="700" dominant-baseline="central">L</text>
+<circle cx="122.00" cy="78.00" r="7.50" fill="#CFE4E0" stroke="#005A51" stroke-width="0.7"/>
+<circle cx="122.00" cy="78.00" r="4.20" fill="#FFFFFF" stroke="#005A51" stroke-width="0.4"/>
+<text x="122.00" y="78.00" font-size="3.2" fill="#005A51" text-anchor="middle" font-weight="700" dominant-baseline="central">R</text>
+<rect x="85.50" y="89.40" width="15.00" height="5.20" rx="2.6" fill="#D8E5CA" stroke="#285C00" stroke-width="0.5"/>
+<text x="93.00" y="92.00" font-size="2.4" fill="#285C00" text-anchor="middle" font-weight="700" dominant-baseline="central">SELECT</text>
+<rect x="103.50" y="89.40" width="15.00" height="5.20" rx="2.6" fill="#F2DCCB" stroke="#853A00" stroke-width="0.5"/>
+<text x="111.00" y="92.00" font-size="2.4" fill="#853A00" text-anchor="middle" font-weight="700" dominant-baseline="central">START</text>
+<rect x="94.50" y="64.40" width="15.00" height="5.20" rx="2.6" fill="#D8E5CA" stroke="#285C00" stroke-width="0.5"/>
+<text x="102.00" y="67.00" font-size="2.4" fill="#285C00" text-anchor="middle" font-weight="700" dominant-baseline="central">MENU</text>
+<text x="56.00" y="48.39" font-size="2.8" fill="#285C00" text-anchor="end" font-weight="400" dominant-baseline="central">croce: gira il controllo con il</text><text x="56.00" y="51.61" font-size="2.8" fill="#285C00" text-anchor="end" font-weight="400" dominant-baseline="central">fuoco, o scorre la lista aperta</text>
+<line x1="57.50" y1="50.00" x2="69.00" y2="50.00" stroke="#879180" stroke-width="0.35"/>
+<text x="56.00" y="74.78" font-size="2.8" fill="#005A51" text-anchor="end" font-weight="400" dominant-baseline="central">levetta sinistra: ↔ pitch bend,</text><text x="56.00" y="78.00" font-size="2.8" fill="#005A51" text-anchor="end" font-weight="400" dominant-baseline="central">↕ modulazione (torna al centro)</text><text x="56.00" y="81.22" font-size="2.8" fill="#005A51" text-anchor="end" font-weight="400" dominant-baseline="central">clic L3: Mod</text>
+<line x1="57.50" y1="78.00" x2="74.50" y2="78.00" stroke="#879180" stroke-width="0.35"/>
+<text x="148.00" y="41.00" font-size="2.8" fill="#634A00" text-anchor="start" font-weight="400" dominant-baseline="central">X: Hold</text>
+<line x1="146.50" y1="41.00" x2="126.30" y2="41.00" stroke="#879180" stroke-width="0.35"/>
+<text x="148.00" y="49.39" font-size="2.8" fill="#285C00" text-anchor="start" font-weight="400" dominant-baseline="central">A: premi · tenuto: tieni</text><text x="148.00" y="52.61" font-size="2.8" fill="#285C00" text-anchor="start" font-weight="400" dominant-baseline="central">A tenuto + croce: premi e gira</text>
+<line x1="146.50" y1="51.00" x2="135.30" y2="50.00" stroke="#879180" stroke-width="0.35"/>
+<text x="148.00" y="61.00" font-size="2.8" fill="#285C00" text-anchor="start" font-weight="400" dominant-baseline="central">B: indietro</text>
+<line x1="146.50" y1="61.00" x2="126.30" y2="59.00" stroke="#879180" stroke-width="0.35"/>
+<text x="116.50" y="59.20" font-size="2.6" fill="#634A00" text-anchor="end" font-weight="600" dominant-baseline="central">Y: Mod</text>
+<text x="148.00" y="65.39" font-size="2.8" fill="#285C00" text-anchor="start" font-weight="400" dominant-baseline="central">MENU: il menu della piattaforma</text><text x="148.00" y="68.61" font-size="2.8" fill="#285C00" text-anchor="start" font-weight="400" dominant-baseline="central">tenuto 2 s: esce da Stame</text>
+<line x1="146.50" y1="67.00" x2="109.50" y2="67.00" stroke="#879180" stroke-width="0.35"/>
+<text x="148.00" y="74.78" font-size="2.8" fill="#005A51" text-anchor="start" font-weight="400" dominant-baseline="central">levetta destra: ↕ Chord Voicing,</text><text x="148.00" y="78.00" font-size="2.8" fill="#005A51" text-anchor="start" font-weight="400" dominant-baseline="central">↔ Bass Voicing (tenuta: ripete)</text><text x="148.00" y="81.22" font-size="2.8" fill="#005A51" text-anchor="start" font-weight="400" dominant-baseline="central">clic R3: Split/Octave</text>
+<line x1="146.50" y1="78.00" x2="129.50" y2="78.00" stroke="#879180" stroke-width="0.35"/>
+<text x="86.00" y="106.35" font-size="2.8" fill="#285C00" text-anchor="middle" font-weight="400" dominant-baseline="central">SELECT: Options</text>
+<line x1="86.00" y1="104.15" x2="93.00" y2="94.60" stroke="#879180" stroke-width="0.35"/>
+<text x="134.00" y="106.35" font-size="2.8" fill="#853A00" text-anchor="middle" font-weight="400" dominant-baseline="central">START: Beat on/off · con la MK4: Fill tenuto</text>
+<line x1="134.00" y1="104.15" x2="111.00" y2="94.60" stroke="#879180" stroke-width="0.35"/>
+<text x="102.00" y="114.35" font-size="2.4" fill="#879180" text-anchor="middle" font-weight="400" dominant-baseline="central" font-style="italic">i tasti della Flip funzionano sempre, qualunque cosa sia collegata · disposizione schematica</text>
+</svg>

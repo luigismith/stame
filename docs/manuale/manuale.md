@@ -6,7 +6,7 @@ Stame è uno strumento ad accordi: una mano tiene il tipo d'accordo e le estensi
 
 ## 1. La postazione
 
-Come nella foto del 15/10/2026:
+![La postazione vista dall'alto: la MPK a sinistra, il macro pad a destra in linea con i tasti, la Flip aperta dietro il pad, i tre cavi nell'hub](img/postazione.svg)
 
 - **MPK mini IV a sinistra**, nel preset **DAW** (è di fabbrica, non va programmato). La sinistra sta sugli 8 pad, la destra sui tasti; le 8 manopole K1…K8 sono sopra i tasti, a destra; sotto le manopole, il trasporto (UNDO, LOOP, STOP/PLAY, REC, ⊕).
 - **Macro pad a destra**, in linea con i tasti, con le manopole verso destra: le due piccole in alto (**m1** vicina ai tasti, **m2** sul bordo), la grande **M** in basso. Si usa solo via cavo, sullo strato di fabbrica 3 (o sull'1, reso uguale al 3).
@@ -180,6 +180,8 @@ Con **DRUMS acceso** sei in modalità crea: le tre manopole del pad inventano il
 
 Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera collegata (dal 16/10/2026) il pad non rifà i comandi della MPK: tiene Options, Panic, Lock, View, Page e i due voicing, e i tasti liberi fanno **quello che l'originale non ha**. Fa lo stesso anche senza tastiera.
 
+![Il macro pad tenuto con le manopole a destra: i quindici tasti con le loro etichette e le tre manopole, con quello che fanno da sole, con il Lock e con DRUMS](img/pad.svg)
+
 | | col. 1 | col. 2 | col. 3 | col. 4 | col. 5 |
 |---|---|---|---|---|---|
 | in alto | **T1** Hold | **T2** Tap tempo | **T3** Metronomo | **T4** Fill (tenuto) | **T13 LOCK** |
@@ -207,6 +209,8 @@ Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera c
 - Se il pad non c'è, la Flip ne fa una parte: Options è SELECT, Mod è Y, Hold è X, Fill è START tenuto, i due voicing sono la levetta destra (§9.2).
 
 ## 8. La MPK mini IV
+
+![La MPK mini IV nel preset DAW: i pad del banco A (accordi) e del banco B (batteria), le manopole K1…K8, SHIFT che fa da PUSH, la manopola di navigazione con − e +, il trasporto e i tasti](img/mk4.svg)
 
 | Comando | Fa |
 |---|---|
@@ -248,6 +252,8 @@ Due **temi** (MENU › Theme): **Giorno** (LCD riflettente, quello con cui Stame
 
 I tasti della Flip funzionano **sempre**, qualunque cosa sia collegata (17/10/2026): sono la console di gestione. Solo X e START cambiano compito secondo la tastiera.
 
+![I tasti della Flip e i loro comandi: croce, A, B, X, Y, le due levette con il clic, L1 R1 L2 R2, SELECT, START e MENU (disposizione schematica)](img/flip.svg)
+
 | Tasto | Fa |
 |---|---|
 | L1 / R1 | sposta il fuoco fra gli 11 controlli (Sound, Perform, FX, Key, Bass, Loop, BPM, Volume, Options, Chord Voicing, Bass Voicing) e apre la pagina dei comandi |
@@ -277,14 +283,16 @@ I tasti della Flip funzionano **sempre**, qualunque cosa sia collegata (17/10/20
 | Legend | On / Off: le sigle dei comandi nelle celle della pagina dei comandi |
 | Meters | On / Off: voci, carico e livelli nella barra di Geek Out |
 | Demo | Auto / Off: la demo dopo 20 secondi senza ingressi |
-| Play Demo Song | il brano successivo della demo, subito |
+| Play Demo Song | la lista dei sei brani della demo, con un segno su quello di turno: scegline uno e parte subito (Exit o B tornano al menu) |
 | Quit Stame | esce (subito) |
 
 Previsti: Pocket Mode (suonare con la sola Flip), MPK Status, Learn Pad, Note Labels, Beat Flash, Ghost Chord, Boot Sound, Debug.
 
 ## 10. La demo
 
-Sono sei brani originali di Stame, suonati a giro: **«Acacia»** (poco meno di quattro minuti: accordi in Harp, lista dei Beat, count-in e registrazione del loop, overdub, Lock del Perform, transpose, cambi di suono e di vista, i due temi, il ritardando), **«Felce»** (una bossa con piano a coda, vibrafono, kalimba in overdub, sax tenore, arpa e glockenspiel), **«Pistillo»** (apre con la batteria a tastiera: il kit 808 suonato sui tasti entra nel loop con count-in e sovraincisione, poi sopra FM piano e Sub Floor, marimba, organo a canne nel loop, flauto dolce, campane tubolari e transpose) e **«Alga»** (lento e sott'acqua: un pad, il giro nel loop con Moonflower e Peat Sub, campane a mano, glockenspiel in sovraincisione, ocarina, il Beat Ballad, bicchieri e ritardando), **«Cicuta»** (acid techno: il loop di batteria si inventa con le tre manopole del pad, dallo scheletro al pieno, poi Hemlock Acid in Pattern con il basso Hemlock 303, il giro nel loop, un break che passa allo stile Industrial e il drone di Black Hellebore) e **«Torba»** (dub techno: lo stab di Deadnettle Dub sul levare con il suo eco, il giro nel loop, Undertow e Abyss Sub, la batteria Dub che cambia mentre suona e le campane scure di Mire Bells). La demo parte da sola dopo 20 secondi senza ingressi (e subito dopo l'avvio). Qualunque tasto, pad o nota la ferma e rimette a posto loop, Beat, transpose e opzioni. Per non farla partire: MENU › Demo › Off. Per sentire il brano dopo: MENU › Play Demo Song.
+Sono sei brani originali di Stame, suonati a giro: **«Acacia»** (poco meno di quattro minuti: accordi in Harp, lista dei Beat, count-in e registrazione del loop, overdub, Lock del Perform, transpose, cambi di suono e di vista, i due temi, il ritardando), **«Felce»** (una bossa con piano a coda, vibrafono, kalimba in overdub, sax tenore, arpa e glockenspiel), **«Pistillo»** (apre con la batteria a tastiera: il kit 808 suonato sui tasti entra nel loop con count-in e sovraincisione, poi sopra FM piano e Sub Floor, marimba, organo a canne nel loop, flauto dolce, campane tubolari e transpose) e **«Alga»** (lento e sott'acqua: un pad, il giro nel loop con Moonflower e Peat Sub, campane a mano, glockenspiel in sovraincisione, ocarina, il Beat Ballad, bicchieri e ritardando), **«Cicuta»** (acid techno: il loop di batteria si inventa con le tre manopole del pad, dallo scheletro al pieno, poi Hemlock Acid in Pattern con il basso Hemlock 303, il giro nel loop, un break che passa allo stile Industrial e il drone di Black Hellebore) e **«Torba»** (dub techno: lo stab di Deadnettle Dub sul levare con il suo eco, il giro nel loop, Undertow e Abyss Sub, la batteria Dub che cambia mentre suona e le campane scure di Mire Bells). La demo parte da sola dopo 20 secondi senza ingressi (e subito dopo l'avvio). Qualunque tasto, pad o nota la ferma e rimette a posto loop, Beat, transpose e opzioni. Per non farla partire: MENU › Demo › Off. Per sentire un brano preciso: MENU › Play Demo Song, poi il brano nella lista.
+
+![La lista dei brani della demo (MENU › Play Demo Song): il segno sta sul brano di turno](img/demo_lista.png)
 
 ## 11. Cosa fare se
 
