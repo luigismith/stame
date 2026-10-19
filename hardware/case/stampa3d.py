@@ -26,8 +26,9 @@ misure.py e di genera.py.
   etichette di carta; la culla della Flip e la cornice dello schermo sono quelle di genera.py.
 - Sui fianchi il marchio e il nome escono in rilievo dalla faccia di fuori, che stampata in piedi è verticale.
 Ogni STL esce nel verso fisico giusto (il riferimento del case si specchia su y), con la faccia giusta sul piatto,
-e ogni guscio è chiuso; le vasche vicine non si compenetrano. pezzi.md elenca pezzi, viti e impostazioni;
-prova_giunta.stl è un pezzetto di giunta da stampare prima delle vasche.
+e ogni guscio è chiuso; le vasche vicine non si compenetrano e lasciano libere le sedi (sedi_occupate).
+pezzi.md elenca pezzi, viti e impostazioni; prova_giunta.stl è un pezzetto di giunta da stampare prima delle
+vasche.
 """
 import math
 import os
@@ -270,7 +271,6 @@ def tratto(pz, lo=None, hi=None, giunta_lo=True, giunta_hi=True):
     p = _ritaglia(prof, a, b)
     if p is not None:
         strati.append((p, [h for h in fori if _nel_tratto(h, a, b, pz.nome)], T / 2 - SOVRAPPOSTO, T / 2 + SOVRAPPOSTO))
-    ao, bo = campo(True)
     return dict(strati=strati, tasche=[], angolo=0,
                 rilievi=[r for r in pz.rilievi if _nel_tratto(r[0], ao, bo, pz.nome)],
                 regioni=[r for r in pz.regioni if _nel_tratto(rett(*r['rett']), ao, bo, pz.nome)],
@@ -586,12 +586,12 @@ def fondo(ms, reg):
             continue
         asse = 0 if lato in ('sx', 'dx') else 1
         c, code = posa_code(reg, lato)
-        sedi = lato in ('sx', 'davanti')
+        ha_sedi = lato in ('sx', 'davanti')
         for r in IMPRONTA:
             q = _inter(r, fr)
             if q:
-                ms.prisma(_con_sedi(rett(*q), asse, c, code) if sedi else rett(*q), 0.0, M.BASE_T)
-        if not sedi:
+                ms.prisma(_con_sedi(rett(*q), asse, c, code) if ha_sedi else rett(*q), 0.0, M.BASE_T)
+        if not ha_sedi:
             for t, verso in code:
                 ms.prisma(coda(asse, c, t, verso), 0.0, M.BASE_T)
 
@@ -695,6 +695,8 @@ def vasche(piatto, fianchi=None, solido_parete=_solido_parete):
     sovrapposte = [(a['nome'], b['nome']) for i, a in enumerate(out) for b in out[i + 1:]
                    if compenetrano(a['corpo'], b['corpo'])]
     assert not sovrapposte, f'vasche che si compenetrano: {sovrapposte}'
+    occupate = sedi_occupate([v['corpo'] for v in out])
+    assert not occupate, f'sedi occupate dalle vasche: {occupate}'
     return out
 
 
@@ -777,6 +779,79 @@ def compenetrano(a, b, passi=5):
                         if _nel_prisma(p, P) and _nel_prisma(q, P):
                             return True
     return False
+
+
+def _passi(a, b, passo):
+    n = max(1, math.ceil((b - a) / passo))
+    return [a + (b - a) * k / n for k in range(n + 1)]
+
+
+def _punti_box(x0, y0, z0, x1, y1, z1, passo=3.0):
+    """i punti di una scatola: sulle sei facce ogni passo mm (lì arriverebbe una parete o un fondo sbagliati) e,
+    più radi, dentro"""
+    xs, ys, zs = _passi(x0, x1, passo), _passi(y0, y1, passo), _passi(z0, z1, passo)
+    out = {(x, y, z) for x in xs for y in ys for z in (z0, z1)}
+    out |= {(x, y, z) for x in xs for z in zs for y in (y0, y1)}
+    out |= {(x, y, z) for y in ys for z in zs for x in (x0, x1)}
+    out |= {(x, y, z) for x in _passi(x0, x1, 15.0) for y in _passi(y0, y1, 15.0) for z in _passi(z0, z1, 6.0)}
+    return sorted(out)
+
+
+def sedi():
+    """le sedi che le vasche devono lasciare libere, come punti a 0,2 mm dentro le quote della console laser: la
+    MK4, il pad nella culla, l'hub nel fermo, il passaggio dei cavi sotto la costola, le finestre del retro, lo
+    spessore della mascherina e del piano della Flip sopra gli appoggi"""
+    g = 0.2
+    K, H = M.MK4, M.HUB
+    out = {'MK4': _punti_box(M.MK4_X0 + g, M.MK4_Y0 + g, M.BASE_T + g, M.MK4_X0 + K['w'] - g, M.MK4_Y0 + K['d'] - g,
+                             M.Z_MK4 - g)}
+    contorno = G.contorno_pad(-g)[0]
+    b = _bbox(contorno)
+    zs = _passi(M.PAD_Z0 + g, M.PAD_Z1 - g, 3.0)
+    pad = [(x, y, z) for i in range(len(contorno)) for x, y in [contorno[i]] for z in zs]
+    for (xa, ya), (xb, yb) in zip(contorno, contorno[1:] + contorno[:1]):      # il contorno, ogni 3 mm
+        n = max(1, math.ceil(math.dist((xa, ya), (xb, yb)) / 3.0))
+        pad += [(xa + (xb - xa) * k / n, ya + (yb - ya) * k / n, z) for k in range(n) for z in zs]
+    pad += [p for p in _punti_box(b[0], b[1], M.PAD_Z0 + g, b[2], b[3], M.PAD_Z1 - g) if _nel_poligono(p[0], p[1], contorno)
+            and p[0] not in (b[0], b[2]) and p[1] not in (b[1], b[3])]
+    out['pad'] = pad
+    hx, hy, hz = M.HUB_X0 + 0.4, M.HUB_Y0 + 0.4, M.BASE_T + 2.0
+    out['hub'] = _punti_box(hx + g, hy + g, hz + g, hx + H['w'] - g, hy + H['d'] - g, hz + H['h'] - g)
+    out['passaggio dei cavi'] = _punti_box(M.COSTOLA_X0 + g, M.APPOGGIO_Y + g, M.BASE_T + g, M.COSTOLA_X1 - g,
+                                           M.MK4_Y0 - g, G.CAVI_Z - g)
+    fin = []
+    for lato in ('sx', 'dx'):
+        zt = M.BASE_T + G.USCITE_Z[lato]
+        for cx in G.USCITE[lato]:
+            fin += _punti_box(cx - 8.0, M.RETRO_Y0 + g, zt - 12.0 + g, cx + 8.0, M.APPOGGIO_Y - g, zt - g, 2.0)
+    out['finestre del retro'] = fin
+    out['mascherina'] = _punti_box(G.MASC_X0 + g, G.MASC_Y0 + g, M.Z_PIANO0 + g, G.MASC_X1 - g, G.MASC_Y1 - g, M.Z_PIANO - g)
+    out['piano della Flip'] = _punti_box(G.PIANO_X0 + g, G.PIANO_Y0 + g, M.Z_PIANO0 + g, G.PIANO_X1 - g, M.PIANO_Y1 - g,
+                                         M.Z_PIANO - g)
+    return out
+
+
+def sedi_occupate(pezzi):
+    """[(sede, punto)]: per ogni sede il primo punto che sta dentro un prisma dei pezzi (prima l'ingombro, con
+    numpy, poi il prisma)"""
+    import numpy as np
+    prismi = [(p, _box(p)) for ms in pezzi for p in ms.prismi]
+    out = []
+    for nome, punti in sedi().items():
+        P = np.array(punti)
+        trovato = None
+        for p, r in prismi:
+            dentro = np.nonzero((P[:, 0] > r[0]) & (P[:, 0] < r[3]) & (P[:, 1] > r[1]) & (P[:, 1] < r[4])
+                                & (P[:, 2] > r[2]) & (P[:, 2] < r[5]))[0]
+            for i in dentro:
+                if _nel_prisma(p, tuple(P[i])):
+                    trovato = tuple(round(float(c), 1) for c in P[i])
+                    break
+            if trovato:
+                break
+        if trovato:
+            out.append((nome, trovato))
+    return out
 
 
 def appoggio(ms):
