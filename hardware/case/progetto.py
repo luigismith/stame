@@ -6,8 +6,12 @@ Uso: python -I hardware/case/progetto.py       scrive hardware/case/out/stampa3d
      (lo rifà anche multicolore.py --nes, ogni volta che rifà la cartella)
 
 Un progetto 3MF come quelli che salva lo slicer (il formato di Bambu Studio 2.0, su cui è fatto Anycubic Slicer
-Next 2.0): i pezzi di out/stampa3d_nes/ con le loro parti e i filamenti già assegnati, sei piatti (PIATTI), su ognuno
-la torre di spurgo dove non tocca niente. Stampante, ugello e profilo della stampa vengono da un progetto salvato da
+Next 2.0): i pezzi di out/stampa3d_nes/ con le loro parti e i filamenti già assegnati, sei piatti (PIATTI), un piatto
+per colore principale (Luigi, 20/10/2026: «molti pezzi occupano quasi tutto il piatto e quindi non c'è spazio per la
+colonna di spurgo [...] per esempio mettendo su un piatto per colore principale»). Le tre vasche, crema, hanno un
+piatto ciascuna e un filamento solo: niente cambi, e lo slicer non fa la torre. I pezzi grigi con le scritte rosse
+(mascherina, piano della Flip, targhe dei fianchi) cambiano filamento solo nei primi tre strati, e stanno con la culla
+e la visiera, grigie, su tre piatti dove resta il posto per la torre. Stampante, ugello e profilo della stampa vengono da un progetto salvato da
 Luigi con il suo slicer (kobra_s1.json: Anycubic Kobra S1, ugello 0,4 d'acciaio, 0,20 mm High Quality); i
 filamenti sono i tre PETG di multicolore.SCHEMI['nes'], tutti col profilo Anycubic PETG, e la stampa ha le
 impostazioni di pezzi.md: 3 perimetri, 4 strati pieni sopra e sotto, riempimento giroide al 20 %. La visiera ha i
@@ -29,18 +33,19 @@ CARTELLA = os.path.join(QUI, 'out', MC.SCHEMI['nes']['cartella'])
 USCITA = os.path.join(CARTELLA, 'stame_kobra_s1.3mf')
 PIATTO = 250.0                       # il piano della Kobra S1; lo slicer mette i piatti a 1,2 volte la sua misura
 PASSO = PIATTO * 1.2
-# i piatti: nome, pezzi con l'angolo davanti a sinistra (mm sul piatto), angolo della torre di spurgo
+# i piatti: nome, pezzi con l'angolo davanti a sinistra (mm sul piatto; None: al centro), angolo della torre di spurgo
+# (sui piatti di un filamento lo slicer non la fa). Sui piatti grigi la torre ha almeno 50 × 50 mm liberi
 PIATTI = [
-    ('vasca sinistra', [('vasca_sx', (1.0, 5.0))], (214.0, 40.0)),
-    ('vasca di centro', [('vasca_centro', (1.0, 5.0))], (214.0, 40.0)),
-    ('vasca destra', [('vasca_dx', (1.0, 5.0))], (214.0, 40.0)),
-    ('mascherina sinistra e culla della Flip', [('mascherina_1', (5.0, 119.0)), ('culla_flip', (5.0, 10.0))], (180.0, 30.0)),
-    ('mascherina destra e visiera', [('mascherina_2', (5.0, 119.0)), ('visiera', (5.0, 30.0))], (180.0, 30.0)),
-    ('piano della Flip', [('piano_flip', (5.0, 105.0))], (180.0, 30.0)),
+    ('vasca sinistra, crema', [('vasca_sx', None)], (5.0, 5.0)),
+    ('vasca di centro, crema', [('vasca_centro', None)], (5.0, 5.0)),
+    ('vasca destra, crema', [('vasca_dx', None)], (5.0, 5.0)),
+    ('mascherina sinistra e targhe, grigio e rosso',
+     [('mascherina_1', (5.0, 119.0)), ('targa_sx', (5.0, 12.0)), ('targa_dx', (5.0, 56.0))], (160.0, 25.0)),
+    ('mascherina destra e visiera, grigio e rosso', [('mascherina_2', (5.0, 119.0)), ('visiera', (5.0, 20.0))], (170.0, 25.0)),
+    ('piano della Flip e culla, grigio e rosso', [('piano_flip', (5.0, 105.0)), ('culla_flip', (5.0, 8.0))], (160.0, 25.0)),
 ]
 CON_SUPPORTI = {'visiera'}
-# pezzi.md: 3 perimetri, 4 strati pieni sopra e sotto, giroide al 20 %; la torre con un bordo di 3 mm, così accanto
-# alle vasche larghe 208 ci sta
+# pezzi.md: 3 perimetri, 4 strati pieni sopra e sotto, giroide al 20 %; la torre con un bordo di 3 mm
 STAMPA = {'wall_loops': '3', 'top_shell_layers': '4', 'bottom_shell_layers': '4', 'sparse_infill_density': '20%',
           'sparse_infill_pattern': 'gyroid', 'enable_prime_tower': '1', 'prime_tower_brim_width': '3'}
 # quanto si spurga passando da un filamento all'altro (mm³): dal grigio scuro al crema chiaro serve di più
@@ -132,12 +137,13 @@ def scrivi(righe):
     for i, (_, pezzi, _) in enumerate(PIATTI):
         ox, oy = (i % cols) * PASSO, -(i // cols) * PASSO
         istanze = []
-        for nome, (x0, y0) in pezzi:
+        for nome, angolo in pezzi:
             pp = parti(nome, righe)
             pts = [v for _, tris, _ in pp for t in tris for v in t]
             lo = [min(p[k] for p in pts) for k in range(3)]
             hi = [max(p[k] for p in pts) for k in range(3)]
             centro = [(a + b) / 2 for a, b in zip(lo, hi)]
+            x0, y0 = angolo or ((PIATTO - hi[0] + lo[0]) / 2, (PIATTO - hi[1] + lo[1]) / 2)
             assert x0 + hi[0] - lo[0] <= PIATTO and y0 + hi[1] - lo[1] <= PIATTO, f'{nome} non sta nel piatto'
             ids = []
             corpo = ''

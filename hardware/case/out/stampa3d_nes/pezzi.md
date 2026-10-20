@@ -4,29 +4,35 @@ Generato da `hardware/case/multicolore.py` per un piatto di 240 × 240 mm (Anycu
 
 | File | Ingombro (mm) | Grammi | Filamenti | Note |
 |---|---|---|---|---|
-| `vasca_sx.3mf` (o `vasca_sx_fascia.stl` + `vasca_sx_corpo.stl` + `vasca_sx_scritte.stl`) | 200 × 240 × 45,0 | 244 | fascia 1 grigio traslucido, corpo 2 crema, scritte 3 rosso | fianco sinistro con marchio e nome, retro, pedana della MK4; in piedi, il fondo sul piatto; la fascia, fino a 8 mm, in un altro filamento; marchio e nome nel fianco, che è verticale: il filamento cambia in 127 strati |
-| `vasca_centro.3mf` (o `vasca_centro_fascia.stl` + `vasca_centro_corpo.stl`) | 200 × 240 × 45,0 | 218 | fascia 1 grigio traslucido, corpo 2 crema | retro con la finestra del pedale, pedana della MK4, costola; in piedi, il fondo sul piatto; la fascia, fino a 8 mm, in un altro filamento |
-| `vasca_dx.3mf` (o `vasca_dx_fascia.stl` + `vasca_dx_corpo.stl` + `vasca_dx_scritte.stl`) | 208 × 240 × 45,0 | 352 | fascia 1 grigio traslucido, corpo 2 crema, scritte 3 rosso | retro con la finestra dell'audio e quella dell'hub, fermo dell'hub, colonnina, culla del pad, parete davanti, fianco destro con marchio e nome; in piedi, il fondo sul piatto; la fascia, fino a 8 mm, in un altro filamento; marchio e nome nel fianco, che è verticale: il filamento cambia in 127 strati |
+| `vasca_sx.stl` | 200 × 240 × 45,0 | 242 | 2 crema | fianco sinistro con marchio e nome, retro, pedana della MK4; in piedi, il fondo sul piatto |
+| `vasca_centro.stl` | 200 × 240 × 45,0 | 218 | 2 crema | retro con la finestra del pedale, pedana della MK4, costola; in piedi, il fondo sul piatto |
+| `vasca_dx.stl` | 208 × 240 × 45,0 | 350 | 2 crema | retro con la finestra dell'audio e quella dell'hub, fermo dell'hub, colonnina, culla del pad, parete davanti, fianco destro con marchio e nome; in piedi, il fondo sul piatto |
 | `mascherina_1.3mf` (o `mascherina_1_corpo.stl` + `mascherina_1_scritte.stl`) | 194 × 126 × 2,0 | 40 | corpo 1 grigio traslucido, scritte 3 rosso | la metà sinistra della mascherina; scritte incassate nella faccia in vista, che sta sul piatto |
 | `mascherina_2.3mf` (o `mascherina_2_corpo.stl` + `mascherina_2_scritte.stl`) | 166 × 126 × 2,0 | 38 | corpo 1 grigio traslucido, scritte 3 rosso | la metà destra della mascherina; scritte incassate nella faccia in vista, che sta sul piatto |
 | `piano_flip.3mf` (o `piano_flip_corpo.stl` + `piano_flip_scritte.stl`) | 200 × 140 × 2,0 | 61 | corpo 1 grigio traslucido, scritte 3 rosso | scritte incassate nella faccia in vista, che sta sul piatto |
+| `targa_sx.3mf` (o `targa_sx_corpo.stl` + `targa_sx_scritte.stl`) | 91 × 30 × 2,0 | 7 | corpo 1 grigio traslucido, scritte 3 rosso | il marchio e il nome del fianco sx: si incolla nella sede del fianco, profonda 2,0 mm; scritte incassate nella faccia in vista, che sta sul piatto |
+| `targa_dx.3mf` (o `targa_dx_corpo.stl` + `targa_dx_scritte.stl`) | 91 × 30 × 2,0 | 7 | corpo 1 grigio traslucido, scritte 3 rosso | il marchio e il nome del fianco dx: si incolla nella sede del fianco, profonda 2,0 mm; scritte incassate nella faccia in vista, che sta sul piatto |
 | `culla_flip.stl` | 89 × 83 × 7,0 | 19 | 1 grigio traslucido | vassoio sul piano della Flip, 4 viti M3 svasate |
 | `visiera.stl` | 118 × 42 × 95,6 | 44 | 1 grigio traslucido | si avvita al piano dietro la culla; si stampa sul tettuccio, con i supporti solo sotto i piedi |
 | `prova_giunta.stl` | 75 × 60 × 45,0 | 28 | 2 crema | la giunta sotto la MK4 in piccolo, le due metà insieme: da stampare prima |
 
-Filamento: circa 1,0 kg in tutto, quasi tutto del colore del corpo. Viti delle giunte: 4 viti M3 × 6 a testa cilindrica (brugola) con i dadi.
+Filamento: circa 1,1 kg in tutto, quasi tutto del colore del corpo. Viti delle giunte: 4 viti M3 × 6 a testa cilindrica (brugola) con i dadi.
 
 ## In Anycubic Slicer Next
 
-1. Apri il `.3mf` del pezzo: arriva un oggetto con le sue parti, «corpo» e «scritte», e nelle vasche «fascia». Se lo slicer lo apre come più oggetti, o se preferisci gli STL: importa insieme gli STL del pezzo (`_corpo.stl`, `_scritte.stl`, `_fascia.stl`) e, alla domanda, caricali come un oggetto solo con più parti.
-2. Tre filamenti, i PETG Anycubic di Luigi: 1 grigio traslucido, 2 crema, 3 rosso. Mascherina e piano della Flip: corpo 1 e scritte 3. Vasche: la fascia 1, cioè i primi 8 mm (40 strati, sotto le scritte dei fianchi), il corpo 2 e le scritte 3. Nel `.3mf` è già così; con gli STL si assegna a mano. La culla della Flip e la visiera col 1, la prova di giunta col 2.
+1. Apri il `.3mf` del pezzo: arriva un oggetto con le sue parti, «corpo» e «scritte». Se lo slicer lo apre come più oggetti, o se preferisci gli STL: importa insieme gli STL del pezzo (`_corpo.stl`, `_scritte.stl`) e, alla domanda, caricali come un oggetto solo con più parti.
+2. Tre filamenti, i PETG Anycubic di Luigi: 1 grigio traslucido, 2 crema, 3 rosso. Mascherina, piano della Flip e le due targhe dei fianchi: corpo 1 e scritte 3. Le vasche sono di un filamento solo, il 2: il marchio e il nome dei fianchi stanno sulle targhe, che si incollano nella loro sede, profonda 2,0 mm. Nel `.3mf` è già così; con gli STL si assegna a mano. La culla della Flip e la visiera col 1, la prova di giunta col 2.
 3. Non girare i pezzi: le vasche stanno in piedi con il fondo sul piatto, mascherina e piano con la faccia in vista sul piatto. Il piatto liscio la fa lucida, quello testurizzato le dà la sua grana.
-4. Strati da 0,2 e primo strato da 0,2: nei piani le scritte sono profonde 0,6 mm, cioè i primi tre strati. Nelle vasche il fianco è verticale e le scritte sono profonde 0,6 mm nella faccia di fuori: il filamento cambia in ogni strato fra il basso del marchio e la cima del nome, circa 127 strati per vasca. Torre di spurgo sì; spurgo nel riempimento se lo slicer lo offre. Se i cambi sono troppi, le vasche di `../stampa3d/` hanno il marchio in rilievo, di un colore.
+4. Strati da 0,2 e primo strato da 0,2: nei piani le scritte sono profonde 0,6 mm, cioè i primi tre strati, e il filamento cambia solo lì: le targhe sono come i piani, e le vasche non cambiano mai. Torre di spurgo sì, sui piatti dei pezzi piatti; i pezzi grandi come il piatto vanno da soli, senza cambi.
 5. Il resto come la console stampata a un colore: 3 perimetri, 4 strati pieni, riempimento al 20 %, senza supporti (solo la visiera, che si stampa sul tettuccio, li vuole sotto i piedi). Il primo strato deve essere perfetto: piatto pulito, livellamento fatto. Prima delle vasche, `prova_giunta.stl`.
 
 ## Il lavoro già pronto
 
-`stame_kobra_s1.3mf` è un progetto di Anycubic Slicer Next per la Kobra S1 (`progetto.py`): tutti i pezzi tranne la prova di giunta, su sei piatti, con le parti e i filamenti già assegnati, la torre di spurgo dove non tocca niente, 3 perimetri, 4 strati pieni, giroide al 20 % e i supporti solo sotto i piedi della visiera. Si apre (File › Apri progetto), si affetta un piatto alla volta e, mandandolo alla stampante, si abbinano i tre filamenti agli slot dell'ACE Pro. I piatti: 1 vasca sinistra; 2 vasca di centro; 3 vasca destra; 4 mascherina sinistra e culla della Flip; 5 mascherina destra e visiera; 6 piano della Flip.
+`stame_kobra_s1.3mf` è un progetto di Anycubic Slicer Next per la Kobra S1 (`progetto.py`): tutti i pezzi tranne la prova di giunta, su sei piatti, un piatto per colore principale, con le parti e i filamenti già assegnati, 3 perimetri, 4 strati pieni, giroide al 20 % e i supporti solo sotto i piedi della visiera. Le vasche, crema, hanno un piatto ciascuna e nessun cambio, quindi niente torre; i pezzi grigi con le scritte rosse cambiano filamento solo nei primi tre strati, e sui loro piatti la torre ha il suo posto. Si apre (File › Apri progetto), si affetta un piatto alla volta e, mandandolo alla stampante, si abbinano i tre filamenti agli slot dell'ACE Pro. I piatti: 1 vasca sinistra, crema; 2 vasca di centro, crema; 3 vasca destra, crema; 4 mascherina sinistra e targhe, grigio e rosso; 5 mascherina destra e visiera, grigio e rosso; 6 piano della Flip e culla, grigio e rosso.
+
+## Le targhe
+
+Il marchio e il nome dei fianchi stanno su due targhe grigie con le scritte rosse (`targa_sx`, `targa_dx`), stampate come la mascherina, con la faccia in vista sul piatto. Ogni fianco ha la sua sede, profonda 2,0 mm, 0,15 mm più larga della targa per lato: una goccia di cianoacrilica o un biadesivo sottile, e la targa sta a filo del fianco.
 
 ## Le scritte
 

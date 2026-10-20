@@ -397,10 +397,10 @@ def istruzioni_multicolore(schema='due'):
         im.crop((0, 30, im.width, im.height)).save(out)
         return out
     # 1: i pezzi e i filamenti
-    corpo = [testo(14, 22, ['Stame — la console stampata a più colori' + (', colori NES' if sc['fascia'] else '')], 11, 700,
+    corpo = [testo(14, 22, ['Stame — la console stampata a più colori' + (', colori NES' if sc['targhe'] else '')], 11, 700,
                    '#141B18'),
              testo(14, 31, [f'Per stampanti a più filamenti (Anycubic Kobra S1 con l\'ACE Pro) · a vasche, '
-                            f'{"20" if sc["fascia"] else "19"}/10/2026 · piatto da {piatto:.0f} × {piatto:.0f} mm: '
+                            f'{"20" if sc["targhe"] else "19"}/10/2026 · piatto da {piatto:.0f} × {piatto:.0f} mm: '
                             f'{n_vasche} vasche intere davanti-dietro'], 4.2, 400, '#555'),
              testo(14, 44, ['I pezzi'], 5.2, 700)]
     y = 51
@@ -418,13 +418,12 @@ def istruzioni_multicolore(schema='due'):
                                          'filamenti: un file .3mf con le sue parti, e accanto gli stessi in un STL per parte '
                                          '(_corpo, _scritte' + (', _fascia' if sc['fascia'] else '') + ').', 64), 3.3, 400, '#333'))
     corpo.append(immagine(anteprima('mascherina_1'), 150, 36, 136, 94))
-    if sc['fascia']:
-        f, zf = sc['fascia']
+    if sc['targhe']:
         corpo.append(testo(150, 140, ['Tre filamenti'], 5.2, 700))
         el, _ = _elenco(150, 147, [
             ', '.join(f'{k} {n}' for k, n in sc['nomi'].items()) + ': i PETG Anycubic di Luigi;',
-            'mascherina e piano della Flip: corpo 1, scritte 3;',
-            f'vasche: fascia {f} (i primi {virgola(zf, 0)} mm, sotto le scritte), corpo 2, scritte 3 nei fianchi;',
+            'mascherina, piano della Flip e le due targhe dei fianchi: corpo 1, scritte 3;',
+            'vasche col 2, senza cambi: il marchio e il nome sono sulle targhe;',
             'la culla della Flip e la visiera col 1, la prova di giunta col 2.'], 66, 3.3, 4.6)
     else:
         corpo.append(testo(150, 140, ['Due filamenti'], 5.2, 700))
@@ -448,10 +447,14 @@ def istruzioni_multicolore(schema='due'):
         'Non girare i pezzi: le vasche stanno in piedi con il fondo sul piatto, mascherina e piano con la faccia in vista sul '
         'piatto (liscia sul piatto liscio, con la sua grana su quello testurizzato). Non spostare le due parti.',
         f'Strati da 0,2, primo strato da 0,2. Nei piani le scritte sono profonde {virgola(MC.SCRITTA_H)} mm, i primi tre '
-        f'strati. Nelle vasche il fianco è verticale: il filamento cambia in ogni strato fra il marchio e il nome, circa '
-        f'{cambi} strati, quindi la vasca con il fianco dura di più e spurga di più.',
-        'Torre di spurgo sì. Se lo slicer lo permette, spurgo nel riempimento. Se i cambi nelle vasche sono troppi, le '
-        'vasche a un colore (../stampa3d, con --piatto 240) hanno il marchio in rilievo.',
+        + ('strati: il filamento cambia solo lì, nei pezzi piatti; le vasche sono di un colore e non cambiano mai.'
+           if sc['targhe'] else
+           f'strati. Nelle vasche il fianco è verticale: il filamento cambia in ogni strato fra il marchio e il nome, '
+           f'circa {cambi} strati, quindi la vasca con il fianco dura di più e spurga di più.'),
+        ('Torre di spurgo sì, sui piatti dei pezzi piatti: stame_kobra_s1.3mf ha già i pezzi su un piatto per colore '
+         'principale, con il posto per la torre; le vasche vanno da sole, senza torre.' if sc['targhe'] else
+         'Torre di spurgo sì. Se lo slicer lo permette, spurgo nel riempimento. Se i cambi nelle vasche sono troppi, le '
+         'vasche a un colore (../stampa3d, con --piatto 240) hanno il marchio in rilievo.'),
         'Il primo strato deve essere perfetto: piatto pulito e sgrassato, livellamento fatto, velocità bassa. Le lettere '
         'hanno il tratto di una linea dell\'ugello (0,45 mm).',
         'Il resto come la console stampata a un colore: PETG o PLA, ugello 0,4, 3 perimetri, 4 strati pieni sopra e sotto, '
@@ -476,12 +479,19 @@ def istruzioni_multicolore(schema='due'):
     corpo.append(testo(14, y + 4, ['Il montaggio'], 5.2, 700))
     el, y = _elenco(14, y + 11, ['Come nella console a un colore (istruzioni_stampa3d.pdf, pagine 2 e 3): le vasche calate '
                                  'una accanto all\'altra e avvitate, l\'hub, il pad, il piano con la culla, la MK4 e le due '
-                                 'metà della mascherina, la Flip. Niente etichette di carta: le scritte sono nei pezzi.'],
+                                 'metà della mascherina, la Flip. Niente etichette di carta: le scritte sono nei pezzi.'
+                                 + (' Le due targhe nella sede dei fianchi, con una goccia di cianoacrilica o un biadesivo '
+                                    'sottile.' if sc['targhe'] else '')],
                     70, 3.4, 4.9)
     corpo += el
-    corpo.append(testo(150, 34, ['I fianchi, come si guardano da fuori'], 5.2, 700))
-    corpo.append(immagine(anteprima('fianco_sx'), 150, 38, 136, 30))
-    corpo.append(immagine(anteprima('fianco_dx'), 150, 70, 136, 30))
+    if sc['targhe']:
+        corpo.append(testo(150, 34, ['Le targhe dei fianchi'], 5.2, 700))
+        corpo.append(immagine(anteprima('targa_sx'), 150, 38, 136, 32))
+        corpo.append(immagine(anteprima('targa_dx'), 150, 73, 136, 32))
+    else:
+        corpo.append(testo(150, 34, ['I fianchi, come si guardano da fuori'], 5.2, 700))
+        corpo.append(immagine(anteprima('fianco_sx'), 150, 38, 136, 30))
+        corpo.append(immagine(anteprima('fianco_dx'), 150, 70, 136, 30))
     corpo.append(testo(150, 110, ['Minuteria'], 5.2, 700))
     el, _ = _elenco(150, 117, minuteria_stampa(viti, etichette=False), 66, 3.3, 4.6)
     corpo += el

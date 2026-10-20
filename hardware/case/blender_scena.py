@@ -9,9 +9,8 @@ dentro, Flip bianca con la sua faccia, schermo acceso; la MK4 grigia con il pann
 rosso), arrotonda gli spigoli, mette un fondale curvo con la luce da studio e fa dieci inquadrature:
 eroe, pad, mascherina, frontale, dall'alto, dal retro, di fianco, lo schermo, la vista esplosa e
 quella di sera con il tema Notte. Cycles sulla CPU, con il denoiser.
-Con la versione stampata (rendering.py --stampata) le vasche, i piani e gli stampati sono nei tre PETG di Luigi:
-vasche crema con la fascia in basso grigia (un richiamo al NES europeo), piani, culla e visiera grigio traslucido,
-scritte rosse.
+Con la versione stampata (rendering.py --stampata) le vasche, i piani e gli stampati sono nei tre PETG di Luigi, nei
+colori del NES europeo: vasche crema, piani, targhe dei fianchi, culla e visiera grigio traslucido, scritte rosse.
 """
 import json
 import math
@@ -332,13 +331,11 @@ def petg(nome, sotto, sopra=None, z=0.0):
 
 
 # i tre PETG Anycubic di Luigi (20/10/2026: «ho preso questi 3 colori. Usali per il rendering»), dalle foto dei
-# rotoli: crema per le vasche, rosso per le scritte, grigio traslucido (fumé) per i piani, la culla della Flip, la
-# visiera e la fascia in basso delle vasche, che resta come richiamo al NES europeo. Il traslucido: in 2 mm passa
-# circa un sesto della luce
+# rotoli: crema per le vasche, rosso per le scritte, grigio traslucido (fumé) per i piani, le targhe dei fianchi, la
+# culla della Flip e la visiera. Il traslucido: in 2 mm passa circa un sesto della luce
 FILAMENTI = {'crema': dict(col=srgb((222, 204, 166)), rough=0.5, traslucido=False),
              'rosso': dict(col=srgb((178, 24, 28)), rough=0.42, traslucido=False),
              'grigio': dict(col=srgb((58, 60, 64)), rough=0.22, traslucido=True, densita=600.0)}
-FASCIA = 0.008       # fino a 8 mm le vasche sono grigie, sotto le scritte dei fianchi: un cambio di filamento a quello strato
 SOLLEVA = {'mascherina': 0.0001, 'piano_flip': 0.0001, 'culla_flip': 0.0002, 'visiera': 0.0002,
            'Miyoo_Flip': 0.0003, 'Schermo': 0.0003}   # (m) i pezzi traslucidi non toccano a filo quelli sotto
 
@@ -349,7 +346,7 @@ SOLLEVA = {'mascherina': 0.0001, 'piano_flip': 0.0001, 'culla_flip': 0.0002, 'vi
 inc = S['incisioni']
 if STAMPATA:
     F_ = FILAMENTI
-    telaio = petg('telaio stampato', F_['grigio'], F_['crema'], FASCIA)
+    telaio = petg('telaio stampato', F_['crema'])
     rosso = petg('scritte stampate', F_['rosso'])
     grigio = petg('piani e culle stampati', F_['grigio'])
     for nome, ob in pezzi.items():
@@ -357,7 +354,7 @@ if STAMPATA:
             dai(ob, rosso)
         elif nome.startswith('vasca_'):
             dai(ob, telaio)
-        elif nome.startswith(('mascherina', 'piano_flip', 'culla_flip', 'visiera')):
+        elif nome.startswith(('mascherina', 'piano_flip', 'culla_flip', 'visiera', 'targa')):
             dai(ob, grigio)
         for prefisso, dz in SOLLEVA.items():
             if nome.startswith(prefisso):

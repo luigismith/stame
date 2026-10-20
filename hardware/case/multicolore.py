@@ -36,7 +36,7 @@ import genera as G                   # noqa: E402
 import misure as M                   # noqa: E402
 import stampa3d as S                 # noqa: E402
 from matrice import GLIFI            # noqa: E402  (tools/, nel percorso di genera)
-from mesh import Mesh, rett, sposta, applica   # noqa: E402
+from mesh import Mesh, rett, sposta, applica, componi   # noqa: E402
 
 OUT = os.path.join(G.OUT, 'stampa3d_multicolore')
 
@@ -72,16 +72,23 @@ DISCENDENTI = set('gjpqy')
 # del telaio); i piani neri con le scritte sabbia, come l'incisione del laser sull'acrilico, i fianchi del telaio con
 # le scritte nere, come la bruciatura sul legno. «nes» (Luigi, 20/10/2026: «mi fai una in modalità multicolor con i
 # colori NES? cartella con i pezzi da stampare sulla mia kobra s1»): i suoi tre PETG Anycubic, 1 grigio traslucido,
-# 2 crema, 3 rosso; piani, culla della Flip e visiera grigi, vasche crema con la fascia grigia fino a 8 mm, sotto le
-# scritte dei fianchi, scritte rosse. La fascia è una parte del 3MF, come le scritte: nello slicer non c'è niente da fare
+# 2 crema, 3 rosso; piani, culla della Flip e visiera grigi con le scritte rosse, vasche crema. Poi (20/10/2026: «molti
+# pezzi occupano quasi tutto il piatto e quindi non c'è spazio per la colonna di spurgo. Inoltre per come sono
+# strutturati si consumerebbe tantissimo materiale per i cambi di colore. Rifarlo ottimizzando, per esempio mettendo su
+# un piatto per colore principale») le vasche sono di un filamento solo: il marchio e il nome dei fianchi stanno su
+# una targa grigia con le scritte rosse (targhe), stampata come i piani e incollata in una sede del fianco; così i
+# cambi restano nei primi tre strati dei pezzi piatti. fascia: (filamento, quota) per le vasche tagliate in due colori,
+# un cambio a quello strato (era il richiamo al NES; tolta, perché vuole la torre accanto a vasche grandi come il piatto)
 SCHEMI = {
     'due': dict(cartella='stampa3d_multicolore', titolo='la console stampata a più colori',
                 nomi={1: 'nero', 2: 'sabbia'}, tinta={1: (34, 36, 38), 2: (226, 212, 176)},
-                filamenti={'piano': (1, 2), 'telaio': (2, 1)}, da_solo={'telaio': 2, 'petg_sabbia': 2}, fascia=None),
+                filamenti={'piano': (1, 2), 'telaio': (2, 1)}, da_solo={'telaio': 2, 'petg_sabbia': 2}, fascia=None,
+                targhe=None),
     'nes': dict(cartella='stampa3d_nes', titolo='la console stampata a più colori, nei colori del NES',
                 nomi={1: 'grigio traslucido', 2: 'crema', 3: 'rosso'},
                 tinta={1: (58, 60, 64), 2: (222, 204, 166), 3: (178, 24, 28)},
-                filamenti={'piano': (1, 3), 'telaio': (2, 3)}, da_solo={'telaio': 2, 'petg_sabbia': 2}, fascia=(1, 8.0)),
+                filamenti={'piano': (1, 3), 'telaio': (2, 3)}, da_solo={'telaio': 2, 'petg_sabbia': 2}, fascia=None,
+                targhe=dict(h=2.0, margine=2.5, gioco=0.15)),
 }
 SCHEMA = 'due'
 FILAMENTI = SCHEMI[SCHEMA]['filamenti']      # (corpo, scritte)
@@ -456,6 +463,50 @@ def orienta(pz, t, ms, faccia_giu):
     return ms.portato(FLIP) if faccia_giu else ms
 
 
+# ---------------------------------------------------------------------------------------------
+# le targhe dei fianchi (SCHEMI['nes']): il marchio e il nome su una lastra a parte, nella sede del fianco
+
+def con_targa(pz):
+    """un fianco con le scritte già posate (con_scritte) perde le scritte e prende la sede della targa, profonda
+    targhe['h'], attorno alle zone delle scritte con targhe['margine']; torna la targa: un pezzo nel piano del fianco,
+    con le stesse scritte, spesso targhe['h'] e più piccolo della sede di targhe['gioco'] per lato"""
+    tg = SCHEMI[SCHEMA]['targhe']
+    m, g = tg['margine'], tg['gioco']
+    rr = [r['rett'] for r in pz.regioni]
+    u0, v0 = min(r[0] for r in rr) - m, min(r[1] for r in rr) - m
+    u1, v1 = max(r[2] for r in rr) + m, max(r[3] for r in rr) + m
+    targa = S.Pezzo('targa_' + pz.nome.split('_')[-1], pz.F, 'piano', f'targa del {pz.nome.replace("_", " ")}')
+    targa.strati = [(rett(u0 + g, v0 + g, u1 - g, v1 - g, 1.0 - g), [], pz.faccia - tg['h'], pz.faccia)]
+    targa.faccia, targa.regioni, targa.disegno = pz.faccia, pz.regioni, pz.disegno
+    pz.sede, pz.regioni = (rett(u0, v0, u1, v1, 1.0), tg['h']), []
+    return targa
+
+
+def tratto_targa(targa):
+    """la targa come un tratto di S.tratto, per solidi() e orienta()"""
+    return dict(strati=targa.strati, regioni=targa.regioni, tasche=[], rilievi=[], angolo=0)
+
+
+def parete(pz, t):
+    """il solido di una parete delle vasche: con le scritte (solidi), con la sede della targa, o di un colore"""
+    if getattr(pz, 'sede', None):
+        zona, h = pz.sede
+        zb = S._bbox(zona)
+        ms = Mesh(f'Stame {pz.nome}')
+        for outer, holes, w0, w1 in t['strati']:
+            ob = S._bbox(outer)
+            dentro = zb[0] >= ob[0] and zb[1] >= ob[1] and zb[2] <= ob[2] and zb[3] <= ob[3]
+            fuori = zb[2] <= ob[0] or zb[0] >= ob[2] or zb[3] <= ob[1] or zb[1] >= ob[3]
+            assert dentro or fuori, f'{pz.nome}: la sede della targa sulla giunta'
+            if abs(w1 - pz.faccia) < 1e-6 and dentro:
+                ms.prisma(outer, w0, w1 - h, holes=holes)
+                ms.prisma(outer, w1 - h - S.SOVRAPPOSTO, w1, holes=holes + [zona])
+            else:
+                ms.prisma(outer, w0, w1, holes=holes)
+        return ms, None
+    return solidi(pz, t) if t['regioni'] else (S.solido(pz, t), None)
+
+
 def salva_3mf(path, nome, parti):
     """un oggetto con più parti (core 3MF, componenti): [(nome, Mesh, filamento)]"""
     risorse, componenti = [], []
@@ -595,7 +646,8 @@ def genera(piatto=None, schema='due'):
     fianchi = {'sx': S.fianco('sx'), 'dx': S.fianco('dx')}
     for pz, nl in ((masch, 'mascherina'), (pf, 'piano_flip'), (fianchi['sx'], 'fianco_sx_esterno'), (fianchi['dx'], 'fianco_dx_esterno')):
         report[pz.nome] = con_scritte(pz, nl)
-    vv = S.vasche(piatto, fianchi, lambda pz, t: solidi(pz, t) if t['regioni'] else (S.solido(pz, t), None))
+    targhe = [con_targa(fianchi[lato]) for lato in ('sx', 'dx')] if SCHEMI[SCHEMA]['targhe'] else []
+    vv = S.vasche(piatto, fianchi, parete)
     os.makedirs(OUT, exist_ok=True)          # dopo le vasche: se il piatto non basta, la cartella resta com'è
     for n in os.listdir(OUT):                # il resto (il PDF di manuale.py) resta
         if n.endswith(('.stl', '.3mf', '.md', '.png')):
@@ -637,6 +689,16 @@ def genera(piatto=None, schema='due'):
         anteprima(os.path.join(OUT, f'anteprima_{nome}.png'), orienta(pz, t, vc, False), orienta(pz, t, vs, False),
                   f'{nome}: la faccia in vista', _verso_scrittura(pz, t), FILAMENTI[pz.colore])
         righe.append(r)
+    # le targhe dei fianchi, come i piani: la faccia in vista sul piatto
+    for tg in targhe:
+        t = tratto_targa(tg)
+        corpo, scritte = solidi(tg, t)
+        r = _scrivi(tg.nome, orienta(tg, t, corpo, True), orienta(tg, t, scritte, True), 'piano', piatto, 0.3)
+        r['nota'] = (f'il marchio e il nome del fianco {tg.nome[-2:]}: si incolla nella sede del fianco, profonda '
+                     f'{S._v(SCHEMI[SCHEMA]["targhe"]["h"])} mm; scritte incassate nella faccia in vista, che sta sul piatto')
+        anteprima(os.path.join(OUT, f'anteprima_{tg.nome}.png'), orienta(tg, t, corpo, False), orienta(tg, t, scritte, False),
+                  f'{tg.nome}: la faccia in vista', _verso_scrittura(tg, t), FILAMENTI['piano'])
+        righe.append(r)
     for s in G.STAMPATI:
         if s['nome'] not in ('culla_flip', 'visiera'):
             continue
@@ -660,16 +722,18 @@ def genera(piatto=None, schema='due'):
     return righe, totale, report, viti
 
 
-def parti_console(piatto=None):
-    """la console montata, per rendering.py --stampata: vasche, piani, culla della Flip e visiera nel riferimento
-    del case, come le parti di assieme.py; ogni pezzo con le scritte in due parti, «nome» e «nome_scritte»"""
+def parti_console(piatto=None, schema='nes'):
+    """la console montata, per rendering.py --stampata: vasche, piani, targhe, culla della Flip e visiera nel
+    riferimento del case, come le parti di assieme.py; ogni pezzo con le scritte in due parti, «nome» e «nome_scritte»"""
+    usa(schema)
     piatto = piatto or M.PRINT_BED[0]
     G.genera()
     masch, pf = S.piano('mascherina', 1), S.piano('piano_flip', 1)
     fianchi = {'sx': S.fianco('sx'), 'dx': S.fianco('dx')}
     for pz, nl in ((masch, 'mascherina'), (pf, 'piano_flip'), (fianchi['sx'], 'fianco_sx_esterno'), (fianchi['dx'], 'fianco_dx_esterno')):
         con_scritte(pz, nl)
-    vv = S.vasche(piatto, fianchi, lambda pz, t: solidi(pz, t) if t['regioni'] else (S.solido(pz, t), None))
+    targhe = [con_targa(fianchi[lato]) for lato in ('sx', 'dx')] if SCHEMI[SCHEMA]['targhe'] else []
+    vv = S.vasche(piatto, fianchi, parete)
     out = []
     (tc, ts), (pc, ps) = FILAMENTI['telaio'], FILAMENTI['piano']
     for v in vv:
@@ -680,6 +744,11 @@ def parti_console(piatto=None):
         corpo, scritte = solidi(pz, t)
         out.append(dict(nome=nome, passo=2, colore=TINTA[pc], mesh=corpo.portato(pz.F)))
         out.append(dict(nome=nome + '_scritte', passo=2, colore=TINTA[ps], mesh=scritte.portato(pz.F)))
+    for tg in targhe:                        # 0,05 mm fuori dalla sede: il grigio traslucido non tocca a filo il fondo
+        corpo, scritte = solidi(tg, tratto_targa(tg))
+        fuori = componi(tg.F, sposta(0.0, 0.0, 0.05))
+        out.append(dict(nome=tg.nome, passo=2, colore=TINTA[pc], mesh=corpo.portato(fuori)))
+        out.append(dict(nome=tg.nome + '_scritte', passo=2, colore=TINTA[ps], mesh=scritte.portato(fuori)))
     for s in G.STAMPATI:
         if s['nome'] in ('culla_flip', 'visiera'):
             out.append(dict(nome=s['nome'], passo=2, colore=TINTA[da_solo(s['materiale'])], mesh=s['mesh']))
@@ -702,13 +771,13 @@ def scrivi_elenco(righe, totale, piatto, report, viti):
         dx, dy, dz = r['dim']
         L.append(f'| {r["file"]} | {dx:.0f} × {dy:.0f} × {v(dz)} | {r["grammi"]:.0f} | {testo_filamenti(r)} | {r["nota"]} |')
     cambi = max((r.get('cambi', 0) for r in righe if r['nome'].startswith('vasca_')), default=0)
-    if sc['fascia']:
-        f, zf = sc['fascia']
+    if sc['targhe']:
         nomi = ', '.join(f'{k} {n}' for k, n in sc['nomi'].items())
-        filamenti = (f'2. Tre filamenti, i PETG Anycubic di Luigi: {nomi}. Mascherina e piano della Flip: corpo 1 e '
-                     f'scritte 3. Vasche: la fascia {f}, cioè i primi {v(zf, 0)} mm ({round(zf / 0.2)} strati, sotto le '
-                     'scritte dei fianchi), il corpo 2 e le scritte 3. Nel `.3mf` è già così; con gli STL si assegna a '
-                     'mano. La culla della Flip e la visiera col 1, la prova di giunta col 2.')
+        filamenti = (f'2. Tre filamenti, i PETG Anycubic di Luigi: {nomi}. Mascherina, piano della Flip e le due targhe '
+                     'dei fianchi: corpo 1 e scritte 3. Le vasche sono di un filamento solo, il 2: il marchio e il nome dei '
+                     f'fianchi stanno sulle targhe, che si incollano nella loro sede, profonda {v(sc["targhe"]["h"])} mm. '
+                     'Nel `.3mf` è già così; con gli STL si assegna a mano. La culla della Flip e la visiera col 1, la prova '
+                     'di giunta col 2.')
     else:
         filamenti = ('2. Due filamenti in tutto: 1 nero, 2 sabbia (o il colore scelto per il telaio). Mascherina e piano '
                      'della Flip: corpo 1 e scritte 2, come l\'incisione del laser sull\'acrilico nero. Vasche: corpo 2 e '
@@ -725,23 +794,34 @@ def scrivi_elenco(righe, totale, piatto, report, viti):
           '3. Non girare i pezzi: le vasche stanno in piedi con il fondo sul piatto, mascherina e piano con la faccia in vista '
           'sul piatto. Il piatto liscio la fa lucida, quello testurizzato le dà la sua grana.',
           f'4. Strati da 0,2 e primo strato da 0,2: nei piani le scritte sono profonde {v(SCRITTA_H)} mm, cioè i primi tre '
-          f'strati. Nelle vasche il fianco è verticale e le scritte sono profonde {v(SCRITTA_H)} mm nella faccia di fuori: il '
-          f'filamento cambia in ogni strato fra il basso del marchio e la cima del nome, circa {cambi} strati per vasca. '
-          'Torre di spurgo sì; spurgo nel riempimento se lo slicer lo offre. Se i cambi sono troppi, le vasche di '
-          '`../stampa3d/` hanno il marchio in rilievo, di un colore.',
+          + ('strati, e il filamento cambia solo lì: le targhe sono come i piani, e le vasche non cambiano mai. Torre di '
+             'spurgo sì, sui piatti dei pezzi piatti; i pezzi grandi come il piatto vanno da soli, senza cambi.'
+             if sc['targhe'] else
+             f'strati. Nelle vasche il fianco è verticale e le scritte sono profonde {v(SCRITTA_H)} mm nella faccia di '
+             f'fuori: il filamento cambia in ogni strato fra il basso del marchio e la cima del nome, circa {cambi} strati '
+             'per vasca. Torre di spurgo sì; spurgo nel riempimento se lo slicer lo offre. Se i cambi sono troppi, le '
+             'vasche di `../stampa3d/` hanno il marchio in rilievo, di un colore; nella cartella `../stampa3d_nes/` le '
+             'scritte dei fianchi sono su targhe a parte.'),
           '5. Il resto come la console stampata a un colore: 3 perimetri, 4 strati pieni, riempimento al 20 %, senza '
           'supporti (solo la visiera, che si stampa sul tettuccio, li vuole sotto i piedi). Il primo strato deve essere '
           'perfetto: piatto pulito, '
           'livellamento fatto. Prima delle vasche, `prova_giunta.stl`.', '']
-    if sc['fascia']:
+    if sc['targhe']:
         import progetto
         piatti = '; '.join(f'{k} {t}' for k, (t, _, _) in enumerate(progetto.PIATTI, 1))
         L += ['## Il lavoro già pronto', '',
               '`stame_kobra_s1.3mf` è un progetto di Anycubic Slicer Next per la Kobra S1 (`progetto.py`): tutti i pezzi '
-              'tranne la prova di giunta, su sei piatti, con le parti e i filamenti già assegnati, la torre di spurgo dove '
-              'non tocca niente, 3 perimetri, 4 strati pieni, giroide al 20 % e i supporti solo sotto i piedi della visiera. '
-              'Si apre (File › Apri progetto), si affetta un piatto alla volta e, mandandolo alla stampante, si abbinano i '
-              f'tre filamenti agli slot dell\'ACE Pro. I piatti: {piatti}.', '']
+              'tranne la prova di giunta, su sei piatti, un piatto per colore principale, con le parti e i filamenti già '
+              'assegnati, 3 perimetri, 4 strati pieni, giroide al 20 % e i supporti solo sotto i piedi della visiera. Le '
+              'vasche, crema, hanno un piatto ciascuna e nessun cambio, quindi niente torre; i pezzi grigi con le scritte '
+              'rosse cambiano filamento solo nei primi tre strati, e sui loro piatti la torre ha il suo posto. Si apre '
+              '(File › Apri progetto), si affetta un piatto alla volta e, mandandolo alla stampante, si abbinano i tre '
+              f'filamenti agli slot dell\'ACE Pro. I piatti: {piatti}.', '',
+              '## Le targhe', '',
+              'Il marchio e il nome dei fianchi stanno su due targhe grigie con le scritte rosse (`targa_sx`, `targa_dx`), '
+              'stampate come la mascherina, con la faccia in vista sul piatto. Ogni fianco ha la sua sede, profonda '
+              f'{v(sc["targhe"]["h"])} mm, {v(sc["targhe"]["gioco"], 2)} mm più larga della targa per lato: una goccia di '
+              'cianoacrilica o un biadesivo sottile, e la targa sta a filo del fianco.', '']
     L += ['## Le scritte', '',
           'Le incisioni del laser sono troppo fini per un ugello da 0,4: qui le scritte sono ridisegnate con Matrice, il '
           'carattere 5×7 di Stame, a quadretti da 0,45 mm (lettere alte 3,15 mm) o da 0,40 dove non c\'è posto. Logo e punti '
