@@ -10,6 +10,7 @@ __pycache__/
 /hardware/case/out/montaggio/pagine/
 /hardware/case/out/stampa3d/pagine/
 /hardware/case/out/stampa3d_multicolore/pagine/
+/hardware/case/out/stampa3d_nes/pagine/
 
 # schermate di stame-render --scene che il manuale non usa (le copie per sito e identità stanno altrove)
 /docs/manuale/img/nome.png

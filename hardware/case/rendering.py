@@ -11,9 +11,10 @@ blender_scena.py. I PNG escono in build/render/, i JPG per il repo in out/render
 quelle (i nomi sono nelle chiamate a scatta() di blender_scena.py). --bozza: viste veloci con Workbench
 (build/render/bozza_*.png), per le forme; --blend: salva build/render/stame.blend e lo apre in Blender.
 --stampata: la console tutta stampata a più colori (multicolore.py, tre vasche per il piatto da 240) con i
-colori del NES europeo (Luigi, 20/10/2026: «fa anche dei render della versione total 3d printed con riferimenti
-ai colori del NES europeo»): il modello va in build/render/stame_stampata.obj, i JPG in out/render/stampata_*.jpg;
-senza --viste, le otto di VISTE_STAMPATA.
+riferimenti ai colori del NES europeo (Luigi, 20/10/2026: «fa anche dei render della versione total 3d printed
+con riferimenti ai colori del NES europeo»), nei tre PETG che ha preso (crema, rosso, grigio traslucido;
+FILAMENTI in blender_scena.py): il modello va in build/render/stame_stampata.obj, i JPG in
+out/render/stampata_*.jpg; senza --viste, le otto di VISTE_STAMPATA.
 """
 import json
 import os

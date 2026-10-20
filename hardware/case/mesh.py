@@ -428,6 +428,44 @@ class Mesh:
         m.unisci(self, frame)
         return m
 
+    def dividi_z(self, zc):
+        """il pezzo tagliato dal piano z = zc, nel suo riferimento: (sotto, sopra), due pezzi che combaciano. Un prisma
+        che attraversa il piano si taglia nello spessore, se è estruso in verticale, o nel profilo, se il profilo sta in
+        un piano verticale con un asse orizzontale; i fori del profilo devono stare tutti da una parte, e un tronco o un
+        prisma obliquo non si taglia (ValueError)"""
+        sotto, sopra, eps = Mesh(self.nome), Mesh(self.nome), 1e-6
+        for p in self.prismi:
+            O, U, V, N = p['frame']
+            zs = [applica(p['frame'], (x, y, w))[2] for x, y in p['outer'] for w in (p['z0'], p['z1'])]
+            if max(zs) <= zc + eps:
+                sotto.prismi.append(dict(p))
+            elif min(zs) >= zc - eps:
+                sopra.prismi.append(dict(p))
+            elif p.get('sopra'):
+                raise ValueError(f'{self.nome}: un tronco attraversa z = {zc}')
+            elif abs(U[2]) < eps and abs(V[2]) < eps:          # estruso in verticale: si divide lo spessore
+                wc = (zc - O[2]) / N[2]
+                giu, su = (dict(p, z1=wc), dict(p, z0=wc)) if N[2] > 0 else (dict(p, z0=wc), dict(p, z1=wc))
+                sotto.prismi.append(giu)
+                sopra.prismi.append(su)
+            elif abs(N[2]) < eps and (abs(U[2]) < eps or abs(V[2]) < eps):   # il profilo in un piano verticale
+                asse, k = (1, V[2]) if abs(U[2]) < eps else (0, U[2])
+                c = (zc - O[2]) / k
+                for parte, minore in ((sotto, k > 0), (sopra, k < 0)):     # minore: si tiene la coordinata <= c
+                    fori = []
+                    for h in p['holes']:
+                        hs = [q[asse] for q in h]
+                        if (max(hs) <= c + eps) if minore else (min(hs) >= c - eps):
+                            fori.append(h)
+                        elif not ((min(hs) >= c - eps) if minore else (max(hs) <= c + eps)):
+                            raise ValueError(f'{self.nome}: un foro attraversa z = {zc}')
+                    outer = taglia(p['outer'], asse, c, minore)
+                    if len(outer) >= 3 and abs(area(outer)) > 1e-6:
+                        parte.prisma(outer, p['z0'], p['z1'], holes=fori, frame=p['frame'])
+            else:
+                raise ValueError(f'{self.nome}: un prisma obliquo attraversa z = {zc}')
+        return sotto, sopra
+
     def controlla(self):
         """True se ogni guscio è chiuso e orientato in modo coerente."""
         for g in self.gusci:

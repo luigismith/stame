@@ -9,8 +9,9 @@ dentro, Flip bianca con la sua faccia, schermo acceso; la MK4 grigia con il pann
 rosso), arrotonda gli spigoli, mette un fondale curvo con la luce da studio e fa dieci inquadrature:
 eroe, pad, mascherina, frontale, dall'alto, dal retro, di fianco, lo schermo, la vista esplosa e
 quella di sera con il tema Notte. Cycles sulla CPU, con il denoiser.
-Con la versione stampata (rendering.py --stampata) le vasche, i piani e gli stampati hanno i colori del NES
-europeo: grigio chiaro con la fascia in basso grigio scuro, piani neri, scritte rosse.
+Con la versione stampata (rendering.py --stampata) le vasche, i piani e gli stampati sono nei tre PETG di Luigi:
+vasche crema con la fascia in basso grigia (un richiamo al NES europeo), piani, culla e visiera grigio traslucido,
+scritte rosse.
 """
 import json
 import math
@@ -200,25 +201,30 @@ def acrilico(nome, incisa=None):
     return m
 
 
+def normale_strati(nt):
+    """la normale con gli strati della stampa: 0,2 mm lungo z"""
+    tc = nodo(nt, 'ShaderNodeTexCoord')
+    sx = nodo(nt, 'ShaderNodeSeparateXYZ')
+    lega(nt, tc.outputs['Object'], sx.inputs['Vector'])
+    k = nodo(nt, 'ShaderNodeMath', operation='MULTIPLY')
+    lega(nt, sx.outputs['Z'], k.inputs[0])
+    k.inputs[1].default_value = 2 * math.pi / 0.0002
+    s = nodo(nt, 'ShaderNodeMath', operation='SINE')
+    lega(nt, k.outputs[0], s.inputs[0])
+    bump = nodo(nt, 'ShaderNodeBump')
+    bump.inputs['Strength'].default_value = 0.25
+    bump.inputs['Distance'].default_value = 0.00003
+    lega(nt, s.outputs[0], bump.inputs['Height'])
+    return bump.outputs['Normal']
+
+
 def plastica(nome, col, rough, strati=False, coat=0.0):
     m, nt, b = nuovo(nome)
     b.inputs['Base Color'].default_value = (*col, 1)
     b.inputs['Roughness'].default_value = rough
     b.inputs['Coat Weight'].default_value = coat
-    if strati:                       # strati della stampa: 0,2 mm lungo z
-        tc = nodo(nt, 'ShaderNodeTexCoord')
-        sx = nodo(nt, 'ShaderNodeSeparateXYZ')
-        lega(nt, tc.outputs['Object'], sx.inputs['Vector'])
-        k = nodo(nt, 'ShaderNodeMath', operation='MULTIPLY')
-        lega(nt, sx.outputs['Z'], k.inputs[0])
-        k.inputs[1].default_value = 2 * math.pi / 0.0002
-        s = nodo(nt, 'ShaderNodeMath', operation='SINE')
-        lega(nt, k.outputs[0], s.inputs[0])
-        bump = nodo(nt, 'ShaderNodeBump')
-        bump.inputs['Strength'].default_value = 0.25
-        bump.inputs['Distance'].default_value = 0.00003
-        lega(nt, s.outputs[0], bump.inputs['Height'])
-        lega(nt, bump.outputs['Normal'], b.inputs['Normal'])
+    if strati:
+        lega(nt, normale_strati(nt), b.inputs['Normal'])
     return m
 
 
@@ -281,24 +287,60 @@ def srgb(c):
     return tuple(((v / 255 + 0.055) / 1.055) ** 2.4 if v > 10.31 else v / 255 / 12.92 for v in c)
 
 
-def due_toni(nome, sotto, sopra, z, rough):
-    """filamento stampato in piedi che cambia colore allo strato z (m): sotto un colore, sopra l'altro"""
-    m = plastica(nome, sopra, rough, strati=True)
+def filamento(nt, f):
+    """il PETG di un filamento di FILAMENTI, con gli strati: torna l'uscita BSDF. Il traslucido trasmette la luce in
+    superficie quasi chiara e prende il colore dal volume, così si scurisce dove è più spesso"""
+    b = nodo(nt, 'ShaderNodeBsdfPrincipled')
+    b.inputs['Roughness'].default_value = f['rough']
+    b.inputs['IOR'].default_value = 1.57
+    b.inputs['Base Color'].default_value = (*((0.72, 0.72, 0.74) if f['traslucido'] else f['col']), 1)
+    if f['traslucido']:
+        b.inputs['Transmission Weight'].default_value = 1.0
+    lega(nt, normale_strati(nt), b.inputs['Normal'])
+    return b.outputs['BSDF']
+
+
+def petg(nome, sotto, sopra=None, z=0.0):
+    """un pezzo stampato in un filamento o, stampato in piedi, in due: sotto lo strato z (m) uno, sopra l'altro"""
+    m = bpy.data.materials.new(nome)
+    m.use_nodes = True
     nt = m.node_tree
-    tc = nodo(nt, 'ShaderNodeTexCoord')
-    sz = nodo(nt, 'ShaderNodeSeparateXYZ')
-    lega(nt, tc.outputs['Object'], sz.inputs['Vector'])
-    c = nodo(nt, 'ShaderNodeMath', operation='LESS_THAN')
-    lega(nt, sz.outputs['Z'], c.inputs[0])
-    c.inputs[1].default_value = z
-    lega(nt, mix(nt, c.outputs[0], sopra, sotto), nt.nodes['Principled BSDF'].inputs['Base Color'])
+    nt.nodes.remove(nt.nodes['Principled BSDF'])
+    out = nt.nodes['Material Output']
+    if sopra is None:
+        lega(nt, filamento(nt, sotto), out.inputs['Surface'])
+    else:
+        tc = nodo(nt, 'ShaderNodeTexCoord')
+        sz = nodo(nt, 'ShaderNodeSeparateXYZ')
+        lega(nt, tc.outputs['Object'], sz.inputs['Vector'])
+        c = nodo(nt, 'ShaderNodeMath', operation='LESS_THAN')
+        lega(nt, sz.outputs['Z'], c.inputs[0])
+        c.inputs[1].default_value = z
+        mx = nodo(nt, 'ShaderNodeMixShader')
+        lega(nt, c.outputs[0], mx.inputs['Fac'])
+        lega(nt, filamento(nt, sopra), mx.inputs[1])
+        lega(nt, filamento(nt, sotto), mx.inputs[2])
+        lega(nt, mx.outputs['Shader'], out.inputs['Surface'])
+    for f in (sotto, sopra):
+        if f and f['traslucido']:
+            v = nodo(nt, 'ShaderNodeVolumeAbsorption')
+            v.inputs['Color'].default_value = (*f['col'], 1)
+            v.inputs['Density'].default_value = f['densita']
+            lega(nt, v.outputs['Volume'], out.inputs['Volume'])
+    m.diffuse_color = (*(sopra or sotto)['col'], 1.0)
     return m
 
 
-# i colori del NES europeo (riferimenti, niente marchi): il grigio chiaro della scocca, il grigio scuro del davanti
-# con le porte, il nero delle righe e della faccia del controller, il rosso delle sue scritte e dei tasti
-NES = {'grigio': srgb((172, 170, 163)), 'scuro': srgb((84, 84, 88)), 'nero': srgb((24, 24, 26)), 'rosso': srgb((196, 28, 36))}
-FASCIA = 0.008       # le vasche grigio scuro fino a 8 mm, sotto le scritte dei fianchi: un cambio di filamento a quello strato
+# i tre PETG Anycubic di Luigi (20/10/2026: «ho preso questi 3 colori. Usali per il rendering»), dalle foto dei
+# rotoli: crema per le vasche, rosso per le scritte, grigio traslucido (fumé) per i piani, la culla della Flip, la
+# visiera e la fascia in basso delle vasche, che resta come richiamo al NES europeo. Il traslucido: in 2 mm passa
+# circa un sesto della luce
+FILAMENTI = {'crema': dict(col=srgb((222, 204, 166)), rough=0.5, traslucido=False),
+             'rosso': dict(col=srgb((178, 24, 28)), rough=0.42, traslucido=False),
+             'grigio': dict(col=srgb((58, 60, 64)), rough=0.22, traslucido=True, densita=600.0)}
+FASCIA = 0.008       # fino a 8 mm le vasche sono grigie, sotto le scritte dei fianchi: un cambio di filamento a quello strato
+SOLLEVA = {'mascherina': 0.0001, 'piano_flip': 0.0001, 'culla_flip': 0.0002, 'visiera': 0.0002,
+           'Miyoo_Flip': 0.0003, 'Schermo': 0.0003}   # (m) i pezzi traslucidi non toccano a filo quelli sotto
 
 
 # ---------------------------------------------------------------------------------------------
@@ -306,19 +348,20 @@ FASCIA = 0.008       # le vasche grigio scuro fino a 8 mm, sotto le scritte dei 
 
 inc = S['incisioni']
 if STAMPATA:
-    telaio = due_toni('telaio NES', NES['scuro'], NES['grigio'], FASCIA, 0.5)
-    rosso = plastica('scritte NES', NES['rosso'], 0.42, strati=True)
-    nero = plastica('piani NES', NES['nero'], 0.34, strati=True)
-    scuro = plastica('stampati NES', NES['scuro'], 0.45, strati=True)
+    F_ = FILAMENTI
+    telaio = petg('telaio stampato', F_['grigio'], F_['crema'], FASCIA)
+    rosso = petg('scritte stampate', F_['rosso'])
+    grigio = petg('piani e culle stampati', F_['grigio'])
     for nome, ob in pezzi.items():
         if nome.endswith('_scritte'):
             dai(ob, rosso)
         elif nome.startswith('vasca_'):
             dai(ob, telaio)
-        elif nome.startswith(('mascherina', 'piano_flip')):
-            dai(ob, nero)
-        elif nome.startswith(('culla_flip', 'visiera')):
-            dai(ob, scuro)
+        elif nome.startswith(('mascherina', 'piano_flip', 'culla_flip', 'visiera')):
+            dai(ob, grigio)
+        for prefisso, dz in SOLLEVA.items():
+            if nome.startswith(prefisso):
+                ob.location.z += dz
 else:
     for nome, ob in list(pezzi.items()):
         if nome.startswith(('fianco', 'base_', 'retro_', 'appoggio', 'costola', 'fronte')):
@@ -468,6 +511,8 @@ def fondale(dietro=0.55, raggio=0.6, alto=3.0, largo=8.0, n=24):
 
 
 FONDALE = fondale()
+if STAMPATA:
+    FONDALE.location.z = -0.0001         # 0,1 mm sotto il fondo traslucido delle vasche, che non lo tocca a filo
 MAT_FONDO = plastica('fondale', FONDO, 0.6)
 dai(FONDALE, MAT_FONDO)
 
@@ -550,7 +595,9 @@ if MODO != 'cycles':
     for m in bpy.data.materials:
         b = m.node_tree.nodes.get('Principled BSDF') if m.node_tree else None
         col = next((v for k, v in TINTE if m.name.startswith(k)), None)
-        if col is None and b is not None and not b.inputs['Base Color'].is_linked:
+        if col is None and b is None:
+            continue                     # i PETG della stampata hanno già il loro colore (petg)
+        if col is None and not b.inputs['Base Color'].is_linked:
             col = tuple(b.inputs['Base Color'].default_value)[:3]
         m.diffuse_color = (*(col or (0.5, 0.5, 0.5)), 1.0)
 if MODO == 'bozza':

@@ -370,11 +370,13 @@ def istruzioni_stampa3d():
     return out, out_e
 
 
-def istruzioni_multicolore():
-    """out/stampa3d_multicolore/istruzioni_multicolore.pdf: i pezzi con i filamenti, lo slicer, le scritte, le
-    vasche e il montaggio della console stampata a più colori (multicolore.py, 60-case.md §7c)"""
+def istruzioni_multicolore(schema='due'):
+    """out/stampa3d_multicolore/istruzioni_multicolore.pdf (o in stampa3d_nes/, con lo schema «nes»): i pezzi con i
+    filamenti, lo slicer, le scritte, le vasche e il montaggio della console stampata a più colori (multicolore.py,
+    60-case.md §7c)"""
     import multicolore as MC
-    righe, totale, report, viti = MC.genera()
+    righe, totale, report, viti = MC.genera(schema=schema)
+    sc = MC.SCHEMI[schema]
     cart = MC.OUT
     pag = os.path.join(cart, 'pagine')
     os.makedirs(pag, exist_ok=True)
@@ -383,11 +385,9 @@ def istruzioni_multicolore():
     piatto = M.PRINT_BED[0]
     n_vasche = sum(1 for r in righe if r['nome'].startswith('vasca_'))
     cambi = max((r.get('cambi', 0) for r in righe if r['nome'].startswith('vasca_')), default=0)
-    piede = 'Stame · la console stampata a più colori, a vasche'
+    piede = f'Stame · {sc["titolo"]}, a vasche'
     tot = 3
     pagine = []
-    filamento = {'piano': '1 nero, scritte 2', 'telaio': '2 sabbia, scritte 1'}
-    da_solo = {'telaio': '2 sabbia', 'petg_sabbia': '2 sabbia'}
 
     def anteprima(nome):
         """l'anteprima senza la riga del titolo (la pagina ha il suo)"""
@@ -397,41 +397,54 @@ def istruzioni_multicolore():
         im.crop((0, 30, im.width, im.height)).save(out)
         return out
     # 1: i pezzi e i filamenti
-    corpo = [testo(14, 22, ['Stame — la console stampata a più colori'], 11, 700, '#141B18'),
-             testo(14, 31, [f'Per stampanti a più filamenti (Anycubic Kobra S1 con l\'ACE Pro) · a vasche, 19/10/2026 · '
-                            f'piatto da {piatto:.0f} × {piatto:.0f} mm: {n_vasche} vasche intere davanti-dietro'], 4.2, 400, '#555'),
+    corpo = [testo(14, 22, ['Stame — la console stampata a più colori' + (', colori NES' if sc['fascia'] else '')], 11, 700,
+                   '#141B18'),
+             testo(14, 31, [f'Per stampanti a più filamenti (Anycubic Kobra S1 con l\'ACE Pro) · a vasche, '
+                            f'{"20" if sc["fascia"] else "19"}/10/2026 · piatto da {piatto:.0f} × {piatto:.0f} mm: '
+                            f'{n_vasche} vasche intere davanti-dietro'], 4.2, 400, '#555'),
              testo(14, 44, ['I pezzi'], 5.2, 700)]
     y = 51
     for r in righe:
         dx, dy, dz = r['dim']
         due = '.3mf' in r['file']
         nome = f'{r["nome"]}.3mf' if due else f'{r["nome"]}.stl'
-        fil = filamento[r['colore']] if due else da_solo.get(r['colore'], '1 nero')
+        fil = MC.testo_filamenti(r, breve=True)
         corpo.append(testo(14, y, [nome], 3.1, 700))
         corpo.append(testo(52, y, [f'{dx:.0f} × {dy:.0f} × {dz:.0f} mm'], 3.1))
         corpo.append(testo(88, y, [f'{r["grammi"]:.0f} g'], 3.1))
         corpo.append(testo(104, y, [fil], 3.1, 700 if due else 400, '#7A5A00' if due else '#333'))
         y += 4.4
-    corpo.append(testo(14, y + 3, a_capo(f'Filamento: circa {virgola(totale / 1000)} kg in tutto. In grassetto i pezzi con le '
-                                         'scritte: un file .3mf con due parti, e accanto gli stessi in due STL (_corpo, _scritte).',
-                                         64), 3.3, 400, '#333'))
+    corpo.append(testo(14, y + 3, a_capo(f'Filamento: circa {virgola(totale / 1000)} kg in tutto. In grassetto i pezzi in più '
+                                         'filamenti: un file .3mf con le sue parti, e accanto gli stessi in un STL per parte '
+                                         '(_corpo, _scritte' + (', _fascia' if sc['fascia'] else '') + ').', 64), 3.3, 400, '#333'))
     corpo.append(immagine(anteprima('mascherina_1'), 150, 36, 136, 94))
-    corpo.append(testo(150, 140, ['Due filamenti'], 5.2, 700))
-    el, _ = _elenco(150, 147, [
-        '1 nero e 2 sabbia (o il colore scelto per il telaio). Si scambiano il ruolo:',
-        'mascherina e piano della Flip: corpo 1, scritte 2, come l\'incisione del laser sull\'acrilico nero;',
-        'vasche: corpo 2, scritte 1 nei fianchi, come la bruciatura sul legno;',
-        'la vasca di centro e la prova di giunta col 2; la culla della Flip e la visiera col 1.'], 66, 3.3, 4.6)
+    if sc['fascia']:
+        f, zf = sc['fascia']
+        corpo.append(testo(150, 140, ['Tre filamenti'], 5.2, 700))
+        el, _ = _elenco(150, 147, [
+            ', '.join(f'{k} {n}' for k, n in sc['nomi'].items()) + ': i PETG Anycubic di Luigi;',
+            'mascherina e piano della Flip: corpo 1, scritte 3;',
+            f'vasche: fascia {f} (i primi {virgola(zf, 0)} mm, sotto le scritte), corpo 2, scritte 3 nei fianchi;',
+            'la culla della Flip e la visiera col 1, la prova di giunta col 2.'], 66, 3.3, 4.6)
+    else:
+        corpo.append(testo(150, 140, ['Due filamenti'], 5.2, 700))
+        el, _ = _elenco(150, 147, [
+            '1 nero e 2 sabbia (o il colore scelto per il telaio). Si scambiano il ruolo:',
+            'mascherina e piano della Flip: corpo 1, scritte 2, come l\'incisione del laser sull\'acrilico nero;',
+            'vasche: corpo 2, scritte 1 nei fianchi, come la bruciatura sul legno;',
+            'la vasca di centro e la prova di giunta col 2; la culla della Flip e la visiera col 1.'], 66, 3.3, 4.6)
     corpo += el
     pagine.append(_pagina_in(pag, '01_pezzi', '\n'.join(corpo), 1, tot, piede))
     # 2: nello slicer
     corpo = [testo(14, 22, ['Nello slicer'], 10, 700, '#141B18'),
              testo(14, 31, ['Anycubic Slicer Next, o un altro slicer per più filamenti'], 4.4, 400, '#555')]
     el, y = _elenco(14, 42, [
-        'Apri il .3mf del pezzo: arriva un oggetto con due parti, «corpo» e «scritte», con i filamenti già assegnati. '
-        'Controllali nell\'elenco degli oggetti.',
-        'Se lo slicer lo apre come due oggetti, o se preferisci gli STL: importa insieme _corpo.stl e _scritte.stl e, '
-        'alla domanda, caricali come un oggetto solo con più parti; poi assegna i filamenti a mano (pagina 1).',
+        'Apri il .3mf del pezzo: arriva un oggetto con le sue parti, «corpo» e «scritte»'
+        + (' e nelle vasche «fascia»' if sc['fascia'] else '') + ', con i filamenti già assegnati. Controllali '
+        'nell\'elenco degli oggetti.',
+        'Se lo slicer lo apre come più oggetti, o se preferisci gli STL: importa insieme gli STL del pezzo (_corpo, '
+        '_scritte' + (', _fascia' if sc['fascia'] else '') + ') e, alla domanda, caricali come un oggetto solo con più '
+        'parti; poi assegna i filamenti a mano (pagina 1).',
         'Non girare i pezzi: le vasche stanno in piedi con il fondo sul piatto, mascherina e piano con la faccia in vista sul '
         'piatto (liscia sul piatto liscio, con la sua grana su quello testurizzato). Non spostare le due parti.',
         f'Strati da 0,2, primo strato da 0,2. Nei piani le scritte sono profonde {virgola(MC.SCRITTA_H)} mm, i primi tre '
@@ -479,7 +492,7 @@ def istruzioni_multicolore():
         svg_pdf(p, pdf)
         pdfs.append(pdf)
     out = os.path.join(cart, 'istruzioni_multicolore.pdf')
-    unisci(pdfs, out, 'Stame — la console stampata a più colori')
+    unisci(pdfs, out, f'Stame — {sc["titolo"]}')
     return out
 
 
@@ -534,11 +547,13 @@ def taglio():
 def main():
     if '--multicolore' in sys.argv:                  # solo le istruzioni della console a più colori
         print(istruzioni_multicolore())
+        print(istruzioni_multicolore('nes'))
         return
-    if '--stampa3d' in sys.argv:                     # solo le due console stampate, a un colore e a più colori
+    if '--stampa3d' in sys.argv:                     # solo le console stampate, a un colore e a più colori
         for p in istruzioni_stampa3d():
             print(p)
         print(istruzioni_multicolore())
+        print(istruzioni_multicolore('nes'))
         return
     G.genera()
     print(taglio())
@@ -546,6 +561,7 @@ def main():
     for p in istruzioni_stampa3d():
         print(p)
     print(istruzioni_multicolore())
+    print(istruzioni_multicolore('nes'))
 
 
 if __name__ == '__main__':

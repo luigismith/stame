@@ -1,24 +1,24 @@
 # Stame — la console stampata a più colori
 
-Generato da `hardware/case/multicolore.py` per un piatto di 240 × 240 mm (Anycubic Kobra S1 con l'ACE Pro, o un'altra stampante a più filamenti). Le stesse 3 vasche di `../stampa3d/` (con `--piatto 240`), stampate in piedi con il fondo sul piatto, e gli stessi pezzi che si tolgono; le scritte le fa la stampa, nel secondo filamento: incassate a filo nella faccia in vista di mascherina e piano della Flip, che sta sul piatto, e nella faccia di fuori dei fianchi. Le istruzioni da stampare, con le anteprime, sono in `istruzioni_multicolore.pdf`.
+Generato da `hardware/case/multicolore.py` per un piatto di 240 × 240 mm (Anycubic Kobra S1 con l'ACE Pro, o un'altra stampante a più filamenti). Le stesse 3 vasche di `../stampa3d/` (con `--piatto 240`), stampate in piedi con il fondo sul piatto, e gli stessi pezzi che si tolgono; le scritte le fa la stampa, in un altro filamento: incassate a filo nella faccia in vista di mascherina e piano della Flip, che sta sul piatto, e nella faccia di fuori dei fianchi. Le istruzioni da stampare, con le anteprime, sono in `istruzioni_multicolore.pdf`.
 
-| File | Ingombro (mm) | Grammi | Colore | Note |
+| File | Ingombro (mm) | Grammi | Filamenti | Note |
 |---|---|---|---|---|
-| `vasca_sx.3mf` (o `vasca_sx_corpo.stl` + `vasca_sx_scritte.stl`) | 200 × 240 × 45,0 | 244 | telaio: PLA o PETG color legno o sabbia | fianco sinistro con marchio e nome, retro, pedana della MK4; in piedi, il fondo sul piatto; marchio e nome nel fianco, che è verticale: il filamento cambia in 126 strati |
-| `vasca_centro.stl` | 200 × 240 × 45,0 | 218 | telaio: PLA o PETG color legno o sabbia | retro con la finestra del pedale, pedana della MK4, costola; in piedi, il fondo sul piatto |
-| `vasca_dx.3mf` (o `vasca_dx_corpo.stl` + `vasca_dx_scritte.stl`) | 208 × 240 × 45,0 | 353 | telaio: PLA o PETG color legno o sabbia | retro con la finestra dell'audio e quella dell'hub, fermo dell'hub, colonnina, culla del pad, parete davanti, fianco destro con marchio e nome; in piedi, il fondo sul piatto; marchio e nome nel fianco, che è verticale: il filamento cambia in 126 strati |
-| `mascherina_1.3mf` (o `mascherina_1_corpo.stl` + `mascherina_1_scritte.stl`) | 194 × 126 × 2,0 | 40 | piani: nero | la metà sinistra della mascherina; scritte incassate nella faccia in vista, che sta sul piatto |
-| `mascherina_2.3mf` (o `mascherina_2_corpo.stl` + `mascherina_2_scritte.stl`) | 166 × 126 × 2,0 | 38 | piani: nero | la metà destra della mascherina; scritte incassate nella faccia in vista, che sta sul piatto |
-| `piano_flip.3mf` (o `piano_flip_corpo.stl` + `piano_flip_scritte.stl`) | 200 × 140 × 2,0 | 61 | piani: nero | scritte incassate nella faccia in vista, che sta sul piatto |
-| `culla_flip.stl` | 89 × 83 × 7,0 | 19 | nero | vassoio sul piano della Flip, 4 viti M3 svasate |
-| `visiera.stl` | 118 × 42 × 95,6 | 44 | nero | si avvita al piano dietro la culla; si stampa sul tettuccio, con i supporti solo sotto i piedi |
-| `prova_giunta.stl` | 75 × 60 × 45,0 | 28 | telaio: PLA o PETG color legno o sabbia | la giunta sotto la MK4 in piccolo, le due metà insieme: da stampare prima |
+| `vasca_sx.3mf` (o `vasca_sx_corpo.stl` + `vasca_sx_scritte.stl`) | 200 × 240 × 45,0 | 244 | corpo 2 sabbia, scritte 1 nero | fianco sinistro con marchio e nome, retro, pedana della MK4; in piedi, il fondo sul piatto; marchio e nome nel fianco, che è verticale: il filamento cambia in 126 strati |
+| `vasca_centro.stl` | 200 × 240 × 45,0 | 218 | 2 sabbia | retro con la finestra del pedale, pedana della MK4, costola; in piedi, il fondo sul piatto |
+| `vasca_dx.3mf` (o `vasca_dx_corpo.stl` + `vasca_dx_scritte.stl`) | 208 × 240 × 45,0 | 353 | corpo 2 sabbia, scritte 1 nero | retro con la finestra dell'audio e quella dell'hub, fermo dell'hub, colonnina, culla del pad, parete davanti, fianco destro con marchio e nome; in piedi, il fondo sul piatto; marchio e nome nel fianco, che è verticale: il filamento cambia in 126 strati |
+| `mascherina_1.3mf` (o `mascherina_1_corpo.stl` + `mascherina_1_scritte.stl`) | 194 × 126 × 2,0 | 40 | corpo 1 nero, scritte 2 sabbia | la metà sinistra della mascherina; scritte incassate nella faccia in vista, che sta sul piatto |
+| `mascherina_2.3mf` (o `mascherina_2_corpo.stl` + `mascherina_2_scritte.stl`) | 166 × 126 × 2,0 | 38 | corpo 1 nero, scritte 2 sabbia | la metà destra della mascherina; scritte incassate nella faccia in vista, che sta sul piatto |
+| `piano_flip.3mf` (o `piano_flip_corpo.stl` + `piano_flip_scritte.stl`) | 200 × 140 × 2,0 | 61 | corpo 1 nero, scritte 2 sabbia | scritte incassate nella faccia in vista, che sta sul piatto |
+| `culla_flip.stl` | 89 × 83 × 7,0 | 19 | 1 nero | vassoio sul piano della Flip, 4 viti M3 svasate |
+| `visiera.stl` | 118 × 42 × 95,6 | 44 | 1 nero | si avvita al piano dietro la culla; si stampa sul tettuccio, con i supporti solo sotto i piedi |
+| `prova_giunta.stl` | 75 × 60 × 45,0 | 28 | 2 sabbia | la giunta sotto la MK4 in piccolo, le due metà insieme: da stampare prima |
 
 Filamento: circa 1,0 kg in tutto, quasi tutto del colore del corpo. Viti delle giunte: 4 viti M3 × 6 a testa cilindrica (brugola) con i dadi.
 
 ## In Anycubic Slicer Next
 
-1. Apri il `.3mf` del pezzo: arriva un oggetto con due parti, «corpo» e «scritte». Se lo slicer lo apre come due oggetti, o se preferisci gli STL: importa insieme `_corpo.stl` e `_scritte.stl` e, alla domanda, caricali come un oggetto solo con più parti.
+1. Apri il `.3mf` del pezzo: arriva un oggetto con le sue parti, «corpo» e «scritte». Se lo slicer lo apre come più oggetti, o se preferisci gli STL: importa insieme gli STL del pezzo (`_corpo.stl`, `_scritte.stl`) e, alla domanda, caricali come un oggetto solo con più parti.
 2. Due filamenti in tutto: 1 nero, 2 sabbia (o il colore scelto per il telaio). Mascherina e piano della Flip: corpo 1 e scritte 2, come l'incisione del laser sull'acrilico nero. Vasche: corpo 2 e scritte 1, come la bruciatura sul legno. Nel `.3mf` è già così; con gli STL si assegna a mano. La vasca di centro e la prova di giunta col 2, la culla della Flip e la visiera col 1.
 3. Non girare i pezzi: le vasche stanno in piedi con il fondo sul piatto, mascherina e piano con la faccia in vista sul piatto. Il piatto liscio la fa lucida, quello testurizzato le dà la sua grana.
 4. Strati da 0,2 e primo strato da 0,2: nei piani le scritte sono profonde 0,6 mm, cioè i primi tre strati. Nelle vasche il fianco è verticale e le scritte sono profonde 0,6 mm nella faccia di fuori: il filamento cambia in ogni strato fra il basso del marchio e la cima del nome, circa 126 strati per vasca. Torre di spurgo sì; spurgo nel riempimento se lo slicer lo offre. Se i cambi sono troppi, le vasche di `../stampa3d/` hanno il marchio in rilievo, di un colore.

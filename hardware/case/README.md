@@ -22,6 +22,7 @@ python -I hardware/case/genera.py      pezzi (SVG laser, STL), fogli di taglio (
 python -I hardware/case/assieme.py     modello 3D (OBJ), dati per SketchUp, tavole del montaggio (PNG)
 python -I hardware/case/stampa3d.py    la console tutta stampata a vasche, per chi non ha il laser (out/stampa3d/)
 python -I hardware/case/multicolore.py la stessa, per stampanti a più filamenti: le scritte le fa la stampa (out/stampa3d_multicolore/)
+                                       (--nes nei colori del NES, con i tre PETG di Luigi: out/stampa3d_nes/)
 python -I hardware/case/manuale.py     PDF: progetti di taglio, istruzioni di montaggio, istruzioni della versione stampata
                                        (--stampa3d solo le due console stampate)
 python -I hardware/case/sketchup.py    codice per costruire il modello in SketchUp (out/sketchup/)
@@ -92,6 +93,7 @@ Per una stampante a più filamenti (Luigi ha una Anycubic Kobra S1 con l'ACE Pro
 - Due filamenti: 1 nero, 2 sabbia. I piani sono neri con le scritte sabbia, le vasche color telaio con le scritte nere.
 - Ogni pezzo con le scritte esce in un `.3mf` (un oggetto con le parti «corpo» e «scritte», i filamenti già assegnati) e in due STL allineati, `_corpo` e `_scritte`, da importare insieme come un oggetto solo. Gli altri pezzi sono STL di un colore.
 - `pezzi.md` dice come caricarli in Anycubic Slicer Next; `anteprima_*.png` mostra ogni faccia come la si guarda; `istruzioni_multicolore.pdf` (tre pagine A4, `manuale.py --multicolore`) raccoglie pezzi, filamenti, slicer e anteprime da stampare.
+- **Nei colori del NES** (Luigi, 20/10/2026: «mi fai una in modalità multicolor con i colori NES? cartella con i pezzi da stampare sulla mia kobra s1»): `multicolore.py --nes` scrive `out/stampa3d_nes/`, gli stessi pezzi per la Kobra S1 nei tre PETG Anycubic di Luigi, 1 grigio traslucido, 2 crema, 3 rosso. Piani, culla della Flip e visiera grigi, vasche crema, scritte rosse; le vasche hanno in più la fascia grigia dei primi 8 mm, sotto le scritte dei fianchi, che nel `.3mf` è una terza parte (`_fascia`) con il suo filamento: nello slicer non c'è niente da impostare. Come nei rendering `stampata_*.jpg`.
 
 ## Prima di tagliare
 
