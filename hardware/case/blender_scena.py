@@ -681,6 +681,7 @@ if STAMPATA:
     # le vasche si staccano di lato, come si calano una accanto all'altra (la x qui ha il segno); quello che sta
     # nella vasca di destra la segue, MK4 e mascherina stanno a metà fra le due di sinistra
     SCOPPIO = [(('vasca_sx',), -40, 0), (('vasca_centro',), 0, 0), (('vasca_dx',), 40, 0), (('Hub',), 40, 18),
+               (('targa_sx',), -60, 0), (('targa_dx',), 60, 0),        # le targhe seguono la vasca, fuori dalla sede
                (('Macro_pad', 'Manopole_del_pad', 'Interruttori_del_pad'), 40, 105),
                (('Tasti_trasparenti', 'etichetta'), 40, 140), (('MPK',), -20, 70), (('mascherina_1',), -28, 180),
                (('mascherina_2',), -12, 180), (('piano_flip',), 40, 180), (('culla_flip',), 40, 205),
