@@ -102,7 +102,7 @@ Per una stampante a più filamenti (Luigi ha una Anycubic Kobra S1 con l'ACE Pro
 1. **Misurare** le voci [V] di `misure.py`. I controlli della MK4 e le porte della Flip sono stati rimisurati sulle foto il 17/10/2026 (±1 mm); restano:
    - altezza del pannello della MK4 (37 mm, `MK4['h']`): la mascherina ci appoggia, e il piano della Flip va alla stessa quota;
    - altezza dei pulsanti piccoli della MK4: con la mascherina appoggiata stanno 1-2 mm sotto la sua faccia;
-   - il macro pad è misurato con il metro il 19/10/2026: contorno 185 × 75, corpo 16,2 (`PAD_CORPO`, le foto del 18/10 davano 11,5), presa USB-C sul retro fra m1 e m2 a 148 mm dal bordo dei tasti e 8,3 sopra il fondo (`PAD_USB_Z`), interruttore a slitta a 78. Resta da vedere a che altezza sta l'interruttore: la finestra della culla va dal fondo fin sopra la spina;
+   - il macro pad è misurato con il metro il 19/10/2026 e col calibro il 20/10: contorno 185 × 75,35 (77,18 sul lobo), manopole ⌀ 20,87 e 29,25, corpo 16,2 (`PAD_CORPO`, le foto del 18/10 davano 11,5), presa USB-C sul retro fra m1 e m2 a 148 mm dal bordo dei tasti e 8,3 sopra il fondo (`PAD_USB_Z`), interruttore a slitta a 78. Resta da vedere a che altezza sta l'interruttore: la finestra della culla va dal fondo fin sopra la spina;
    - angolo di apertura della Flip (serve almeno 115°);
    - l'hub (`HUB`, `HUB_PORTE_A`, `HUB_PORTE_B`): il NOVOO 9 in 1 di Luigi, misurato con il metro e sulle foto il 20/10/2026 (±1); resta da provare che funzioni con la Flip con l'ingresso PD vuoto (CASE-021) e che il cavo fisso arrivi alla fessura dell'OTG. Prima di tagliare il retro, la finestra delle porte si prova sull'hub.
 

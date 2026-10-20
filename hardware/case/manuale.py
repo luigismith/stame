@@ -147,7 +147,7 @@ MINUTERIA = [
 
 VERIFICARE = [
     'MK4: dima su carta (controlli dalle foto, ±1 mm); altezza del pannello (37 mm) e dei pulsanti piccoli',
-    "Macro pad: misurato col metro il 19/10 (185 × 75, corpo 16,2, USB-C fra m1 e m2 a 8,3 dal fondo); resta l'altezza dell'interruttore sul retro",
+    "Macro pad: metro e calibro (185 × 75,35, 77,18 sul lobo, corpo 16,2, USB-C a 8,3 dal fondo); resta l'altezza dell'interruttore",
     'Flip: angolo massimo dello schermo (serve 115°: schermo a 65°); porte e tasti presi dalle foto',
     'Hub NOVOO: che si accenda con la Flip con l\'ingresso PD vuoto (CASE-021); la finestra del retro sulle sue porte, col calibro',
     'Prova di taglio su un ritaglio: potenza, velocità e gioco delle linguette (0,2 mm per lato)',

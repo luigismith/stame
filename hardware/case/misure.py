@@ -75,21 +75,22 @@ FLIP_USBC_DX = 6.3
 # tasti sul fianco destro, vicino alla cerniera: fra 6 e 16 mm dal bordo posteriore [D, foto]
 FLIP_TASTI_LATO = (6.0, 16.0)
 # macro pad BRIMFORD: 15 tasti in 3 file da 5 e 3 manopole a destra [O]. Contorno col metro posato
-# sulla piastra (19/10/2026): 185 × 75 [O, ±0,5]; passo e primo tasto dalle stesse foto, corretti per
-# la quota dei copritasti [D, ±0,5]. x dal bordo dei tasti verso le manopole, y dal retro verso il
-# musicista.
-PAD = dict(w=185.0, d=75.0, h=39.2, pitch_x=21.4, pitch_y=22.1, k0=(15.5, 12.6))
+# sulla piastra (19/10/2026): 185 × 75 [O, ±0,5]; il 20/10/2026 col calibro la profondità è 75,35, e 77,18 sul
+# lobo [O, ±0,05]. Passo e primo tasto dalle foto, corretti per la quota dei copritasti [D, ±0,5]. x dal bordo
+# dei tasti verso le manopole, y dal retro verso il musicista.
+PAD = dict(w=185.0, d=75.35, h=39.2, pitch_x=21.4, pitch_y=22.1, k0=(15.5, 12.6))
 # il lobo davanti, dal lato delle manopole: da 3 mm dopo l'ultima colonna di tasti (x 113) la piastra
-# sporge circa 2 mm oltre il bordo davanti dei tasti, con un gradino arrotondato; l'angolo davanti
-# verso le manopole ha R 30, gli altri tre R 5 [D, foto del 18/10 e del 19/10]
-PAD_LOBO = dict(sporge=2.0, lungo=72.0, r=30.0)
+# sporge 1,83 mm oltre il bordo davanti dei tasti (calibro del 20/10/2026), con un gradino arrotondato;
+# l'angolo davanti verso le manopole ha R 30, gli altri tre R 5 [D, foto del 18/10 e del 19/10]
+PAD_LOBO = dict(sporge=1.83, lungo=72.0, r=30.0)
 PAD_R = 5.0
-PAD_D_TOT = PAD['d'] + PAD_LOBO['sporge']    # 77: la profondità sul lobo
+PAD_D_TOT = PAD['d'] + PAD_LOBO['sporge']    # 77,18: la profondità sul lobo
 # manopole del pad: centro (x, y dal retro) e raggio del cappello; m1 è la piccola vicina ai tasti, m2
 # quella sul bordo, M la grande davanti (specifica 40 §8.10). x di m1 e m2 dal metro [O, ±1], il resto
-# [D]. Le piccole sono un cappello zigrinato su un dado e arrivano 23 mm sopra la piastra, la grande ha
-# una flangia alla base, raggio 17, e arriva a circa 25 [O, foto di fianco del 19/10/2026, ±1,5]
-PAD_KNOB = {'m1': (133.5, 18.0, 10.0), 'm2': (169.0, 18.0, 10.0), 'M': (151.5, 62.0, 15.0)}
+# [D]; i cappelli col calibro, il 20/10/2026: le piccole ⌀ 20,87, la grande ⌀ 29,25 [O]. Le piccole sono un
+# cappello zigrinato su un dado e arrivano 23 mm sopra la piastra, la grande ha una flangia alla base, raggio
+# 17, e arriva a circa 25 [O, foto di fianco del 19/10/2026, ±1,5]
+PAD_KNOB = {'m1': (133.5, 18.0, 10.435), 'm2': (169.0, 18.0, 10.435), 'M': (151.5, 62.0, 14.625)}
 PAD_KNOB_H = 23.0
 PAD_FLANGIA = 17.0
 # sul retro [O, foto del 19/10/2026]: la USB-C fra m1 e m2, con il LED verde accanto; un interruttore
