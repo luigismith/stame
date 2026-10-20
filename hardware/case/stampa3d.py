@@ -149,7 +149,7 @@ class Pezzo:
 
 
 def _finestre():
-    """le finestre del retro (pedale; alimentazione e audio sopra l'hub), nel piano (x, z)"""
+    """le finestre del retro per i cavi (pedale; audio), nel piano (x, z)"""
     out = []
     for lato in ('sx', 'dx'):
         zt = M.BASE_T + G.USCITE_Z[lato]
@@ -158,15 +158,23 @@ def _finestre():
     return out
 
 
+def _sul_fondo(r, raggio):
+    """un rettangolo (x0, z0, x1, z1) di genera.py con le z sopra la base, nel piano (x, z)"""
+    x0, z0, x1, z1 = r
+    return rett(x0, M.BASE_T + z0, x1, M.BASE_T + z1, raggio)
+
+
 def retro():
     """il retro, arretrato fin dove finisce la curva dei fianchi: fuori arriva in cima, dentro si ferma
-    all'appoggio del piano (il feltro sopra); le finestre passano tutti e due"""
+    all'appoggio del piano (il feltro sopra); le finestre dei cavi passano tutti e due. Dentro la sede dell'hub,
+    fuori la finestra delle sue porte, come lo strato d'appoggio e il retro della console laser"""
     F = ((0.0, M.APPOGGIO_Y, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 1.0), (0.0, -1.0, 0.0))     # w = 16 - y
     a, b = INTERNO[0] - SOVRAPPOSTO, INTERNO[1] + SOVRAPPOSTO
     pz = Pezzo('retro', F, 'telaio', '')
     pz.T = 2 * M.PLY
     fin = _finestre()
-    pz.sotto = [(0.0, M.PLY, rett(a, 0.0, b, M.Z_APPOGGIO), fin), (M.PLY, 2 * M.PLY, rett(a, 0.0, b, M.Z_PIANO), fin)]
+    pz.sotto = [(0.0, M.PLY, rett(a, 0.0, b, M.Z_APPOGGIO), fin + [_sul_fondo(G.sede_hub(), 1.0)]),
+                (M.PLY, 2 * M.PLY, rett(a, 0.0, b, M.Z_PIANO), fin + [_sul_fondo(G.finestra_hub(), 2.0)])]
     return pz
 
 
@@ -610,13 +618,16 @@ def destra(ms, reg):
     """la parte di destra: il fermo dell'hub, la colonnina sotto la culla della Flip, la culla del pad con la sua
     parete davanti e il bordo arrotondato che continua la curva dei fianchi"""
     w, d, h = M.HUB['w'] + 0.8, M.HUB['d'] + 0.8, M.HUB['h']
-    if _sta(reg, (M.HUB_X0 - 3.0, M.HUB_Y0 - 3.0, M.HUB_X0 + w + 3.0, M.HUB_Y0 + d + 3.0), 'il fermo dell\'hub'):
+    if _sta(reg, (M.HUB_X0 - 3.0, M.HUB_Y0, M.HUB_X0 + w + 3.0, M.HUB_Y0 + d + 3.0), 'il fermo dell\'hub'):
+        # come il fermo di genera.py: il fondo davanti al retro, la sponda a destra, il bordino sotto il cavo e i denti
+        # davanti agli angoli; l'hub entra nel retro fino alla finestra delle porte
         fr = sposta(M.HUB_X0, M.HUB_Y0, 0.0)
-        zb = M.BASE_T + 2.0                            # il fondo dell'hub, come nel fermo di genera.py
-        ms.prisma(rett(-3, -3, w + 3, d + 3, 2), FONDO - SOVRAPPOSTO, zb, frame=fr)
-        ms.prisma(rett(-3, -3, w + 3, d + 3, 2), zb, zb + 3.0, holes=[rett(0, 0, w, d, 1)], frame=fr)
-        ms.prisma(rett(-3, -3, w + 3, 0, 0.5), zb + 3.0, M.BASE_T + h * 0.6, frame=fr)
-        ms.prisma(rett(-3, 0, 0, d + 3, 0.5), zb + 3.0, M.BASE_T + h * 0.6, frame=fr)
+        zb, y0 = M.HUB_Z0, M.APPOGGIO_Y - SOVRAPPOSTO - M.HUB_Y0
+        ms.prisma(rett(-3, y0, w + 3, d + 3, 2), FONDO - SOVRAPPOSTO, zb, frame=fr)
+        ms.prisma(rett(-3, y0, 0, d + 3, 0.5), zb - SOVRAPPOSTO, zb + 2.0, frame=fr)
+        ms.prisma(rett(w, y0, w + 3, d + 3, 0.5), zb - SOVRAPPOSTO, zb + h * 0.6, frame=fr)
+        for xa, xb in ((-3, 11.0), (w - 7.0, w + 3)):
+            ms.prisma(rett(xa, d, xb, d + 3, 0.5), zb - SOVRAPPOSTO, zb + h * 0.6, frame=fr)
     x, y = G.COLONNINA
     if _sta(reg, (x - 10.0, y - 10.0, x + 10.0, y + 10.0), 'la colonnina'):
         ms.cilindro(x, y, FONDO - SOVRAPPOSTO, M.BASE_T, 10.0, 40)
@@ -707,7 +718,7 @@ def _nota_vasca(reg):
         cose.append('fianco sinistro' + (' con marchio e nome' if y0 <= 0.0 else ''))
     if y0 <= 0.0:
         cose.append('retro' + (' con la finestra del pedale' if x0 < 280.0 < x1 else '')
-                    + (' con le finestre di alimentazione e audio' if x1 >= M.LARGHEZZA else ''))
+                    + (' con la finestra dell\'audio e quella dell\'hub' if x1 >= M.LARGHEZZA else ''))
     if x0 < M.MK4_X0 + M.MK4['w'] and x1 > M.MK4_X0:
         cose.append('pedana della MK4')
     if x0 <= M.COSTOLA_X0 and x1 >= M.COSTOLA_X1 - 1e-6:
@@ -815,7 +826,7 @@ def sedi():
     pad += [p for p in _punti_box(b[0], b[1], M.PAD_Z0 + g, b[2], b[3], M.PAD_Z1 - g) if _nel_poligono(p[0], p[1], contorno)
             and p[0] not in (b[0], b[2]) and p[1] not in (b[1], b[3])]
     out['pad'] = pad
-    hx, hy, hz = M.HUB_X0 + 0.4, M.HUB_Y0 + 0.4, M.BASE_T + 2.0
+    hx, hy, hz = M.HUB_X0 + 0.4, M.HUB_Y0 + 0.4, M.HUB_Z0
     out['hub'] = _punti_box(hx + g, hy + g, hz + g, hx + H['w'] - g, hy + H['d'] - g, hz + H['h'] - g)
     out['passaggio dei cavi'] = _punti_box(M.COSTOLA_X0 + g, M.APPOGGIO_Y + g, M.BASE_T + g, M.COSTOLA_X1 - g,
                                            M.MK4_Y0 - g, G.CAVI_Z - g)
@@ -824,6 +835,8 @@ def sedi():
         zt = M.BASE_T + G.USCITE_Z[lato]
         for cx in G.USCITE[lato]:
             fin += _punti_box(cx - 8.0, M.RETRO_Y0 + g, zt - 12.0 + g, cx + 8.0, M.APPOGGIO_Y - g, zt - g, 2.0)
+    x0, z0, x1, z1 = G.finestra_hub()                  # davanti alle porte dell'hub, dove entrano le spine
+    fin += _punti_box(x0 + 2.0, M.RETRO_Y0 + g, M.BASE_T + z0 + g, x1 - 2.0, M.RETRO_Y - g, M.BASE_T + z1 - g, 2.0)
     out['finestre del retro'] = fin
     out['mascherina'] = _punti_box(G.MASC_X0 + g, G.MASC_Y0 + g, M.Z_PIANO0 + g, G.MASC_X1 - g, G.MASC_Y1 - g, M.Z_PIANO - g)
     out['piano della Flip'] = _punti_box(G.PIANO_X0 + g, G.PIANO_Y0 + g, M.Z_PIANO0 + g, G.PIANO_X1 - g, M.PIANO_Y1 - g,
@@ -1248,7 +1261,7 @@ def scrivi_elenco(righe, totale, piatto, n_etichette, viti, n_vasche):
           '## Montaggio', '',
           '1. Le vasche: si calano una accanto all\'altra, in qualunque ordine, sul tavolo; poi le viti delle giunte. '
           'Piedini in gomma sotto, due per colonna.',
-          '2. L\'hub nel fermo, con le porte verso il davanti; i cavi come nella console laser (passo 4 di '
+          '2. L\'hub nel fermo, con il lato dell\'alimentazione nella finestra del retro; i cavi come nella console laser (passo 4 di '
           '`istruzioni_montaggio.pdf`). Feltro sugli appoggi del piano (retro, fianchi, costola, colonnina, dente della culla).',
           '3. Il pad nella sua culla, con il cavo a 90° nella finestra di dietro.',
           '4. La culla della Flip e la visiera avvitate al piano (4 viti M3 svasate e 2 M3 × 10, dadi sotto); il piano '

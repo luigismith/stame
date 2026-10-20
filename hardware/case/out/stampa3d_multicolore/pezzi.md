@@ -6,7 +6,7 @@ Generato da `hardware/case/multicolore.py` per un piatto di 240 × 240 mm (Anycu
 |---|---|---|---|---|
 | `vasca_sx.3mf` (o `vasca_sx_corpo.stl` + `vasca_sx_scritte.stl`) | 200 × 240 × 45,0 | 244 | telaio: PLA o PETG color legno o sabbia | fianco sinistro con marchio e nome, retro, pedana della MK4; in piedi, il fondo sul piatto; marchio e nome nel fianco, che è verticale: il filamento cambia in 126 strati |
 | `vasca_centro.stl` | 200 × 240 × 45,0 | 218 | telaio: PLA o PETG color legno o sabbia | retro con la finestra del pedale, pedana della MK4, costola; in piedi, il fondo sul piatto |
-| `vasca_dx.3mf` (o `vasca_dx_corpo.stl` + `vasca_dx_scritte.stl`) | 208 × 240 × 45,0 | 367 | telaio: PLA o PETG color legno o sabbia | retro con le finestre di alimentazione e audio, fermo dell'hub, colonnina, culla del pad, parete davanti, fianco destro con marchio e nome; in piedi, il fondo sul piatto; marchio e nome nel fianco, che è verticale: il filamento cambia in 126 strati |
+| `vasca_dx.3mf` (o `vasca_dx_corpo.stl` + `vasca_dx_scritte.stl`) | 208 × 240 × 45,0 | 353 | telaio: PLA o PETG color legno o sabbia | retro con la finestra dell'audio e quella dell'hub, fermo dell'hub, colonnina, culla del pad, parete davanti, fianco destro con marchio e nome; in piedi, il fondo sul piatto; marchio e nome nel fianco, che è verticale: il filamento cambia in 126 strati |
 | `mascherina_1.3mf` (o `mascherina_1_corpo.stl` + `mascherina_1_scritte.stl`) | 194 × 126 × 2,0 | 40 | piani: nero | la metà sinistra della mascherina; scritte incassate nella faccia in vista, che sta sul piatto |
 | `mascherina_2.3mf` (o `mascherina_2_corpo.stl` + `mascherina_2_scritte.stl`) | 166 × 126 × 2,0 | 38 | piani: nero | la metà destra della mascherina; scritte incassate nella faccia in vista, che sta sul piatto |
 | `piano_flip.3mf` (o `piano_flip_corpo.stl` + `piano_flip_scritte.stl`) | 200 × 140 × 2,0 | 61 | piani: nero | scritte incassate nella faccia in vista, che sta sul piatto |
@@ -14,7 +14,7 @@ Generato da `hardware/case/multicolore.py` per un piatto di 240 × 240 mm (Anycu
 | `visiera.stl` | 118 × 42 × 95,6 | 44 | nero | si avvita al piano dietro la culla; si stampa sul tettuccio, con i supporti solo sotto i piedi |
 | `prova_giunta.stl` | 75 × 60 × 45,0 | 28 | telaio: PLA o PETG color legno o sabbia | la giunta sotto la MK4 in piccolo, le due metà insieme: da stampare prima |
 
-Filamento: circa 1,1 kg in tutto, quasi tutto del colore del corpo. Viti delle giunte: 4 viti M3 × 6 a testa cilindrica (brugola) con i dadi.
+Filamento: circa 1,0 kg in tutto, quasi tutto del colore del corpo. Viti delle giunte: 4 viti M3 × 6 a testa cilindrica (brugola) con i dadi.
 
 ## In Anycubic Slicer Next
 

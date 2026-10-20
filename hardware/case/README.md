@@ -100,7 +100,7 @@ Per una stampante a più filamenti (Luigi ha una Anycubic Kobra S1 con l'ACE Pro
    - altezza dei pulsanti piccoli della MK4: con la mascherina appoggiata stanno 1-2 mm sotto la sua faccia;
    - il macro pad è misurato con il metro il 19/10/2026: contorno 185 × 75, corpo 16,2 (`PAD_CORPO`, le foto del 18/10 davano 11,5), presa USB-C sul retro fra m1 e m2 a 148 mm dal bordo dei tasti e 8,3 sopra il fondo (`PAD_USB_Z`), interruttore a slitta a 78. Resta da vedere a che altezza sta l'interruttore: la finestra della culla va dal fondo fin sopra la spina;
    - angolo di apertura della Flip (serve almeno 115°);
-   - l'hub (`HUB`): la dock NOVOO di Luigi, misurata con il metro il 19/10/2026; resta da provare che funzioni con la Flip (CASE-021) e che il cavo fisso arrivi alla fessura dell'OTG.
+   - l'hub (`HUB`, `HUB_PORTE_A`, `HUB_PORTE_B`): il NOVOO 9 in 1 di Luigi, misurato con il metro e sulle foto il 20/10/2026 (±1); resta da provare che funzioni con la Flip con l'ingresso PD vuoto (CASE-021) e che il cavo fisso arrivi alla fessura dell'OTG. Prima di tagliare il retro, la finestra delle porte si prova sull'hub.
 
    Senza calibro basta una foto da sopra, con il pezzo appoggiato su un foglio A4 tutto in vista: i quattro angoli del foglio danno la scala e la prospettiva, e la misura viene entro mezzo millimetro.
 2. **Stampare la dima** su carta al 100% e controllare il righello di 100 mm. Posarla sulla MK4: ogni foro deve lasciare libero il suo controllo, con la cornice attorno.
@@ -127,7 +127,7 @@ Per una stampante a più filamenti (Luigi ha una Anycubic Kobra S1 con l'ACE Pro
 | `colonnina.stl` | 1 | regge il piano della Flip in mezzo, sotto la culla; una vite da sotto la base |
 | `squadretta_m3.stl` | 6 | fra base e fianchi |
 
-Minuteria: 4 viti M3 × 10 svasate e 8 viti M3 × 10 con i dadi; 9 viti da legno 3 × 12; colla vinilica; feltro adesivo da 1 mm in strisce; 6 piedini in gomma da 12 mm; un hub USB fino a 142 × 58 × 17,5 (il fermo è fatto sulla dock NOVOO di Luigi; meglio un hub USB 2.0 semplice senza Power Delivery, CASE-021); due cavi USB-C a 90°, per la MK4 e per il pad.
+Minuteria: 4 viti M3 × 10 svasate e 8 viti M3 × 10 con i dadi; 9 viti da legno 3 × 12; colla vinilica; feltro adesivo da 1 mm in strisce; 6 piedini in gomma da 12 mm; l'hub USB-C NOVOO 9 in 1 di Luigi, 100 × 44 × 12,5 (il fermo e la finestra del retro sono fatti sulle sue porte; l'ingresso PD resta vuoto finché non c'è la prova di CASE-021); due cavi USB-C a 90°, per la MK4 e per il pad.
 
 ## Montaggio
 
@@ -136,7 +136,7 @@ Le istruzioni con le tavole sono in `out/istruzioni_montaggio.pdf`. In breve:
 1. **La base:** le due metà a coda di rondine, con la colla.
 2. **Retro, costola e parete davanti:** nelle tacche e nelle asole della base, con la colla; lo strato d'appoggio incollato davanti al retro, i due strati della costola fra loro.
 3. **I fianchi:** quattro strati incollati per lato, quello d'appoggio dentro; poi avvitati alla base con le squadrette.
-4. **L'hub e i cavi:** fermo e hub sulla base, contro il retro, con le porte verso il davanti; la colonnina avvitata da sotto; il cavo della MK4 passa dietro, sotto la costola, quello dell'hub sale a destra e torna sopra l'hub fino alla fessura dell'OTG. Feltro sugli appoggi.
+4. **L'hub e i cavi:** fermo e hub sulla base; il lato dell'hub con la USB-C di alimentazione, la USB 2.0, la SD e la microSD nella finestra del retro, le altre porte verso il davanti. La colonnina avvitata da sotto; il cavo della MK4 passa dietro, sotto la costola; quello dell'hub esce a sinistra e sale alla fessura dell'OTG. Feltro sugli appoggi.
 5. **La culla del pad:** sulla base, il pad dentro, il cavo nella finestra di dietro.
 6. **Il piano della Flip:** culla e visiera avvitate al piano, il piano sugli appoggi e sul dente della culla del pad.
 7. **MK4 e mascherina:** la MK4 al suo posto, la mascherina sopra.

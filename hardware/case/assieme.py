@@ -33,7 +33,7 @@ COLORI = {
     'mk4': (232, 232, 226), 'mk4_tasti': (247, 247, 242), 'mk4_neri': (34, 34, 36), 'mk4_pad': (82, 82, 86),
     'mk4_scocca': (150, 152, 148), 'mk4_rosso': (196, 46, 40),
     'manopole': (52, 52, 56), 'pad': (38, 38, 42), 'trasparente': (214, 222, 226), 'flip': (64, 66, 72), 'schermo': (14, 44, 40),
-    'hub': (128, 132, 142), 'hub_nero': (34, 34, 38), 'cavo': (224, 112, 40),
+    'hub': (128, 132, 142), 'hub_nero': (34, 34, 38),
     'pad_fondo': (30, 30, 34), 'pad_trasparente': (206, 218, 222), 'pad_satinata': (188, 200, 206), 'alluminio': (196, 198, 202),
 }
 AMBRA = (236, 150, 40)
@@ -42,7 +42,7 @@ PASSI = {
     1: ('La base', 'Unire le due metà della base a coda di rondine, con la colla vinilica. Piedini in gomma sotto.'),
     2: ('Retro, costola e parete davanti', 'Il retro nelle tacche del bordo posteriore, con lo strato d\'appoggio incollato davanti; i due strati della costola incollati fra loro e nelle asole; la parete davanti nelle sue. Colla nelle linguette.'),
     3: ('I fianchi', 'Incollare i quattro strati di ogni fianco: fuori quello inciso, dentro quello d\'appoggio, più basso dietro. Poi avvitarli alla base con le sei squadrette M3.'),
-    4: ('L\'hub e i cavi', 'Fermo dell\'hub avvitato alla base contro il retro, hub dentro con le porte verso il davanti; la colonnina del piano avvitata da sotto la base. Il cavo USB della MK4 passa dietro, sotto la costola; quello del pad arriva dalla culla; quello dell\'hub sale a destra e torna sopra l\'hub, verso la fessura dell\'OTG. Strisce di feltro sugli appoggi.'),
+    4: ('L\'hub e i cavi', 'Fermo dell\'hub avvitato alla base, l\'hub dentro con il lato dell\'alimentazione nella finestra del retro; la colonnina avvitata da sotto. I cavi di MK4 (sotto la costola) e pad (dalla culla) nelle porte davanti; il cavo dell\'hub sale alla fessura dell\'OTG. Feltro sugli appoggi.'),
     5: ('La culla del pad', 'La culla sulla base, fra costola, fianco e parete davanti. Il pad dentro, con il cavo a 90° nella finestra di dietro.'),
     6: ('Il piano della Flip', 'Culla della Flip e visiera avvitate al piano (viti M3 da sopra, dadi sotto); il piano sugli appoggi, con il bordo davanti sul dente della culla del pad.'),
     7: ('MK4 e mascherina', 'La MK4 nel suo posto, con il cavo USB a 90°; la mascherina sopra: appoggia sulla MK4 e sugli strati d\'appoggio, ogni controllo nel suo foro.'),
@@ -187,14 +187,19 @@ def apparecchi():
     N = (0.0, -math.sin(a), -math.cos(a))                     # lo spessore va dietro lo schermo
     fl.prisma(rett(0.0, 0.0, fw, fd, 4.0), 0.0, t, frame=(O, U, V, N))
     sch.prisma(rett(6.0, 8.0, fw - 6.0, fd - 6.0, 1.0), -0.4, 0.0, frame=(O, U, V, N))
-    # ---- hub: la dock NOVOO di Luigi, alluminio con il lato delle porte nero, e l'attacco del cavo ----
-    hx0, hy0, hz0 = M.HUB_X0 + 0.4, M.HUB_Y0 + 0.4, z0 + 2.0
+    # ---- hub: il NOVOO di Luigi, alluminio con gli angoli tondi; le porte dei due lati (il lato A nella finestra del
+    # retro) e l'attacco del cavo fisso, che esce a sinistra ----
+    hx0, hy0, hz0 = M.HUB_X0 + 0.4, M.HUB_Y0 + 0.4, M.HUB_Z0
     hx1, hy1, hz1 = hx0 + M.HUB['w'], hy0 + M.HUB['d'], hz0 + M.HUB['h']
-    parte('Hub USB', 4, 'hub').box(hx0, hy0, hz0, hx1, hy1 - 15.0, hz1)
-    parte('Hub USB, lato delle porte', 4, 'hub_nero').box(hx0, hy1 - 15.0, hz0, hx1, hy1, hz1)
-    cy, cz = hy1 - M.HUB_CAVO, (hz0 + hz1) / 2
+    parte('Hub USB', 4, 'hub').prisma(rett(hx0, hy0, hx1, hy1, 8.0), hz0, hz1)
+    porte = parte('Hub USB, porte', 4, 'hub_nero')
+    for _, c, w, za, zb in M.HUB_PORTE_A:
+        porte.box(hx0 + c - w / 2, hy0 - 0.3, hz0 + za, hx0 + c + w / 2, hy0 + 0.6, hz0 + zb)
+    for _, c, w, za, zb in M.HUB_PORTE_B:
+        porte.box(hx0 + c - w / 2, hy1 - 0.6, hz0 + za, hx0 + c + w / 2, hy1 + 0.3, hz0 + zb)
+    cy, cz = hy0 + M.HUB_CAVO, (hz0 + hz1) / 2
     anello = [(cy + 3.5 * math.cos(2 * math.pi * i / 16), cz + 3.5 * math.sin(2 * math.pi * i / 16)) for i in range(16)]
-    parte('Hub USB, attacco del cavo', 4, 'cavo').prisma_x(anello, hx1, hx1 + 12.0)
+    parte('Hub USB, attacco del cavo', 4, 'hub_nero').prisma_x(anello, hx0 - 12.0, hx0 + 1.0)
     return out
 
 

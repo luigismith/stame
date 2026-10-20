@@ -9,6 +9,8 @@ dentro, Flip bianca con la sua faccia, schermo acceso; la MK4 grigia con il pann
 rosso), arrotonda gli spigoli, mette un fondale curvo con la luce da studio e fa dieci inquadrature:
 eroe, pad, mascherina, frontale, dall'alto, dal retro, di fianco, lo schermo, la vista esplosa e
 quella di sera con il tema Notte. Cycles sulla CPU, con il denoiser.
+Con la versione stampata (rendering.py --stampata) le vasche, i piani e gli stampati hanno i colori del NES
+europeo: grigio chiaro con la fascia in basso grigio scuro, piani neri, scritte rosse.
 """
 import json
 import math
@@ -22,6 +24,7 @@ S = json.load(open(sys.argv[sys.argv.index('--') + 1], encoding='utf-8'))
 MM = 0.001
 PROVA = S['prova']
 TEX = S['tex']
+STAMPATA = S.get('versione') == 'stampata'
 
 
 # ---------------------------------------------------------------------------------------------
@@ -273,27 +276,67 @@ def dai(ob, m):
     ob.data.materials.append(m)
 
 
+def srgb(c):
+    """un colore sRGB (0–255) nei valori lineari dei materiali"""
+    return tuple(((v / 255 + 0.055) / 1.055) ** 2.4 if v > 10.31 else v / 255 / 12.92 for v in c)
+
+
+def due_toni(nome, sotto, sopra, z, rough):
+    """filamento stampato in piedi che cambia colore allo strato z (m): sotto un colore, sopra l'altro"""
+    m = plastica(nome, sopra, rough, strati=True)
+    nt = m.node_tree
+    tc = nodo(nt, 'ShaderNodeTexCoord')
+    sz = nodo(nt, 'ShaderNodeSeparateXYZ')
+    lega(nt, tc.outputs['Object'], sz.inputs['Vector'])
+    c = nodo(nt, 'ShaderNodeMath', operation='LESS_THAN')
+    lega(nt, sz.outputs['Z'], c.inputs[0])
+    c.inputs[1].default_value = z
+    lega(nt, mix(nt, c.outputs[0], sopra, sotto), nt.nodes['Principled BSDF'].inputs['Base Color'])
+    return m
+
+
+# i colori del NES europeo (riferimenti, niente marchi): il grigio chiaro della scocca, il grigio scuro del davanti
+# con le porte, il nero delle righe e della faccia del controller, il rosso delle sue scritte e dei tasti
+NES = {'grigio': srgb((172, 170, 163)), 'scuro': srgb((84, 84, 88)), 'nero': srgb((24, 24, 26)), 'rosso': srgb((196, 28, 36))}
+FASCIA = 0.008       # le vasche grigio scuro fino a 8 mm, sotto le scritte dei fianchi: un cambio di filamento a quello strato
+
+
 # ---------------------------------------------------------------------------------------------
 # pezzi
 
 inc = S['incisioni']
-for nome, ob in list(pezzi.items()):
-    if nome.startswith(('fianco', 'base_', 'retro_', 'appoggio', 'costola', 'fronte')):
-        tex = None
-        if nome in inc:
+if STAMPATA:
+    telaio = due_toni('telaio NES', NES['scuro'], NES['grigio'], FASCIA, 0.5)
+    rosso = plastica('scritte NES', NES['rosso'], 0.42, strati=True)
+    nero = plastica('piani NES', NES['nero'], 0.34, strati=True)
+    scuro = plastica('stampati NES', NES['scuro'], 0.45, strati=True)
+    for nome, ob in pezzi.items():
+        if nome.endswith('_scritte'):
+            dai(ob, rosso)
+        elif nome.startswith('vasca_'):
+            dai(ob, telaio)
+        elif nome.startswith(('mascherina', 'piano_flip')):
+            dai(ob, nero)
+        elif nome.startswith(('culla_flip', 'visiera')):
+            dai(ob, scuro)
+else:
+    for nome, ob in list(pezzi.items()):
+        if nome.startswith(('fianco', 'base_', 'retro_', 'appoggio', 'costola', 'fronte')):
+            tex = None
+            if nome in inc:
+                W, H = inc[nome]['dim']
+                uv_riferimento(ob, inc[nome]['frame'], W, H)
+                tex = os.path.join(TEX, nome + '_inc.png')
+            dai(ob, betulla(ob, tex))
+        elif nome in ('mascherina', 'piano_flip'):
             W, H = inc[nome]['dim']
             uv_riferimento(ob, inc[nome]['frame'], W, H)
-            tex = os.path.join(TEX, nome + '_inc.png')
-        dai(ob, betulla(ob, tex))
-    elif nome in ('mascherina', 'piano_flip'):
-        W, H = inc[nome]['dim']
-        uv_riferimento(ob, inc[nome]['frame'], W, H)
-        dai(ob, acrilico('acrilico ' + nome, os.path.join(TEX, nome + '_inc.png')))
+            dai(ob, acrilico('acrilico ' + nome, os.path.join(TEX, nome + '_inc.png')))
 
-petg = plastica('PETG nero', (0.012, 0.012, 0.013), 0.32, strati=True)
-for nome, ob in pezzi.items():
-    if nome.startswith(('culla_flip', 'culla_pad', 'visiera', 'fermo_hub', 'squadretta')):
-        dai(ob, petg)
+    petg = plastica('PETG nero', (0.012, 0.012, 0.013), 0.32, strati=True)
+    for nome, ob in pezzi.items():
+        if nome.startswith(('culla_flip', 'culla_pad', 'visiera', 'fermo_hub', 'squadretta')):
+            dai(ob, petg)
 
 # la MK4 come nelle foto del 19/10: scocca e guance grigie, pannello bianco con il bordo rosso, piedini
 dai(pezzi['MPK_mini_IV'], plastica('scocca della MK4', (0.36, 0.36, 0.34), 0.48))
@@ -324,10 +367,10 @@ dai(pezzi['Macro_pad,_satinata'], vetro('acrilico satinato del pad', (0.92, 0.94
 dai(pezzi['Manopole_del_pad'], metallo('alluminio', (0.86, 0.87, 0.89), 0.2, 0.7))
 dai(pezzi['Interruttori_del_pad'], plastica('interruttori', (0.03, 0.03, 0.035), 0.4))
 dai(pezzi['Tasti_trasparenti'], trasparente('tasti trasparenti'))
-# l'hub di Luigi: alluminio grigio, il lato delle porte nero, l'attacco del cavo arancione
-dai(pezzi['Hub_USB'], metallo('hub', (0.42, 0.44, 0.48), 0.38))
-dai(pezzi['Hub_USB,_lato_delle_porte'], plastica('hub, porte', (0.012, 0.012, 0.013), 0.45))
-dai(pezzi['Hub_USB,_attacco_del_cavo'], plastica('hub, cavo', (0.75, 0.22, 0.04), 0.5))
+# l'hub NOVOO di Luigi (20/10/2026): alluminio grigio satinato, le porte nere, l'attacco del cavo di gomma nera
+dai(pezzi['Hub_USB'], metallo('hub', (0.36, 0.37, 0.40), 0.34, 0.3))
+dai(pezzi['Hub_USB,_porte'], plastica('hub, porte', (0.008, 0.008, 0.009), 0.45))
+dai(pezzi['Hub_USB,_attacco_del_cavo'], plastica('hub, cavo', (0.02, 0.02, 0.022), 0.6))
 
 # la Flip bianca, con la faccia dei tasti dalla foto sulla metà di sotto
 flip = pezzi['Miyoo_Flip']
@@ -379,8 +422,11 @@ for k, (x, y) in enumerate(S['tasti']):
     b.inputs['Roughness'].default_value = 0.8
     dai(p, m)
 
-# spigoli arrotondati e ombreggiatura morbida
-for ob in [o for o in scene.objects if o.type == 'MESH' and not o.name.startswith(('etichetta', 'Schermo'))]:
+# spigoli arrotondati e ombreggiatura morbida; non nei pezzi con le scritte stampate, fatti di quadretti: lo
+# smusso farebbe un solco attorno a ognuno
+con_scritte = {n[:-len('_scritte')] for n in pezzi if n.endswith('_scritte')}
+for ob in [o for o in scene.objects if o.type == 'MESH' and not o.name.startswith(('etichetta', 'Schermo'))
+           and not o.name.endswith('_scritte') and o.name not in con_scritte]:
     bv = ob.modifiers.new('spigoli', 'BEVEL')
     bv.width = 0.00035
     bv.segments = 2
@@ -550,7 +596,10 @@ def scatta(nome, *args, **kw):
     scene.camera = camera(nome, *args, **kw)
     if MODO == 'blend':
         return
-    scene.render.filepath = os.path.join(S['uscita'], f'{"bozza" if MODO == "bozza" else "render"}_{nome}.png')
+    prefisso = S.get('prefisso', 'render_')
+    if MODO == 'bozza':                  # bozza_eroe.png, bozza_stampata_eroe.png
+        prefisso = 'bozza_' + ('' if prefisso == 'render_' else prefisso)
+    scene.render.filepath = os.path.join(S['uscita'], f'{prefisso}{nome}.png')
     bpy.ops.render.render(write_still=True)
     print('scritto', scene.render.filepath, flush=True)
 
@@ -584,6 +633,14 @@ SCOPPIO = [(('base_',), 0, 0), (('retro', 'appoggio_retro', 'costola', 'fronte')
            (('Tasti_trasparenti', 'etichetta'), 0, 140), (('MPK',), 0, 70),
            (('mascherina', 'piano_flip'), 0, 180), (('culla_flip',), 0, 205),
            (('Miyoo_Flip', 'Schermo'), 0, 245), (('visiera',), 0, 290), (('fianco', 'squadretta'), 85, 30)]
+if STAMPATA:
+    # le vasche si staccano di lato, come si calano una accanto all'altra (la x qui ha il segno); quello che sta
+    # nella vasca di destra la segue, MK4 e mascherina stanno a metà fra le due di sinistra
+    SCOPPIO = [(('vasca_sx',), -40, 0), (('vasca_centro',), 0, 0), (('vasca_dx',), 40, 0), (('Hub',), 40, 18),
+               (('Macro_pad', 'Manopole_del_pad', 'Interruttori_del_pad'), 40, 105),
+               (('Tasti_trasparenti', 'etichetta'), 40, 140), (('MPK',), -20, 70), (('mascherina_1',), -28, 180),
+               (('mascherina_2',), -12, 180), (('piano_flip',), 40, 180), (('culla_flip',), 40, 205),
+               (('Miyoo_Flip', 'Schermo'), 40, 245), (('visiera',), 40, 290)]
 
 
 def esplodi(verso):
@@ -591,7 +648,7 @@ def esplodi(verso):
         for prefissi, fuori, su in SCOPPIO:
             if ob.name.startswith(prefissi):
                 cx = sum((ob.matrix_world @ v.co).x for v in ob.data.vertices) / max(len(ob.data.vertices), 1)
-                lato = -1.0 if cx < CENTRO.x else 1.0
+                lato = 1.0 if STAMPATA else -1.0 if cx < CENTRO.x else 1.0
                 if ob.name.startswith('squadretta'):
                     fuori = 45
                 ob.location.x += verso * lato * fuori * MM
@@ -631,5 +688,5 @@ if MODO == 'blend':
                 if sp.type == 'VIEW_3D':
                     sp.shading.type = 'MATERIAL'
                     sp.region_3d.view_perspective = 'CAMERA'
-    bpy.ops.wm.save_as_mainfile(filepath=os.path.join(S['uscita'], 'stame.blend'), compress=True)
-    print('scritto', os.path.join(S['uscita'], 'stame.blend'), flush=True)
+    bpy.ops.wm.save_as_mainfile(filepath=S['blend'], compress=True)
+    print('scritto', S['blend'], flush=True)

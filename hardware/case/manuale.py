@@ -141,14 +141,15 @@ MINUTERIA = [
     'viti da legno 3 × 12: 6 per le squadrette nei fianchi, 2 per il fermo dell\'hub, 1 per la colonnina',
     'colla vinilica (legno); feltro adesivo da 1 mm in strisce sugli appoggi del piano',
     '6 piedini in gomma da 12 mm sotto la base',
-    'hub USB fino a 142 × 58 × 17,5, meglio USB 2.0 semplice senza Power Delivery; cavi USB-C a 90° per la MK4 e per il pad; cavi corti',
+    'hub USB-C NOVOO 9 in 1 (100 × 44 × 12,5): il fermo e la finestra del retro sono fatti sulle sue porte; cavi USB-C a 90° '
+    'per la MK4 e per il pad; cavi corti',
 ]
 
 VERIFICARE = [
     'MK4: dima su carta (controlli dalle foto, ±1 mm); altezza del pannello (37 mm) e dei pulsanti piccoli',
     "Macro pad: misurato col metro il 19/10 (185 × 75, corpo 16,2, USB-C fra m1 e m2 a 8,3 dal fondo); resta l'altezza dell'interruttore sul retro",
     'Flip: angolo massimo dello schermo (serve 115°: schermo a 65°); porte e tasti presi dalle foto',
-    'Hub: la dock NOVOO (142 × 58 × 17,5) deve accendersi con la Flip (le dock finora no); cavo fisso di almeno 16 cm; consumo di MK4 + pad',
+    'Hub NOVOO: che si accenda con la Flip con l\'ingresso PD vuoto (CASE-021); la finestra del retro sulle sue porte, col calibro',
     'Prova di taglio su un ritaglio: potenza, velocità e gioco delle linguette (0,2 mm per lato)',
 ]
 
@@ -220,8 +221,8 @@ def minuteria_stampa(viti, etichette=True):
            'niente colla: le vasche si smontano (una goccia di cianoacrilica nelle code, se si vuole la console in un pezzo)']
     if etichette:
         out.append('carta adesiva (o vinile da stampa) A4 per le etichette; taglierino e righello')
-    out.append('hub USB fino a 142 × 58 × 17,5, meglio USB 2.0 semplice senza Power Delivery; cavi USB-C a 90° per la MK4 '
-               'e per il pad; cavi corti')
+    out.append('hub USB-C NOVOO 9 in 1 (100 × 44 × 12,5): il fermo e la finestra del retro sono fatti sulle sue porte; cavi '
+               'USB-C a 90° per la MK4 e per il pad; cavi corti')
     return out
 
 
@@ -264,7 +265,8 @@ def _giunte(n_vasche, viti):
 def _montaggio():
     return [
         'Le vasche, come a pagina 2; poi le viti delle giunte. Piedini in gomma sotto.',
-        'L\'hub nel fermo, con le porte verso il davanti; i cavi come nella console laser (istruzioni_montaggio.pdf, passo 4): '
+        'L\'hub nel fermo, con il lato dell\'alimentazione nella finestra del retro; i cavi come nella console laser '
+        '(istruzioni_montaggio.pdf, passo 4): '
         'quello della MK4 dietro e sotto il ponte della costola. Feltro sugli appoggi: retro, fianchi, costola, colonnina, '
         'dente della culla del pad.',
         'Il pad nella sua culla, con il cavo a 90° nella finestra di dietro.',

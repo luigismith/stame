@@ -595,6 +595,31 @@ def genera(piatto=None):
     return righe, totale, report, viti
 
 
+def parti_console(piatto=None):
+    """la console montata, per rendering.py --stampata: vasche, piani, culla della Flip e visiera nel riferimento
+    del case, come le parti di assieme.py; ogni pezzo con le scritte in due parti, «nome» e «nome_scritte»"""
+    piatto = piatto or M.PRINT_BED[0]
+    G.genera()
+    masch, pf = S.piano('mascherina', 1), S.piano('piano_flip', 1)
+    fianchi = {'sx': S.fianco('sx'), 'dx': S.fianco('dx')}
+    for pz, nl in ((masch, 'mascherina'), (pf, 'piano_flip'), (fianchi['sx'], 'fianco_sx_esterno'), (fianchi['dx'], 'fianco_dx_esterno')):
+        con_scritte(pz, nl)
+    vv = S.vasche(piatto, fianchi, lambda pz, t: solidi(pz, t) if t['regioni'] else (S.solido(pz, t), None))
+    out = []
+    for v in vv:
+        out.append(dict(nome=v['nome'], passo=1, colore=TINTA[2], mesh=v['corpo']))
+        if v['scritte'].prismi:
+            out.append(dict(nome=v['nome'] + '_scritte', passo=1, colore=TINTA[1], mesh=v['scritte']))
+    for nome, pz, t in S.pezzi_piani(piatto, masch, pf):
+        corpo, scritte = solidi(pz, t)
+        out.append(dict(nome=nome, passo=2, colore=TINTA[1], mesh=corpo.portato(pz.F)))
+        out.append(dict(nome=nome + '_scritte', passo=2, colore=TINTA[2], mesh=scritte.portato(pz.F)))
+    for s in G.STAMPATI:
+        if s['nome'] in ('culla_flip', 'visiera'):
+            out.append(dict(nome=s['nome'], passo=2, colore=TINTA[1], mesh=s['mesh']))
+    return out
+
+
 def scrivi_elenco(righe, totale, piatto, report, viti):
     v = S._v
     n_vasche = sum(1 for r in righe if r['nome'].startswith('vasca_'))

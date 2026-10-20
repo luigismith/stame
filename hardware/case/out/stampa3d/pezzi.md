@@ -6,7 +6,7 @@ Generato da `hardware/case/stampa3d.py` (piatto 210 × 210 mm; `--piatto 240` pe
 |---|---|---|---|---|---|
 | `vasca_sx_dietro.stl` | 1 | 200 × 155 × 45,0 | 161 | telaio: PLA o PETG color legno o sabbia | fianco sinistro con marchio e nome, retro, pedana della MK4; in piedi, il fondo sul piatto |
 | `vasca_centro_dietro.stl` | 1 | 200 × 155 × 45,0 | 143 | telaio: PLA o PETG color legno o sabbia | retro con la finestra del pedale, pedana della MK4, costola; in piedi, il fondo sul piatto |
-| `vasca_dx_dietro.stl` | 1 | 209 × 155 × 45,0 | 184 | telaio: PLA o PETG color legno o sabbia | retro con le finestre di alimentazione e audio, fermo dell'hub, colonnina, fianco destro con marchio e nome; in piedi, il fondo sul piatto |
+| `vasca_dx_dietro.stl` | 1 | 209 × 155 × 45,0 | 170 | telaio: PLA o PETG color legno o sabbia | retro con la finestra dell'audio e quella dell'hub, fermo dell'hub, colonnina, fianco destro con marchio e nome; in piedi, il fondo sul piatto |
 | `vasca_sx_davanti.stl` | 1 | 195 × 104 × 45,0 | 89 | telaio: PLA o PETG color legno o sabbia | fianco sinistro, pedana della MK4; in piedi, il fondo sul piatto |
 | `vasca_centro_davanti.stl` | 1 | 188 × 104 × 45,0 | 80 | telaio: PLA o PETG color legno o sabbia | pedana della MK4, costola; in piedi, il fondo sul piatto |
 | `vasca_dx_davanti.stl` | 1 | 208 × 104 × 45,0 | 192 | telaio: PLA o PETG color legno o sabbia | culla del pad, parete davanti, fianco destro; in piedi, il fondo sul piatto |
@@ -17,7 +17,7 @@ Generato da `hardware/case/stampa3d.py` (piatto 210 × 210 mm; `--piatto 240` pe
 | `visiera.stl` | 1 | 118 × 42 × 95,6 | 44 | nero | si avvita al piano dietro la culla; si stampa sul tettuccio, con i supporti solo sotto i piedi |
 | `prova_giunta.stl` | 1 | 75 × 60 × 45,0 | 28 | telaio: PLA o PETG color legno o sabbia | la giunta sotto la MK4 in piccolo, le due metà insieme: da stampare prima delle vasche |
 
-Filamento: circa 1,1 kg in tutto (stima a fette, come lo slicer: 3 perimetri, 4 strati pieni sopra e sotto, riempimento al 20 %).
+Filamento: circa 1,0 kg in tutto (stima a fette, come lo slicer: 3 perimetri, 4 strati pieni sopra e sotto, riempimento al 20 %).
 
 ## Le giunte
 
@@ -37,7 +37,7 @@ Viti: 6 viti M3 × 6 a testa cilindrica (brugola), 4 viti M3 × 12 a testa cilin
 ## Montaggio
 
 1. Le vasche: si calano una accanto all'altra, in qualunque ordine, sul tavolo; poi le viti delle giunte. Piedini in gomma sotto, due per colonna.
-2. L'hub nel fermo, con le porte verso il davanti; i cavi come nella console laser (passo 4 di `istruzioni_montaggio.pdf`). Feltro sugli appoggi del piano (retro, fianchi, costola, colonnina, dente della culla).
+2. L'hub nel fermo, con il lato dell'alimentazione nella finestra del retro; i cavi come nella console laser (passo 4 di `istruzioni_montaggio.pdf`). Feltro sugli appoggi del piano (retro, fianchi, costola, colonnina, dente della culla).
 3. Il pad nella sua culla, con il cavo a 90° nella finestra di dietro.
 4. La culla della Flip e la visiera avvitate al piano (4 viti M3 svasate e 2 M3 × 10, dadi sotto); il piano sugli appoggi.
 5. La MK4 sulla pedana, le due metà della mascherina sopra, ogni controllo nel suo foro.

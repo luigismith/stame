@@ -25,7 +25,8 @@ sopra, davanti e di fianco: ai lati dei tasti ci sono due guance grigie larghe 1
 tavolo, per tutta la profondità; sotto i tasti un bordino grigio alto 17,5, con i tasti bianchi
 (alti 29) arretrati di 4,5 dal davanti; la MK4 sta su piedini di circa 2 mm. Il pannello bianco ha il
 bordo rosso. L'inizio dei tasti a 100 resta (letto sulle tacche dei millimetri, ±0,5). E ha
-fotografato il suo hub (hub_novoo_*): una dock USB-C NOVOO di 142 × 58 × 17,5, con il cavo fisso.
+fotografato il suo hub (hub_novoo_*): una dock USB-C NOVOO di 142 × 58 × 17,5, con il cavo fisso. Il 20/10/2026
+l'hub definitivo, un NOVOO 9 in 1 di 100 × 44 × 12,5, con il lato dell'alimentazione nel retro (HUB).
 
 Composizione (decisa da Luigi il 15/10/2026): MPK mini IV a sinistra; a destra il macro pad in linea
 con i tasti e, dietro, la Flip aperta. Bozza 5 (18/10/2026): un telaio solo con la cima alla stessa
@@ -103,12 +104,19 @@ PAD_PORTA2_X = 36.0
 # larghezza della presa USB-C e dall'orizzonte all'altezza delle manopole, e le due concordano [O, ±0,7].
 # Le foto del 18/10 davano 11,5: la fascia scura è il doppio di quanto sembrava
 PAD_STRATI = (('fondo', 12.2), ('trasparente', 2.0), ('satinata', 2.0))
-# l'hub di Luigi [O, metro del 19/10/2026, ±1]: una dock USB-C NOVOO, corpo d'alluminio con il lato
-# delle porte nero. Sul lato lungo delle porte: alimentazione, jack, 4 USB-A, USB-C dati; sull'altro
-# lato lungo LAN, VGA, 2 HDMI, DP; su un lato corto SD e microSD; dall'altro esce il cavo fisso,
-# vicino al lato delle porte (HUB_CAVO dal bordo). Vedi CASE-021: una dock non è un hub semplice [V]
-HUB = dict(w=142.0, d=58.0, h=17.5)
-HUB_CAVO = 8.0
+# l'hub definitivo di Luigi (20/10/2026): un hub USB-C NOVOO 9 in 1 (NH09D-155A), alluminio grigio, angoli
+# tondi [O, metro e foto del 20/10, ±1]. Su un lato lungo (A) SD e microSD una sopra l'altra, USB 2.0 e la
+# USB-C di alimentazione (PD); sull'altro (B) USB-C 3.0, due USB 3.0 e una USB 2.0; su una testa l'HDMI,
+# dall'altra esce il cavo fisso, a HUB_CAVO dal lato A. Luigi: «voglio che il lato con la porta tipeC di
+# alimentazione sia esposta al posteriore»: il lato A guarda il retro, e il cavo esce a sinistra
+HUB = dict(w=100.0, d=44.0, h=12.5)
+HUB_CAVO = 17.5
+# le porte del lato A, dalla testa del cavo: (nome, centro, larghezza, z0, z1 sopra il fondo dell'hub) [O, foto, ±1]
+HUB_PORTE_A = (('USB-C di alimentazione', 20.5, 8.8, 3.6, 6.6), ('USB 2.0', 39.8, 13.1, 2.5, 8.3),
+               ('SD', 70.2, 26.6, 7.3, 10.5), ('microSD', 73.0, 12.5, 3.4, 5.2))
+# e del lato B, dalla stessa testa
+HUB_PORTE_B = (('USB-C 3.0', 21.1, 8.9, 3.6, 6.6), ('USB 3.0', 40.9, 13.1, 2.5, 8.3), ('USB 3.0', 61.6, 13.1, 2.5, 8.3),
+               ('USB 2.0', 81.8, 13.1, 2.5, 8.3))
 
 # Controlli della MK4: centro (x dal bordo sinistro, y dal bordo posteriore) [D, foto, rimisurati il
 # 17/10/2026]; tipo: k manopola, p pad, b pulsante, w ruota, d display, e encoder di navigazione
@@ -212,12 +220,15 @@ LINGUETTA = 14.0                  # larghezza delle linguette; le asole hanno GI
 # continua il bordo della culla del pad, e la costola ha lo stesso arco (Luigi, 19/10/2026: «dovrebbe
 # fermarsi prima in modo tale che poi continui la curva dei lati»)
 FRONTE_Z = Z_PIANO - FIANCO_R     # 37
-# hub nel suo fermo, sotto il piano della Flip, contro il retro: le porte guardano il davanti, dove
-# arrivano i cavi di MK4 e pad (fino alla culla del pad restano circa 70 mm per le spine); il cavo
-# fisso esce a destra, sale e torna indietro sopra l'hub fino alla fessura dell'OTG. A sinistra le
-# alette del fermo stanno fra costola e hub; a destra restano 33 mm per la curva del cavo
-HUB_X0 = DESTRA_X0 + 16.5
-HUB_Y0 = APPOGGIO_Y + 4.0
+# hub nel suo fermo, sotto il piano della Flip, con il lato A contro il retro: le sue porte (alimentazione,
+# USB 2.0, SD, microSD) escono dalla finestra del retro, quelle del lato B guardano il davanti, dove arrivano
+# i cavi di MK4 e pad (fino alla culla del pad restano circa 95 mm per le spine). A destra, fra hub e fianco,
+# la sponda del fermo (3 mm), 1 mm d'aria e la squadretta del fianco (12 mm); il cavo fisso esce a sinistra,
+# sotto la fessura dell'OTG, e ci sale con una curva. Il fondo del fermo è alto 4 mm: sotto la finestra il
+# retro resta di 5 mm
+HUB_X0 = DESTRA_X1 - 12.0 - 1.0 - 3.0 - (HUB['w'] + 0.8)    # 450,7
+HUB_Y0 = RETRO_Y - 0.4                                # il lato A tocca il retro da dentro
+HUB_Z0 = BASE_T + 4.0                                 # 10: il fondo dell'hub
 # tasti del macro pad (CASE-043, Luigi 17/10/2026): tasti trasparenti a due strati per Cherry MX,
 # 17 × 17 alla base; sotto il coperchio un'etichetta di carta da 11 × 9 [M, scheda del venditore];
 # il coperchio sta circa 4 mm sopra la piastra, la cima a 15 mm [D]

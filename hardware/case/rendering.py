@@ -1,6 +1,7 @@
 """rendering.py — rendering fotorealistico della console con Blender (Cycles).
 
-Uso: python -I hardware/case/rendering.py [--prova | --bozza | --blend] [--viste eroe,pad,…]   (dopo genera.py e assieme.py)
+Uso: python -I hardware/case/rendering.py [--prova | --bozza | --blend] [--viste eroe,pad,…] [--stampata]
+     (dopo genera.py e assieme.py)
 
 Prepara le texture in build/render/ (incisioni di mascherina, piano della Flip e fianchi dagli SVG, le
 etichette dei tasti del pad, la faccia della Flip raddrizzata dalla foto, lo schermo con la
@@ -9,6 +10,10 @@ blender_scena.py. I PNG escono in build/render/, i JPG per il repo in out/render
 --prova: risoluzione e campioni bassi, per controllare inquadrature e materiali. --viste: solo
 quelle (i nomi sono nelle chiamate a scatta() di blender_scena.py). --bozza: viste veloci con Workbench
 (build/render/bozza_*.png), per le forme; --blend: salva build/render/stame.blend e lo apre in Blender.
+--stampata: la console tutta stampata a più colori (multicolore.py, tre vasche per il piatto da 240) con i
+colori del NES europeo (Luigi, 20/10/2026: «fa anche dei render della versione total 3d printed con riferimenti
+ai colori del NES europeo»): il modello va in build/render/stame_stampata.obj, i JPG in out/render/stampata_*.jpg;
+senza --viste, le otto di VISTE_STAMPATA.
 """
 import json
 import os
@@ -149,21 +154,41 @@ def tasti_pad():
     return out
 
 
+VISTE_STAMPATA = ['eroe', 'pad', 'mascherina', 'frontale', 'retro', 'fianco', 'esploso', 'sera']
+
+
+def stampata():
+    """il modello della console stampata, con gli apparecchi di assieme.py, in un OBJ come stame_console.obj"""
+    import assieme as A
+    import multicolore as MC
+    path = os.path.join(BUILD, 'stame_stampata.obj')
+    A.scrivi_obj(MC.parti_console() + A.apparecchi(), path)
+    return path
+
+
 def main():
     prova = '--prova' in sys.argv
     viste = sys.argv[sys.argv.index('--viste') + 1].split(',') if '--viste' in sys.argv else []
     modo = 'bozza' if '--bozza' in sys.argv else 'blend' if '--blend' in sys.argv else 'cycles'
+    versione = 'stampata' if '--stampata' in sys.argv else 'laser'
     os.makedirs(TEX, exist_ok=True)
     fr = riferimenti()
     inc = {}
-    for nome in ('mascherina', 'piano_flip', 'fianco_sx_esterno', 'fianco_dx_esterno'):
-        inc[nome] = dict(dim=incisione(nome), frame=fr[nome][0])
+    if versione == 'laser':             # la stampata ha le scritte nei pezzi, in un altro filamento
+        for nome in ('mascherina', 'piano_flip', 'fianco_sx_esterno', 'fianco_dx_esterno'):
+            inc[nome] = dict(dim=incisione(nome), frame=fr[nome][0])
     etichette()
     faccia_flip()
     schermo()
+    if versione == 'stampata':
+        obj, prefisso, blend = stampata(), 'stampata_', 'stame_stampata.blend'
+        if modo == 'cycles' and not viste:      # la Flip da vicino e la pianta sono quelle della console del laser
+            viste = VISTE_STAMPATA
+    else:
+        obj, prefisso, blend = os.path.join(OUT, 'stame_console.obj'), 'render_', 'stame.blend'
     scena = dict(
-        obj=os.path.join(OUT, 'stame_console.obj'), tex=TEX, uscita=BUILD, prova=prova, viste=viste, modo=modo,
-        hdr=os.path.join(BUILD, 'studio.hdr'), incisioni=inc,
+        obj=obj, versione=versione, prefisso=prefisso, tex=TEX, uscita=BUILD, prova=prova, viste=viste, modo=modo,
+        hdr=os.path.join(BUILD, 'studio.hdr'), incisioni=inc, blend=os.path.join(BUILD, blend),
         flip=fr['Miyoo Flip'][0], flip_faccia=[[M.FLIP_X - M.FLIP['w'] / 2, -M.FLIP_Y0], [M.FLIP['w'], M.FLIP['d']]],
         schermo=fr['Schermo della Flip'][0], tasti=tasti_pad(),
         tasto_top=M.PAD_Z1 + M.TASTO_PAD['z'] + M.TASTO_PAD['h'], etichetta=list(M.ETICHETTA),
@@ -179,17 +204,17 @@ def main():
     if r.returncode:
         sys.exit(r.returncode)
     if modo == 'blend':                 # Blender con la finestra, sulla scena salvata: la si gira con il mouse
-        subprocess.Popen([BLENDER, os.path.join(BUILD, 'stame.blend')])
+        subprocess.Popen([BLENDER, scena['blend']])
         return
     if modo == 'bozza':
         return
     os.makedirs(os.path.join(OUT, 'render'), exist_ok=True)
     for n in sorted(os.listdir(BUILD)):
-        fatta = not viste or n[len('render_'):-4] in viste
-        if n.startswith('render_') and n.endswith('.png') and not prova and fatta:
-            Image.open(os.path.join(BUILD, n)).convert('RGB').save(
-                os.path.join(OUT, 'render', n[len('render_'):-4] + '.jpg'), quality=92, optimize=True)
-            print('out/render/' + n[len('render_'):-4] + '.jpg')
+        vista = n[len(prefisso):-4]
+        if n.startswith(prefisso) and n.endswith('.png') and not prova and (not viste or vista in viste):
+            jpg = (vista if versione == 'laser' else prefisso + vista) + '.jpg'
+            Image.open(os.path.join(BUILD, n)).convert('RGB').save(os.path.join(OUT, 'render', jpg), quality=92, optimize=True)
+            print('out/render/' + jpg)
 
 
 if __name__ == '__main__':

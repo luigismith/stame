@@ -327,10 +327,22 @@ COSTOLA_LING = (100.0, 205.0)                  # linguette della costola nella b
 FRONTE_LING = (M.DESTRA_X0 + 40.0, M.DESTRA_X1 - 40.0)
 SQUADRETTE_Y = (28.0, 130.0, 230.0)            # squadrette fra base e fianchi (la prima davanti al retro)
 CAVI_Z = 30.0                                  # dietro la MK4 la costola lascia passare i cavi fin qui
-USCITE = {'sx': (280.0,), 'dx': (430.0, 500.0)}   # finestre del retro: pedale; alimentazione e audio
-# cima delle finestre sopra la base: a destra stanno sopra l'hub, che è contro il retro, e i cavi
-# passano fra l'hub e il piano
-USCITE_Z = {'sx': 20.0, 'dx': M.HUB['h'] + 2.0 + 14.0}
+USCITE = {'sx': (280.0,), 'dx': (405.0,)}   # finestre del retro per i cavi: pedale; audio, a sinistra dell'hub
+USCITE_Z = {'sx': 20.0, 'dx': 20.0}           # cima delle finestre sopra la base
+
+
+def finestra_hub():
+    """la finestra del lato A dell'hub nel retro (x0, z0, x1, z1; z sopra la base): le sue porte con il posto per
+    le spine, 1 mm di battuta sopra e sotto; ai lati il retro tiene l'hub, che da dentro lo tocca"""
+    x0, za = M.HUB_X0 + 0.4, M.HUB_Z0 - M.BASE_T
+    return (x0 + 12.0, za + 1.0, x0 + 85.5, za + M.HUB['h'] - 1.0)
+
+
+def sede_hub():
+    """il contorno dell'hub nello strato d'appoggio del retro (x0, z0, x1, z1; z sopra la base): l'hub ci entra
+    fino al retro"""
+    za = M.HUB_Z0 - M.BASE_T
+    return (M.HUB_X0, za, M.HUB_X0 + M.HUB['w'] + 0.8, za + M.HUB['h'] + 0.5)
 
 
 def retro_ling(lato):
@@ -470,7 +482,8 @@ def dima():
 
 def retro(lato):
     """retro: chiude la zona dei cavi e arriva in cima, arretrato fin dove finisce la curva dei fianchi;
-    si incastra nella base con due linguette nelle asole. Le finestre per pedale, alimentazione e audio"""
+    si incastra nella base con due linguette nelle asole. Le finestre per pedale e audio e, a destra, quella
+    delle porte dell'hub (alimentazione, USB 2.0, SD, microSD)"""
     a, b, ling = retro_ling(lato)
     h = RETRO_H
     svg = Svg(f'retro_{lato}', b - a + 2, h + M.BASE_T + 2,
@@ -482,12 +495,16 @@ def retro(lato):
     for cx in USCITE[lato]:
         x, y = P(cx - 14, USCITE_Z[lato])
         svg.rett(x, y, 28, 12, 6)
+    x0, z0, x1, z1 = finestra_hub()
+    if a < x0 and x1 < b:
+        svg.rett(*P(x0, z1), x1 - x0, z1 - z0, 2)
     fr = piano((a - 1, M.RETRO_Y0, M.BASE_T + h + 1), (1.0, 0.0, 0.0), (0.0, 0.0, -1.0))
     return registra(svg, _orienta(fr, (0.0, 1.0, 0.0)), M.PLY, 'betulla4', 2)
 
 
 def appoggio_retro(lato):
-    """strato incollato davanti al retro, più basso: regge il bordo di dietro del piano (feltro)"""
+    """strato incollato davanti al retro, più basso: regge il bordo di dietro del piano (feltro); a destra la sede
+    dell'hub, che ci entra fino al retro"""
     a, b, _ = retro_ling(lato)
     h = M.Z_APPOGGIO - M.BASE_T
     svg = Svg(f'appoggio_retro_{lato}', b - a + 2, h + 2,
@@ -498,6 +515,9 @@ def appoggio_retro(lato):
     for cx in USCITE[lato]:
         x, y = P(cx - 14, USCITE_Z[lato])
         svg.rett(x, y, 28, 12, 6)
+    x0, z0, x1, z1 = sede_hub()
+    if a < x0 and x1 < b:
+        svg.rett(*P(x0, z1), x1 - x0, z1 - z0, 1)
     fr = piano((a - 1, M.RETRO_Y, M.BASE_T + h + 1), (1.0, 0.0, 0.0), (0.0, 0.0, -1.0))
     return registra(svg, _orienta(fr, (0.0, 1.0, 0.0)), M.PLY, 'betulla4', 2)
 
@@ -639,9 +659,9 @@ def base(lato):
         if a < M.GIUNTA_PIANO < b:
             asola(svg, *P(M.GIUNTA_PIANO, yc), 2 * M.PLY, M.LINGUETTA)
     # viti del fermo dell'hub
-    for x in (M.HUB_X0 - 10.0, M.HUB_X0 + M.HUB['w'] + 0.8 + 10.0):
+    for x, y in fermo_viti():
         if a < x < b:
-            svg.cerchio(*P(x, M.HUB_Y0 + (M.HUB['d'] + 0.8) / 2), 1.25)
+            svg.cerchio(*P(x, y), 1.25)
     # la vite della colonnina, da sotto
     if a < COLONNINA[0] < b:
         svg.cerchio(*P(*COLONNINA), 1.7)
@@ -933,7 +953,7 @@ def tavola():
     svg.poligono([S(M.PAD_Y0, M.PAD_Z0), S(M.PAD_Y1, M.PAD_Z0), S(M.PAD_Y1, M.PAD_Z1), S(M.PAD_Y0, M.PAD_Z1)], 'taglio')
     zt = M.PAD_Z1 + M.TASTO_PAD['z'] + M.TASTO_PAD['h']
     svg.poligono([S(M.PAD_Y0 + 5, M.PAD_Z1), S(M.PAD_Y1 - 5, M.PAD_Z1), S(M.PAD_Y1 - 5, zt), S(M.PAD_Y0 + 5, zt)], 'segno')
-    zh0, zh1 = M.BASE_T + 2.0, M.BASE_T + 2.0 + M.HUB['h']             # l'hub sul fondo del fermo
+    zh0, zh1 = M.HUB_Z0, M.HUB_Z0 + M.HUB['h']                         # l'hub sul fondo del fermo
     svg.poligono([S(M.HUB_Y0, zh0), S(M.HUB_Y0 + M.HUB['d'], zh0), S(M.HUB_Y0 + M.HUB['d'], zh1), S(M.HUB_Y0, zh1)], 'segno')
     sotto, sopra, vis = flip_aperta()
     svg.poligono([S(*p) for p in sotto], 'taglio')
@@ -1150,18 +1170,30 @@ def squadrette_frames():
     return out
 
 
+def fermo_viti():
+    """le due viti del fermo dell'hub nella base: a sinistra dell'hub e davanti a destra (a destra c'è la
+    squadretta del fianco)"""
+    w, d = M.HUB['w'] + 0.8, M.HUB['d'] + 0.8
+    return [(M.HUB_X0 - 8.5, M.HUB_Y0 + d / 2), (M.HUB_X0 + w - 8.0, M.HUB_Y0 + d + 8.0)]
+
+
 def fermo_hub():
-    """vassoio dell'hub: dietro e a sinistra la sponda sale a 0,6 dell'hub; davanti, dove sono le
-    porte, e a destra, dove esce il cavo, resta un bordino di 3 mm sotto le prese"""
+    """vassoio dell'hub: il fondo alto 4 mm comincia davanti allo strato d'appoggio del retro, dove l'hub entra fino
+    al retro e poggia sullo strato. A destra la sponda sale a 0,6 dell'hub; a sinistra, sotto il cavo, un bordino di
+    2 mm; davanti due denti agli angoli, fuori dalle porte del lato B e dalle loro spine. Le alette delle viti
+    toccano il fondo"""
     ms = Mesh('Stame fermo dell\'hub')
     w, d, h = M.HUB['w'] + 0.8, M.HUB['d'] + 0.8, M.HUB['h']
+    zf = M.HUB_Z0 - M.BASE_T
+    y0 = M.APPOGGIO_Y + 0.2 - M.HUB_Y0
     fr = sposta(M.HUB_X0, M.HUB_Y0, M.BASE_T)
-    ms.prisma(rett(-3, -3, w + 3, d + 3, 2), 0, 2.0, frame=fr)
-    ms.prisma(rett(-3, -3, w + 3, d + 3, 2), 2.0, 5.0, holes=[rett(0, 0, w, d, 1)], frame=fr)
-    ms.prisma(rett(-3, -3, w + 3, 0, 0.5), 5.0, h * 0.6, frame=fr)
-    ms.prisma(rett(-3, 0, 0, d + 3, 0.5), 5.0, h * 0.6, frame=fr)
-    for x in (-10, w + 10):
-        ms.prisma(rett(x - 6, d / 2 - 6, x + 6, d / 2 + 6, 3), 0, 2.0, holes=[cerchio(x, d / 2, 1.25, 16)], frame=fr)
+    ms.prisma(rett(-3, y0, w + 3, d + 3, 2), 0, zf, frame=fr)
+    ms.prisma(rett(-3, y0, 0, d + 3, 0.5), zf, zf + 2.0, frame=fr)
+    ms.prisma(rett(w, y0, w + 3, d + 3, 0.5), zf, zf + h * 0.6, frame=fr)
+    for xa, xb in ((-3, 11.0), (w - 7.0, w + 3)):
+        ms.prisma(rett(xa, d, xb, d + 3, 0.5), zf, zf + h * 0.6, frame=fr)
+    for x, y in fermo_viti():
+        ms.prisma(rett(x - 6, y - 6, x + 6, y + 6, 3), M.BASE_T, M.BASE_T + 2.0, holes=[cerchio(x, y, 1.25, 16)])
     return ms
 
 
