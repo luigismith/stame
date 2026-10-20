@@ -23,11 +23,13 @@ python -I hardware/case/assieme.py     modello 3D (OBJ), dati per SketchUp, tavo
 python -I hardware/case/stampa3d.py    la console tutta stampata a vasche, per chi non ha il laser (out/stampa3d/)
 python -I hardware/case/multicolore.py la stessa, per stampanti a più filamenti: le scritte le fa la stampa (out/stampa3d_multicolore/)
                                        (--nes nei colori del NES, con i tre PETG di Luigi: out/stampa3d_nes/)
+python -I hardware/case/progetto.py    il lavoro per Anycubic Slicer Next, Kobra S1: stampa3d_nes/stame_kobra_s1.3mf
 python -I hardware/case/manuale.py     PDF: progetti di taglio, istruzioni di montaggio, istruzioni della versione stampata
                                        (--stampa3d solo le due console stampate)
 python -I hardware/case/sketchup.py    codice per costruire il modello in SketchUp (out/sketchup/)
 python -I hardware/case/etichette.py   etichette dei tasti trasparenti del pad (A4, SVG e PDF)
 python -I hardware/case/rendering.py   rendering con Blender 5.2, Cycles sulla CPU, dieci viste (out/render/)
+                                       (--stampata la console stampata nei PETG di Luigi, otto viste)
 ```
 
 Attenzione: il 18/10/2026, su HOMEPC, `rendering.py` in qualità piena con Cycles sulla GPU (OptiX) ha mandato il PC in schermata blu due volte (0xEF). Dal 19/10/2026 Cycles lavora sulla CPU, e i rendering in `out/render/` sono stati rifatti così sul PC di lavoro (circa un'ora e mezza per le dieci viste); su HOMEPC non si rilancia senza l'ok di Luigi.
@@ -38,7 +40,7 @@ Il riferimento del case (x a destra, y verso il musicista, z in su) è sinistror
 
 `manuale.py` usa la suite ArtCraft: VectorCraft converte le pagine SVG in PDF vettoriali, PdfCraft le unisce. Il modello SketchUp si costruisce con lo strumento SketchUp (nel cloud), eseguendo nell'ordine i file `out/sketchup/parte_N.py` (da 0 in su) e `scene.py`, poi salvandolo. Ha un livello e una scena per ogni passo del montaggio.
 
-`rendering.py` prepara le texture in `build/render/` (incisioni dagli SVG, etichette, la faccia della Flip raddrizzata dalla foto o, se la foto manca, disegnata, la plancia sullo schermo nei temi Giorno e Notte) e lancia `blender_scena.py` in Blender: betulla con i bordi bruciati dal laser, acrilico nero satinato con le incisioni, PETG con gli strati, alluminio, tasti trasparenti con l'etichetta dentro, la MK4 con le guance grigie e il bordo rosso del pannello, il pad a strati, l'hub. Il fondale da studio è curvo e gira con la camera. Le viste: eroe, pad, mascherina, frontale, alto, retro, fianco, schermo, esploso (i pezzi nell'ordine del montaggio) e sera (tema Notte, fondale scuro). La luce da studio è `studio_small_09_2k.hdr` di Poly Haven (CC0), da scaricare in `build/render/studio.hdr`. `--prova` fa una passata veloce (tre minuti per tutte), `--viste eroe,pad` solo quelle. `tools/sito_case.py` porta render, tavole e fogli nel sito (`docs/case.html`).
+`rendering.py` prepara le texture in `build/render/` (incisioni dagli SVG, etichette, la faccia della Flip raddrizzata dalla foto o, se la foto manca, disegnata, la plancia sullo schermo nei temi Giorno e Notte) e lancia `blender_scena.py` in Blender: betulla con i bordi bruciati dal laser, acrilico nero satinato con le incisioni, PETG con gli strati, alluminio, tasti trasparenti con l'etichetta dentro, la MK4 con le guance grigie e il bordo rosso del pannello, il pad a strati, l'hub. Il fondale da studio è curvo e gira con la camera. Le viste: eroe, pad, mascherina, frontale, alto, retro, fianco, schermo, esploso (i pezzi nell'ordine del montaggio) e sera (tema Notte, fondale scuro). La luce da studio è `studio_small_09_2k.hdr` di Poly Haven (CC0), da scaricare in `build/render/studio.hdr`. `--prova` fa una passata veloce (tre minuti per tutte), `--viste eroe,pad` solo quelle. `--stampata` fa la console tutta stampata a più colori (le tre vasche di `multicolore.py`) nei tre PETG Anycubic di Luigi, con un richiamo al NES europeo (20/10/2026): vasche crema con la fascia grigia fino a 8 mm (un cambio di filamento a quello strato), piani, culla della Flip e visiera in grigio traslucido, scritte rosse (`FILAMENTI` in `blender_scena.py`); otto viste, in `out/render/stampata_*.jpg`. `tools/sito_case.py` porta render, tavole e fogli nel sito (`docs/case.html`).
 
 ## Cosa esce in `out/`
 
@@ -52,7 +54,7 @@ Il riferimento del case (x a destra, y verso il musicista, z in su) è sinistror
 | `stame_console.skp` | il modello SketchUp, con le scene dei passi |
 | `stame_console.obj`, `.mtl` | lo stesso modello per altri programmi, in millimetri |
 | `montaggio/*.png` | le tavole dei passi e due viste della console |
-| `render/*.jpg` | i dieci rendering (vedi sopra) |
+| `render/*.jpg` | i dieci rendering della console laser e gli otto della stampata, `stampata_*.jpg` (vedi sopra) |
 | `etichette_pad.pdf`, `.svg` | le etichette dei tasti del pad, A4 al 100 % |
 | `dima_mascherina.svg`, `tavola_insieme.svg` | dima da stampare su carta, tavola dall'alto e di fianco |
 | `stampa3d/` | la console tutta stampata: vedi sotto |
@@ -93,7 +95,7 @@ Per una stampante a più filamenti (Luigi ha una Anycubic Kobra S1 con l'ACE Pro
 - Due filamenti: 1 nero, 2 sabbia. I piani sono neri con le scritte sabbia, le vasche color telaio con le scritte nere.
 - Ogni pezzo con le scritte esce in un `.3mf` (un oggetto con le parti «corpo» e «scritte», i filamenti già assegnati) e in due STL allineati, `_corpo` e `_scritte`, da importare insieme come un oggetto solo. Gli altri pezzi sono STL di un colore.
 - `pezzi.md` dice come caricarli in Anycubic Slicer Next; `anteprima_*.png` mostra ogni faccia come la si guarda; `istruzioni_multicolore.pdf` (tre pagine A4, `manuale.py --multicolore`) raccoglie pezzi, filamenti, slicer e anteprime da stampare.
-- **Nei colori del NES** (Luigi, 20/10/2026: «mi fai una in modalità multicolor con i colori NES? cartella con i pezzi da stampare sulla mia kobra s1»): `multicolore.py --nes` scrive `out/stampa3d_nes/`, gli stessi pezzi per la Kobra S1 nei tre PETG Anycubic di Luigi, 1 grigio traslucido, 2 crema, 3 rosso. Piani, culla della Flip e visiera grigi, vasche crema, scritte rosse; le vasche hanno in più la fascia grigia dei primi 8 mm, sotto le scritte dei fianchi, che nel `.3mf` è una terza parte (`_fascia`) con il suo filamento: nello slicer non c'è niente da impostare. Come nei rendering `stampata_*.jpg`.
+- **Nei colori del NES** (Luigi, 20/10/2026: «mi fai una in modalità multicolor con i colori NES? cartella con i pezzi da stampare sulla mia kobra s1»): `multicolore.py --nes` scrive `out/stampa3d_nes/`, gli stessi pezzi per la Kobra S1 nei tre PETG Anycubic di Luigi, 1 grigio traslucido, 2 crema, 3 rosso. Piani, culla della Flip e visiera grigi, vasche crema, scritte rosse; le vasche hanno in più la fascia grigia dei primi 8 mm, sotto le scritte dei fianchi, che nel `.3mf` è una terza parte (`_fascia`) con il suo filamento: nello slicer non c'è niente da impostare. Come nei rendering `stampata_*.jpg`. `progetto.py` (lo rifà anche `multicolore.py --nes`) ne fa il lavoro per Anycubic Slicer Next: `stame_kobra_s1.3mf`, sei piatti con i pezzi già messi, la torre di spurgo, i tre filamenti e le impostazioni di `pezzi.md`; stampante e profilo vengono da un progetto salvato da Luigi (`kobra_s1.json`). Affettato dalla riga di comando dello slicer (2.0.0.3) il 20/10/2026: tutti e sei i piatti, circa 52 ore in modo normale, 641 g di grigio, 430 di crema e 41 di rosso, più lo spurgo.
 
 ## Prima di tagliare
 

@@ -654,6 +654,9 @@ def genera(piatto=None, schema='due'):
                       parti=[('', da_solo('telaio'))]))
     totale = sum(r['grammi'] for r in righe)
     scrivi_elenco(righe, totale, piatto, report, viti)
+    if SCHEMA == 'nes':                      # il lavoro per Anycubic Slicer Next, sui pezzi appena scritti
+        import progetto
+        progetto.scrivi(righe)
     return righe, totale, report, viti
 
 
@@ -729,8 +732,17 @@ def scrivi_elenco(righe, totale, piatto, report, viti):
           '5. Il resto come la console stampata a un colore: 3 perimetri, 4 strati pieni, riempimento al 20 %, senza '
           'supporti (solo la visiera, che si stampa sul tettuccio, li vuole sotto i piedi). Il primo strato deve essere '
           'perfetto: piatto pulito, '
-          'livellamento fatto. Prima delle vasche, `prova_giunta.stl`.', '',
-          '## Le scritte', '',
+          'livellamento fatto. Prima delle vasche, `prova_giunta.stl`.', '']
+    if sc['fascia']:
+        import progetto
+        piatti = '; '.join(f'{k} {t}' for k, (t, _, _) in enumerate(progetto.PIATTI, 1))
+        L += ['## Il lavoro già pronto', '',
+              '`stame_kobra_s1.3mf` è un progetto di Anycubic Slicer Next per la Kobra S1 (`progetto.py`): tutti i pezzi '
+              'tranne la prova di giunta, su sei piatti, con le parti e i filamenti già assegnati, la torre di spurgo dove '
+              'non tocca niente, 3 perimetri, 4 strati pieni, giroide al 20 % e i supporti solo sotto i piedi della visiera. '
+              'Si apre (File › Apri progetto), si affetta un piatto alla volta e, mandandolo alla stampante, si abbinano i '
+              f'tre filamenti agli slot dell\'ACE Pro. I piatti: {piatti}.', '']
+    L += ['## Le scritte', '',
           'Le incisioni del laser sono troppo fini per un ugello da 0,4: qui le scritte sono ridisegnate con Matrice, il '
           'carattere 5×7 di Stame, a quadretti da 0,45 mm (lettere alte 3,15 mm) o da 0,40 dove non c\'è posto. Logo e punti '
           'del nome restano quelli del laser. Sulla mascherina fra le due file di pad ci sono 2,8 mm: i tipi d\'accordo e i '

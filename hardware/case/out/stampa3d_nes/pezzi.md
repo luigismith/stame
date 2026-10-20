@@ -24,6 +24,10 @@ Filamento: circa 1,0 kg in tutto, quasi tutto del colore del corpo. Viti delle g
 4. Strati da 0,2 e primo strato da 0,2: nei piani le scritte sono profonde 0,6 mm, cioè i primi tre strati. Nelle vasche il fianco è verticale e le scritte sono profonde 0,6 mm nella faccia di fuori: il filamento cambia in ogni strato fra il basso del marchio e la cima del nome, circa 127 strati per vasca. Torre di spurgo sì; spurgo nel riempimento se lo slicer lo offre. Se i cambi sono troppi, le vasche di `../stampa3d/` hanno il marchio in rilievo, di un colore.
 5. Il resto come la console stampata a un colore: 3 perimetri, 4 strati pieni, riempimento al 20 %, senza supporti (solo la visiera, che si stampa sul tettuccio, li vuole sotto i piedi). Il primo strato deve essere perfetto: piatto pulito, livellamento fatto. Prima delle vasche, `prova_giunta.stl`.
 
+## Il lavoro già pronto
+
+`stame_kobra_s1.3mf` è un progetto di Anycubic Slicer Next per la Kobra S1 (`progetto.py`): tutti i pezzi tranne la prova di giunta, su sei piatti, con le parti e i filamenti già assegnati, la torre di spurgo dove non tocca niente, 3 perimetri, 4 strati pieni, giroide al 20 % e i supporti solo sotto i piedi della visiera. Si apre (File › Apri progetto), si affetta un piatto alla volta e, mandandolo alla stampante, si abbinano i tre filamenti agli slot dell'ACE Pro. I piatti: 1 vasca sinistra; 2 vasca di centro; 3 vasca destra; 4 mascherina sinistra e culla della Flip; 5 mascherina destra e visiera; 6 piano della Flip.
+
 ## Le scritte
 
 Le incisioni del laser sono troppo fini per un ugello da 0,4: qui le scritte sono ridisegnate con Matrice, il carattere 5×7 di Stame, a quadretti da 0,45 mm (lettere alte 3,15 mm) o da 0,40 dove non c'è posto. Logo e punti del nome restano quelli del laser. Sulla mascherina fra le due file di pad ci sono 2,8 mm: i tipi d'accordo e i piatti del banco B vanno sotto i pad, con l'estensione e il tamburo della stessa colonna, alto/basso come i pad: «DIM/6» è DIM sul pad di sopra e 6 su quello di sotto, «B:CHH/KICK» il charleston sopra e la cassa sotto. Le anteprime `anteprima_*.png` mostrano ogni faccia come la si guarda.
