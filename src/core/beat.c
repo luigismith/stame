@@ -153,6 +153,17 @@ static const beat_def_t BEATS[BEAT_COUNT] STAME_ROM = {
     { "Syndrum", KIT_SYN(DK_KIT_SYNDRUM_DISCO), { { DRUM_KICK, "X...X...X...X..." }, { DRUM_SNARE, "....X.......X..." },
         { DRUM_OPEN_HAT, "..X...X...X...X." }, { DRUM_CLOSED_HAT, "x...x...x...x..." }, { DRUM_CONGA, ".......x........" },
         { DRUM_TOM_HI, "...............x" } } },
+    /* 22/10/2026, Luigi: «suoni per fare PSYtrance e trance» (ACC-218): i kit della trance e della psy */
+    { "Trance", KIT_SYN(DK_KIT_TRANCE_ARENA), { { DRUM_KICK, "X...X...X...X..." }, { DRUM_CLAP, "....X.......X..." },
+        { DRUM_OPEN_HAT, "..X...X...X...X." }, { DRUM_CLOSED_HAT, "x..xx..xx..xx..x" }, { DRUM_MARACAS, ".x.x.x.x.x.x.x.x" } } },
+    { "Psytrance", KIT_SYN(DK_KIT_PSY_FOREST), { { DRUM_KICK, "X...X...X...X..." }, { DRUM_OPEN_HAT, "..X...X...X...X." },
+        { DRUM_CLOSED_HAT, "xx.xxx.xxx.xxx.x" }, { DRUM_CLAP, "....x.......x..." }, { DRUM_CONGA, ".......x.....x.." } } },
+    { "Goa", KIT_SYN(DK_KIT_GOA_TEMPLE), { { DRUM_KICK, "X...X...X...X..." }, { DRUM_SNARE, "....X.......X..." },
+        { DRUM_OPEN_HAT, "..X...X...X...X." }, { DRUM_CLOSED_HAT, "xx.xxx.xxx.xxx.x" }, { DRUM_CONGA, "......x.......x." },
+        { DRUM_COWBELL, "...........x...." } } },
+    { "Progressive", KIT_SYN(DK_KIT_TRANCE_ARENA), { { DRUM_KICK, "X...X...X...X..." }, { DRUM_CLAP, "....x.......x..." },
+        { DRUM_CLOSED_HAT, "xx.xxx.xxx.xxx.x" }, { DRUM_OPEN_HAT, "..x...x...x...x." }, { DRUM_RIMSHOT, "......x.....x..x" },
+        { DRUM_CONGA, ".x.......x......" } } },
 };
 
 /* i fill (MIDI-133, 16/10/2026): una battuta di riempimento per Beat, nello stesso kit, che suona finché
@@ -280,6 +291,15 @@ static const beat_fill_t FILLS[BEAT_COUNT] STAME_ROM = {
         { DRUM_RIMSHOT, "....x.......x..." }, { DRUM_TOM_HI, "..........x...x." }, { DRUM_TOM_LO, "...........x.x.x" } } },
     { { { DRUM_KICK, "X...X...X...X..." }, { DRUM_SNARE, "....X.......X..." }, { DRUM_OPEN_HAT, "..X...X...X....." },
         { DRUM_TOM_HI, "........x.x.x.x." }, { DRUM_CONGA, ".........x.x.x.x" }, { DRUM_TOM_LO, "............X..X" } } },
+    /* trance e psy (22/10/2026): la cassa non si ferma, il battimani o i tom rullano, la psy chiude con i blip */
+    { { { DRUM_KICK, "X...X...X...X..." }, { DRUM_CLAP, "....X...X.X.XXXX" }, { DRUM_OPEN_HAT, "..X...X...X....." },
+        { DRUM_CLOSED_HAT, "x..xx..xx..x...." }, { DRUM_CYMBAL, "...............X" } } },
+    { { { DRUM_KICK, "X...X...X...X..." }, { DRUM_OPEN_HAT, "..X...X...X....." }, { DRUM_TOM_HI, "........x.x.x.x." },
+        { DRUM_TOM_LO, ".........x.x.x.x" }, { DRUM_CONGA, "..x...x.xxxxxxxx" } } },
+    { { { DRUM_KICK, "X...X...X...X.X." }, { DRUM_SNARE, "....X...X.X.XXXX" }, { DRUM_OPEN_HAT, "..X...X...X....." },
+        { DRUM_CONGA, "......x...x.xxxx" }, { DRUM_COWBELL, "x.......x.x.x.x." } } },
+    { { { DRUM_KICK, "X...X...X...X..." }, { DRUM_CLAP, "....x...x.x.xxXX" }, { DRUM_RIMSHOT, "......x.x.xxxxxx" },
+        { DRUM_OPEN_HAT, "..x...x...x....." }, { DRUM_CLOSED_HAT, "xx.xxx.xxx......" } } },
 };
 
 static int line_hits(const beat_line_t *lines, int s, beat_hit_t *out, int max)

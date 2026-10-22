@@ -703,7 +703,7 @@ layers:
 
 - **MIDI-135** — **La drum machine dal vivo** [D, **decisa da Luigi il 16/10/2026**: «la drum machine deve avere la stessa "filosofia" dell'originale... premo tasti, muovo manopole e creo loop di batteria in tempo reale», niente sequencer a passi; scelte con le domande a scelta multipla: pad del banco B, kit/Roll/Accent, Swing, FX sulla batteria]. Si suona e si registra nel looper come gli accordi (ACC-211); sotto **DRUMS** (T11) gli stessi encoder cambiano mestiere, come con il Lock, e le celle della pagina dei comandi lo scrivono (`30` UI-152):
   - **pad del banco B della MK4**: otto colpi con la velocity, sempre, anche senza DRUMS (`PNL_MACRO(MACRO_DRUM_HIT, strumento << 8 | velocity)`, velocity 0 al rilascio); fila bassa cassa, rullante, rimshot, battimani, fila alta charleston chiuso e aperto, tom basso, piatto, nell'ordine degli strumenti di `drums.h` (ACC-212);
-  - **K1 = Kit** (cella «KIT»): 0 = il kit del Beat scelto, poi Studio, Jazz, 808, Techno, Chip e, dal 19/10/2026, i 35 kit della libreria sintetizzata, 6…40 (`mot_kit`, `20` SND-541; la lista è MIDI-141); vale per i tasti, i pad e il Beat;
+  - **K1 = Kit** (cella «KIT»): 0 = il kit del Beat scelto, poi Studio, Jazz, 808, Techno, Chip e, dal 19/10/2026, i 35 kit della libreria sintetizzata, 6…40, e dal 22/10/2026 i tre della trance e della psy, 41…43 (`mot_kit`, `20` SND-541; la lista è MIDI-141); vale per i tasti, i pad e il Beat;
   - **K2 = Roll** (cella «ROLL»): un tasto o un pad **tenuto** si ripete sulla griglia del loop (o del trasporto) con la suddivisione scelta: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32 (`mot_roll`, in tick: 96, 48, 32, 24, 16, 12). Il colpo della mano suona subito; la ripetizione salta il punto di griglia che cade a meno di mezza suddivisione dal colpo; ogni ripetizione entra nel loop al suo tick esatto. È lo Strum della batteria;
   - **K5 = Accent** (cella «ACCENT», 0…10, default 10): quanto conta la velocity: `v = 100 + (velocity − 100) × Accent / 10`, quindi 0 = colpi tutti uguali a 100, 10 = la dinamica com'è. Vale per tasti e pad;
   - **K3 = Drive** (cella «DRIVE», 0…10, default 0): la saturazione del bus della batteria; **premuta e girata = Filtro** (cella «FILTER» mentre si gira premuta; −10…+10: a sinistra passa-basso fino a 150 Hz, a destra passa-alto fino a 3 kHz, 0 spento). Nella cella il valore che non si sta girando va nel dettaglio («Filter LP 4», «Drive 06»). È l'FX del bus di `20` SND-538, fatto il 19/10/2026: i clic del metronomo non ci passano;
@@ -751,7 +751,7 @@ layers:
 | Manopola | Girata | Premuta |
 |---|---|---|
 | **M** | **Densità** 0…10 della parte scelta, o di tutto: 0 tace, 1 è lo scheletro dello stile, 10 suona tutto | **Play / Stop** del loop (come la pressione di BPM) |
-| **m1** | **Stile** (Groove): Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial e, dal 19/10/2026, House, Garage, Jungle, DnB, Dubstep, Trap, Synthwave, Synthpop, Lo-Fi, Trip Hop, Chiptune, Glitch, EBM, Afrobeat, Tabla, Salsa, Reggaeton, Jazz, Arena, Preset (`10` ACC-215, MIDI-141) | **Parte** che M regola: tutto, cassa, rullante, charleston, aperto, percussioni |
+| **m1** | **Stile** (Groove): Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial e, dal 19/10/2026, House, Garage, Jungle, DnB, Dubstep, Trap, Synthwave, Synthpop, Lo-Fi, Trip Hop, Chiptune, Glitch, EBM, Afrobeat, Tabla, Salsa, Reggaeton, Jazz, Arena, Preset e, dal 22/10/2026, Trance, Psytrance, Goa, Progressive (`10` ACC-215, MIDI-141) | **Parte** che M regola: tutto, cassa, rullante, charleston, aperto, percussioni |
 | **m2** | **Variazione** 0…99: 0 è lo stile com'è, ogni scatto un'idea nuova, tornando indietro si ritrova quella di prima | **Idea nuova**: una variazione a caso, ripetibile (`MACRO_KNOB_CLICK`) |
 
   Regole:
@@ -768,10 +768,10 @@ layers:
   - Beat e loop vanno avanti in silenzio: al rientro sono al loro posto. Le voci del basso continuano, quindi una nota tenuta ricompare al rientro (`20` SND-539);
   - la testata scrive «DROP» finché T13 è tenuto (`30` UI-126); sul case l'etichetta di T13 è DROP, in negativo come gli altri stati (`60` CASE-043). T13 sta nella quinta colonna, quella degli stati di Stame.
 
-- **MIDI-141** — **La libreria dei kit e degli stili** [D, **chiesta da Luigi il 19/10/2026**: «voglio anche una libreria enorme di batterie»]. Quaranta kit (`20` SND-541), sessanta Beat (`10` ACC-218) e trenta stili della batteria che si inventa (`10` ACC-215), scelti con i comandi che c'erano, senza tasti nuovi:
-  - **K1 girata** sotto DRUMS scorre i 41 valori del kit (0 = quello del Beat, poi 1…40); la banda scrive numero, nome e stile («Kit 06 808 Boom», «Synth, analog»);
+- **MIDI-141** — **La libreria dei kit e degli stili** [D, **chiesta da Luigi il 19/10/2026**: «voglio anche una libreria enorme di batterie»]. Quaranta kit (`20` SND-541), sessanta Beat (`10` ACC-218) e trenta stili della batteria che si inventa (`10` ACC-215), scelti con i comandi che c'erano, senza tasti nuovi; dal 22/10/2026 (Luigi: «suoni per fare PSYtrance e trance») quarantatré kit, sessantaquattro Beat e trentaquattro stili:
+  - **K1 girata** sotto DRUMS scorre i 44 valori del kit (0 = quello del Beat, poi 1…43); la banda scrive numero, nome e stile («Kit 06 808 Boom», «Synth, analog»);
   - **K1 premuta** (SHIFT + K1 della MK4; A della Flip sulla cella KIT) sotto DRUMS apre la **lista dei kit** (`30` UI-177) al posto di quella dei suoni: la manopola di navigazione (o K1) scorre, premuta sceglie; il kit vale subito, anche per il Beat che suona, e la lista resta aperta per provarne un altro. Fuori da DRUMS SHIFT + K1 resta la lista dei suoni;
-  - **m1 girata** sotto DRUMS scorre i trenta stili (MIDI-139); **BPM tenuto** apre la lista dei Beat, che ora scrive accanto a ogni Beat il suo kit;
+  - **m1 girata** sotto DRUMS scorre i trentaquattro stili (MIDI-139); **BPM tenuto** apre la lista dei Beat, che ora scrive accanto a ogni Beat il suo kit;
   - il kit scelto è uno stato già in vista (la cella KIT, la banda); resta quando DRUMS si spegne, come prima. La demo azzera il kit all'inizio e lo rimette alla fine (MIDI-135).
 
 ---

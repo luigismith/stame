@@ -196,6 +196,33 @@ static const groove_def_t GROOVES[INV_GROOVES] STAME_ROM = {
         "7575757575757575",
         "0000000000000060",
         "0030000300300003" } },
+    /* 22/10/2026, Luigi: «suoni per fare PSYtrance e trance». Cassa in quattro e l'aperto in levare; nella
+     * psy il battimani è leggero e i sedicesimi fra una cassa e l'altra li lascia al basso che rotola */
+    /*                                                       0123456789abcdef */
+    { "Trance", KIT_SYN(DK_KIT_TRANCE_ARENA), DRUM_CLAP, { DRUM_MARACAS, DRUM_RIMSHOT, DRUM_CYMBAL },
+      { "9000900090009000",
+        "0000900000009002",
+        "6006600660066006",                                  /* il chiuso sul battito e sull'ultimo sedicesimo */
+        "0090009000900090",
+        "3434343434343434" } },                              /* lo shaker che corre */
+    { "Psytrance", KIT_SYN(DK_KIT_PSY_FOREST), DRUM_CLAP, { DRUM_CONGA, DRUM_COWBELL, DRUM_TOM_HI },
+      { "9000900090009000",
+        "0000500000005003",
+        "5450545054505450",
+        "0080008000800080",
+        "0003000200030020" } },                              /* i blip FM fra un battito e l'altro */
+    { "Goa", KIT_SYN(DK_KIT_GOA_TEMPLE), DRUM_SNARE, { DRUM_CONGA, DRUM_COWBELL, DRUM_RIMSHOT },
+      { "9000900090009003",
+        "0000700000007003",
+        "5454545454545454",
+        "0070007000700070",
+        "0002003000020030" } },                              /* il tamburo e la campanella del tempio */
+    { "Progressive", KIT_SYN(DK_KIT_TRANCE_ARENA), DRUM_CLAP, { DRUM_RIMSHOT, DRUM_CONGA, DRUM_MARACAS },
+      { "9000900090009000",
+        "0000800000008000",
+        "5363536353635363",
+        "0060006000600060",
+        "0002000200020302" } },
 };
 
 /* quanto la variazione può spostare ogni parte, in quarti: cassa e rullante tengono lo stile, le
@@ -288,11 +315,13 @@ int inv_groove_of_beat(int beat)
      * Deep House, Tech House, Garage, Breakbeat, Jungle, Drum & Bass, Dubstep, Footwork, Robot, Synthwave,
      * Italo, Lo-Fi, Trip Hop, Ambient Pulse, Chiptune, Arcade, Glitch, IDM, EBM, Factory, Rave, Rock, Swing
      * Jazz, Brush Ballad, Afrobeat, Djembe, Teental, Rhythm Box, Gamelan, Salsa, Cumbia, Reggaeton, Dancehall,
-     * Taiko, Maqsum, Flamenco, Unplugged, Sci-Fi, Steppers, Syndrum (beat.c) */
+     * Taiko, Maqsum, Flamenco, Unplugged, Sci-Fi, Steppers, Syndrum; Trance, Psytrance, Goa, Progressive
+     * del 22/10/2026 (beat.c) */
     static const uint8_t G[BEAT_COUNT] = {
         1, 2, 6, 0, 6, 1, 4, 3, 0, 6, 1, 1, 7, 0, 5, 8, 9, 0, 7, 4,
         10, 10, 0, 11, 3, 12, 13, 14, 15, 7, 16, 17, 18, 19, 19, 20, 20, 21, 21, 22, 9,
-        0, 28, 27, 27, 23, 23, 24, 29, 24, 25, 25, 26, 26, 23, 24, 25, 1, 7, 5, 17 };
+        0, 28, 27, 27, 23, 23, 24, 29, 24, 25, 25, 26, 26, 23, 24, 25, 1, 7, 5, 17,
+        30, 31, 32, 33 };
     return beat >= 0 && beat < BEAT_COUNT ? G[beat] : 0;
 }
 

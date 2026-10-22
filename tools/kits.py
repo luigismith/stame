@@ -97,7 +97,7 @@ def kit(nome, stile, **strumenti):
     return (nome, stile, [strumenti[i] for i in INST])
 
 
-# ---- la libreria: 35 kit dopo i cinque di sempre (Studio, Jazz, 808, Techno a campioni, Chip) ----
+# ---- la libreria: 38 kit dopo i cinque di sempre (Studio, Jazz, 808, Techno a campioni, Chip) ----
 KITS = [
     # drum machine analogiche
     kit('808 Boom', 'analog',
@@ -561,6 +561,47 @@ KITS = [
         conga=fm(300, r2=2.0, l2=0.3, ta=0.4),
         cowbell=fm(660, r2=2.76, l2=0.5, ta=1.2),
         cymbal=cymbal(420, metal=CYMB, fc=3000, ta=2.0, tone=0.3, noise=1.0, tn=1.0, att=1.0, dur=3.0)),
+    # trance e psytrance (22/10/2026, Luigi: «suoni per fare PSYtrance e trance»): la cassa corta della psy,
+    # che lascia il posto al basso che rotola, quella della Goa con il 909 spinto e quella lunga della trance
+    kit('Psy Forest', 'psytrance',
+        kick=kick(48, pa=5.0, tp=0.010, ta=0.075, click=0.5, drive=2.0),   # il colpo stretto: a 145 BPM finisce entro il sedicesimo
+        rim=seno(2400, ta=0.008, noise=0.4, flt=HP, fc=3500, tn=0.006),
+        snare=snare(210, r2=1.8, l2=0.5, pa=0.5, ta=0.06, flt=BP, fc=3000, q=0.6, tn=0.13, noise=1.1, drive=1.0),
+        clap=clap(4, fc=1300, q=1.0, tn=0.20),
+        chh=hat(330, metal=CYMB, fc=10000, flt=HP, ta=0.022, noise=0.5),
+        tom_lo=tom(110, pa=3.0, tp=0.025, ta=0.14, drive=1.0),
+        ohh=hat(330, metal=CYMB, fc=9000, flt=HP, ta=0.16, noise=0.5),    # l'aperto in levare, metallico
+        tom_hi=tom(170, pa=3.0, tp=0.02, ta=0.12, drive=1.0),
+        maracas=fruscio(9000, tn=0.03),
+        conga=fm(620, r2=3.5, l2=0.6, ta=0.05),                             # il blip FM delle percussioni psy
+        cowbell=fm(1250, r2=1.41, l2=0.8, ta=0.06),
+        cymbal=cymbal(450, metal=CYMB, fc=6000, ta=1.2, noise=0.5, tn=0.8)),
+    kit('Goa Temple', 'psytrance',
+        kick=kick(52, pa=4.0, tp=0.012, ta=0.11, click=0.5, drive=2.5),
+        rim=seno(1900, ta=0.012, r2=0.28, l2=0.5, noise=0.3, flt=HP, fc=2500, tn=0.008),
+        snare=snare(230, r2=1.8, l2=0.5, pa=0.4, ta=0.07, flt=BP, fc=4500, q=0.5, tn=0.18, noise=1.2, drive=1.5),
+        clap=clap(5, fc=1150, q=1.0, tn=0.24, drive=1.0),
+        chh=hat(310, metal=CYMB, fc=8500, flt=HP, ta=0.03, noise=0.4, drive=1.0),
+        tom_lo=tom(100, pa=1.5, tp=0.03, ta=0.2, drive=1.0),
+        ohh=hat(310, metal=CYMB, fc=8500, flt=HP, ta=0.28, noise=0.4, drive=1.0),
+        tom_hi=tom(160, pa=1.5, tp=0.03, ta=0.17, drive=1.0),
+        maracas=fruscio(7000, flt=BP, q=1.0, tn=0.03),
+        conga=tom(330, pa=0.4, tp=0.01, ta=0.09, noise=0.0),                # il tamburo a mano del tempio
+        cowbell=campana(900, fc=2800, q=2.0, ta=0.4),                        # la campanella
+        cymbal=cymbal(420, metal=CYMB, fc=5000, ta=1.6, noise=0.6, tn=1.0)),
+    kit('Trance Arena', 'trance',
+        kick=kick(50, pa=4.5, tp=0.014, ta=0.2, click=0.5, drive=1.5),     # la cassa lunga, con il corpo
+        rim=seno(1800, ta=0.012, r2=0.28, l2=0.5, noise=0.3, flt=HP, fc=2500, tn=0.008),
+        snare=snare(205, r2=1.8, l2=0.5, pa=0.4, tp=0.015, ta=0.08, tone=0.8, flt=BP, fc=5000, q=0.5, tn=0.2, noise=1.2),
+        clap=clap(5, fc=1250, q=0.9, tn=0.28),                               # il battimani largo
+        chh=hat(310, metal=CYMB, fc=8000, flt=HP, ta=0.035, noise=0.4),
+        tom_lo=tom(95, pa=0.7, tp=0.04, ta=0.24, noise=0.15, tn=0.05),
+        ohh=hat(310, metal=CYMB, fc=8000, flt=HP, ta=0.34, noise=0.4),
+        tom_hi=tom(150, pa=0.7, tp=0.04, ta=0.2, noise=0.15, tn=0.05),
+        maracas=fruscio(8000, tn=0.03),
+        conga=tom(360, pa=0.3, tp=0.01, ta=0.08, noise=0.0),
+        cowbell=cowbell(587, fc=1600, ta=0.08),
+        cymbal=cymbal(450, metal=CYMB, fc=4500, ta=2.0, noise=0.6, tn=1.4)),   # il piatto lungo del ritorno
 ]
 
 # Picchi misurati con guadagno 1 (stame-render --kits): dBFS mono a velocity 127, uno per strumento
@@ -600,6 +641,9 @@ PICCO_DB = {
     'Darbuka Sand': (-0.22, 4.07, 2.21, 3.36, 3.97, 0.28, 3.53, -0.03, 2.08, 2.60, -9.36, -7.22),
     'Cajon Box': (-0.28, 3.65, -0.11, -7.23, -4.43, -0.04, -2.38, -0.24, 1.64, -0.17, -0.12, -2.05),
     'Deep Space': (-0.22, -0.01, -2.10, -7.91, 0.08, -0.04, -0.93, -0.10, -5.45, -0.00, -0.01, -4.85),
+    'Psy Forest': (0.00, 3.26, 0.00, -7.25, -3.63, -0.14, -3.04, -0.14, 0.44, -0.07, -0.03, -1.27),
+    'Goa Temple': (0.00, 3.27, 0.00, -2.59, -1.94, -0.15, -1.37, -0.14, -0.74, -0.05, -7.45, 1.04),
+    'Trance Arena': (0.00, 3.08, 5.69, -6.34, -5.38, -0.06, -4.06, -0.01, 0.79, -0.06, -0.83, 0.34),
 }
 
 

@@ -191,8 +191,19 @@ static void test_beat_libreria(void)
                                            KIT_TECHNO, KIT_808, KIT_TECHNO, KIT_TECHNO, KIT_808, KIT_808 };
     static const uint8_t STILE_PRIMA[10] = { KIT_TECHNO, KIT_STUDIO, KIT_STUDIO, KIT_808, KIT_808, KIT_TECHNO,
                                              KIT_JAZZ, KIT_808, KIT_808, KIT_TECHNO };
-    CHECK_EQ(BEAT_COUNT, 61);
-    CHECK_EQ(INV_GROOVES, 30);
+    CHECK_EQ(BEAT_COUNT, 65);                                    /* dal 22/10/2026 anche trance e psy */
+    CHECK_EQ(INV_GROOVES, 34);
+    for (int b = 61; b < BEAT_COUNT; b++) {                       /* i quattro della trance: cassa in quattro e lo stile loro */
+        beat_hit_t h[8];
+        int quarti = 0;
+        for (int s = 0; s < 16; s += 4) {
+            int n = beat_hits(b, s, h, 8);
+            for (int i = 0; i < n; i++) if (h[i].inst == DRUM_KICK) quarti++;
+        }
+        CHECKM(quarti == 4, "TV-123: «%s» ha la cassa su %d quarti", beat_name(b), quarti);
+        CHECKM(inv_groove_of_beat(b) == 30 + (b - 61), "TV-123: «%s» non ha il suo stile", beat_name(b));
+        CHECK(!strcmp(inv_groove_name(30 + (b - 61)), beat_name(b)));
+    }
     for (int b = 0; b < 20; b++) CHECKM(beat_kit_of(b) == KIT_PRIMA[b], "TV-123: il Beat %d ha cambiato kit", b);
     for (int g = 0; g < 10; g++) CHECKM(inv_groove_kit(g) == STILE_PRIMA[g], "TV-123: lo stile %d ha cambiato kit", g);
     bool usato[DRUM_SYNTH_KITS] = { false };

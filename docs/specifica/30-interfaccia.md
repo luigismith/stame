@@ -1221,7 +1221,7 @@ Quit Stame     → Back / Quit now
   La griglia la calcola il thread della UI con le stesse funzioni del motore (`inv_build`, `inv_hits`), dagli stessi parametri: non passa dallo snapshot. La zona si ridisegna quando cambia un parametro o il passo che suona.
 
 **UI-177** [D, 19/10/2026] **La lista dei kit** (`40` MIDI-141, `20` SND-541). Sotto DRUMS la pressione di K1 apre la lista «DRUM KITS» (`LS_KITS`), come le liste di UI-077 e con la loro chiusura dopo 10 s (UI-076):
-- la prima voce è «Beat», il kit che porta il Beat (o lo stile inventato), con il suo nome nella colonna info; poi i 40 kit «NN Nome», con nella colonna info il tipo e lo stile come motore e famiglia dei suoni: «SMP  acoustic» per i quattro a campioni, «SYN  classic» per il Chip, «SYN  analog», «SYN  world»… per la libreria; la spunta segna il kit scelto;
+- la prima voce è «Beat», il kit che porta il Beat (o lo stile inventato), con il suo nome nella colonna info; poi i 43 kit «NN Nome», con nella colonna info il tipo e lo stile come motore e famiglia dei suoni: «SMP  acoustic» per i quattro a campioni, «SYN  classic» per il Chip, «SYN  analog», «SYN  world»… per la libreria; la spunta segna il kit scelto;
 - la cella KIT della pagina dei comandi (UI-152) scrive il valore «NN Nome», o «Beat», e nel dettaglio «Synth, analog», «Samples, acoustic», o con il kit del Beat «Funk: Studio», «Acid: 808»; la banda (`OV_KIT`) scrive «Kit», il numero, il nome e lo stesso dettaglio. I testi li compone la piattaforma in `tempo.kit_name` e `tempo.kit_info` (il nucleo della UI non conosce il catalogo);
 - nella lista dei Beat (UI-077) la colonna info di ogni Beat scrive il suo kit.
 

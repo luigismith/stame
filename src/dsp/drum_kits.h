@@ -3,7 +3,7 @@
 #ifndef STAME_DRUM_KITS_H
 #define STAME_DRUM_KITS_H
 
-#define DRUM_SYNTH_KITS 35
+#define DRUM_SYNTH_KITS 38
 
 enum {
     DK_KIT_808_BOOM,   /* il primo: 0 */
@@ -41,6 +41,9 @@ enum {
     DK_KIT_DARBUKA_SAND,
     DK_KIT_CAJON_BOX,
     DK_KIT_DEEP_SPACE,
+    DK_KIT_PSY_FOREST,
+    DK_KIT_GOA_TEMPLE,
+    DK_KIT_TRANCE_ARENA,
 };
 
 #endif
