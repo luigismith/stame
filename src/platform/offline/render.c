@@ -482,11 +482,14 @@ static int render_scene(const char *dir)
     render_to(dir, "lista_beat");
     sc_back();
     sc_run(300);
-    /* Geek Out (T14) */
-    sc_pad(MPAD_T14);
+    /* Geek Out: Options › View con il fuoco della Flip (fino al 22/10/2026 anche T14, che ora è AMBIENT) */
+    for (int i = 0; i < 2 * ENC_COUNT && vet.inp.gest.focus != ENC_OPTIONS; i++) sc_pad(PAD_R1);
+    for (int i = 0; i < VIEW_COUNT && vet_model(&vet)->ctl.view != VIEW_GEEK; i++) sc_pad(PAD_RIGHT);
+    sc_pad(PAD_B);
     sc_run(200);
     render_to(dir, "geek");
-    sc_pad(MPAD_T14);
+    for (int i = 0; i < VIEW_COUNT && vet_model(&vet)->ctl.view != VIEW_CHORD; i++) sc_pad(PAD_LEFT);
+    sc_pad(PAD_B);
     sc_chord(false);
     /* looper: Beat acceso (STOP/PLAY), REC, un giro di accordi, poi il loop suona */
     sc_daw_tap(76);
@@ -598,6 +601,49 @@ static int render_scene(const char *dir)
     sc_run(40);
     sc_midi(0x80, 62, 0); sc_run(20); sc_midi(0x89, 38, 0); sc_midi(0x89, 42, 0);
     sc_run(120);
+    sc_hold(MPAD_T12, 3200);                          /* Reset (MIDI-126): loop, Beat e transpose da capo */
+    sc_run(3000);
+    /* il basso che rotola (MIDI-142): Beat acceso, DRUMS, SHIFT + K5 girata due scatti (Rolling); la pagina dei
+     * comandi mostra BASSLINE, la testata BASSLINE */
+    sc_daw_tap(76);
+    sc_pad(MPAD_T11);
+    sc_run(200);
+    sc_daw(17, 127);
+    sc_run(20);
+    sc_daw(28, 1);
+    sc_run(400);
+    for (int i = 0; i < 2; i++) { sc_daw(28, 12); sc_run(60); }
+    sc_chord(true);
+    sc_pad(MPAD_T15);
+    sc_run(400);
+    render_to(dir, "bassline");
+    sc_pad(MPAD_T15);
+    sc_daw(17, 0);
+    sc_run(40);
+    sc_chord(false);
+    sc_daw(17, 127); sc_run(20); sc_daw(28, 1); sc_run(400);
+    for (int i = 0; i < 2; i++) { sc_daw(28, 116); sc_run(60); }   /* di nuovo Off */
+    sc_daw(17, 0);
+    sc_run(40);
+    sc_pad(MPAD_T11);
+    sc_daw_tap(76);
+    sc_run(1000);
+    /* il modulo AMBIENT (MIDI-143): T14, un pad lento (K1 indietro fino a Ghost Orchid), sei secondi, poi
+     * m1 su Dusk e M a 7; la pagina dei comandi mostra BLOOMS e MOOD */
+    for (int i = 0; i < 34; i++) sc_daw(24, 116);
+    sc_run(300);
+    sc_pad(MPAD_T14);
+    sc_run(6000);
+    render_to(dir, "ambient");
+    sc_pad(MPAD_M1_CW);
+    for (int i = 0; i < 3; i++) sc_pad(MPAD_M_CW);
+    sc_run(4000);
+    sc_pad(MPAD_T15);
+    sc_run(300);
+    render_to(dir, "ambient_comandi");
+    sc_pad(MPAD_T15);
+    sc_pad(MPAD_T14);
+    sc_run(2000);
     return 0;
 }
 

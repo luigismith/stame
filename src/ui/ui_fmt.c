@@ -65,6 +65,11 @@ const char *ui_fmt_roll(uint8_t roll)
     return roll < 7 ? N[roll] : "?";
 }
 
+const char *ui_fmt_motion(uint8_t motion)
+{
+    return motion == 0 ? "Still" : motion <= 2 ? "Slow" : motion <= 5 ? "Calm" : motion <= 8 ? "Flowing" : "Fast";
+}
+
 const char *ui_fmt_bassline(uint8_t bl)
 {
     static const char *const N[6] = { "Off", "Offbeat", "Rolling", "Gallop", "8ths", "16ths" };

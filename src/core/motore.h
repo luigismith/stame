@@ -18,6 +18,7 @@
 #include "perf.h"
 #include "beat.h"
 #include "inventa.h"
+#include "ambient.h"
 #include "looper.h"
 #include "../dsp/dsp.h"
 #include "../dsp/drums.h"
@@ -38,6 +39,7 @@ typedef struct {
     uint16_t bpm;
     uint8_t  tr_on, lp_state, lp_layers, lp_full;
     uint8_t  lp_notes[2][16];           /* note che il loop sta suonando (treble, basso), già trasposte */
+    uint8_t  amb_notes[16];             /* note sparse del modulo AMBIENT che suonano (ACC-262) */
 } mot_snap_t;
 
 /* copia coerente dello snapshot per il thread della UI (al più tre tentativi) */
@@ -72,6 +74,7 @@ typedef struct {
     uint8_t  bl_gate[16];               /* note del basso che la figura ha acceso */
     uint32_t bl_off;                    /* tick in cui la figura le spegne */
     uint8_t  bl_vel[128];               /* velocity dell'attacco di ogni nota del basso */
+    amb_bloom_t amb;                    /* le note sparse del modulo AMBIENT (ACC-262) */
     uint8_t  inv_on;                    /* il Beat viene dalla batteria che si inventa (MIDI-139) */
     uint8_t  inv_dens[INV_PARTS];       /* densità delle cinque parti, 0…10 */
     inv_t    inv;                       /* stile, variazione e priorità del loop inventato */
@@ -116,6 +119,11 @@ void mot_drop(motore_t *m, bool on);
  * suonano sui sedicesimi della figura BL_*, contati dalla battuta 1 e con lo swing; ogni colpo è un attacco
  * nuovo con la velocity della nota. BL_OFF, o il trasporto fermo, e il basso è tenuto come sempre (ACC-142) */
 void mot_bassline(motore_t *m, uint8_t pattern);
+/* le note sparse del modulo AMBIENT (ACC-262): accese o spente, densità 0…10, atmosfera (il registro) e tonalità
+ * dopo il transpose (la pentatonica). Cadono sopra l'accordo che il treble tiene, sul Sound, senza passare dalla
+ * performance né dal looper; spente, le note che suonano finiscono da sole. idea = una variazione nuova */
+void mot_ambient(motore_t *m, bool on, uint8_t dens, uint8_t mood, uint8_t tonic, bool minor);
+void mot_ambient_idea(motore_t *m, uint8_t var);
 /* la batteria che si inventa (MIDI-139, ACC-215): il Beat suona il loop di inventa.h con lo stile e la
  * variazione dati, finché non si sceglie un Beat del menu (mot_beat); le densità valgono dal passo dopo */
 void mot_inventa(motore_t *m, uint8_t groove, uint8_t var);

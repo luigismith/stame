@@ -56,6 +56,8 @@ uint64_t uf_sig_cell(const ui_model_t *m, int k)
                      m->tempo.swing, m->tempo.drive, (uint8_t)m->tempo.filt, m->tempo.bassline };       /* MIDI-135, MIDI-142 */
     h = uf_h(h, g, sizeof g);
     h = uf_h(h, m->tempo.dens, sizeof m->tempo.dens);
+    uint8_t a[5] = { m->tempo.amb, m->tempo.amb_play, m->tempo.amb_mood, m->tempo.amb_motion, m->tempo.amb_dens };   /* MIDI-143 */
+    h = uf_h(h, a, sizeof a);
     if (k == ENC_SOUND) {                                           /* la cella KIT sotto DRUMS (SND-541) */
         h = uf_h(h, m->tempo.kit_name, sizeof m->tempo.kit_name);
         h = uf_h(h, m->tempo.kit_info, sizeof m->tempo.kit_info);
@@ -174,6 +176,19 @@ static void cell_text(const ui_model_t *m, int k, cell_txt_t *t)
             ui_fmt_copy(t->value, sizeof t->value, m->tempo.groove_name);
             ui_fmt_int(a, sizeof a, m->tempo.variation, 1);
             ui_fmt_cat(t->detail, sizeof t->detail, "Var ", a);
+        }
+        return;
+    }
+    if (m->tempo.amb && (k == ENC_CHORD_VOICING || k == ENC_BASS_VOICING)) {   /* il modulo AMBIENT (MIDI-143) */
+        if (k == ENC_CHORD_VOICING) {
+            t->title = "BLOOMS";
+            ui_fmt_int(t->value, sizeof t->value, m->tempo.amb_dens, 2);
+            ui_fmt_copy(t->detail, sizeof t->detail, m->tempo.amb_play ? "On" : "Paused");
+            t->gauge = m->tempo.amb_dens * 100;
+        } else {
+            t->title = "MOOD";
+            ui_fmt_copy(t->value, sizeof t->value, m->tempo.amb_mood_name);
+            ui_fmt_copy(t->detail, sizeof t->detail, ui_fmt_motion(m->tempo.amb_motion));
         }
         return;
     }

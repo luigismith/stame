@@ -766,10 +766,11 @@ static void t_macro_pad(void)
     CHECK(raw[0].type == PNL_MACRO && raw[0].a == MACRO_DROP && raw[0].b == 0);
     CHECK(raw[1].type == PNL_SRC_LOST);
 
-    /* MIDI-132: T14 vista (Geek Out e ritorno), T15 pagina dei comandi; solo alla pressione, anche tenuti */
+    /* MIDI-143: T14 il modulo AMBIENT (fino al 22/10/2026 la vista); MIDI-132: T15 pagina dei comandi; solo alla
+     * pressione, anche tenuti */
     clear();
     tap(MPAD_T14);
-    CHECK(only(PNL_MACRO, MACRO_VIEW_TOGGLE, 0));
+    CHECK(only(PNL_MACRO, MACRO_AMBIENT_TOGGLE, 0));
     clear();
     pad(MPAD_T15, 1);
     wait_us(1200000);

@@ -2,8 +2,9 @@
  *
  * Mappa del 16/10/2026 (Luigi: «vedo comandi replicati sui vari device... questa cosa non mi piace»):
  * il pad non rifà più i pulsanti degli encoder né la navigazione, che stanno sulla MK4; tiene Options,
- * Panic, View, Page e i due voicing, e dà ai tasti liberi le funzioni che l'originale non ha. Il Lock
- * delle manopole (MIDI-131) è tolto dal 19/10/2026: T13 è il Drop (MIDI-140).
+ * Panic, Page e i due voicing, e dà ai tasti liberi le funzioni che l'originale non ha. Il Lock
+ * delle manopole (MIDI-131) è tolto dal 19/10/2026: T13 è il Drop (MIDI-140). Dal 22/10/2026 T14 non è più
+ * View (Geek Out resta in Options) ma il modulo AMBIENT (MIDI-143).
  */
 #include "pad_brimford.h"
 
@@ -13,7 +14,7 @@
 static const uint8_t KNOB_ROLE[3] STAME_ROM = { ENC_CHORD_VOICING, ENC_BASS_VOICING, KNOB_VOL };
 
 enum { T_HOLD, T_TAP, T_METRO, T_FILL, T_SCENE1, T_SCENE2, T_SCENE3, T_SCENE4, T_OPTIONS, T_EXIT, T_DRUMS,
-       T_PANIC, T_DROP, T_VIEW, T_PAGE };
+       T_PANIC, T_DROP, T_AMBIENT, T_PAGE };
 enum { ACT_CCW, ACT_PUSH, ACT_CW };
 
 static void mpad_reset(void *st)
@@ -53,7 +54,7 @@ static int mpad_on_pad(void *st, uint16_t code, int32_t value, uint32_t t_us, pn
         case T_DRUMS:   if (down) pnl_put(&o, PNL_MACRO, MACRO_DRUMS_TOGGLE, 0); break;
         case T_PANIC:   s->t12 = down; s->t12_t0 = t_us; break;    /* MIDI-126: il Panic lo decide on_tick */
         case T_DROP:    pnl_put(&o, PNL_MACRO, MACRO_DROP, down); break;        /* finché è tenuto (MIDI-140) */
-        case T_VIEW:    if (down) pnl_put(&o, PNL_MACRO, MACRO_VIEW_TOGGLE, 0); break;     /* MIDI-132 */
+        case T_AMBIENT: if (down) pnl_put(&o, PNL_MACRO, MACRO_AMBIENT_TOGGLE, 0); break;  /* MIDI-143 */
         case T_PAGE:    if (down) pnl_put(&o, PNL_MACRO, MACRO_CONTROLS_PAGE, 0); break;
         default: break;
         }

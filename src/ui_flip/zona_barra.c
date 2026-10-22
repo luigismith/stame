@@ -242,6 +242,27 @@ static void overlay(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
     case OV_BASSLINE:                                         /* il basso che rotola (MIDI-142): K5 premuta sotto DRUMS */
         e.label = "Bassline"; e.text = ui_fmt_bassline((uint8_t)v);
         break;
+    case OV_AMBIENT:                                          /* il modulo AMBIENT (MIDI-143): T14, M premuta */
+        e.label = "Ambient"; e.text = v == 1 ? "On" : v == 2 ? "Paused" : "Off";
+        e.detail = v ? m->tempo.amb_mood_name : NULL;
+        break;
+    case OV_BLOOMS:
+        ui_fmt_int(d, sizeof d, v, 2);
+        e.label = "Blooms"; e.digits = d; e.text = v ? "Sparse notes" : "None";
+        e.gauge = v * 100;
+        break;
+    case OV_MOOD:
+        e.label = "Mood"; e.text = m->tempo.amb_mood_name;
+        break;
+    case OV_MOTION:
+        ui_fmt_int(d, sizeof d, v, 2);
+        e.label = "Motion"; e.digits = d; e.text = ui_fmt_motion((uint8_t)v);
+        e.gauge = v * 100;
+        break;
+    case OV_AMB_IDEA:
+        ui_fmt_int(d, sizeof d, v, 2);
+        e.label = "Ambient"; e.digits = d; e.text = "New idea";
+        break;
     default:
         return;
     }

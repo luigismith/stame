@@ -22,7 +22,7 @@ typedef enum {                      /* gli 8 tasti accordo */
 typedef enum {
     MACRO_LOOP_STOP, MACRO_LOOP_CLEAR, MACRO_PANIC, MACRO_SYSTEM_MENU, MACRO_LOOP_UNDO, MACRO_LOOP_OVERDUB,
     MACRO_DROP,                     /* T13: b = 1 tenuto (Beat, loop di batteria e basso tacciono), 0 rilasciato (MIDI-140) */
-    MACRO_VIEW_TOGGLE,              /* Geek Out <-> la vista di prima (T14 del macro pad, MIDI-132) */
+    MACRO_AMBIENT_TOGGLE,           /* il modulo AMBIENT acceso o spento (T14 del macro pad, MIDI-143; fino al 22/10/2026 View) */
     MACRO_CONTROLS_PAGE,            /* apre o chiude la pagina dei comandi della Flip (T15, MIDI-132) */
     MACRO_RESET,                    /* Panic più looper, Beat, transpose e Perform da capo (T12 tenuto 3 s, MIDI-126) */
     /* le funzioni che l'originale non ha, sui tasti liberi del macro pad (MIDI-133, 16/10/2026) */

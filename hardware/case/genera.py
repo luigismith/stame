@@ -1214,7 +1214,7 @@ def colonnina():
 # scritte dei tasti del macro pad (CASE-043, 40 MIDI-120, MIDI-133): il nome nella mappa del pad.
 # Vanno sulle etichette di carta dei tasti trasparenti (etichette.py)
 COPRITASTI = [['HOLD'], ['TAP'], ['METRO'], ['FILL'], ['DROP'],
-              ['SCENE', '1'], ['SCENE', '2'], ['SCENE', '3'], ['SCENE', '4'], ['VIEW'],
+              ['SCENE', '1'], ['SCENE', '2'], ['SCENE', '3'], ['SCENE', '4'], ['AMBI', 'ENT'],
               ['OPT'], ['SAVE', 'LOOP'], ['DRUMS'], ['PANIC'], ['PAGE']]
 
 

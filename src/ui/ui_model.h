@@ -34,6 +34,7 @@ typedef struct {
     ui_note_t notes[UI_NOTES_MAX];      /* note dal vivo, dalla più grave; basso compreso */
     uint32_t live_treble[4], live_bass[4];
     uint32_t loop_treble[4], loop_bass[4];
+    uint32_t amb_treble[4];             /* note sparse del modulo AMBIENT che suonano (10 ACC-262) */
     uint16_t pc_sounding;               /* classi treble che suonano */
     uint16_t pc_in_key;                 /* classi della tonalità; 0 con la Key mode spenta */
     uint8_t  key_on, key_index;
@@ -69,6 +70,10 @@ typedef struct {
     int8_t   filt;                      /* filtro della batteria: −10 passa-basso … 0 spento … +10 passa-alto */
     uint8_t  drop;                      /* T13 tenuto (40 MIDI-140): Beat, loop di batteria e basso tacciono */
     uint8_t  bassline;                  /* il basso che rotola (10 ACC-219, 40 MIDI-142): figura, 0 = tenuto */
+    /* il modulo AMBIENT (10 ACC-260, 40 MIDI-143): acceso, suona (0 = in pausa), atmosfera, movimento 0…10,
+     * note sparse 0…10, variazione, e il nome dell'atmosfera */
+    uint8_t  amb, amb_play, amb_mood, amb_motion, amb_dens, amb_var;
+    char     amb_mood_name[8];
     /* la batteria che si inventa (40 MIDI-139): il Beat è il loop inventato; stile, variazione, densità
      * di tutto, parte che M regola (0 = tutto, 1…5 = cassa, rullante, charleston, aperto, percussioni),
      * densità di ogni parte, passo che suona (255 = fermo) e la griglia dei colpi (velocity, 0 = niente) */
@@ -127,7 +132,8 @@ typedef enum { OV_NONE, OV_VOLUME, OV_BASS_VOLUME, OV_BEAT_VOLUME, OV_BATTERY, O
                OV_SAVED, OV_DRUMS, OV_LOW_BATTERY, OV_KIT, OV_ROLL, OV_ACCENT,
                OV_DENSITY, OV_GROOVE, OV_VARIATION, OV_DRUM_LOOP,   /* MIDI-139 */
                OV_SWING, OV_DRIVE, OV_FILTER,        /* MIDI-135: K4, K3 e K3 premuta sotto DRUMS */
-               OV_BASSLINE } ui_ov_kind_t;           /* MIDI-142: K5 premuta sotto DRUMS */
+               OV_BASSLINE,                          /* MIDI-142: K5 premuta sotto DRUMS */
+               OV_AMBIENT, OV_BLOOMS, OV_MOOD, OV_MOTION, OV_AMB_IDEA } ui_ov_kind_t;   /* MIDI-143: T14, M, m1, m2 */
 typedef struct { uint8_t kind, enc; int16_t value; uint32_t until_ms; } ui_overlay_t;
 
 #define UI_LIST_WIN 9

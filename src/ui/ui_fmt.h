@@ -22,6 +22,8 @@ const char *ui_fmt_play_style(uint8_t style);
 const char *ui_fmt_roll(uint8_t roll);
 /* la figura del basso che rotola (10 ACC-219): Off, Offbeat, Rolling, Gallop, 8ths, 16ths */
 const char *ui_fmt_bassline(uint8_t bl);
+/* il movimento del modulo AMBIENT (10 ACC-261): «Still» a 0, poi «Slow», «Calm», «Flowing», «Fast» */
+const char *ui_fmt_motion(uint8_t motion);
 const char *ui_fmt_part(uint8_t part);
 /* swing in tick (0 = «Off», poi 52%…75%, 10 ACC-216) e filtro della batteria (Off, LP 1…10, HP 1…10) */
 const char *ui_fmt_swing(uint8_t ticks);

@@ -1,6 +1,7 @@
 /* vetrina.c — pilota dimostrativo della plancia (vetrina.h). Codice di piattaforma: niente veleni. */
 #include "vetrina.h"
 #include "demo.h"
+#include "../../core/ambient.h"
 #include "../../ui/ui_fmt.h"
 #include "../../core/kv.h"
 #include <math.h>
@@ -46,6 +47,8 @@ typedef struct {
     uint8_t mod_used;                   /* m1 tenuta come Mod (con Loop o BPM): il suo rilascio non cambia parte */
     uint8_t drop;                       /* T13 tenuto: Drop (MIDI-140), per la testata */
     int bassline;                       /* il basso che rotola (MIDI-142): figura BL_*, 0 = tenuto */
+    uint8_t amb, amb_play;              /* il modulo AMBIENT (MIDI-143): acceso da T14; suona, o in pausa con M premuta */
+    int amb_mood, amb_motion, amb_dens, amb_var;   /* atmosfera, movimento 0…10, note sparse 0…10, variazione 0…99 */
     uint32_t drum_ms[12];               /* ultimo colpo di ogni tasto, per accendere il tasto sulla plancia */
 } sim_t;
 static sim_t S;                    /* una vetrina sola per processo */
@@ -452,6 +455,198 @@ static void inv_play(vet_t *v)
     overlay(v, OV_DRUM_LOOP, ENC_CHORD_VOICING, S.beat_on);
 }
 
+/* ---- il modulo AMBIENT (MIDI-143, 10 ACC-260…264): Stame che suona quasi da solo. T14 lo accende e lo spegne;
+ * le tre manopole del pad lo guidano, come sotto DRUMS: M gira le note sparse e premuta mette in pausa, m1 gira
+ * l'atmosfera, m2 gira il movimento e premuta dà un'idea nuova. Il modulo preme i tasti dello strumento come la
+ * demo, quindi voicing, basso, Perform e plancia sono quelli di sempre. Chi suona un accordo lo zittisce; un
+ * quarto dopo l'ultimo rilascio il giro riparte da quell'accordo (con il Hold l'accordo resta e dura un giro) ---- */
+static amb_harm_t amb_h;
+static int8_t amb_key = -1;                 /* il gesto che il modulo tiene: tasto, tipi, estensioni */
+static uint8_t amb_types, amb_exts;
+static amb_chord_t amb_cur;                 /* l'ultimo accordo che ha premuto, per ripremerlo dopo DRUMS */
+static uint8_t amb_cur_ok;
+static uint32_t amb_next;                   /* tick del prossimo cambio d'accordo */
+static uint32_t amb_n;                      /* cambi fatti: sceglie le battute in più o in meno */
+static uint32_t amb_phys;                   /* tasti (bit 0…11) e tasti accordo (12…19) tenuti da chi suona */
+static uint8_t amb_wait;                    /* chi suona ha lasciato tutto: il modulo riprende un quarto dopo */
+static uint32_t amb_wait_t;
+
+static void hold_release(vet_t *v);         /* definita con gli ingressi, più sotto */
+static uint32_t now_tick(const vet_t *v);   /* definita con la demo */
+
+static void amb_tonality(const vet_t *v, int *tonic, bool *minor)
+{
+    *tonic = acc_key_tonic_pc(v->acc.key_index);
+    *minor = acc_key_is_minor(v->acc.key_index);
+}
+
+static void amb_release(vet_t *v)
+{
+    if (amb_key < 0) return;
+    ain(v, ACC_IN_KEY_UP, (uint8_t)amb_key, 0);
+    for (int i = 0; i < 4; i++) if (amb_types >> i & 1) ain(v, ACC_IN_TYPE_UP, (uint8_t)i, 0);
+    for (int i = 0; i < 4; i++) if (amb_exts >> i & 1) ain(v, ACC_IN_EXT_UP, (uint8_t)i, 0);
+    amb_key = -1;
+    amb_types = amb_exts = 0;
+}
+
+static void amb_press(vet_t *v, amb_chord_t c)
+{
+    hold_release(v);                        /* i rilasci trattenuti dal Hold escono prima, come con un tasto nuovo */
+    amb_release(v);
+    for (int i = 0; i < 4; i++) if (c.types >> i & 1) ain(v, ACC_IN_TYPE_DOWN, (uint8_t)i, 0);
+    for (int i = 0; i < 4; i++) if (c.exts >> i & 1) ain(v, ACC_IN_EXT_DOWN, (uint8_t)i, 0);
+    ain(v, ACC_IN_KEY_DOWN, c.key, c.vel ? c.vel : 72);
+    amb_key = (int8_t)c.key;
+    amb_types = c.types;
+    amb_exts = c.exts;
+    amb_cur = c;
+    amb_cur_ok = 1;
+}
+
+/* il prossimo cambio, da t: la durata del movimento; con il trasporto in moto cade sulla battuta */
+static void amb_schedule(vet_t *v, uint32_t t)
+{
+    uint16_t beats = amb_chord_beats(S.amb_motion, amb_n++ + (uint32_t)S.amb_var);
+    uint32_t n = t + (uint32_t)(beats ? beats : 4u) * 96u;
+    if (beats && beats % 4u == 0 && v->snap && v->snap->tr_on) {
+        uint32_t x = n - v->snap->tr_t0;
+        n = v->snap->tr_t0 + (x + 192u) / 384u * 384u;
+    }
+    amb_next = n;
+}
+
+/* l'armonia da capo con l'atmosfera, la variazione e la tonalità di adesso, a partire dall'accordo che suona */
+static void amb_reharm(vet_t *v)
+{
+    int tonic;
+    bool minor;
+    amb_tonality(v, &tonic, &minor);
+    uint16_t pcs = amb_h.pcs;
+    amb_harm_init(&amb_h, S.amb_mood, S.amb_var, tonic, minor);
+    if (pcs) amb_harm_follow(&amb_h, pcs);
+}
+
+static void amb_on(vet_t *v)
+{
+    S.amb = 1;
+    S.amb_play = 1;
+    amb_h.pcs = 0;
+    amb_reharm(v);
+    amb_wait = 0;
+    uint32_t t = now_tick(v);
+    if (amb_phys) {                         /* chi suona sta tenendo un accordo: il giro parte da lì */
+        if (v->acc.sounding) amb_harm_follow(&amb_h, v->acc.res.pcs);
+    } else amb_press(v, amb_harm_first(&amb_h));
+    amb_schedule(v, t);
+}
+
+static void amb_off(vet_t *v)
+{
+    amb_release(v);
+    S.amb = 0;
+    S.amb_play = 0;
+    amb_wait = 0;
+}
+
+static void amb_toggle(vet_t *v)
+{
+    if (S.amb) amb_off(v); else amb_on(v);
+    overlay(v, OV_AMBIENT, ENC_CHORD_VOICING, S.amb);
+}
+
+static void amb_play_toggle(vet_t *v)       /* M premuta: pausa, o ripresa con un accordo nuovo */
+{
+    S.amb_play = (uint8_t)!S.amb_play;
+    if (S.amb_play) {
+        if (!amb_phys) amb_press(v, amb_harm_next(&amb_h));
+        amb_schedule(v, now_tick(v));
+    } else amb_release(v);
+    overlay(v, OV_AMBIENT, ENC_CHORD_VOICING, S.amb_play ? 1 : 2);
+}
+
+static void amb_density(vet_t *v, int d)
+{
+    S.amb_dens = clampi(S.amb_dens + d, 0, AMB_DENS_MAX);
+    overlay(v, OV_BLOOMS, ENC_CHORD_VOICING, S.amb_dens);
+}
+
+static void amb_mood_turn(vet_t *v, int d)
+{
+    S.amb_mood = wrap(S.amb_mood + d, AMB_MOODS);
+    amb_reharm(v);
+    if (S.amb_play) amb_next = now_tick(v) + 96u;    /* la tavolozza nuova si sente un quarto dopo l'ultimo scatto */
+    overlay(v, OV_MOOD, ENC_BASS_VOICING, S.amb_mood);
+}
+
+static void amb_motion_turn(vet_t *v, int d)
+{
+    S.amb_motion = clampi(S.amb_motion + d, 0, AMB_MOTION_MAX);
+    if (S.amb_play) amb_schedule(v, now_tick(v));
+    overlay(v, OV_MOTION, ENC_BASS_VOICING, S.amb_motion);
+}
+
+static void amb_idea(vet_t *v)              /* m2 premuta: un'altra strada per il giro e per le note sparse */
+{
+    S.amb_var = inv_var_next(S.amb_var, v->now_ms) % (AMB_VAR_MAX + 1);
+    amb_reharm(v);
+    snd_push(v, VS_AMB_IDEA, 0, (uint8_t)S.amb_var, 0);
+    if (S.amb_play) amb_next = now_tick(v) + 96u;
+    overlay(v, OV_AMB_IDEA, ENC_BASS_VOICING, S.amb_var);
+}
+
+/* chi suona preme o lascia un tasto (bit 0…11) o un tasto accordo (12…19). La prima pressione zittisce il modulo,
+ * l'ultimo rilascio fa partire l'attesa di un quarto */
+static void amb_user(vet_t *v, uint32_t bit, bool down)
+{
+    if (down) {
+        amb_phys |= bit;
+        amb_wait = 0;
+        if (S.amb) amb_release(v);
+    } else {
+        amb_phys &= ~bit;
+        if (!amb_phys && S.amb) { amb_wait = 1; amb_wait_t = now_tick(v); }
+    }
+}
+
+/* l'accordo di chi suona diventa quello in corso: il giro riparte da lì (le classi prima del transpose) */
+static void amb_user_chord(vet_t *v)
+{
+    if (S.amb && v->acc.sounding) amb_harm_follow(&amb_h, v->acc.res.pcs);
+}
+
+static void amb_tick(vet_t *v)
+{
+    if (!S.amb || !S.amb_play || v->demo_running || S.drums) return;
+    uint32_t t = now_tick(v);
+    int tonic;
+    bool minor;
+    amb_tonality(v, &tonic, &minor);
+    if (tonic != amb_h.tonic || (minor ? 1 : 0) != amb_h.minor) {   /* Key cambiata: la tavolozza nuova, presto */
+        amb_reharm(v);
+        amb_next = t + 96u;
+    }
+    if (amb_phys) return;                   /* chi suona tiene un accordo: il modulo aspetta */
+    if (amb_wait) {
+        if (t - amb_wait_t < 96u) return;
+        amb_wait = 0;
+        if (S.hold && v->acc.sounding) amb_schedule(v, t);   /* con il Hold l'accordo di chi suona resta per un giro */
+        else {
+            amb_press(v, amb_harm_next(&amb_h));
+            amb_schedule(v, t);
+        }
+        return;
+    }
+    if (amb_key < 0 && !(S.hold && v->acc.sounding)) {     /* dopo la pausa o dopo DRUMS */
+        amb_press(v, amb_harm_next(&amb_h));
+        amb_schedule(v, t);
+        return;
+    }
+    if (S.amb_motion == 0 || (int32_t)(t - amb_next) < 0) return;
+    amb_press(v, amb_harm_next(&amb_h));
+    amb_schedule(v, (int32_t)(t - amb_next) > 96 ? t : amb_next);   /* a tempo, salvo un ritardo lungo */
+}
+
 /* ---- gesti ---- */
 static void turn(vet_t *v, int enc, int d, bool pressed)
 {
@@ -465,6 +660,8 @@ static void turn(vet_t *v, int enc, int d, bool pressed)
     }
     if (S.drums && enc == ENC_CHORD_VOICING) { inv_density(v, d); return; }   /* M: densità (MIDI-139) */
     if (S.drums && enc == ENC_BASS_VOICING) { inv_groove(v, d); return; }     /* m1: stile */
+    if (S.amb && enc == ENC_CHORD_VOICING) { amb_density(v, d); return; }     /* AMBIENT: M le note sparse (MIDI-143) */
+    if (S.amb && enc == ENC_BASS_VOICING) { amb_mood_turn(v, d); return; }    /* m1: l'atmosfera */
     if (S.drums && !pressed) {                          /* drum machine (MIDI-135): kit, Roll e Accent sotto DRUMS */
         if (enc == ENC_SOUND) {
             S.kit = wrap(S.kit + d, KIT_COUNT + 1);
@@ -583,6 +780,7 @@ static void press(vet_t *v, int enc)
     }
     if (S.drums && enc == ENC_SOUND) { list_open(v, L_KITS, ENC_SOUND); return; }   /* K1 premuta: la lista dei kit (UI-177) */
     if (S.drums && enc == ENC_CHORD_VOICING) { inv_play(v); return; }       /* M premuta: play e stop (MIDI-139) */
+    if (S.amb && enc == ENC_CHORD_VOICING) { amb_play_toggle(v); return; }  /* AMBIENT: pausa e ripresa (MIDI-143) */
     if (S.drums && enc == ENC_BASS_VOICING) {                                /* m1 premuta: la parte di M */
         if (!S.mod_used) inv_part(v);
         S.mod_used = 0;
@@ -628,6 +826,8 @@ static void demo_release(vet_t *v);                 /* definita con la demo, pi�
  * i colpi entrano nel loop quantizzati; tipi, estensioni, basso e performance restano fermi */
 static void drums_toggle(vet_t *v)
 {
+    amb_release(v);                                     /* il modulo AMBIENT riprende dopo, a tasti puliti */
+    amb_phys = 0;
     S.drums = (uint8_t)!S.drums;
     S.hold_keys = 0; S.hold_chords = 0;
     for (int k = 0; k < 12; k++) ain(v, ACC_IN_KEY_UP, (uint8_t)k, 0);   /* niente accordi appesi */
@@ -635,6 +835,7 @@ static void drums_toggle(vet_t *v)
         ain(v, ACC_IN_TYPE_UP, (uint8_t)i, 0);
         ain(v, ACC_IN_EXT_UP, (uint8_t)i, 0);
     }
+    if (!S.drums && S.amb && S.amb_play && amb_cur_ok) amb_press(v, amb_cur);
     overlay(v, OV_DRUMS, ENC_BPM, S.drums);
 }
 
@@ -732,19 +933,27 @@ static void handle(vet_t *v, const pnl_event_t *e)
     switch (e->type) {
     case PNL_KEY_DOWN:
         if (S.drums) drum_hit(v, e->a % 12, e->b ? e->b : 100);
-        else { hold_release(v); ain(v, ACC_IN_KEY_DOWN, e->a, e->b); }
+        else {
+            amb_user(v, 1u << (e->a % 12), true);   /* AMBIENT tace mentre si suona (MIDI-143) */
+            hold_release(v);
+            ain(v, ACC_IN_KEY_DOWN, e->a, e->b);
+            amb_user_chord(v);
+        }
         break;
     case PNL_KEY_UP:
         if (S.drums) { drum_hit(v, e->a % 12, 0); break; }        /* ferma il Roll */
+        amb_user(v, 1u << (e->a % 12), false);
         if (S.hold) S.hold_keys |= (uint16_t)(1u << (e->a % 12));   /* Hold: il rilascio aspetta il tasto dopo */
         else ain(v, ACC_IN_KEY_UP, e->a, 0);
         break;
     case PNL_CHORD_DOWN:
         if (S.drums) break;
+        amb_user(v, 1u << (12 + (e->a & 7)), true);
         if (e->a < 4) ain(v, ACC_IN_TYPE_DOWN, e->a, 0); else ain(v, ACC_IN_EXT_DOWN, (uint8_t)(e->a - 4), 0);
         break;
     case PNL_CHORD_UP:
         if (S.drums) break;
+        amb_user(v, 1u << (12 + (e->a & 7)), false);
         if (S.hold) S.hold_chords |= (uint8_t)(1u << (e->a & 7));
         else chord_up(v, e->a);
         break;
@@ -777,6 +986,7 @@ static void handle(vet_t *v, const pnl_event_t *e)
             ain(v, ACC_IN_OPTION_SET, ACC_OPT_TRANSPOSE, 0);
             S.perf_mode = PERF_OFF; S.perf_amount = 0; S.lock_perf = 0;
             S.drums = 0;
+            amb_off(v);                                 /* il modulo AMBIENT tace (MIDI-143) */
             S.hold = S.metro = S.fill = 0; S.hold_keys = 0; S.hold_chords = 0;
             snd_push(v, VS_METRO, 0, 0, 0);
             snd_push(v, VS_FILL, 0, 0, 0);
@@ -790,10 +1000,8 @@ static void handle(vet_t *v, const pnl_event_t *e)
             S.drop = (uint8_t)(e->b != 0);
             snd_push(v, VS_DROP, 0, S.drop, 0);
         }
-        else if (e->a == MACRO_VIEW_TOGGLE) {                                    /* T14: Geek Out e ritorno (MIDI-132) */
-            if (S.view == VIEW_GEEK) S.view = v->view_back;
-            else { v->view_back = (uint8_t)S.view; S.view = VIEW_GEEK; }
-        } else if (e->a == MACRO_CONTROLS_PAGE) {                                /* T15: la pagina resta aperta */
+        else if (e->a == MACRO_AMBIENT_TOGGLE) amb_toggle(v);                  /* T14: il modulo AMBIENT (MIDI-143) */
+        else if (e->a == MACRO_CONTROLS_PAGE) {                                /* T15: la pagina resta aperta */
             v->page_pinned = (uint8_t)!v->page_pinned;
             if (!v->page_pinned) v->page_until = v->now_ms;
         }
@@ -807,6 +1015,7 @@ static void handle(vet_t *v, const pnl_event_t *e)
         else if (e->a == MACRO_LOOP_EXIT) loop_send(v, LOOP_C_EXIT);
         else if (e->a == MACRO_DRUMS_TOGGLE) drums_toggle(v);
         else if (e->a == MACRO_BEAT_VOL && S.drums) inv_variation(v, e->b, false);   /* m2 sotto DRUMS: variazione (MIDI-139) */
+        else if (e->a == MACRO_BEAT_VOL && S.amb) amb_motion_turn(v, e->b);         /* m2 con AMBIENT: il movimento (MIDI-143) */
         else if (e->a == MACRO_BEAT_VOL || (e->a == MACRO_BASS_VOL && S.drums)) {   /* m2 premuta sotto DRUMS: volume del Beat */
             S.beat_volume = clampi(S.beat_volume + e->b, 0, 99);
             overlay(v, OV_BEAT_VOLUME, ENC_BPM, S.beat_volume);
@@ -814,6 +1023,7 @@ static void handle(vet_t *v, const pnl_event_t *e)
             S.bass_volume = clampi(S.bass_volume + e->b, 0, 99);
             overlay(v, OV_BASS_VOLUME, ENC_VOLUME, S.bass_volume);
         } else if (e->a == MACRO_KNOB_CLICK && S.drums) inv_variation(v, 0, true);  /* m2 premuta: un'idea nuova */
+        else if (e->a == MACRO_KNOB_CLICK && S.amb) amb_idea(v);                     /* e per AMBIENT */
         else if (e->a == MACRO_DRUM_HIT) drum_hit(v, (e->b >> 8) & 0x7F, e->b & 0x7F);   /* pad del banco B (MIDI-135) */
         break;
     case PNL_SRC_CONNECTED:
@@ -1014,13 +1224,13 @@ static void demo_reset(vet_t *v)
 
 static void demo_start(vet_t *v)
 {
+    if (S.amb) amb_off(v);                              /* la demo suona com'è scritta: AMBIENT si spegne */
     if (!v->demo_running)
     {
         for (int i = 0; i < VET_DEMO_OPTS; i++) v->demo_saved[i] = (int16_t)acc_option_get(&v->acc, DEMO_OPTS[i]);
         v->demo_theme = v->m.prefs.theme;               /* la demo cambia tema: alla fine torna il suo */
         demo_S = S;
         v->demo_focus = v->inp.gest.focus;
-        v->demo_view_back = v->view_back;
         v->demo_pinned = v->page_pinned;
     }
     v->demo_tick0 = now_tick(v) + DEMO_AHEAD;
@@ -1061,7 +1271,6 @@ static void demo_stop(vet_t *v)
     }
     v->m.prefs.theme = v->demo_theme;                   /* il tema scelto da chi suona, non quello della demo */
     v->inp.gest.focus = v->demo_focus;
-    v->view_back = v->demo_view_back;
     v->page_pinned = v->demo_pinned;
     if (!v->page_pinned) v->page_until = v->now_ms;
     if (v->list_kind) list_close(v);                    /* il menu che la demo apre a fine Acacia */
@@ -1073,7 +1282,7 @@ static void demo_stop(vet_t *v)
  * Beat), la batteria a tastiera accesa (Luigi, 15/10/2026: «è passato da solo al tema scuro») */
 static bool busy(const vet_t *v)
 {
-    if (v->acc.sounding || S.beat_on || S.drums) return true;
+    if (v->acc.sounding || S.beat_on || S.drums || S.amb) return true;   /* con AMBIENT acceso lo strumento suona già */
     return v->snap && (v->snap->tr_on || v->snap->lp_state != LP_IDLE);
 }
 
@@ -1233,6 +1442,7 @@ void vet_init(vet_t *v, uint32_t now_ms)
     S.beat_volume = 72; S.view = VIEW_CHORD;         /* i kit a campioni stanno a −1 dBFS: 72 ≈ −5,5 dB */
     S.accent = 10;                                   /* drum machine: tutta la dinamica (MIDI-135) */
     S.density = 5;                                   /* batteria che si inventa: a metà (MIDI-139) */
+    S.amb_mood = AMB_FLOAT; S.amb_motion = 5; S.amb_dens = 4;   /* AMBIENT: un accordo ogni sei battute circa (MIDI-143) */
 
     ui_model_t *m = &v->m;
     m->layer.base = BASE_BOOT;
@@ -1254,6 +1464,7 @@ void vet_init(vet_t *v, uint32_t now_ms)
     v->inp.gest.focus = ENC_SOUND;
     v->snd_sound = v->snd_bass = v->snd_vol = v->snd_bvol = v->snd_fx = -1;
     v->snd_bpm = v->snd_perf = v->snd_beat = v->snd_meter = v->snd_beat_on = v->snd_beat_vol = -1;
+    v->snd_amb = -1;
 }
 
 /* ---- synth: suono, basso, effetto principale e volumi verso il dsp ---- */
@@ -1327,6 +1538,13 @@ static void snd_sync(vet_t *v)
         snd_push(v, VS_BEAT_VOL, 0, (uint8_t)S.beat_volume, 0);
         v->snd_beat_vol = (int16_t)S.beat_volume;
     }
+    int tonic;                                      /* le note sparse di AMBIENT: accese, atmosfera, tonalità dopo il transpose */
+    bool minor;
+    amb_tonality(v, &tonic, &minor);
+    tonic = ((tonic + v->acc.transpose) % 12 + 12) % 12;
+    uint8_t aa = (uint8_t)((S.amb && S.amb_play && !v->demo_running ? 1 : 0) | S.amb_mood << 1 | (minor ? 16 : 0));
+    uint8_t ab = (uint8_t)(tonic << 4 | S.amb_dens);
+    if ((aa << 8 | ab) != v->snd_amb) { snd_push(v, VS_AMB, 0, aa, ab); v->snd_amb = (int16_t)(aa << 8 | ab); }
 }
 
 /* ---- tempo che passa ---- */
@@ -1394,6 +1612,7 @@ void vet_tick(vet_t *v, uint32_t now_ms)
     if (!v->booting) {
         if (v->demo_running) demo_run(v);
         else if (v->demo_on && now_ms - v->last_input_ms > DEMO_IDLE_MS && !v->list_kind && !busy(v)) demo_start(v);
+        amb_tick(v);                                    /* il modulo AMBIENT (MIDI-143) */
     }
     /* count-in: «04» … «01» sopra la plancia (UI-089) */
     if (lp_state(v) == LP_COUNT_IN) {
@@ -1554,6 +1773,13 @@ static void fill_tempo_looper(vet_t *v, ui_model_t *m)
     t->drive = (uint8_t)S.drive;
     t->filt = (int8_t)S.filt;
     t->bassline = (uint8_t)S.bassline;
+    t->amb = S.amb;                                       /* il modulo AMBIENT (MIDI-143) */
+    t->amb_play = S.amb_play;
+    t->amb_mood = (uint8_t)S.amb_mood;
+    t->amb_motion = (uint8_t)S.amb_motion;
+    t->amb_dens = (uint8_t)S.amb_dens;
+    t->amb_var = (uint8_t)S.amb_var;
+    ui_fmt_copy(t->amb_mood_name, sizeof t->amb_mood_name, amb_mood_name(S.amb_mood));
     t->drop = S.drop;
     t->inv = S.inv;                                       /* batteria che si inventa (MIDI-139) */
     t->groove = (uint8_t)S.groove;
@@ -1636,11 +1862,13 @@ const ui_model_t *vet_model(vet_t *v)
     m->seq++;
     fill_music(v, &m->music);
     fill_tempo_looper(v, m);
+    if (v->snap && S.amb)                                         /* le note sparse di AMBIENT sulla tastiera (MIDI-143) */
+        for (int i = 0; i < 128; i++)
+            if (v->snap->amb_notes[i >> 3] >> (i & 7) & 1u) set_bit(m->music.amb_treble, i);
 
     ui_controls_t *c = &m->ctl;
     c->focus = v->inp.gest.focus;
     c->turn_target = gest_target(&v->inp.gest);
-    if (S.view != VIEW_GEEK) v->view_back = (uint8_t)S.view;   /* T14 torna all'ultima vista prima di Geek Out, comunque ci si arrivi */
     bool mk4 = v->inp.mpk_model == MPK_MODEL_MK4;
     m->plat.mpk_model = mk4;
     m->ctl.hold = S.hold;

@@ -59,6 +59,7 @@ uint64_t uf_sig_z4(const ui_model_t *m, int kb_lo)
     h = uf_h(h, mu->live_bass, sizeof mu->live_bass);
     h = uf_h(h, mu->loop_treble, sizeof mu->loop_treble);
     h = uf_h(h, mu->loop_bass, sizeof mu->loop_bass);
+    h = uf_h(h, mu->amb_treble, sizeof mu->amb_treble);
     uint8_t v[12] = { mu->W, mu->WB, mu->single_notes, mu->pocket_pc, m->prefs.pocket, m->prefs.note_labels,
                       (uint8_t)kb_lo, m->prefs.theme, (uint8_t)(mu->pc_in_key & 0xFF), (uint8_t)(mu->pc_in_key >> 8),
                       (uint8_t)windows_shown(m), m->tempo.drums_on };
@@ -103,6 +104,9 @@ static void draw_key(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, int
     if (bit128(mu->loop_treble, n) || bit128(mu->loop_bass, n)) {
         if (bk) gfx_fill(fb, x, BY1 - 8, w, 8, p->c[T_LOOP]);
         else gfx_fill(fb, x, WY1 - 12, w, 12, p->c[T_LOOP]);
+    } else if (bit128(mu->amb_treble, n)) {                       /* le note sparse di AMBIENT (MIDI-143) */
+        if (bk) gfx_fill(fb, x, BY1 - 8, w, 8, p->c[T_ACTIVE]);
+        else gfx_fill(fb, x, WY1 - 12, w, 12, p->c[T_ACTIVE]);
     }
     /* granello di polline sulle note della tonalità */
     if (mu->pc_in_key >> (n % 12) & 1) {

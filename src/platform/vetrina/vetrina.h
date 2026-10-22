@@ -39,7 +39,10 @@ enum { VS_NOTE_ON, VS_NOTE_OFF, VS_CHORD_START, VS_PATCH, VS_PARAM, VS_MASTER, V
        VS_INV, VS_INV_DENS,             /* batteria che si inventa (MIDI-139): a = stile, b = variazione; a = parte, b = densità */
        VS_SWING, VS_DRUM_FX,            /* drum machine (MIDI-135): a = tick dello swing; a = drive 0…10, b = filtro + 10 */
        VS_DROP,                         /* a = 1 tenuto, 0 rilasciato: Drop di T13 (MIDI-140) */
-       VS_BASSLINE };                   /* a = figura BL_* del basso che rotola (ACC-219, MIDI-142) */
+       VS_BASSLINE,                     /* a = figura BL_* del basso che rotola (ACC-219, MIDI-142) */
+       VS_AMB,                          /* note sparse di AMBIENT (ACC-262): a = accese | atmosfera << 1 | minore << 4,
+                                           b = tonica dopo il transpose << 4 | densità */
+       VS_AMB_IDEA };                   /* a = variazione: un'idea nuova per le note sparse (MIDI-143) */
 typedef struct { uint8_t type, engine, a, b, timed; uint32_t at; } vet_snd_t;   /* engine: 0 Sound, 1 Bass */
 
 /* statistiche del thread audio della piattaforma (PLT-021), scritte dal callback e lette dalla UI:
@@ -95,7 +98,6 @@ typedef struct {
     uint8_t     list_owner;
     uint32_t    page_until;           /* pagina dei comandi aperta fino a qui (UI-142a) */
     uint8_t     page_pinned;          /* aperta da T15 del macro pad, finché non lo si ripreme o B (MIDI-132) */
-    uint8_t     view_back;            /* la vista a cui T14 torna da Geek Out */
 
     /* demo automatica: il brano va a tick del motore (demo.h) */
     uint8_t     demo_on;              /* preferenza: demo automatica permessa */
@@ -109,7 +111,7 @@ typedef struct {
     int         demo_step;
     uint8_t     demo_song;            /* quale brano di vet_demo_songs; alla fine passa al successivo */
     int16_t     demo_saved[VET_DEMO_OPTS];   /* opzioni degli accordi da rimettere quando la demo si ferma */
-    uint8_t     demo_focus, demo_view_back, demo_pinned;   /* fuoco, vista di T14 e pagina di chi suonava */
+    uint8_t     demo_focus, demo_pinned;   /* fuoco e pagina di chi suonava */
     uint32_t    vtick, vt_acc;        /* senza motore: tick contati dall'orologio, al BPM corrente */
 
     /* meter finti */
@@ -124,6 +126,7 @@ typedef struct {
     int16_t     snd_sound, snd_bass, snd_vol, snd_bvol, snd_fx;
     int16_t     snd_bpm, snd_perf, snd_beat, snd_meter, snd_beat_on, snd_beat_vol, snd_tr;
     int16_t     snd_inv;              /* 0 = Beat del menu, altrimenti 1 + (stile << 8 | variazione) */
+    int16_t     snd_amb;              /* le note sparse di AMBIENT mandate (a << 8 | b di VS_AMB), −1 = mai */
     uint8_t     snd_inv_dens[INV_PARTS];   /* densità mandate + 1 (0 = mai mandata) */
     inv_t       inv_ui;               /* il loop inventato rifatto per la griglia della plancia */
     uint8_t     snd_fx_idx;           /* parametro dell'effetto principale del suono (SND-601) */

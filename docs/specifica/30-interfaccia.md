@@ -811,7 +811,7 @@ I font dell'OLED sono diversi e propri (§7.2).
 
 ### 4.4 Testata
 
-**UI-126** [D] Z1 (0, 0, 640, 24), testo in classe S alle righe 4..19. **Fuori da Geek Out lo stato tace**: la testata mostra a destra la batteria e, da x = 8 verso destra e solo finché servono, «NO MPK» (lampeggia), «MPK BUSY», «MPK ERROR», «MPK FACTORY», «PAD» (macro pad in errore o senza mappa), «POCKET», «DRUMS», «HOLD», «METRO», «FILL» e «DROP» (gli stati delle aggiunte del macro pad in `active`: batteria a tastiera, Hold dell'accordo, metronomo di T3, Fill tenuto; 40 MIDI-133; Drop di T13 tenuto, 40 MIDI-140; il Lock delle manopole, «LOCK SOUND PERFORM KEY», è tolto dal 19/10/2026), «SWING» e «DRUM FX» (swing e FX della batteria, che cambiano il Beat anche fuori da DRUMS; 40 MIDI-135), «BASSLINE» (il basso che rotola, 10 ACC-219, 40 MIDI-142), «CLIP» (1500 ms) e «XRUN» (2 s), con 16 px tra l'uno e l'altro; «NO MPK» tiene il suo posto anche quando è spento, così il resto non si sposta. Attività MIDI, voci, carico e livelli non si disegnano e non ridisegnano la zona. Nella vista **Geek Out** la testata è la barra completa:
+**UI-126** [D] Z1 (0, 0, 640, 24), testo in classe S alle righe 4..19. **Fuori da Geek Out lo stato tace**: la testata mostra a destra la batteria e, da x = 8 verso destra e solo finché servono, «NO MPK» (lampeggia), «MPK BUSY», «MPK ERROR», «MPK FACTORY», «PAD» (macro pad in errore o senza mappa), «POCKET», «DRUMS», «AMBIENT» (il modulo che suona quasi da solo, in `active` mentre suona e in `dim` in pausa; 40 MIDI-143), «HOLD», «METRO», «FILL» e «DROP» (gli stati delle aggiunte del macro pad in `active`: batteria a tastiera, Hold dell'accordo, metronomo di T3, Fill tenuto; 40 MIDI-133; Drop di T13 tenuto, 40 MIDI-140; il Lock delle manopole, «LOCK SOUND PERFORM KEY», è tolto dal 19/10/2026), «SWING» e «DRUM FX» (swing e FX della batteria, che cambiano il Beat anche fuori da DRUMS; 40 MIDI-135), «BASSLINE» (il basso che rotola, 10 ACC-219, 40 MIDI-142), «CLIP» (1500 ms) e «XRUN» (2 s), con 16 px tra l'uno e l'altro; «NO MPK» tiene il suo posto anche quando è spento, così il resto non si sposta. Attività MIDI, voci, carico e livelli non si disegnano e non ridisegnano la zona. Nella vista **Geek Out** la testata è la barra completa:
 
 | Elemento | x | Contenuto |
 |---|---|---|
@@ -1225,6 +1225,12 @@ Quit Stame     → Back / Quit now
 - la cella KIT della pagina dei comandi (UI-152) scrive il valore «NN Nome», o «Beat», e nel dettaglio «Synth, analog», «Samples, acoustic», o con il kit del Beat «Funk: Studio», «Acid: 808»; la banda (`OV_KIT`) scrive «Kit», il numero, il nome e lo stesso dettaglio. I testi li compone la piattaforma in `tempo.kit_name` e `tempo.kit_info` (il nucleo della UI non conosce il catalogo);
 - nella lista dei Beat (UI-077) la colonna info di ogni Beat scrive il suo kit.
 
+**UI-178** [D, 22/10/2026] **Il modulo AMBIENT** (`40` MIDI-143, `10` ACC-260…264). Il modulo preme i tasti dello strumento, quindi la zona accordo, la tastiera e le note mostrano i suoi accordi come quelli di chi suona; in più:
+- la testata scrive «AMBIENT» (UI-126), in `active` mentre suona e in `dim` in pausa;
+- le **note sparse** che suonano (`music.amb_treble`, dallo snapshot del motore) hanno sulla tastiera una striscia in fondo al tasto in `active`, come quelle del loop (in `loop`), che hanno la precedenza;
+- con il modulo acceso e DRUMS spento le celle CH.VOICING e BS.VOICING diventano **BLOOMS** (le note sparse 00…10, con la barra; dettaglio «On» o «Paused») e **MOOD** (l'atmosfera; dettaglio il movimento: «Still» a 0, «Slow» fino a 2, «Calm» fino a 5, «Flowing» fino a 8, «Fast»). I testi li compone la piattaforma (`tempo.amb_mood_name`);
+- gli overlay: «Ambient» (On, Paused, Off, con l'atmosfera nel dettaglio), «Blooms» (numero, «Sparse notes» o «None», barra), «Mood» (nome), «Motion» (numero, parola, barra), «Ambient … New idea» (la variazione).
+
 ---
 
 ## 6. Da dove arrivano le azioni
@@ -1243,7 +1249,7 @@ Questa è la mappa **logica**. Il riferimento normativo è la sezione 40: numeri
 | `PNL_MACRO(MACRO_PANIC)` | va a `core`; la UI mostra l'avviso «Panic» |
 | `PNL_MACRO(MACRO_LOOP_STOP)`, `(MACRO_LOOP_CLEAR)`, `(MACRO_LOOP_UNDO)`, `(MACRO_LOOP_OVERDUB)` | vanno al looper; la UI mostra lo stato che ne risulta |
 | `PNL_MACRO(MACRO_DROP, b)` | `tempo.drop = b` e il Drop al motore (10 ACC-217); la testata mostra «DROP» (UI-126) |
-| `PNL_MACRO(MACRO_VIEW_TOGGLE)` | Geek Out, oppure la vista in uso prima di entrarci (T14 del macro pad, 40 MIDI-132) |
+| `PNL_MACRO(MACRO_AMBIENT_TOGGLE)` | il modulo AMBIENT acceso o spento (T14 del macro pad, 40 MIDI-143); fino al 22/10/2026 `MACRO_VIEW_TOGGLE`, Geek Out e ritorno |
 | `PNL_MACRO(MACRO_CONTROLS_PAGE)` | apre la pagina dei comandi e la tiene aperta; un altro `MACRO_CONTROLS_PAGE` o `PNL_BACK` la chiude (UI-142a) |
 | `PNL_SRC_CONNECTED`, `PNL_SRC_LOST` | stato della MPK o del macro pad (UI-126), legende (UI-152, UI-155) e avviso (UI-156) |
 
@@ -1272,7 +1278,7 @@ Gli eventi musicali (`PNL_KEY_*`, `PNL_CHORD_*`, `PNL_BEND`, `PNL_MOD`, `PNL_SUS
 | **T9 / T10 / T11** | Options / indietro / menu della piattaforma (UI-129) |
 | **T12** tenuto 1 s | Panic |
 | **T13** | **Drop** finché è tenuto (40 MIDI-140): Beat, batteria del loop e basso tacciono e rientrano sul battito; la testata mostra «DROP» (UI-126) |
-| **T14** | **View**: Geek Out e ritorno alla vista di prima (40 MIDI-132) |
+| **T14** | **Ambient**: il modulo che suona quasi da solo (40 MIDI-143); Geek Out sta in Options → View |
 | **T15** | **Page**: apre la pagina dei comandi e la tiene aperta; un altro tocco o B la chiude (UI-142a, 40 MIDI-132) |
 | manopola grande **M** | Chord Voicing: rotazione; pressione = Split ↔ Octave |
 | manopola piccola **m1** | Bass Voicing: rotazione; pressione o tenuta = il modificatore |

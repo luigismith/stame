@@ -560,17 +560,17 @@ Gli encoder dell'originale si premono, le manopole della MPK no. Luigi ha aggiun
 ```
   Macro pad BRIMFORD, tenuto con le manopole a destra (mappa del 16/10/2026)
   T1 Hold     T2 Tap      T3 Metro   T4 Fill    T13 Drop    m1   m2
-  T5 Scene 1  T6 Scene 2  T7 Scene 3 T8 Scene 4 T14 View
+  T5 Scene 1  T6 Scene 2  T7 Scene 3 T8 Scene 4 T14 Ambient
   T9 Options  T10 Save Lp T11 Drums  T12 Panic  T15 Page       M
 ```
 
 | Fila del pad | col. 1 | col. 2 | col. 3 | col. 4 | col. 5 | Manopole |
 |---|---|---|---|---|---|---|
 | in alto | T1 Hold | T2 Tap tempo | T3 Metronomo | T4 Fill (tenuto) | **T13 Drop** (tenuto) | m1 Bass Voicing (piccola vicina ai tasti), m2 volume del Beat (piccola sul bordo; premuta e girata, volume del basso) |
-| in mezzo | T5 Scene 1 | T6 Scene 2 | T7 Scene 3 | T8 Scene 4 | **T14 View** | |
+| in mezzo | T5 Scene 1 | T6 Scene 2 | T7 Scene 3 | T8 Scene 4 | **T14 Ambient** | |
 | in basso | T9 Options | T10 Save Loop | T11 Drums | T12 Panic | **T15 Page** | M Chord Voicing (la grande) |
 
-La quinta colonna è quella **decisa da Luigi il 15/10/2026**, degli stati di Stame: **T13 Drop** (MIDI-140; fino al 19/10/2026 era il Lock delle manopole, MIDI-131), **T14 View** e **T15 Page** (MIDI-132). Le prime quattro, fino al 15/10 gemelle delle manopole della MPK, dal 16/10/2026 sono le funzioni di MIDI-133.
+La quinta colonna è quella **decisa da Luigi il 15/10/2026**, degli stati di Stame: **T13 Drop** (MIDI-140; fino al 19/10/2026 era il Lock delle manopole, MIDI-131), **T14 Ambient** (MIDI-143; fino al 22/10/2026 View) e **T15 Page** (MIDI-132). Le prime quattro, fino al 15/10 gemelle delle manopole della MPK, dal 16/10/2026 sono le funzioni di MIDI-133.
 
 - **MIDI-120** — Il profilo `pad_brimford` DEVE applicare questa mappa [D, **13/10/2026**, rifatta il **16/10/2026**] sempre, con o senza tastiera (il pad strumento di MIDI-136 è stato tolto il 18/10/2026). I codici sono quelli programmati sul macro pad (MIDI-122) o imparati con Learn Pad (MIDI-123); al profilo arrivano già tradotti nei codici portabili `MPAD_*` (MIDI-124):
 
@@ -586,7 +586,7 @@ La quinta colonna è quella **decisa da Luigi il 15/10/2026**, degli stati di St
 | **T11** | M | `PNL_MACRO(MACRO_DRUMS_TOGGLE)` alla pressione | **Batteria a tastiera** on/off (ACC-211) |
 | **T12** | N | `PNL_MACRO(MACRO_PANIC)` **solo dopo 1 s tenuto**, `MACRO_RESET` a 3 s (MIDI-126) | Panic (§7), Reset |
 | **T13** | E | `PNL_MACRO(MACRO_DROP, 1)` alla pressione, `0` al rilascio | **Drop** finché è tenuto (MIDI-140) [D, **scelto da Luigi il 19/10/2026**] |
-| **T14** | J | `PNL_MACRO(MACRO_VIEW_TOGGLE)` alla pressione | **View**: Geek Out e ritorno alla vista di prima (MIDI-132) |
+| **T14** | J | `PNL_MACRO(MACRO_AMBIENT_TOGGLE)` alla pressione | **Ambient**: il modulo che suona quasi da solo, acceso o spento (MIDI-143; fino al 22/10/2026 View, MIDI-132) |
 | **T15** | O | `PNL_MACRO(MACRO_CONTROLS_PAGE)` alla pressione | **Page**: apre la pagina dei comandi della Flip e la tiene aperta; un altro tocco o Back la chiude (MIDI-132) |
 | **M** antioraria / oraria | 9 / 7 (strato 1: volume giù / su) | `PNL_ENC_TURN(ENC_CHORD_VOICING, −1/+1)`, uno scatto per evento | Chord Voicing Dial |
 | **M** pressione | 8 (strato 1: muto) | `PNL_ENC_DOWN/UP(ENC_CHORD_VOICING)` | Pulsante del Chord Voicing: Split ↔ Octave |
@@ -685,7 +685,7 @@ layers:
 - **MIDI-131** — **Lock delle manopole** [D, deciso da Luigi il 15/10/2026: «un tasto che funzioni tipo Caps Lock per i knob»; **tolto il 19/10/2026**]. Dal 15 al 19/10/2026 T13 era un interruttore a scatto: acceso, M, m1 e m2 erano gli encoder Sound, Perform e Key, perché le manopole della MK4 non hanno scatti e quelle del pad sì. Il 19/10/2026 Luigi: «a che serve se sulla mpk ho già sound, perform, key?»; la navigazione della MK4 ha scatti e pressione per le liste e SHIFT + K dà tutti i gesti premuti, quindi il Lock era un doppione. T13 è il Drop (MIDI-140).
 
 - **MIDI-132** — **View e Page** [D, **decisi da Luigi il 15/10/2026**]. Due tasti per guardare la Flip senza allungare la mano fino ai suoi tasti:
-  - **T14 View** emette `PNL_MACRO(MACRO_VIEW_TOGGLE)` alla pressione: la UI passa a **Geek Out** e, al tocco successivo, torna alla vista in uso prima (`30` UI-051: Options → View resta la strada dell'originale per le sei viste);
+  - **T14 View** emetteva `PNL_MACRO(MACRO_VIEW_TOGGLE)` alla pressione: la UI passava a **Geek Out** e, al tocco successivo, tornava alla vista in uso prima. **Tolto il 22/10/2026**: T14 è il modulo AMBIENT (MIDI-143), scelto da Luigi fra quattro proposte; Geek Out si apre da Options → View, la strada dell'originale per le sei viste (`30` UI-051);
   - **T15 Page** emette `PNL_MACRO(MACRO_CONTROLS_PAGE)` alla pressione: la UI apre la **pagina dei comandi** (`30` UI-142a) e la tiene aperta finché non arriva un altro `MACRO_CONTROLS_PAGE` o un `PNL_BACK`; i 5 s dei tasti della Flip non la chiudono;
   - tutti e due agiscono solo alla pressione: tenerli non ripete nulla. Non cambiano suono, trasporto né looper.
 
@@ -778,6 +778,23 @@ layers:
   - la cella di K5 scrive «BASSLINE» e la figura mentre si gira premuta, con l'Accent nel dettaglio; girata da sola «ACCENT», con la figura nel dettaglio quando c'è («Bass Rolling»); l'overlay è `OV_BASSLINE` (`30` UI-025);
   - la figura è uno stato: resta quando DRUMS si spegne e la testata scrive «BASSLINE» finché non è Off (`30` UI-126). Rotola solo a trasporto in moto: con il Beat fermo il basso suona tenuto come sempre;
   - per la psytrance: Beat o stile Psytrance (`10` ACC-215, ACC-218), un basso corto (Rolling Root), figura Rolling, BPM 140–148.
+
+- **MIDI-143** — **Il modulo AMBIENT** [D, **chiesto da Luigi il 22/10/2026**: «aggiungi un modulo per suonare da solo (quasi da solo) ambient»; con le domande a scelta multipla: «T14 al posto di View», «Accordi, basso e note sparse», «Manopole del pad e il tuo accordo»]. **T14** lo accende e lo spegne (`PNL_MACRO(MACRO_AMBIENT_TOGGLE)` alla pressione). Acceso, le tre manopole del pad lo guidano come sotto DRUMS (MIDI-139), salvo che DRUMS sia acceso, che ha la precedenza:
+
+| Manopola | Girata | Premuta |
+|---|---|---|
+| **M** | **Note sparse** (Blooms) 0…10 (`10` ACC-262), default 4 | **Pausa** e ripresa |
+| **m1** | **Atmosfera** (Mood): Float, Dusk, Deep, Glass, Drone, Tide (`10` ACC-261), in giro | il modificatore Mod di sempre |
+| **m2** | **Movimento** (Motion) 0…10: 0 l'accordo non cambia mai, 10 un accordo a battuta; default 5 | **Idea nuova**: un'altra variazione, quindi un altro giro e altre note sparse (`MACRO_KNOB_CLICK`) |
+
+  Regole:
+  - con il modulo acceso il modulo suona da sé (`10` ACC-260): preme gli accordi della tavolozza nella tonalità di Key e ci mette sopra le note sparse; suono, Perform, FX, basso e Beat si scelgono come sempre con la MK4 (un pad lento come Ghost Orchid o Snowmelt, un basso come Hadal Drone, BPM fra 60 e 80 sono il punto di partenza);
+  - chi suona un accordo zittisce il modulo, e un quarto dopo l'ultimo rilascio il giro riparte da quell'accordo (`10` ACC-263); con T1 Hold l'accordo resta e dura un giro;
+  - m2 premuta e girata resta il volume del basso; m1 tenuta resta il Mod delle combinazioni; M premuta e girata è come girata;
+  - lo stesso vale per il fuoco della Flip: la levetta destra e R3 (Chord Voicing) sono M, L3 e Y (Bass Voicing) sono m1;
+  - gli overlay sono `OV_AMBIENT` («Ambient» On, Paused, Off, con l'atmosfera), `OV_BLOOMS`, `OV_MOOD`, `OV_MOTION` (Still, Slow, Calm, Flowing, Fast) e `OV_AMB_IDEA` (`30` UI-025);
+  - è uno stato: la testata scrive «AMBIENT» (in `active` mentre suona, in `dim` in pausa) e le celle CH.VOICING e BS.VOICING diventano BLOOMS e MOOD (`30` UI-126, UI-178); sul case T14 è AMBIENT, in negativo come gli altri stati della quinta colonna (`60` CASE-043);
+  - Reset (MIDI-126) lo spegne; la demo automatica non parte mentre è acceso, quella chiesta dal menu lo spegne.
 
 ---
 

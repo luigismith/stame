@@ -26,6 +26,7 @@ void mot_init(motore_t *m, dsp_t *d, uint32_t fs, uint32_t seed)
     m->sw_step = -1;
     memset(m->pre, MOT_NONE, sizeof m->pre);
     memset(m->lp_out, MOT_NONE, sizeof m->lp_out);
+    amb_bloom_init(&m->amb, seed);
 }
 
 uint64_t mot_tick_sample(const motore_t *m, uint32_t t)
@@ -362,6 +363,23 @@ void mot_bassline(motore_t *m, uint8_t pattern)
     bl_sync(m);
 }
 
+void mot_ambient(motore_t *m, bool on, uint8_t dens, uint8_t mood, uint8_t tonic, bool minor)
+{
+    amb_bloom_set(&m->amb, on, dens, mood, tonic, minor, m->tick);
+}
+
+void mot_ambient_idea(motore_t *m, uint8_t var) { amb_bloom_seed(&m->amb, var, m->tick); }
+
+/* le classi delle note treble che il motore degli accordi tiene: l'accordo sopra cui cadono le note sparse */
+static uint16_t held_pcs(const motore_t *m)
+{
+    uint32_t pcs = 0;
+    for (int i = 0; i < 16; i++)
+        for (int bit = 0; bit < 8; bit++)
+            if (m->held[i] >> bit & 1u) pcs |= 1u << ((i * 8 + bit) % 12);
+    return (uint16_t)pcs;
+}
+
 void mot_inventa(motore_t *m, uint8_t groove, uint8_t var)
 {
     if (!m->inv_on || groove != m->inv.groove || var != m->inv.var) inv_build(&m->inv, groove, var);
@@ -401,6 +419,7 @@ void mot_all_off(motore_t *m)
     memset(m->lp_out, MOT_NONE, sizeof m->lp_out);
     memset(m->ref, 0, sizeof m->ref);
     memset(m->bl_gate, 0, sizeof m->bl_gate);
+    amb_bloom_forget(&m->amb);
 }
 
 /* ---------------------------------------------------------------- tempo */
@@ -436,6 +455,12 @@ static void tick_run(motore_t *m)
                     drums_hit(&m->drums, (uint8_t)k, m->drum_held[k]);
                     loop_record_hit(&m->loop, dritto ? m->tick : m->tick - sw, m->tick, (uint8_t)k, m->drum_held[k]);
                 }
+    }
+    amb_ev_t ae[2 * AMB_VOICES];                                  /* le note sparse del modulo AMBIENT (ACC-262), sul Sound */
+    int na = amb_bloom_run(&m->amb, m->tick, held_pcs(m), m->ref[0], ae, 2 * AMB_VOICES);
+    for (int i = 0; i < na; i++) {
+        if (ae[i].vel) voice_on(m, 0, ae[i].note, ae[i].vel);
+        else voice_off(m, 0, ae[i].note);
     }
     bl_sync(m);                                                   /* il trasporto può essersi messo in moto o fermato */
     if (!m->tr_on) { m->sw_step = -1; return; }
@@ -514,6 +539,11 @@ void mot_render(motore_t *m, float *L, float *R, uint32_t n)
         }
     for (int r = 0; r < 2; r++)
         for (int i = 0; i < 16; i++) m->snap.lp_notes[r][i] = bits[r][i];
+    memset(m->snap.amb_notes, 0, sizeof m->snap.amb_notes);
+    for (int i = 0; i < AMB_VOICES; i++) {
+        uint8_t o = m->amb.v[i].note;
+        if (o < 128) m->snap.amb_notes[o >> 3] |= (uint8_t)(1u << (o & 7));
+    }
     atomic_store_explicit(&m->snap.seq, sq + 2u, memory_order_release);     /* pari: pubblicato */
 }
 

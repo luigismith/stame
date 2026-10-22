@@ -37,6 +37,8 @@ void vet_snd_apply(motore_t *m, const vet_snd_t *e)
     case VS_DRUM_FX:     mot_drum_fx(m, e->a, (int8_t)((int)e->b - 10)); break;
     case VS_DROP:        mot_drop(m, e->a != 0); break;
     case VS_BASSLINE:    mot_bassline(m, e->a); break;
+    case VS_AMB:         mot_ambient(m, e->a & 1u, e->b & 15u, (e->a >> 1) & 7u, e->b >> 4, (e->a >> 4) & 1u); break;
+    case VS_AMB_IDEA:    mot_ambient_idea(m, e->a); break;
     default: break;
     }
 }
