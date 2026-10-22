@@ -14,7 +14,11 @@ quelle (i nomi sono nelle chiamate a scatta() di blender_scena.py). --bozza: vis
 riferimenti ai colori del NES europeo (Luigi, 20/10/2026: «fa anche dei render della versione total 3d printed
 con riferimenti ai colori del NES europeo»), nei tre PETG che ha preso (crema, rosso, grigio traslucido;
 FILAMENTI in blender_scena.py): il modello va in build/render/stame_stampata.obj, i JPG in
-out/render/stampata_*.jpg; senza --viste, le otto di VISTE_STAMPATA.
+out/render/stampata_*.jpg; senza --viste, le otto di VISTE_STAMPATA. --targhe nome: una variante delle targhe dei
+fianchi (multicolore.VARIANTI_TARGHE), che resta in build/render.
+Blender gira a priorità minima e con un quarto dei core (Luigi, 22/10/2026: «blender si prende troppe risorse dal
+pc, alleggerisci i suoi processi, o fagli fare meno cose»): il PC resta usabile, il rendering dura di più.
+--thread N: N core.
 """
 import json
 import os
@@ -35,6 +39,8 @@ TEX = os.path.join(BUILD, 'tex')
 FOTO = os.path.join(RADICE, 'private', 'foto')
 VC = r'C:\Program Files\VectorCraft\vectorcraft-cli.exe'
 BLENDER = r'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe'
+THREAD = max(2, (os.cpu_count() or 8) // 4)     # i core per Blender: un quarto (4 su 16 nel PC di lavoro)
+PRIORITA = getattr(subprocess, 'IDLE_PRIORITY_CLASS', 0)   # Windows: dopo tutto il resto
 PT_MM = 72 / 25.4                   # VectorCraft: scala 1 = un punto per millimetro... in punti
 
 
@@ -206,8 +212,9 @@ def main():
     if not os.path.exists(scena['hdr']):
         print('manca', scena['hdr'], '(Poly Haven, studio_small_09_2k.hdr, CC0)')
         return
-    r = subprocess.run([BLENDER, '-b', '--factory-startup', '-P', os.path.join(QUI, 'blender_scena.py'), '--',
-                        os.path.join(BUILD, 'scena.json')])
+    thread = int(sys.argv[sys.argv.index('--thread') + 1]) if '--thread' in sys.argv else THREAD
+    r = subprocess.run([BLENDER, '-b', '--factory-startup', '-t', str(thread), '-P', os.path.join(QUI, 'blender_scena.py'),
+                        '--', os.path.join(BUILD, 'scena.json')], creationflags=PRIORITA)
     if r.returncode:
         sys.exit(r.returncode)
     if modo == 'blend':                 # Blender con la finestra, sulla scena salvata: la si gira con il mouse

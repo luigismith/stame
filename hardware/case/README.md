@@ -30,6 +30,7 @@ python -I hardware/case/sketchup.py    codice per costruire il modello in Sketch
 python -I hardware/case/etichette.py   etichette dei tasti trasparenti del pad (A4, SVG e PDF)
 python -I hardware/case/rendering.py   rendering con Blender 5.2, Cycles sulla CPU, dieci viste (out/render/)
                                        (--stampata la console stampata nei PETG di Luigi, otto viste)
+                                       (Blender a priorità minima e con un quarto dei core: il PC resta usabile; --thread N)
 ```
 
 Attenzione: il 18/10/2026, su HOMEPC, `rendering.py` in qualità piena con Cycles sulla GPU (OptiX) ha mandato il PC in schermata blu due volte (0xEF). Dal 19/10/2026 Cycles lavora sulla CPU, e i rendering in `out/render/` sono stati rifatti così sul PC di lavoro (circa un'ora e mezza per le dieci viste); su HOMEPC non si rilancia senza l'ok di Luigi.
