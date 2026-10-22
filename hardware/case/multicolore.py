@@ -88,8 +88,25 @@ SCHEMI = {
                 nomi={1: 'grigio traslucido', 2: 'crema', 3: 'rosso'},
                 tinta={1: (58, 60, 64), 2: (222, 204, 166), 3: (178, 24, 28)},
                 filamenti={'piano': (1, 3), 'telaio': (2, 3)}, da_solo={'telaio': 2, 'petg_sabbia': 2}, fascia=None,
-                targhe=dict(h=2.0, margine=2.5, gioco=0.15)),
+                targhe=dict(h=2.0, margine=2.5, gioco=0.15, forma='rett', rientro=4.0, corpo=1, scritte=3, cornice=None)),
 }
+# le targhe dei fianchi: la forma ('rett' attorno alle scritte, 'lato' concentrica al profilo del fianco, rientrata di
+# rientro), i filamenti del corpo e delle scritte e quello di una cornice sottile (None: niente). Luigi, 22/10/2026:
+# «le etichette rettangolari non mi piacciono, le preferirei concentriche seguendo la forma del lato, o così com'è ma
+# dello stesso colore del lato e solo le scritte rosse (magari con qualche dettaglio grigio)»: le varianti da guardare
+# (rendering.py --stampata --targhe nome); SCHEMI['nes']['targhe'] tiene quella scelta
+VARIANTI_TARGHE = {
+    'rett': dict(forma='rett', margine=2.5, corpo=1, scritte=3, cornice=None),       # quella del 20/10/2026
+    'lato': dict(forma='lato', margine=2.5, corpo=1, scritte=3, cornice=None),
+    'rett_crema': dict(forma='rett', margine=3.6, corpo=2, scritte=3, cornice=1),
+    'lato_crema': dict(forma='lato', margine=2.5, corpo=2, scritte=3, cornice=1),
+}
+CORNICE = (1.2, 0.8)        # la cornice della targa: quanto sta dentro il bordo, quanto è larga (due passate da 0,4)
+
+
+def usa_targhe(nome):
+    """una variante delle targhe dei fianchi (VARIANTI_TARGHE) al posto di quella scelta"""
+    SCHEMI['nes']['targhe'].update(VARIANTI_TARGHE[nome])
 SCHEMA = 'due'
 FILAMENTI = SCHEMI[SCHEMA]['filamenti']      # (corpo, scritte)
 TINTA = SCHEMI[SCHEMA]['tinta']              # i colori delle anteprime
@@ -475,11 +492,45 @@ def con_targa(pz):
     rr = [r['rett'] for r in pz.regioni]
     u0, v0 = min(r[0] for r in rr) - m, min(r[1] for r in rr) - m
     u1, v1 = max(r[2] for r in rr) + m, max(r[3] for r in rr) + m
+    if tg['forma'] == 'lato':                # concentrica: il profilo del fianco, rientrato (le scritte restano dove sono)
+        def bordo(d):
+            return G.profilo_rientrato(tg['rientro'] + d)
+        b = S._bbox(bordo(g + sum(CORNICE) if tg['cornice'] else g))      # le scritte ad almeno 1 mm dal bordo o dalla cornice
+        assert b[0] <= u0 + m - 1.0 and b[1] <= v0 + m - 1.0 and b[2] >= u1 - m + 1.0 and b[3] >= v1 - m + 1.0, \
+            f'{pz.nome}: le scritte escono dalla targa'
+    else:
+        def bordo(d):
+            return rett(u0 + d, v0 + d, u1 - d, v1 - d, max(1.0 - d, 0.0))
     targa = S.Pezzo('targa_' + pz.nome.split('_')[-1], pz.F, 'piano', f'targa del {pz.nome.replace("_", " ")}')
-    targa.strati = [(rett(u0 + g, v0 + g, u1 - g, v1 - g, 1.0 - g), [], pz.faccia - tg['h'], pz.faccia)]
+    targa.strati = [(bordo(g), [], pz.faccia - tg['h'], pz.faccia)]
+    c0, cw = CORNICE
+    targa.cornice = (bordo(g + c0), bordo(g + c0 + cw)) if tg['cornice'] else None
     targa.faccia, targa.regioni, targa.disegno = pz.faccia, pz.regioni, pz.disegno
-    pz.sede, pz.regioni = (rett(u0, v0, u1, v1, 1.0), tg['h']), []
+    pz.sede, pz.regioni = (bordo(0.0), tg['h']), []
     return targa
+
+
+def solidi_targa(tg, t):
+    """corpo, scritte e cornice (None se la variante non l'ha) di una targa: come solidi(), e la cornice nella faccia in
+    vista, incassata come le scritte"""
+    if not tg.cornice:
+        corpo, scritte = solidi(tg, t)
+        return corpo, scritte, None
+    co, ci = tg.cornice
+    corpo, scritte, cornice = Mesh(f'Stame {tg.nome} corpo'), Mesh(f'Stame {tg.nome} scritte'), Mesh(f'Stame {tg.nome} cornice')
+    zone = [rett(*r['rett']) for r in t['regioni']]
+    zf = tg.faccia
+    (outer, holes, w0, w1), = t['strati']
+    corpo.prisma(outer, w0, zf - SCRITTA_H, holes=holes)
+    corpo.prisma(outer, zf - SCRITTA_H - S.SOVRAPPOSTO, zf, holes=holes + [co])
+    corpo.prisma(ci, zf - SCRITTA_H - S.SOVRAPPOSTO, zf, holes=zone)
+    for r in t['regioni']:
+        for q in r['fondo']:
+            corpo.prisma(rett(*q), zf - SCRITTA_H - S.SOVRAPPOSTO, zf)
+        for q in r['testo']:
+            scritte.prisma(rett(*q), zf - SCRITTA_H, zf)
+    cornice.prisma(co, zf - SCRITTA_H, zf, holes=[ci])
+    return corpo, scritte, cornice
 
 
 def tratto_targa(targa):
@@ -497,8 +548,9 @@ def parete(pz, t):
             ob = S._bbox(outer)
             dentro = zb[0] >= ob[0] and zb[1] >= ob[1] and zb[2] <= ob[2] and zb[3] <= ob[3]
             fuori = zb[2] <= ob[0] or zb[0] >= ob[2] or zb[3] <= ob[1] or zb[1] >= ob[3]
-            assert dentro or fuori, f'{pz.nome}: la sede della targa sulla giunta'
-            if abs(w1 - pz.faccia) < 1e-6 and dentro:
+            faccia = abs(w1 - pz.faccia) < 1e-6
+            assert dentro or fuori or not faccia, f'{pz.nome}: la sede della targa sulla giunta'
+            if faccia and dentro:
                 ms.prisma(outer, w0, w1 - h, holes=holes)
                 ms.prisma(outer, w1 - h - S.SOVRAPPOSTO, w1, holes=holes + [zona])
             else:
@@ -569,7 +621,7 @@ def _verso_scrittura(pz, t):
     return math.degrees(math.atan2(c[1][1] - c[0][1], c[1][0] - c[0][0]))
 
 
-def anteprima(path, corpo, scritte, titolo, verso=0.0, filamenti=(1, 2)):
+def anteprima(path, corpo, scritte, titolo, verso=0.0, filamenti=(1, 2), cornice=None):
     """la faccia in vista come la si guarda, con il pezzo girato a faccia in su e la riga di scrittura
     orizzontale: nero e sabbia, 8 px/mm"""
     from PIL import Image, ImageDraw
@@ -578,6 +630,7 @@ def anteprima(path, corpo, scritte, titolo, verso=0.0, filamenti=(1, 2)):
         zt = max(p[2] for t in tris for p in t)
         return [t for t in tris if all(abs(p[2] - zt) < 1e-4 for p in t)]
     fc, fs = facce(corpo), facce(scritte)
+    fd = facce(cornice[0]) if cornice else []
     pts = [p for t in fc for p in t]
     x0, y0 = min(p[0] for p in pts), min(p[1] for p in pts)
     x1, y1 = max(p[0] for p in pts), max(p[1] for p in pts)
@@ -591,6 +644,8 @@ def anteprima(path, corpo, scritte, titolo, verso=0.0, filamenti=(1, 2)):
         d.polygon([T(p) for p in t], fill=TINTA[filamenti[0]])
     for t in fs:
         d.polygon([T(p) for p in t], fill=TINTA[filamenti[1]])
+    for t in fd:
+        d.polygon([T(p) for p in t], fill=TINTA[cornice[1]])
     img = img.rotate(-verso, expand=True, fillcolor=fondo)
     bb = Image.eval(img.convert('L'), lambda v: 255 if v < 240 else 0).getbbox()
     if bb:
@@ -601,18 +656,21 @@ def anteprima(path, corpo, scritte, titolo, verso=0.0, filamenti=(1, 2)):
     out.save(path, optimize=True)
 
 
-def _scrivi(nome, corpo, scritte, colore, piatto, minimo, fascia=False):
+def _scrivi(nome, corpo, scritte, colore, piatto, minimo, fascia=False, filamenti=None, cornice=None):
     """corpo e scritte (o None) già nel verso della stampa: appoggiati insieme sul piatto, in un STL per parte e in un
     3MF; con fascia (le vasche, se lo schema ce l'ha) il corpo si divide nella fascia, sotto, e nel resto. Torna la
-    riga dell'elenco (ingombro, chiuso, sta, grammi, parti con i filamenti) e gli strati con il cambio di filamento"""
+    riga dell'elenco (ingombro, chiuso, sta, grammi, parti con i filamenti) e gli strati con il cambio di filamento.
+    filamenti = (corpo, scritte) al posto di quelli del colore; cornice = (Mesh, filamento): una terza parte"""
     tutto = Mesh(f'Stame {nome}')
     tutto.unisci(corpo)
     if scritte is not None:
         tutto.unisci(scritte)
+    if cornice is not None:
+        tutto.unisci(cornice[0])
     (x0, y0, z0), _ = tutto.ingombro()
     a_terra = sposta(-x0, -y0, -z0)
     corpo, tutto = corpo.portato(a_terra), tutto.portato(a_terra)
-    fil_c, fil_s = FILAMENTI[colore]
+    fil_c, fil_s = filamenti or FILAMENTI[colore]
     grammi = S.grammi(corpo)                 # la stima sul pezzo intero: le parti non hanno strati pieni dove si toccano
     parti = [('corpo', corpo, fil_c)]
     cambi = 0
@@ -626,6 +684,12 @@ def _scrivi(nome, corpo, scritte, colore, piatto, minimo, fascia=False):
         parti.append(('scritte', scritte, fil_s))
         grammi += S.grammi(scritte)
         (_, _, za), (_, _, zb) = scritte.ingombro()
+        cambi += round((zb - za) / 0.2)
+    if cornice is not None:
+        cm = cornice[0].portato(a_terra)
+        parti.append(('cornice', cm, cornice[1]))
+        grammi += S.grammi(cm)
+        (_, _, za), (_, _, zb) = cm.ingombro()
         cambi += round((zb - za) / 0.2)
     for parte, ms, _ in parti:
         ms.nome = f'Stame {nome} {parte}'
@@ -690,14 +754,18 @@ def genera(piatto=None, schema='due'):
                   f'{nome}: la faccia in vista', _verso_scrittura(pz, t), FILAMENTI[pz.colore])
         righe.append(r)
     # le targhe dei fianchi, come i piani: la faccia in vista sul piatto
+    tgc = SCHEMI[SCHEMA]['targhe']
     for tg in targhe:
         t = tratto_targa(tg)
-        corpo, scritte = solidi(tg, t)
-        r = _scrivi(tg.nome, orienta(tg, t, corpo, True), orienta(tg, t, scritte, True), 'piano', piatto, 0.3)
+        corpo, scritte, cornice = solidi_targa(tg, t)
+        fil = (tgc['corpo'], tgc['scritte'])
+        r = _scrivi(tg.nome, orienta(tg, t, corpo, True), orienta(tg, t, scritte, True), 'piano', piatto, 0.3, filamenti=fil,
+                    cornice=(orienta(tg, t, cornice, True), tgc['cornice']) if cornice else None)
         r['nota'] = (f'il marchio e il nome del fianco {tg.nome[-2:]}: si incolla nella sede del fianco, profonda '
                      f'{S._v(SCHEMI[SCHEMA]["targhe"]["h"])} mm; scritte incassate nella faccia in vista, che sta sul piatto')
         anteprima(os.path.join(OUT, f'anteprima_{tg.nome}.png'), orienta(tg, t, corpo, False), orienta(tg, t, scritte, False),
-                  f'{tg.nome}: la faccia in vista', _verso_scrittura(tg, t), FILAMENTI['piano'])
+                  f'{tg.nome}: la faccia in vista', _verso_scrittura(tg, t), fil,
+                  (orienta(tg, t, cornice, False), tgc['cornice']) if cornice else None)
         righe.append(r)
     for s in G.STAMPATI:
         if s['nome'] not in ('culla_flip', 'visiera'):
@@ -745,10 +813,13 @@ def parti_console(piatto=None, schema='nes'):
         out.append(dict(nome=nome, passo=2, colore=TINTA[pc], mesh=corpo.portato(pz.F)))
         out.append(dict(nome=nome + '_scritte', passo=2, colore=TINTA[ps], mesh=scritte.portato(pz.F)))
     for tg in targhe:                        # 0,05 mm fuori dalla sede: il grigio traslucido non tocca a filo il fondo
-        corpo, scritte = solidi(tg, tratto_targa(tg))
+        tgc = SCHEMI[SCHEMA]['targhe']
+        corpo, scritte, cornice = solidi_targa(tg, tratto_targa(tg))
         fuori = componi(tg.F, sposta(0.0, 0.0, 0.05))
-        out.append(dict(nome=tg.nome, passo=2, colore=TINTA[pc], mesh=corpo.portato(fuori)))
-        out.append(dict(nome=tg.nome + '_scritte', passo=2, colore=TINTA[ps], mesh=scritte.portato(fuori)))
+        out.append(dict(nome=tg.nome, passo=2, colore=TINTA[tgc['corpo']], mesh=corpo.portato(fuori)))
+        out.append(dict(nome=tg.nome + '_scritte', passo=2, colore=TINTA[tgc['scritte']], mesh=scritte.portato(fuori)))
+        if cornice:
+            out.append(dict(nome=tg.nome + '_cornice', passo=2, colore=TINTA[tgc['cornice']], mesh=cornice.portato(fuori)))
     for s in G.STAMPATI:
         if s['nome'] in ('culla_flip', 'visiera'):
             out.append(dict(nome=s['nome'], passo=2, colore=TINTA[da_solo(s['materiale'])], mesh=s['mesh']))

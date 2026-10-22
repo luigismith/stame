@@ -551,6 +551,15 @@ def profilo_fianco(basso=None):
     return [p for i, p in enumerate(pts) if i == 0 or math.dist(p, pts[i - 1]) > 1e-6]
 
 
+def profilo_rientrato(d):
+    """il profilo pieno dei fianchi rientrato di d (meno del raggio): gli stessi spigoli tondi in cima, concentrici,
+    con il raggio meno d, e quelli in basso vivi. La targa del fianco che ne segue la forma (Luigi, 22/10/2026)"""
+    Y, H, R = M.BASE_Y1, M.Z_PIANO, M.FIANCO_R
+    assert 0.0 < d < R, d
+    pts = [(d, d), (Y - d, d)] + _arco((Y - R, H - R), R - d, 0, 90) + _arco((R, H - R), R - d, 90, 180)
+    return [p for i, p in enumerate(pts) if i == 0 or math.dist(p, pts[i - 1]) > 1e-6]
+
+
 def fianco(nome, copie, basso=None, incisa=False, viti=False):
     """uno strato dei fianchi per le copie [(lato, k)], k = 0 l'esterno. L'esterno sinistro si disegna
     con il davanti a destra, come si legge da fuori; tutti gli altri con il davanti a sinistra"""

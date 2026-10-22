@@ -158,10 +158,13 @@ def tasti_pad():
 VISTE_STAMPATA = ['eroe', 'pad', 'mascherina', 'frontale', 'retro', 'fianco', 'esploso', 'sera']
 
 
-def stampata():
-    """il modello della console stampata, con gli apparecchi di assieme.py, in un OBJ come stame_console.obj"""
+def stampata(targhe=None):
+    """il modello della console stampata, con gli apparecchi di assieme.py, in un OBJ come stame_console.obj; targhe =
+    una variante delle targhe dei fianchi (multicolore.VARIANTI_TARGHE) al posto di quella scelta"""
     import assieme as A
     import multicolore as MC
+    if targhe:
+        MC.usa_targhe(targhe)
     path = os.path.join(BUILD, 'stame_stampata.obj')
     A.scrivi_obj(MC.parti_console() + A.apparecchi(), path)
     return path
@@ -172,6 +175,7 @@ def main():
     viste = sys.argv[sys.argv.index('--viste') + 1].split(',') if '--viste' in sys.argv else []
     modo = 'bozza' if '--bozza' in sys.argv else 'blend' if '--blend' in sys.argv else 'cycles'
     versione = 'stampata' if '--stampata' in sys.argv else 'laser'
+    targhe = sys.argv[sys.argv.index('--targhe') + 1] if '--targhe' in sys.argv else None   # solo per guardarle: in build/render
     os.makedirs(TEX, exist_ok=True)
     fr = riferimenti()
     inc = {}
@@ -182,7 +186,9 @@ def main():
     faccia_flip()
     schermo()
     if versione == 'stampata':
-        obj, prefisso, blend = stampata(), 'stampata_', 'stame_stampata.blend'
+        obj, prefisso, blend = stampata(targhe), 'stampata_', 'stame_stampata.blend'
+        if targhe:
+            prefisso = f'stampata_targhe_{targhe}_'
         if modo == 'cycles' and not viste:      # la Flip da vicino e la pianta sono quelle della console del laser
             viste = VISTE_STAMPATA
     else:
@@ -208,6 +214,11 @@ def main():
         subprocess.Popen([BLENDER, scena['blend']])
         return
     if modo == 'bozza':
+        return
+    if targhe:                          # le varianti delle targhe restano in build/render, da guardare
+        for n in sorted(os.listdir(BUILD)):
+            if n.startswith(prefisso) and n.endswith('.png'):
+                print(os.path.join(BUILD, n))
         return
     os.makedirs(os.path.join(OUT, 'render'), exist_ok=True)
     for n in sorted(os.listdir(BUILD)):

@@ -349,11 +349,26 @@ if STAMPATA:
     telaio = petg('telaio stampato', F_['crema'])
     rosso = petg('scritte stampate', F_['rosso'])
     grigio = petg('piani e culle stampati', F_['grigio'])
+    def chiaro(ob):
+        """il colore che multicolore.py ha dato al pezzo nell'OBJ è chiaro (crema) e non grigio"""
+        m = ob.active_material
+        if m is None:
+            return False
+        c = m.diffuse_color[:3]
+        if m.use_nodes:
+            for n in m.node_tree.nodes:
+                if n.type == 'BSDF_PRINCIPLED':
+                    c = n.inputs['Base Color'].default_value[:3]
+        return sum(c) > 1.2
     for nome, ob in pezzi.items():
         if nome.endswith('_scritte'):
             dai(ob, rosso)
+        elif nome.endswith('_cornice'):
+            dai(ob, grigio)
         elif nome.startswith('vasca_'):
             dai(ob, telaio)
+        elif nome.startswith('targa'):            # grigia, o del colore del fianco (22/10/2026)
+            dai(ob, telaio if chiaro(ob) else grigio)
         elif nome.startswith(('mascherina', 'piano_flip', 'culla_flip', 'visiera', 'targa')):
             dai(ob, grigio)
         for prefisso, dz in SOLLEVA.items():
