@@ -88,13 +88,14 @@ SCHEMI = {
                 nomi={1: 'grigio traslucido', 2: 'crema', 3: 'rosso'},
                 tinta={1: (58, 60, 64), 2: (222, 204, 166), 3: (178, 24, 28)},
                 filamenti={'piano': (1, 3), 'telaio': (2, 3)}, da_solo={'telaio': 2, 'petg_sabbia': 2}, fascia=None,
-                targhe=dict(h=2.0, margine=2.5, gioco=0.15, forma='rett', rientro=4.0, corpo=1, scritte=3, cornice=None)),
+                targhe=dict(h=2.0, margine=2.5, gioco=0.15, forma='lato', rientro=4.0, corpo=1, scritte=3, cornice=None)),
 }
 # le targhe dei fianchi: la forma ('rett' attorno alle scritte, 'lato' concentrica al profilo del fianco, rientrata di
 # rientro), i filamenti del corpo e delle scritte e quello di una cornice sottile (None: niente). Luigi, 22/10/2026:
 # «le etichette rettangolari non mi piacciono, le preferirei concentriche seguendo la forma del lato, o così com'è ma
 # dello stesso colore del lato e solo le scritte rosse (magari con qualche dettaglio grigio)»: le varianti da guardare
-# (rendering.py --stampata --targhe nome); SCHEMI['nes']['targhe'] tiene quella scelta
+# (rendering.py --stampata --targhe nome); SCHEMI['nes']['targhe'] tiene quella scelta: dal 22/10/2026 la concentrica
+# grigia (Luigi: «a»)
 VARIANTI_TARGHE = {
     'rett': dict(forma='rett', margine=2.5, corpo=1, scritte=3, cornice=None),       # quella del 20/10/2026
     'lato': dict(forma='lato', margine=2.5, corpo=1, scritte=3, cornice=None),

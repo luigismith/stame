@@ -39,10 +39,12 @@ PIATTI = [
     ('vasca sinistra, crema', [('vasca_sx', None)], (5.0, 5.0)),
     ('vasca di centro, crema', [('vasca_centro', None)], (5.0, 5.0)),
     ('vasca destra, crema', [('vasca_dx', None)], (5.0, 5.0)),
-    ('mascherina sinistra e targhe, grigio e rosso',
-     [('mascherina_1', (5.0, 119.0)), ('targa_sx', (5.0, 12.0)), ('targa_dx', (5.0, 56.0))], (160.0, 25.0)),
+    ('mascherina sinistra, grigio e rosso', [('mascherina_1', (5.0, 119.0))], (160.0, 25.0)),
     ('mascherina destra e visiera, grigio e rosso', [('mascherina_2', (5.0, 119.0)), ('visiera', (5.0, 20.0))], (170.0, 25.0)),
     ('piano della Flip e culla, grigio e rosso', [('piano_flip', (5.0, 105.0)), ('culla_flip', (5.0, 8.0))], (160.0, 25.0)),
+    # le targhe concentriche ai fianchi, lunghe quasi quanto il fianco (Luigi, 22/10/2026: «a»): un piatto loro,
+    # l'ultimo («le farei alla fine quelle»)
+    ('targhe dei fianchi, grigio e rosso', [('targa_sx', (5.0, 20.0)), ('targa_dx', (5.0, 70.0))], (100.0, 150.0)),
 ]
 CON_SUPPORTI = {'visiera'}
 # pezzi.md: 3 perimetri, 4 strati pieni sopra e sotto, giroide al 20 %; la torre con un bordo di 3 mm

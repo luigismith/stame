@@ -4,14 +4,14 @@ Generato da `hardware/case/multicolore.py` per un piatto di 240 × 240 mm (Anycu
 
 | File | Ingombro (mm) | Grammi | Filamenti | Note |
 |---|---|---|---|---|
-| `vasca_sx.stl` | 200 × 240 × 45,0 | 242 | 2 crema | fianco sinistro con marchio e nome, retro, pedana della MK4; in piedi, il fondo sul piatto |
+| `vasca_sx.stl` | 200 × 240 × 45,0 | 240 | 2 crema | fianco sinistro con marchio e nome, retro, pedana della MK4; in piedi, il fondo sul piatto |
 | `vasca_centro.stl` | 200 × 240 × 45,0 | 218 | 2 crema | retro con la finestra del pedale, pedana della MK4, costola; in piedi, il fondo sul piatto |
-| `vasca_dx.stl` | 208 × 240 × 45,0 | 350 | 2 crema | retro con la finestra dell'audio e quella dell'hub, fermo dell'hub, colonnina, culla del pad, parete davanti, fianco destro con marchio e nome; in piedi, il fondo sul piatto |
+| `vasca_dx.stl` | 208 × 240 × 45,0 | 348 | 2 crema | retro con la finestra dell'audio e quella dell'hub, fermo dell'hub, colonnina, culla del pad, parete davanti, fianco destro con marchio e nome; in piedi, il fondo sul piatto |
 | `mascherina_1.3mf` (o `mascherina_1_corpo.stl` + `mascherina_1_scritte.stl`) | 194 × 126 × 2,0 | 40 | corpo 1 grigio traslucido, scritte 3 rosso | la metà sinistra della mascherina; scritte incassate nella faccia in vista, che sta sul piatto |
 | `mascherina_2.3mf` (o `mascherina_2_corpo.stl` + `mascherina_2_scritte.stl`) | 166 × 126 × 2,0 | 38 | corpo 1 grigio traslucido, scritte 3 rosso | la metà destra della mascherina; scritte incassate nella faccia in vista, che sta sul piatto |
 | `piano_flip.3mf` (o `piano_flip_corpo.stl` + `piano_flip_scritte.stl`) | 200 × 140 × 2,0 | 61 | corpo 1 grigio traslucido, scritte 3 rosso | scritte incassate nella faccia in vista, che sta sul piatto |
-| `targa_sx.3mf` (o `targa_sx_corpo.stl` + `targa_sx_scritte.stl`) | 91 × 30 × 2,0 | 7 | corpo 1 grigio traslucido, scritte 3 rosso | il marchio e il nome del fianco sx: si incolla nella sede del fianco, profonda 2,0 mm; scritte incassate nella faccia in vista, che sta sul piatto |
-| `targa_dx.3mf` (o `targa_dx_corpo.stl` + `targa_dx_scritte.stl`) | 91 × 30 × 2,0 | 7 | corpo 1 grigio traslucido, scritte 3 rosso | il marchio e il nome del fianco dx: si incolla nella sede del fianco, profonda 2,0 mm; scritte incassate nella faccia in vista, che sta sul piatto |
+| `targa_sx.3mf` (o `targa_sx_corpo.stl` + `targa_sx_scritte.stl`) | 232 × 37 × 2,0 | 20 | corpo 1 grigio traslucido, scritte 3 rosso | il marchio e il nome del fianco sx: si incolla nella sede del fianco, profonda 2,0 mm; scritte incassate nella faccia in vista, che sta sul piatto |
+| `targa_dx.3mf` (o `targa_dx_corpo.stl` + `targa_dx_scritte.stl`) | 232 × 37 × 2,0 | 20 | corpo 1 grigio traslucido, scritte 3 rosso | il marchio e il nome del fianco dx: si incolla nella sede del fianco, profonda 2,0 mm; scritte incassate nella faccia in vista, che sta sul piatto |
 | `culla_flip.stl` | 89 × 83 × 7,0 | 19 | 1 grigio traslucido | vassoio sul piano della Flip, 4 viti M3 svasate |
 | `visiera.stl` | 118 × 42 × 95,6 | 44 | 1 grigio traslucido | si avvita al piano dietro la culla; si stampa sul tettuccio, con i supporti solo sotto i piedi |
 | `prova_giunta.stl` | 75 × 60 × 45,0 | 28 | 2 crema | la giunta sotto la MK4 in piccolo, le due metà insieme: da stampare prima |
@@ -28,7 +28,7 @@ Filamento: circa 1,1 kg in tutto, quasi tutto del colore del corpo. Viti delle g
 
 ## Il lavoro già pronto
 
-`stame_kobra_s1.3mf` è un progetto di Anycubic Slicer Next per la Kobra S1 (`progetto.py`): tutti i pezzi tranne la prova di giunta, su sei piatti, un piatto per colore principale, con le parti e i filamenti già assegnati, 3 perimetri, 4 strati pieni, giroide al 20 % e i supporti solo sotto i piedi della visiera. Le vasche, crema, hanno un piatto ciascuna e nessun cambio, quindi niente torre; i pezzi grigi con le scritte rosse cambiano filamento solo nei primi tre strati, e sui loro piatti la torre ha il suo posto. Si apre (File › Apri progetto), si affetta un piatto alla volta e, mandandolo alla stampante, si abbinano i tre filamenti agli slot dell'ACE Pro. I piatti: 1 vasca sinistra, crema; 2 vasca di centro, crema; 3 vasca destra, crema; 4 mascherina sinistra e targhe, grigio e rosso; 5 mascherina destra e visiera, grigio e rosso; 6 piano della Flip e culla, grigio e rosso.
+`stame_kobra_s1.3mf` è un progetto di Anycubic Slicer Next per la Kobra S1 (`progetto.py`): tutti i pezzi tranne la prova di giunta, su sei piatti, un piatto per colore principale, con le parti e i filamenti già assegnati, 3 perimetri, 4 strati pieni, giroide al 20 % e i supporti solo sotto i piedi della visiera. Le vasche, crema, hanno un piatto ciascuna e nessun cambio, quindi niente torre; i pezzi grigi con le scritte rosse cambiano filamento solo nei primi tre strati, e sui loro piatti la torre ha il suo posto. Si apre (File › Apri progetto), si affetta un piatto alla volta e, mandandolo alla stampante, si abbinano i tre filamenti agli slot dell'ACE Pro. I piatti: 1 vasca sinistra, crema; 2 vasca di centro, crema; 3 vasca destra, crema; 4 mascherina sinistra, grigio e rosso; 5 mascherina destra e visiera, grigio e rosso; 6 piano della Flip e culla, grigio e rosso; 7 targhe dei fianchi, grigio e rosso.
 
 ## Le targhe
 
