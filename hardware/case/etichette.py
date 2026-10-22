@@ -5,7 +5,8 @@ Uso: python -I hardware/case/etichette.py      scrive out/etichette_pad.svg e ou
 I tasti trasparenti a due strati (Luigi, 17/10/2026) hanno sotto il coperchio un vano da 11 × 9 mm:
 ogni etichetta si taglia a 10,8 × 8,8. Sopra il nome nella mappa del pad (40 MIDI-120, MIDI-133),
 con i punti della Matrice come sulla plancia e sul case.
-T13 DROP, T14 VIEW e T15 PAGE sono gli stati di Stame: etichette in negativo, come nel prontuario.
+T13 DROP, T14 AMBIENT (dal 22/10/2026, prima VIEW) e T15 PAGE sono gli stati di Stame: etichette in negativo,
+come nel prontuario.
 Un foglio A4 al 100 %: quattro serie chiare e quattro scure (il tema Notte), un righello di prova.
 """
 import os

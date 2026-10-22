@@ -239,7 +239,8 @@ def pad():
     yb = Y0 + D + M.PAD_LOBO['sporge'] + 7
     note = ['DROP (T13, tenuto): Beat, batteria del loop e basso tacciono; al rilascio rientrano sul battito. Accordi, metronomo e colpi dal vivo suonano.',
             'DRUMS (T11) acceso, modo crea: M densità · m1 stile · m2 variazione; premute: play e stop, la parte di M, idea nuova. Ripremi T11: il loop resta.',
-            'Scene: tocco = richiama, tenuto 1 s = salva. Panic (T12) scatta dopo 1 s, tenuto 3 s = Reset. T14: Geek Out e ritorno. T15: la pagina dei comandi.']
+            'AMBIENT (T14): Stame suona quasi da solo. M note sparse · m1 atmosfera · m2 movimento; premute: pausa, Mod, idea nuova. Un tuo accordo lo zittisce.',
+            'Scene: tocco = richiama, tenuto 1 s = salva. Panic (T12) scatta dopo 1 s, tenuto 3 s = Reset. T15: la pagina dei comandi. Geek Out: Options › View.']
     for i, n in enumerate(note):
         o.append(tx(X0, yb + i * 4.2, n, 2.45, col=DIM, anchor='start'))
     yl = yb + len(note) * 4.2 + 2.5

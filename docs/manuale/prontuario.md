@@ -1,6 +1,6 @@
 # Stame — prontuario
 
-Un foglio da stampare, fronte e retro. Vetrina 0.1, mappa del 17/10/2026. «prev.» = previsto dalla specifica, non ancora nella vetrina.
+Un foglio da stampare, fronte e retro. Vetrina 0.1, mappa del 22/10/2026. «prev.» = previsto dalla specifica, non ancora nella vetrina.
 
 ## Gesti (sulla MPK)
 
@@ -43,20 +43,20 @@ Con MPK e pad ogni comando ha una casa: girare e premere sulla MPK, liste sulla 
 | | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|
 | alto | T1 HOLD | T2 TAP | T3 METRO | T4 FILL (tenuto) | **T13 DROP** (tenuto) |
-| mezzo | T5 Scene 1 | T6 Scene 2 | T7 Scene 3 | T8 Scene 4 | **T14 VIEW** |
+| mezzo | T5 Scene 1 | T6 Scene 2 | T7 Scene 3 | T8 Scene 4 | **T14 AMBIENT** |
 | basso | T9 Options | T10 Save Loop | T11 DRUMS | T12 Panic 1 s · Reset 3 s | **T15 PAGE** |
 
 Scene: tocco = richiama (suono, basso, Perform, FX, tonalità, basso on/off), tenuto 1 s = salva. Hold: l'accordo resta fino al tasto dopo. Save Loop: ferma e tiene da parte, REC riprende.
 
-| Manopola | Gira | Premi | Sotto DRUMS |
-|---|---|---|---|
-| M | Chord Voicing | Split/Octave | densità · premi play/stop |
-| m1 | Bass Voicing | Mod | stile · premi la parte |
-| m2 | Beat Volume (premi e gira: Bass Volume) | — | variazione · premi idea nuova |
+| Manopola | Gira | Premi | Sotto DRUMS | Con AMBIENT |
+|---|---|---|---|---|
+| M | Chord Voicing | Split/Octave | densità · premi play/stop | note sparse · premi pausa |
+| m1 | Bass Voicing | Mod | stile · premi la parte | atmosfera · premi Mod |
+| m2 | Beat Volume (premi e gira: Bass Volume) | — | variazione · premi idea nuova | movimento · premi idea nuova |
 
 T13 DROP: tenuto, Beat, batteria del loop e basso tacciono; lasciato, rientrano sul battito dopo (subito se lo lasci entro un sedicesimo dal battito). Accordi, metronomo e colpi dal vivo suonano sempre.
 
-T14: Geek Out e ritorno. T15: pagina dei comandi aperta finché non lo ripremi (o −).
+T14 AMBIENT: Stame suona quasi da solo (accordi nella tonalità di Key, basso, note sparse); un tuo accordo lo zittisce e un quarto dopo il rilascio riparte da lì. Atmosfere: Float, Dusk, Deep, Glass, Drone, Tide. Geek Out: Options › View. T15: pagina dei comandi aperta finché non lo ripremi (o −).
 
 ## Flip (sempre viva)
 
@@ -82,27 +82,27 @@ T14: Geek Out e ritorno. T15: pagina dei comandi aperta finché non lo ripremi (
 
 | | Gira | Premi | Tieni | Premi e gira |
 |---|---|---|---|---|
-| Sound | 200 suoni (149 di sintesi, 51 campionati) | lista | prev. Save | — |
+| Sound | 232 suoni (181 di sintesi, 51 campionati) | lista | prev. Save | — |
 | Perform | quantità (0 = off) | lista dei modi | Lock | — |
 | FX | 0…10 | mostra | Lock | — |
 | Key | tonalità | Key mode | prev. scelta rapida | Transpose ±12 |
-| Bass | 24 bassi | basso on/off | prev. modi | — |
+| Bass | 38 bassi | basso on/off | prev. modi | — |
 | Loop | voce del menu | REC / voce | prev. 2 s Save | — |
-| BPM | 60…200 (o T2 Tap) | Beat on/off | lista metriche e 60 Beat | Beat Volume |
+| BPM | 60…200 (o T2 Tap) | Beat on/off | lista metriche e 64 Beat | Beat Volume |
 | Volume | 0…99 | batteria | — | Bass Volume |
 | Options | vista | lista | — | — |
 | Ch. Voicing | ±1 semitono | Split/Octave | — | — |
 | Bs. Voicing | ottava del basso | Mod | — | — |
 
 Options: Exit · View (React, Chord, Keyboard, Chord+Kb, Notes, Geek Out) · Play Style (Simple, Advanced, Free) · Single Notes (Split, Octave) · Secret Chords (On, Off).
-Lista di BPM: 2/4 · 3/4 · 4/4 · 6/8 · Funk · Bossa · Motorik · Lounge · Shuffle · Halftime · Boom Bap · Disco · Samba · Ballad · Train · Chip · Techno · Dub · Acid · Industrial · Minimal · Electro · Trap · e 41 di genere, ognuno con un kit sintetizzato: House · Deep House · Tech House · Garage · Breakbeat · Jungle · Drum & Bass · Dubstep · Footwork · Robot · Synthwave · Italo · Lo-Fi · Trip Hop · Ambient Pulse · Chiptune · Arcade · Glitch · IDM · EBM · Factory · Rave · Rock · Swing Jazz · Brush Ballad · Afrobeat · Djembe · Teental · Rhythm Box · Gamelan · Salsa · Cumbia · Reggaeton · Dancehall · Taiko · Maqsum · Flamenco · Unplugged · Sci-Fi · Steppers · Syndrum (accanto a ogni Beat, il suo kit). Batteria a tastiera (T11): tasti C…B = cassa, rimshot, rullante, battimani, charleston chiuso, tom basso, charleston aperto, tom alto, maracas, conga, campanaccio, piatto; i colpi entrano nel loop al sedicesimo.
+Lista di BPM: 2/4 · 3/4 · 4/4 · 6/8 · Funk · Bossa · Motorik · Lounge · Shuffle · Halftime · Boom Bap · Disco · Samba · Ballad · Train · Chip · Techno · Dub · Acid · Industrial · Minimal · Electro · Trap · e 45 di genere, ognuno con un kit sintetizzato: House · Deep House · Tech House · Garage · Breakbeat · Jungle · Drum & Bass · Dubstep · Footwork · Robot · Synthwave · Italo · Lo-Fi · Trip Hop · Ambient Pulse · Chiptune · Arcade · Glitch · IDM · EBM · Factory · Rave · Rock · Swing Jazz · Brush Ballad · Afrobeat · Djembe · Teental · Rhythm Box · Gamelan · Salsa · Cumbia · Reggaeton · Dancehall · Taiko · Maqsum · Flamenco · Unplugged · Sci-Fi · Steppers · Syndrum · Trance · Psytrance · Goa · Progressive (accanto a ogni Beat, il suo kit). Batteria a tastiera (T11): tasti C…B = cassa, rimshot, rullante, battimani, charleston chiuso, tom basso, charleston aperto, tom alto, maracas, conga, campanaccio, piatto; i colpi entrano nel loop al sedicesimo.
 Menu: Exit · Panic · Theme (Giorno di default) · Linnaeus Tag · Legend · Meters · Demo · Play Demo Song (la lista dei sei brani: uno a scelta, subito) · Quit Stame.
 
 ## Drum machine (DRUMS acceso)
 
-K1 Kit: 0 Beat (quello del Beat), 1–4 a campioni (Studio, Jazz, 808, Techno), 5 Chip, 6–40 la libreria sintetizzata (808 Boom, 808 Trap, 909 House, 909 Rave, CR Rhythm, 606 Tick, Hex Toms, Syndrum Disco, Robot Pop, Linn Pop, Gated 80s, Minimal Click, Dub Yard, 2-Step, Jungle, Iron Mill, Scrap Yard, Glitch Bits, Data Rot, Laser Lab, Lo-Fi Dust, Tape Crate, 8-Bit, Arcade, Acoustic Room, Brushes, Stadium Rock, Afro Hand, Tabla Mist, Gamelan, Latin Perc, Taiko, Darbuka Sand, Cajon Box, Deep Space) · **SHIFT + K1** la lista dei kit (nav scorre, premuta sceglie) · K2 Roll (tieni il tasto: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32) · K3 Drive 0…10, SHIFT + K3 girata filtro (LP 10…1 · Off · HP 1…10) · K4 Swing (Off, 52 %…75 %: Beat, loop e Roll) · K5 Accent 0…10 · i pad del banco B suonano sempre. Swing e FX restano fuori da DRUMS: in testata SWING e DRUM FX.
+K1 Kit: 0 Beat (quello del Beat), 1–4 a campioni (Studio, Jazz, 808, Techno), 5 Chip, 6–43 la libreria sintetizzata (808 Boom, 808 Trap, 909 House, 909 Rave, CR Rhythm, 606 Tick, Hex Toms, Syndrum Disco, Robot Pop, Linn Pop, Gated 80s, Minimal Click, Dub Yard, 2-Step, Jungle, Iron Mill, Scrap Yard, Glitch Bits, Data Rot, Laser Lab, Lo-Fi Dust, Tape Crate, 8-Bit, Arcade, Acoustic Room, Brushes, Stadium Rock, Afro Hand, Tabla Mist, Gamelan, Latin Perc, Taiko, Darbuka Sand, Cajon Box, Deep Space, Psy Forest, Goa Temple, Trance Arena) · **SHIFT + K1** la lista dei kit (nav scorre, premuta sceglie) · K2 Roll (tieni il tasto: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32) · K3 Drive 0…10, SHIFT + K3 girata filtro (LP 10…1 · Off · HP 1…10) · K4 Swing (Off, 52 %…75 %: Beat, loop e Roll) · K5 Accent 0…10, **SHIFT + K5 girata il basso che rotola** (Off, Offbeat, Rolling, Gallop, 8ths, 16ths: solo a trasporto in moto) · i pad del banco B suonano sempre. Swing, FX e basso che rotola restano fuori da DRUMS: in testata SWING, DRUM FX e BASSLINE.
 
-**Crea** (le manopole del pad, finché DRUMS è acceso): **M** densità 0…10 · premuta play/stop · **m1** stile (Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial, House, Garage, Jungle, DnB, Dubstep, Trap, Synthwave, Synthpop, Lo-Fi, Trip Hop, Chiptune, Glitch, EBM, Afrobeat, Tabla, Salsa, Reggaeton, Jazz, Arena, Preset) · premuta la parte di M (tutto, cassa, rullante, charleston, aperto, perc.) · **m2** variazione 0…99 · premuta idea nuova · premuta e girata volume del Beat. Ripremi T11: l'editing si chiude, il loop resta.
+**Crea** (le manopole del pad, finché DRUMS è acceso): **M** densità 0…10 · premuta play/stop · **m1** stile (Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial, House, Garage, Jungle, DnB, Dubstep, Trap, Synthwave, Synthpop, Lo-Fi, Trip Hop, Chiptune, Glitch, EBM, Afrobeat, Tabla, Salsa, Reggaeton, Jazz, Arena, Preset, Trance, Psytrance, Goa, Progressive) · premuta la parte di M (tutto, cassa, rullante, charleston, aperto, perc.) · **m2** variazione 0…99 · premuta idea nuova · premuta e girata volume del Beat. Ripremi T11: l'editing si chiude, il loop resta.
 
 ## Looper
 
@@ -110,4 +110,4 @@ REC → count-in di 1 battuta → 4 battute registrate → PLAY. Poi: ⊕ overdu
 
 ## Testata
 
-batteria sempre · **NO MPK** (lampeggia) · **MPK FACTORY** (solo Plus) · **PAD** rosso = pad non aperto o senza mappa · **POCKET** (prev.) · **DRUMS** · **HOLD** · **METRO** · **FILL** · **DROP** · **SWING** · **DRUM FX** · **CLIP** 1,5 s · **XRUN** 2 s. In Geek Out: MPK, IN/OUT, VOX, CPU (misurato), livelli, PAD.
+batteria sempre · **NO MPK** (lampeggia) · **MPK FACTORY** (solo Plus) · **PAD** rosso = pad non aperto o senza mappa · **POCKET** (prev.) · **DRUMS** · **AMBIENT** (spento in pausa) · **HOLD** · **METRO** · **FILL** · **DROP** · **SWING** · **DRUM FX** · **BASSLINE** · **CLIP** 1,5 s · **XRUN** 2 s. In Geek Out: MPK, IN/OUT, VOX, CPU (misurato), livelli, PAD.

@@ -40,6 +40,29 @@ Lo stato della MPK e del pad si vede nella testata, in alto: a riposo c'è solo 
 - **Play Style (Options).** **Simple**: suona ciò che tieni. **Advanced**: l'accordo resta anche se lasci il tipo; le estensioni si aggiungono a quello che suona. **Free**: come Advanced, e l'accordo si può cambiare o riattaccare più volte con il tasto tenuto.
 - **Secret Chords (Options):** combinazioni di più tipi tenuti insieme che danno accordi nascosti. Con la voce spenta vale l'ultimo tipo premuto.
 
+### 3.1 AMBIENT: Stame che suona quasi da solo
+
+![AMBIENT: la testata lo scrive, l'accordo lo sceglie il modulo](img/ambient.png)
+
+Premi **T14 AMBIENT** sul pad e Stame comincia a suonare da solo: sceglie gli accordi nella tonalità di Key, li cambia piano (all'inizio uno ogni sei battute circa), il basso li segue e sopra cadono le **note sparse**, ognuna con il suo giro, come i nastri di lunghezze diverse dell'ambient di Brian Eno. Il modulo preme i tasti dello strumento come faresti tu: suono, Perform, effetto, basso, voicing e Beat restano quelli che scegli tu, e la plancia mostra gli accordi che suonano. Ripremi T14 e si ferma.
+
+Per cominciare: un pad lento (Ghost Orchid 201, Snowmelt 202, Edelweiss Halo 205, Polar Night 211) o una campana (Tundra Bell 206, Seed Rain 212), un basso profondo (Hadal Drone, Groundwater), BPM fra 60 e 80, la tonalità che vuoi su Key.
+
+| Manopola | Girata | Premuta |
+|---|---|---|
+| **M** | **note sparse** 0…10: 0 nessuna, 10 sei voci fitte (di fabbrica 4) | **pausa**: il modulo lascia l'accordo; ripremi e riparte |
+| **m1** | **atmosfera**: Float (aperto, sospeso), Dusk (il tramonto), Deep (scuro e basso), Glass (accordi sus di vetro), Drone (la tonica ferma, cambiano i colori sopra), Tide (due accordi che vanno e vengono) | il Mod di sempre |
+| **m2** | **movimento** 0…10: 0 l'accordo non cambia mai, 5 circa sei battute, 10 un accordo a battuta | **idea nuova**: un altro giro e altre note sparse |
+
+- **Quasi da solo.** Suona un accordo tuo e il modulo tace; quando lasci tutto, un quarto dopo riparte da lì, con un accordo vicino al tuo. Con **T1 HOLD** il tuo accordo resta e dura un giro intero. Guidi l'armonia quando vuoi, la lasci andare quando vuoi.
+- Ogni atmosfera ha la sua tavolozza in maggiore e in minore, nella tonalità di **Key**; cambiando tonalità o atmosfera il cambio arriva un quarto dopo. Lo stesso movimento con la stessa idea rifà lo stesso giro.
+- Con il Beat acceso i cambi d'accordo cadono sulla battuta: ambient con il Beat Ambient Pulse, o una deep house lenta.
+- Le note sparse suonano con il suono scelto, sopra l'accordo; il **looper** registra gli accordi del modulo ma non le note sparse.
+- Sulla plancia la testata scrive **AMBIENT** (spento in pausa), le note sparse hanno una striscia accesa sulla tastiera e, nella pagina dei comandi, le celle dei voicing diventano **BLOOMS** e **MOOD**.
+- Con **DRUMS** acceso le manopole tornano alla batteria (§6.3) e il modulo continua a suonare; ripremi T11 e tornano a lui. **T12** tenuto 3 s (Reset) lo spegne; la demo non parte mentre suona.
+
+![La pagina dei comandi con AMBIENT acceso: BLOOMS e MOOD al posto dei voicing](img/ambient_comandi.png)
+
 ## 4. I controlli, uno per uno
 
 ![La pagina dei comandi (T15): le 11 celle con valore, fuoco e sigla del comando; «S+K1» è SHIFT + K1](img/comandi.png)
@@ -61,17 +84,17 @@ Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 
 
 | Controllo | Gira | Premi | Tieni 1 s | Premi e gira |
 |---|---|---|---|---|
-| **Sound** | i 200 suoni: 149 di sintesi (Glass Pollen, Night Greenhouse, Anther Keys, Slow Stamen, Fern Pluck, Copper Reed, Orbit Choir, Moss Strings, Dew Mallet, Tape Fern, Seed Organ, Sun Room, Linnaeus Lead, Petal Brass, Root Drone, Vetro Pad, Moonflower, Thistle Lead, Lichen Organ, Nectar EP, Ivy Pluck, Bramble Brass, Cocoon Pad, Spore Bells, Rootstock, Birch Keys, Pollen Choir, Reed Marsh, Clover Strings, Frost Pad, Cactus Pluck, Heliotrope, Underbrush, Dandelion, Sundew, Lotus Flute, Pine Organ e, cupi e techno, Nightshade, Belladonna, Mandrake Stab, Dub Moss, Acid Nettle, Hogweed Hoover, Cypress Saw, Mycelium, Puffball Pulse, Charred Keys, Charcoal Organ, Tar Drone, Wolfsbane Lead, Datura Bells, Bog Rumble, Blackthorn Sync, Ironwood Perc, Burdock Chords e, ancora più cupi, gravi e acidi, Hemlock Acid, Aconite Square, Mandragora Acid, Yew Shadow, Black Hellebore, Deadnettle Dub, Peat Choir, Spleenwort Organ, Bitterroot Lead, Witchgrass Pulse, Mire Bells, Undertow, Tar Pit Keys, Nightjar Brass, Gravel Stab, Ink Cap Drone e, dal 18/10, Steel Petal, Clav Vine, Ebow Fern, Solina Sedge, Pizzicato Moss, Toy Thicket, Nylon Bramble, i ventuno di sintesi fra i venticinque che sorprendono, §4.1, e dal 19/10 i cinquanta dal 151 al 200, tutti di sintesi, §4.2) e 51 campionati (Grand Piano, Upright Piano, FM Piano, Vibraphone, Marimba, Glockenspiel, Tubular Bells, Concert Harp, Kalimba, Harpsichord, Pipe Organ, Alto Recorder, Tenor Sax, TX Piano, Clavisynth, Knight Upright, Italian Cembalo, Lute Stop, Grand Organ, Flute Organ, Full Organ, Sop. Recorder, Tenor Recorder, Bass Recorder, Ocarina, Harmonica, Chromatic Harp, Saxello, Didgeridoo, Strumstick, Dan Tranh, Bowed Psaltery, Pluck Psaltery, Mbira, Nyunga Nyunga, Kenya Kalimba, Hand Chimes, Tube Glock, Bowed Vibes, Balafon, Xylophone, Wine Glasses, Hothouse Piano, Seedling Box, Harmonium Moss, Sitar Tranh, Harp Rain, Drunk Glasses, Throat Song, Rain Marimba, Megaphone Moss); ogni suono porta il suo Perform | lista dei suoni per nome | previsto: Save / Save As / Delete | — |
+| **Sound** | i 232 suoni: 181 di sintesi (Glass Pollen, Night Greenhouse, Anther Keys, Slow Stamen, Fern Pluck, Copper Reed, Orbit Choir, Moss Strings, Dew Mallet, Tape Fern, Seed Organ, Sun Room, Linnaeus Lead, Petal Brass, Root Drone, Vetro Pad, Moonflower, Thistle Lead, Lichen Organ, Nectar EP, Ivy Pluck, Bramble Brass, Cocoon Pad, Spore Bells, Rootstock, Birch Keys, Pollen Choir, Reed Marsh, Clover Strings, Frost Pad, Cactus Pluck, Heliotrope, Underbrush, Dandelion, Sundew, Lotus Flute, Pine Organ e, cupi e techno, Nightshade, Belladonna, Mandrake Stab, Dub Moss, Acid Nettle, Hogweed Hoover, Cypress Saw, Mycelium, Puffball Pulse, Charred Keys, Charcoal Organ, Tar Drone, Wolfsbane Lead, Datura Bells, Bog Rumble, Blackthorn Sync, Ironwood Perc, Burdock Chords e, ancora più cupi, gravi e acidi, Hemlock Acid, Aconite Square, Mandragora Acid, Yew Shadow, Black Hellebore, Deadnettle Dub, Peat Choir, Spleenwort Organ, Bitterroot Lead, Witchgrass Pulse, Mire Bells, Undertow, Tar Pit Keys, Nightjar Brass, Gravel Stab, Ink Cap Drone e, dal 18/10, Steel Petal, Clav Vine, Ebow Fern, Solina Sedge, Pizzicato Moss, Toy Thicket, Nylon Bramble, i ventuno di sintesi fra i venticinque che sorprendono, §4.1, dal 19/10 i cinquanta dal 151 al 200, tutti di sintesi, §4.2, e dal 22/10 i trentadue per l'ambient, la trance e la psytrance, §4.3) e 51 campionati (Grand Piano, Upright Piano, FM Piano, Vibraphone, Marimba, Glockenspiel, Tubular Bells, Concert Harp, Kalimba, Harpsichord, Pipe Organ, Alto Recorder, Tenor Sax, TX Piano, Clavisynth, Knight Upright, Italian Cembalo, Lute Stop, Grand Organ, Flute Organ, Full Organ, Sop. Recorder, Tenor Recorder, Bass Recorder, Ocarina, Harmonica, Chromatic Harp, Saxello, Didgeridoo, Strumstick, Dan Tranh, Bowed Psaltery, Pluck Psaltery, Mbira, Nyunga Nyunga, Kenya Kalimba, Hand Chimes, Tube Glock, Bowed Vibes, Balafon, Xylophone, Wine Glasses, Hothouse Piano, Seedling Box, Harmonium Moss, Sitar Tranh, Harp Rain, Drunk Glasses, Throat Song, Rain Marimba, Megaphone Moss); ogni suono porta il suo Perform | lista dei suoni per nome | previsto: Save / Save As / Delete | — |
 | **Perform** | la quantità del modo: Strum, Strum 2 Oct, Slop e Harp 1…10; Arpeggiate e Arp 2 Oct il tipo 1…6; Pattern il numero 1…13; 0 = spento | lista dei modi | **Lock**: il Perform non cambia più al cambio di suono (la cella mostra LOCK) | — |
 | **FX** | intensità 0…10 dell'effetto principale del suono (REVERB, CHORUS, ENSEMBLE, PHASER, FLANGER, DRIVE, TREMOLO, DELAY) | mostra l'effetto | **Lock** dell'effetto | — |
 | **Key** | la tonalità (accende la Key mode) | Key mode on/off | previsto: scelta rapida | **Transpose** ±12 |
-| **Bass** | i 24 bassi (Round Root, Sub Floor, Pluck Bass, Reed Bass, Velvet Sub, Wood Bass, Taproot, Peat Sub, Bark Bass, Pod Bass, Thorn Bass, Moss Sub, Reese Root, Acid Sedge, Henbane Sub, Fen Rumble, Spore Bass, Ironroot, Hemlock 303, Square Acid, Abyss Sub, Growl Reese, Detroit Sub, Coal FM Bass) | basso on/off | previsto: lista dei modi | — |
+| **Bass** | i 38 bassi (Round Root, Sub Floor, Pluck Bass, Reed Bass, Velvet Sub, Wood Bass, Taproot, Peat Sub, Bark Bass, Pod Bass, Thorn Bass, Moss Sub, Reese Root, Acid Sedge, Henbane Sub, Fen Rumble, Spore Bass, Ironroot, Hemlock 303, Square Acid, Abyss Sub, Growl Reese, Detroit Sub, Coal FM Bass e, dal 22/10, i quattordici profondi e per la psy e la trance, §4.3) | basso on/off | previsto: lista dei modi | — |
 | **Loop** | con il loop in corso sceglie fra le tre voci in Z3 (OVERDUB, PAUSE, CLEAR o UNDO; STOP, PLAY…) | da fermo **REC** (con un loop messo da parte con T10, lo riprende); altrimenti esegue la voce scelta | previsto: 2 s = Save Loop / uscita morbida (oggi T10 del pad) | — |
-| **BPM** | 60…200 (o il **tap tempo** su T2) | Beat o metronomo on/off (anche STOP/PLAY della MPK) | lista: **2/4, 3/4, 4/4, 6/8** (metronomo) e i 60 Beat, ognuno con il suo kit: i diciannove di sempre (**Funk, Bossa, Motorik, Lounge, Shuffle, Halftime, Boom Bap, Disco, Samba, Ballad, Train, Chip, Techno, Dub, Acid, Industrial, Minimal, Electro, Trap**, con i kit studio, jazz, 808, techno e la sintesi Chip) e, dal 19/10, 41 di genere con i kit della libreria sintetizzata (§6.4) | **Beat Volume** 0…99 |
+| **BPM** | 60…200 (o il **tap tempo** su T2) | Beat o metronomo on/off (anche STOP/PLAY della MPK) | lista: **2/4, 3/4, 4/4, 6/8** (metronomo) e i 64 Beat, ognuno con il suo kit: i diciannove di sempre (**Funk, Bossa, Motorik, Lounge, Shuffle, Halftime, Boom Bap, Disco, Samba, Ballad, Train, Chip, Techno, Dub, Acid, Industrial, Minimal, Electro, Trap**, con i kit studio, jazz, 808, techno e la sintesi Chip) e, dal 19/10, 41 di genere con i kit della libreria sintetizzata, più Trance, Psytrance, Goa e Progressive dal 22/10 (§6.4) | **Beat Volume** 0…99 |
 | **Volume** | volume master 0…99 | batteria della Flip | — | **Bass Volume** 0…99 |
 | **Options** | cambia la vista (fuori dalla lista) | lista: Exit, View, Play Style, Single Notes, Secret Chords | — | — |
-| **Chord Voicing** (M) | finestra ±1 semitono per scatto | Split ↔ Octave | — | — |
-| **Bass Voicing** (m1) | ottava del basso | il modificatore **Mod**: Mod + Loop (REC) = uscita forzata dal loop (Clear); Mod + Bass = basso on/off, come Bass da solo; Mod + BPM = batteria a tastiera, che oggi ha il suo tasto T11 | — | — |
+| **Chord Voicing** (M) | finestra ±1 semitono per scatto; con AMBIENT acceso, le note sparse (§3.1) | Split ↔ Octave | — | — |
+| **Bass Voicing** (m1) | ottava del basso; con AMBIENT acceso, l'atmosfera (§3.1) | il modificatore **Mod**: Mod + Loop (REC) = uscita forzata dal loop (Clear); Mod + Bass = basso on/off, come Bass da solo; Mod + BPM = batteria a tastiera, che oggi ha il suo tasto T11 | — | — |
 
 Liste: la voce in cima è Exit; la manopola di navigazione scorre, premuta sceglie, − chiude (senza MPK: croce, A e B della Flip). Una lista si chiude da sola dopo 10 secondi, e si chiude anche toccando un altro controllo. Ogni controllo toccato accende la **banda** in fondo allo schermo con il suo nome e valore in grande: è l'overlay dell'originale, che qui non copre l'accordo.
 
@@ -166,6 +189,64 @@ Tutti fatti con gli oscillatori, l'FM e il Reed Piano: non chiedono il banco dei
 | 199 | Thumb Pod | pizzico | la kalimba di sintesi (Pattern) |
 | 200 | Linnaeus Garden | pad | il giardino intero: lento, largo, con la quinta |
 
+### 4.3 Dal 201 al 232: ambient, trance, psytrance; e i bassi del fondo
+
+Tutti di sintesi, come i cinquanta prima. I pad dell'ambient sono lenti: arrivano al loro volume dopo qualche secondo, e così sono stati pareggiati (tenuti sei secondi, non uno e mezzo). Per l'ambient c'è anche il modulo che suona da solo (§3.1); per la psy e la trance i Beat e gli stili nuovi (§6.4) e il basso che rotola (§6.5).
+
+| N. | Suono | Genere | Com'è |
+|---|---|---|---|
+| 201 | Ghost Orchid | ambient | il pad che cambia piano, senza fretta: filtro, spazio e intonazione che respirano |
+| 202 | Snowmelt | ambient | vetro FM che si scioglie, due portanti |
+| 203 | Lichen Breath | ambient | il respiro: rumore nel passa-banda che segue la nota, e un filo di tono |
+| 204 | Seagrass Deep | ambient | il fondale: un'ottava sotto, scuro |
+| 205 | Edelweiss Halo | ambient | un coro d'aria in alta quota, ogni voce da un'altra parte |
+| 206 | Tundra Bell | ambient | la campana lontana, morbida e lunga (Harp) |
+| 207 | Spore Cloud | ambient | grani: spazio, filtro e volume a caso |
+| 208 | Kelp Forest | ambient | sott'acqua: il phaser lento e il filtro che ondeggia |
+| 209 | Evening Primrose | ambient | il piano elettrico della sera, con il tremolo stereo (Strum) |
+| 210 | Heather Organ | ambient | l'harmonium nella nebbia, con il sedici piedi |
+| 211 | Polar Night | ambient | il bordone di quinta, la risonanza che gira lenta |
+| 212 | Seed Rain | ambient | gocce di mallet sparse nello spazio (Harp) |
+| 213 | Sunflower Saw | trance | il supersaw: quattro seghe larghe; la ruota apre il filtro |
+| 214 | Euphorbia Pad | trance | il pad del breakdown, largo, con l'ottava sotto |
+| 215 | Gated Lily | trance | il trance gate: l'accordo a sedicesimi, tarato sui 138 BPM |
+| 216 | Bluebell Pluck | trance | il pizzico della trance, con l'eco a 1/8 (Pattern) |
+| 217 | Magnolia Lead | trance | il lead dell'inno, legato; la ruota dà il vibrato |
+| 218 | Daybreak Arp | trance | l'arpeggio all'alba, eco a 1/16 (Arp 2 Oct) |
+| 219 | Willow Strings | trance | gli archi del breakdown |
+| 220 | Laser Fern | trance | il laser: il sync che si chiude a ogni nota |
+| 221 | Snowdrop Bell | trance | la campana chiara degli arpeggi (Arp) |
+| 222 | Angelica Choir | trance | il coro del breakdown: la vocale aperta |
+| 223 | Psilocybe Lead | psytrance | il lead acido che gorgoglia, eco a 1/16 |
+| 224 | Amanita Zap | psytrance | lo zap: un'ottava e il filtro che cadono insieme |
+| 225 | Peyote Acid | psytrance | la linea acida quadra, tirata (Arp) |
+| 226 | Ayahuasca Vine | psytrance | il bordone psichedelico che si attorciglia |
+| 227 | Salvia Squelch | psytrance | lo squelch: più forte lo tocchi, più stretto (Pattern) |
+| 228 | Morning Glory | psytrance | il lead del mattino: PWM e sega; la ruota dà il vibrato |
+| 229 | Lotus Mandala | psytrance | l'arpeggio a ping-pong, ogni nota un filtro diverso (Arp) |
+| 230 | Kava Pluck | psytrance | il pizzico di metallo, secco (Pattern) |
+| 231 | Ergot Scream | psytrance | l'FM che urla: il feedback che va e viene |
+| 232 | Toadstool Riser | psytrance | la salita: dodici secondi di rumore che si apre; tienilo nella salita |
+
+I bassi nuovi (K5), dal 25 al 38:
+
+| N. | Basso | Com'è |
+|---|---|---|
+| 25 | Bedrock Sub | il seno puro, con un filo d'ottava per le casse piccole |
+| 26 | Mariana Sub | un'ottava sotto: la fossa |
+| 27 | Root Cellar | caldo e profondo, con un po' di drive |
+| 28 | Hadal Drone | il bordone del fondo, lento ad aprirsi: per l'ambient |
+| 29 | Tectonic | il ringhio FM che sale dal sottosuolo, più forte se tocchi forte |
+| 30 | Abyssal Reese | il reese un'ottava sotto |
+| 31 | Groundwater | il triangolo morbido, con la coda lunga: per l'ambient |
+| 32 | Dub Pressure | la sub del dub, con il filtro che ondeggia |
+| 33 | Rolling Root | la psy: corto e pieno, fatto per rotolare (§6.5) |
+| 34 | Goa Gallop | la Goa: quadra e drive, per il galoppo |
+| 35 | Tendril FM | il clic FM e il corpo di seno |
+| 36 | Offbeat Ivy | il basso in levare della trance |
+| 37 | Rubber Plant | il basso di gomma, risonante, in glide |
+| 38 | Night Sap | la progressive: scuro e morbido |
+
 ## 5. Il looper, passo per passo
 
 ![Il loop suona: PLAY, giro e battuta, le note del loop in viola sulla tastiera](img/looper.png)
@@ -207,12 +288,12 @@ Stessa filosofia degli accordi: premi tasti, muovi manopole, il loop di batteria
 
 - **I pad del banco B** della MPK sono otto pad di batteria con la velocity, sempre, anche senza DRUMS: premi BANK e suoni la batteria sopra gli accordi del loop. Fila bassa cassa, rullante, rimshot, battimani; fila alta charleston chiuso e aperto, tom basso, piatto.
 - Con **DRUMS acceso** cinque manopole cambiano mestiere, e le celle lo scrivono:
-  - **K1 KIT**: il kit, fra quaranta (Beat = quello del Beat scelto, poi Studio, Jazz, 808, Techno, Chip e i 35 della libreria sintetizzata, §6.4); **SHIFT + K1** apre la lista dei kit;
+  - **K1 KIT**: il kit, fra quarantatré (Beat = quello del Beat scelto, poi Studio, Jazz, 808, Techno, Chip e i 38 della libreria sintetizzata, §6.4); **SHIFT + K1** apre la lista dei kit;
   - **K2 ROLL**: tieni un tasto o un pad e il colpo si ripete a tempo: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32. Il primo colpo è il tuo, le ripetizioni entrano nel loop sulla griglia;
   - **K3 DRIVE**: sporca la batteria, da 0 (pulita) a 10 (schiacciata e grossa). **SHIFT + K3 girata** è il **filtro**: a sinistra chiude gli alti (LP, fino a una batteria sorda, da dub), a destra toglie i bassi (HP, fino a una batteria sottile, da build-up); 0 è spento. Il metronomo non passa dall'effetto;
   - **K4 SWING**: sposta in avanti i sedicesimi in levare, da Off (dritto) a 75 % (quasi terzina). Vale per il Beat, per il loop inventato, per i colpi di batteria del loop e per il Roll, anche quelli già registrati;
-  - **K5 ACCENT**: quanto conta la forza del tocco, da 0 (colpi tutti uguali) a 10 (tutta la dinamica).
-- Swing, drive e filtro restano anche quando spegni DRUMS: finché ci sono, la testata scrive **SWING** e **DRUM FX**. Per toglierli, riaccendi DRUMS e riportali a Off e 0.
+  - **K5 ACCENT**: quanto conta la forza del tocco, da 0 (colpi tutti uguali) a 10 (tutta la dinamica). **SHIFT + K5 girata** è il **basso che rotola** (§6.5).
+- Swing, drive e filtro restano anche quando spegni DRUMS: finché ci sono, la testata scrive **SWING** e **DRUM FX** (e **BASSLINE** per il basso che rotola). Per toglierli, riaccendi DRUMS e riportali a Off e 0.
 
 ### 6.3 Crea: il loop di batteria con le tre manopole del pad
 
@@ -223,7 +304,7 @@ Con **DRUMS acceso** sei in modalità crea: le tre manopole del pad inventano il
 | Manopola | Girata | Premuta |
 |---|---|---|
 | **M** | **densità**: 0 tace, 1 è lo scheletro dello stile, 10 suona tutto | **play / stop** del loop |
-| **m1** | **stile**, fra trenta: Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial, House, Garage, Jungle, DnB, Dubstep, Trap, Synthwave, Synthpop, Lo-Fi, Trip Hop, Chiptune, Glitch, EBM, Afrobeat, Tabla, Salsa, Reggaeton, Jazz, Arena, Preset | sceglie la **parte** che M regola: tutto, cassa, rullante, charleston, aperto, percussioni |
+| **m1** | **stile**, fra trentaquattro: Techno, Rock, Funk, Break, Halftime, Dub, Bossa, Electro, Acid, Industrial, House, Garage, Jungle, DnB, Dubstep, Trap, Synthwave, Synthpop, Lo-Fi, Trip Hop, Chiptune, Glitch, EBM, Afrobeat, Tabla, Salsa, Reggaeton, Jazz, Arena, Preset, Trance, Psytrance, Goa, Progressive | sceglie la **parte** che M regola: tutto, cassa, rullante, charleston, aperto, percussioni |
 | **m2** | **variazione** 0…99: ogni scatto un'idea nuova, tornando indietro ritrovi quella di prima | un'**idea nuova** a caso |
 
 - Il primo tocco prende il posto del Beat che suonava, nello stile più vicino: se suonava il Funk si comincia dal Funk.
@@ -234,11 +315,11 @@ Con **DRUMS acceso** sei in modalità crea: le tre manopole del pad inventano il
 - Sulla plancia la zona dell'accordo mostra la griglia: una riga per parte con la sua densità, una colonna per sedicesimo, i colpi forti accesi, la colonna che suona segnata.
 - Ogni stile ha il suo kit (House la 909, Tabla la tabla, Jazz le spazzole…); K1 lo cambia.
 
-### 6.4 La libreria: quaranta kit e sessanta Beat
+### 6.4 La libreria: quarantatré kit e sessantaquattro Beat
 
 ![La lista dei kit (SHIFT + K1 sotto DRUMS): numero, nome, SMP o SYN e lo stile](img/lista_kit.png)
 
-Oltre ai quattro kit di campioni e al Chip ci sono **35 kit sintetizzati**: niente campioni, ogni colpo nasce da oscillatori, rumore e filtri, come una drum machine vera. Suonano anche senza il banco dei campioni. Si scelgono con **K1** sotto DRUMS (il numero è quello della tabella) o dalla **lista dei kit**: **SHIFT + K1**, la manopola di navigazione scorre, premuta sceglie; il kit vale subito, anche sul Beat che suona, e la lista resta aperta per provarne un altro. «Beat» (0) torna al kit del Beat o dello stile.
+Oltre ai quattro kit di campioni e al Chip ci sono **38 kit sintetizzati**: niente campioni, ogni colpo nasce da oscillatori, rumore e filtri, come una drum machine vera. Suonano anche senza il banco dei campioni. Si scelgono con **K1** sotto DRUMS (il numero è quello della tabella) o dalla **lista dei kit**: **SHIFT + K1**, la manopola di navigazione scorre, premuta sceglie; il kit vale subito, anche sul Beat che suona, e la lista resta aperta per provarne un altro. «Beat» (0) torna al kit del Beat o dello stile.
 
 | K1 | Kit | Com'è |
 |---:|---|---|
@@ -279,23 +360,49 @@ Oltre ai quattro kit di campioni e al Chip ci sono **35 kit sintetizzati**: nien
 | 38 | Darbuka Sand | doum e tek, riq, bendir, cimbalini |
 | 39 | Cajon Box | cajón, palmas, shaker, woodblock |
 | 40 | Deep Space | morbida e lontana; il piatto cresce |
+| 41 | Psy Forest | la psytrance: la cassa stretta che lascia il posto al basso che rotola, l'aperto metallico, i blip |
+| 42 | Goa Temple | la Goa: il 909 spinto, il tamburo a mano, la campanella |
+| 43 | Trance Arena | la trance: la cassa lunga, il battimani largo, il piatto del ritorno |
 
 Nei kit del mondo i tasti non cambiano ruolo: Do resta il tamburo grave, Re e Re♯ i colpi secchi, Mi e Fa♯ i sonagli, La♯ la campana.
 
-**I Beat di genere** (dal 20 al 60 della lista), ognuno con un kit della libreria e il suo fill: House e Deep House (909 House), Tech House (Minimal Click), Garage (2-Step), Breakbeat, Jungle e Drum & Bass (Jungle), Dubstep (Iron Mill), Footwork (808 Trap), Robot (Robot Pop), Synthwave (Gated 80s), Italo (Linn Pop), Lo-Fi (Lo-Fi Dust), Trip Hop (Tape Crate), Ambient Pulse (Deep Space), Chiptune (8-Bit), Arcade, Glitch (Glitch Bits), IDM (Data Rot), EBM (Iron Mill), Factory (Scrap Yard), Rave (909 Rave), Rock (Acoustic Room), Swing Jazz e Brush Ballad (Brushes), Afrobeat e Djembe (Afro Hand), Teental (la tabla nei suoi sedici matra), Rhythm Box (CR Rhythm), Gamelan (il ciclo con il gong), Salsa e Cumbia (Latin Perc: la clave, il guiro), Reggaeton e Dancehall (808 Boom), Taiko, Maqsum (Darbuka Sand), Flamenco e Unplugged (Cajon Box), Sci-Fi (Laser Lab), Steppers (Dub Yard), Syndrum (Syndrum Disco). Con **K4 SWING** molti cambiano carattere: Swing Jazz, Garage e Lo-Fi vogliono lo swing intorno al 60–66 %.
+**I Beat di genere** (dal 20 al 60 della lista), ognuno con un kit della libreria e il suo fill: House e Deep House (909 House), Tech House (Minimal Click), Garage (2-Step), Breakbeat, Jungle e Drum & Bass (Jungle), Dubstep (Iron Mill), Footwork (808 Trap), Robot (Robot Pop), Synthwave (Gated 80s), Italo (Linn Pop), Lo-Fi (Lo-Fi Dust), Trip Hop (Tape Crate), Ambient Pulse (Deep Space), Chiptune (8-Bit), Arcade, Glitch (Glitch Bits), IDM (Data Rot), EBM (Iron Mill), Factory (Scrap Yard), Rave (909 Rave), Rock (Acoustic Room), Swing Jazz e Brush Ballad (Brushes), Afrobeat e Djembe (Afro Hand), Teental (la tabla nei suoi sedici matra), Rhythm Box (CR Rhythm), Gamelan (il ciclo con il gong), Salsa e Cumbia (Latin Perc: la clave, il guiro), Reggaeton e Dancehall (808 Boom), Taiko, Maqsum (Darbuka Sand), Flamenco e Unplugged (Cajon Box), Sci-Fi (Laser Lab), Steppers (Dub Yard), Syndrum (Syndrum Disco); dal 22/10, dal 61 al 64, Trance e Progressive (Trance Arena), Psytrance (Psy Forest) e Goa (Goa Temple), con lo stile omonimo per le tre manopole. Con **K4 SWING** molti cambiano carattere: Swing Jazz, Garage e Lo-Fi vogliono lo swing intorno al 60–66 %.
+
+### 6.5 Il basso che rotola, e le ricette di psy e trance
+
+![Il basso che rotola: SHIFT + K5 sotto DRUMS, la cella BASSLINE e la testata](img/bassline.png)
+
+Nella psytrance il basso non tiene la nota: la batte nei tre sedicesimi fra una cassa e l'altra. Con **DRUMS** acceso, **SHIFT + K5 girata** sceglie la **figura** del basso:
+
+| Figura | Suona | Per |
+|---|---|---|
+| Off | tenuto, come sempre | tutto il resto |
+| Offbeat | il levare di ogni quarto | trance, house |
+| Rolling | i tre sedicesimi dopo la cassa | psytrance |
+| Gallop | gli ultimi due sedicesimi del quarto | Goa, psy |
+| 8ths | crome | |
+| 16ths | tutti i sedicesimi | |
+
+- Rotola solo con il trasporto in moto (Beat, metronomo o loop); a Beat fermo il basso è tenuto come sempre, quindi suonare senza batteria non cambia.
+- Ogni colpo è un attacco nuovo: servono bassi corti, come Rolling Root, Goa Gallop, Tendril FM e Offbeat Ivy (§4.3).
+- Vale anche per il basso del loop; lo swing (K4) sposta i sedicesimi in levare come per il Beat; il Drop (T13) lo zittisce e lo fa rientrare a tempo. Resta quando spegni DRUMS: la testata scrive **BASSLINE**.
+
+**Psytrance.** BPM 145 (K7); Beat **Psytrance** (BPM tenuto, la lista) o lo stile Psytrance con le tre manopole sotto DRUMS; basso **Rolling Root** e figura **Rolling**; un accordo minore tenuto con **T1 HOLD**; sopra **Psilocybe Lead** o **Peyote Acid** in Arp, **Amanita Zap** per gli effetti, **Toadstool Riser** tenuto nella salita e **T13 DROP** fino all'uno.
+
+**Trance.** BPM 138; Beat **Trance**; basso **Offbeat Ivy** e figura **Offbeat**; gli accordi con **Sunflower Saw** o **Gated Lily** (il gate), **Daybreak Arp** in Arp 2 Oct o **Bluebell Pluck** a Pattern; nel breakdown, Beat spento, **Euphorbia Pad** o **Angelica Choir**.
 
 ## 7. Il macro pad
 
 ![Drop (T13 tenuto): la testata scrive DROP, il Beat e il basso tacciono, l'accordo suona](img/drop.png)
 
-Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera collegata (dal 16/10/2026) il pad non rifà i comandi della MPK: tiene Options, Panic, View, Page e i due voicing, e i tasti liberi fanno **quello che l'originale non ha**. Fa lo stesso anche senza tastiera.
+Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera collegata (dal 16/10/2026) il pad non rifà i comandi della MPK: tiene Options, Panic, Page e i due voicing, e i tasti liberi fanno **quello che l'originale non ha**. Fa lo stesso anche senza tastiera.
 
 ![Il macro pad tenuto con le manopole a destra: i quindici tasti con le loro etichette e le tre manopole, con quello che fanno da sole e con DRUMS](img/pad.svg)
 
 | | col. 1 | col. 2 | col. 3 | col. 4 | col. 5 |
 |---|---|---|---|---|---|
 | in alto | **T1** Hold | **T2** Tap tempo | **T3** Metronomo | **T4** Fill (tenuto) | **T13 DROP** (tenuto) |
-| in mezzo | **T5** Scene 1 | **T6** Scene 2 | **T7** Scene 3 | **T8** Scene 4 | **T14 VIEW** |
+| in mezzo | **T5** Scene 1 | **T6** Scene 2 | **T7** Scene 3 | **T8** Scene 4 | **T14 AMBIENT** |
 | in basso | **T9** Options | **T10** Save Loop | **T11** Drums | **T12** Panic (tenuto 1 s) | **T15 PAGE** |
 
 - **T1 HOLD**: l'accordo resta a suonare anche quando lasci i tasti, finché non premi un tasto nuovo o non spegni il Hold. Serve per girare le manopole con tutte e due le mani. In testata «HOLD».
@@ -306,8 +413,8 @@ Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera c
 - **T11 DRUMS**: la batteria a tastiera (§6.1) e la modalità crea delle tre manopole (§6.3).
 - **T12 PANIC** scatta solo dopo 1 secondo: spegne tutte le note; tenuto 3 secondi fa il **Reset** (loop, Beat, transpose, Perform, Hold, metronomo da capo). Sulla MPK: **SHIFT + STOP/PLAY**.
 - **T13 DROP, tenuto.** Finché lo tieni, Beat, batteria del loop e basso tacciono: restano gli accordi con la loro performance, il metronomo e quello che suoni tu (tasti sotto DRUMS, pad del banco B). Lascialo e tornano **sul battito dopo**, a tempo; se lo lasci appena dopo un battito (entro un sedicesimo) tornano subito. È il break della techno e del dub: tieni T13 nella salita, lascialo sull'uno. Beat e loop intanto vanno avanti, quindi rientrano al loro posto. In testata «DROP». Fa il paio con **T4 FILL**.
-- **Le manopole.** **M** (grande) è il Chord Voicing, premuta Split/Octave; **m1** il Bass Voicing, premuta Mod; **m2** il volume del Beat, premuta e girata il volume del basso. Sotto DRUMS creano il loop di batteria (§6.3).
-- **T14 VIEW**: Geek Out e, al tocco dopo, la vista di prima.
+- **Le manopole.** **M** (grande) è il Chord Voicing, premuta Split/Octave; **m1** il Bass Voicing, premuta Mod; **m2** il volume del Beat, premuta e girata il volume del basso. Sotto DRUMS creano il loop di batteria (§6.3); con AMBIENT acceso guidano il modulo (§3.1).
+- **T14 AMBIENT**: il modulo che suona quasi da solo (§3.1). Fino al 22/10/2026 era View: Geek Out ora sta in Options › View.
 - **T15 PAGE**: apre la pagina dei comandi della Flip e la tiene aperta finché non lo ripremi (o premi −).
 - Se il pad non c'è, la Flip ne fa una parte: Options è SELECT, Mod è Y, Hold è X, Fill è START tenuto, i due voicing sono la levetta destra (§9.2).
 
@@ -337,17 +444,17 @@ Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera c
 
 ### 9.1 Lo schermo
 
-![La vista Geek Out (T14): note, intervalli, finestre, Play Style, la barra completa in testata](img/geek.png)
+![La vista Geek Out (Options › View): note, intervalli, finestre, Play Style, la barra completa in testata](img/geek.png)
 
 ![Lo stesso accordo nel tema Notte: vetro scuro e fosfori (MENU › Theme)](img/notte.png)
 
-Il vetrino mostra, dall'alto: la **testata** (batteria; avvisi e stati solo quando servono: DRUMS, HOLD, DROP…), la **zona accordo** (tonalità e transpose, il nome dell'accordo in grande), la **zona tempo e loop** (BPM, battiti, il looper quando lavora), la **tastiera** a quattro ottave (treble in acqua, basso in ambra, loop in viola, i granelli della tonalità) e in fondo la **banda**, che mostra in grande il controllo appena toccato e, a riposo, il suono.
+Il vetrino mostra, dall'alto: la **testata** (batteria; avvisi e stati solo quando servono: DRUMS, AMBIENT, HOLD, DROP, BASSLINE…), la **zona accordo** (tonalità e transpose, il nome dell'accordo in grande), la **zona tempo e loop** (BPM, battiti, il looper quando lavora), la **tastiera** a quattro ottave (treble in acqua, basso in ambra, loop in viola, una striscia accesa sotto le note sparse di AMBIENT, i granelli della tonalità) e in fondo la **banda**, che mostra in grande il controllo appena toccato e, a riposo, il suono.
 
 Due pagine:
 - **pagina di gioco**: quello che serve mentre si suona;
 - **pagina dei comandi**: al posto della tastiera, le 11 celle dei controlli con valore, fuoco e la sigla del comando. Si apre con i tasti del fuoco della Flip (L1, R1, croce, A, X) e si chiude da sola 5 secondi dopo l'ultimo, o con B; con **T15** del pad si apre e resta aperta.
 
-Sei **viste** per la zona accordo (Options › View, o **T14**): **React**, **Chord** (quella di fabbrica), **Keyboard**, **Chord+Kb**, **Notes** (le note scritte), **Geek Out** (note, intervalli, finestre, cartellino di Linneo, attività MIDI, voci, carico, livelli: la barra completa in testata).
+Sei **viste** per la zona accordo (Options › View): **React**, **Chord** (quella di fabbrica), **Keyboard**, **Chord+Kb**, **Notes** (le note scritte), **Geek Out** (note, intervalli, finestre, cartellino di Linneo, attività MIDI, voci, carico, livelli: la barra completa in testata).
 
 Due **temi** (MENU › Theme): **Giorno** (LCD riflettente, quello con cui Stame parte) e **Notte** (vetro scuro e fosfori). La demo parte nel tema che hai scelto e passa all'altro solo per mostrarlo.
 
@@ -393,7 +500,7 @@ Previsti: Pocket Mode (suonare con la sola Flip), MPK Status, Learn Pad, Note La
 
 ## 10. La demo
 
-Sono sei brani originali di Stame, suonati a giro: **«Acacia»** (poco meno di quattro minuti: accordi in Harp, lista dei Beat, count-in e registrazione del loop, overdub, Lock del Perform, transpose, cambi di suono e di vista, i due temi, il ritardando), **«Felce»** (una bossa con piano a coda, vibrafono, kalimba in overdub, sax tenore, arpa e glockenspiel), **«Pistillo»** (apre con la batteria a tastiera: il kit 808 suonato sui tasti entra nel loop con count-in e sovraincisione, poi sopra FM piano e Sub Floor, marimba, organo a canne nel loop, flauto dolce, campane tubolari e transpose) e **«Alga»** (lento e sott'acqua: un pad, il giro nel loop con Moonflower e Peat Sub, campane a mano, glockenspiel in sovraincisione, ocarina, il Beat Ballad, bicchieri e ritardando), **«Cicuta»** (acid techno: il loop di batteria si inventa con le tre manopole del pad, dallo scheletro al pieno, poi Hemlock Acid in Pattern con il basso Hemlock 303, il giro nel loop, un break che passa allo stile Industrial e il drone di Black Hellebore) e **«Torba»** (dub techno: lo stab di Deadnettle Dub sul levare con il suo eco, il giro nel loop, Undertow e Abyss Sub, la batteria Dub che cambia mentre suona e le campane scure di Mire Bells). La demo parte da sola dopo 20 secondi senza ingressi (e subito dopo l'avvio). Qualunque tasto, pad o nota la ferma e rimette a posto loop, Beat, transpose e opzioni. Per non farla partire: MENU › Demo › Off. Per sentire un brano preciso: MENU › Play Demo Song, poi il brano nella lista.
+Sono sei brani originali di Stame, suonati a giro: **«Acacia»** (poco meno di quattro minuti: accordi in Harp, lista dei Beat, count-in e registrazione del loop, overdub, Lock del Perform, transpose, cambi di suono e di vista, i due temi, il ritardando), **«Felce»** (una bossa con piano a coda, vibrafono, kalimba in overdub, sax tenore, arpa e glockenspiel), **«Pistillo»** (apre con la batteria a tastiera: il kit 808 suonato sui tasti entra nel loop con count-in e sovraincisione, poi sopra FM piano e Sub Floor, marimba, organo a canne nel loop, flauto dolce, campane tubolari e transpose) e **«Alga»** (lento e sott'acqua: un pad, il giro nel loop con Moonflower e Peat Sub, campane a mano, glockenspiel in sovraincisione, ocarina, il Beat Ballad, bicchieri e ritardando), **«Cicuta»** (acid techno: il loop di batteria si inventa con le tre manopole del pad, dallo scheletro al pieno, poi Hemlock Acid in Pattern con il basso Hemlock 303, il giro nel loop, un break che passa allo stile Industrial e il drone di Black Hellebore) e **«Torba»** (dub techno: lo stab di Deadnettle Dub sul levare con il suo eco, il giro nel loop, Undertow e Abyss Sub, la batteria Dub che cambia mentre suona e le campane scure di Mire Bells). La demo parte da sola dopo 20 secondi senza ingressi (e subito dopo l'avvio), ma non mentre suona AMBIENT; chiesta dal menu, lo spegne. Qualunque tasto, pad o nota la ferma e rimette a posto loop, Beat, transpose e opzioni. Per non farla partire: MENU › Demo › Off. Per sentire un brano preciso: MENU › Play Demo Song, poi il brano nella lista.
 
 ![La lista dei brani della demo (MENU › Play Demo Song): il segno sta sul brano di turno](img/demo_lista.png)
 
@@ -413,7 +520,9 @@ Sono sei brani originali di Stame, suonati a giro: **«Acacia»** (poco meno di 
 ## 12. Glossario
 
 - **Accordo a blocco**: tutte le note insieme, senza performance.
+- **AMBIENT**: il modulo che suona quasi da solo (T14): accordi, basso e note sparse (§3.1).
 - **Banda**: la striscia in fondo allo schermo, che risponde al controllo toccato.
+- **Basso che rotola** (BASSLINE): il basso batte i sedicesimi di una figura invece di tenere la nota (§6.5).
 - **Beat**: una battuta di batteria in loop, scelta dalla lista di BPM.
 - **Count-in**: la battuta di metronomo prima della registrazione.
 - **Drop**: Beat, batteria del loop e basso tacciono finché T13 è tenuto, e rientrano sul battito.
@@ -422,9 +531,10 @@ Sono sei brani originali di Stame, suonati a giro: **«Acacia»** (poco meno di 
 - **Fuoco**: il controllo su cui agisce la manopola di navigazione (e, senza MPK, croce e A della Flip); lo sposta la pressione di qualunque encoder.
 - **Hold**: l'accordo resta a suonare dopo il rilascio (T1).
 - **Key mode**: la tonalità accesa: i tasti suonano i gradi.
-- **Kit**: i suoni della batteria (dodici strumenti, uno per tasto); quaranta, scelti con K1 sotto DRUMS o con la lista di SHIFT + K1 (§6.4).
+- **Kit**: i suoni della batteria (dodici strumenti, uno per tasto); quarantatré, scelti con K1 sotto DRUMS o con la lista di SHIFT + K1 (§6.4).
 - **Lock (Perform, FX)**: il valore non cambia al cambio di suono.
 - **Mod**: Bass Voicing premuto (m1 o Y), il modificatore delle combinazioni.
+- **Note sparse**: le note che AMBIENT fa cadere sopra l'accordo, ognuna con il suo giro (§3.1).
 - **Overlay**: il nome e il valore del controllo toccato, nella banda.
 - **PUSH**: SHIFT tenuto (B8 o X con la Plus): la manopola K toccata risulta premuta.
 - **Scena**: suono, basso, Perform, effetto, tonalità e basso salvati su T5…T8.

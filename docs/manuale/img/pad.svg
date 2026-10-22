@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 197.0 121.1" width="512" height="315" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
-<rect x="0" y="0" width="197.0" height="121.1" fill="#F7F6F1"/>
-<rect x="119.00" y="87.00" width="72.00" height="5.00" rx="5.0" fill="#E3E6DF" stroke="#8E968A" stroke-width="0.6"/>
-<rect x="6.00" y="15.00" width="185.00" height="75.00" rx="5.0" fill="#E3E6DF" stroke="#8E968A" stroke-width="0.6"/>
-<rect x="119.40" y="88.80" width="67.00" height="1.80" rx="1.5" fill="#E3E6DF" stroke="none" stroke-width="0.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 197.0 125.5" width="512" height="326" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
+<rect x="0" y="0" width="197.0" height="125.5" fill="#F7F6F1"/>
+<rect x="119.00" y="87.35" width="72.00" height="4.83" rx="5.0" fill="#E3E6DF" stroke="#8E968A" stroke-width="0.6"/>
+<rect x="6.00" y="15.00" width="185.00" height="75.35" rx="5.0" fill="#E3E6DF" stroke="#8E968A" stroke-width="0.6"/>
+<rect x="119.40" y="89.15" width="67.00" height="1.80" rx="1.5" fill="#E3E6DF" stroke="none" stroke-width="0.5"/>
 <rect x="12.50" y="18.60" width="18.00" height="18.00" rx="2" fill="#EEE3C4" stroke="#634A00" stroke-width="0.7"/>
 <text x="21.50" y="28.60" font-size="3.4" fill="#634A00" text-anchor="middle" font-weight="700" dominant-baseline="central">HOLD</text>
 <text x="14.00" y="20.80" font-size="2.2" fill="#879180" text-anchor="start" font-weight="400" dominant-baseline="central">T1</text>
@@ -31,7 +31,7 @@
 <text x="85.70" y="49.05" font-size="3.0" fill="#634A00" text-anchor="middle" font-weight="700" dominant-baseline="central">SCENE</text><text x="85.70" y="52.35" font-size="3.0" fill="#634A00" text-anchor="middle" font-weight="700" dominant-baseline="central">4</text>
 <text x="78.20" y="42.90" font-size="2.2" fill="#879180" text-anchor="start" font-weight="400" dominant-baseline="central">T8</text>
 <rect x="98.10" y="40.70" width="18.00" height="18.00" rx="2" fill="#141B18" stroke="#141B18" stroke-width="0.6"/>
-<text x="107.10" y="50.70" font-size="3.4" fill="#F7F6F1" text-anchor="middle" font-weight="700" dominant-baseline="central">VIEW</text>
+<text x="107.10" y="49.05" font-size="3.0" fill="#F7F6F1" text-anchor="middle" font-weight="700" dominant-baseline="central">AMBI</text><text x="107.10" y="52.35" font-size="3.0" fill="#F7F6F1" text-anchor="middle" font-weight="700" dominant-baseline="central">ENT</text>
 <text x="99.60" y="42.90" font-size="2.2" fill="#B9C0B3" text-anchor="start" font-weight="400" dominant-baseline="central">T14</text>
 <rect x="12.50" y="62.80" width="18.00" height="18.00" rx="2" fill="#D8E5CA" stroke="#285C00" stroke-width="0.7"/>
 <text x="21.50" y="72.80" font-size="3.4" fill="#285C00" text-anchor="middle" font-weight="700" dominant-baseline="central">OPT</text>
@@ -48,23 +48,24 @@
 <rect x="98.10" y="62.80" width="18.00" height="18.00" rx="2" fill="#141B18" stroke="#141B18" stroke-width="0.6"/>
 <text x="107.10" y="72.80" font-size="3.4" fill="#F7F6F1" text-anchor="middle" font-weight="700" dominant-baseline="central">PAGE</text>
 <text x="99.60" y="65.00" font-size="2.2" fill="#B9C0B3" text-anchor="start" font-weight="400" dominant-baseline="central">T15</text>
-<circle cx="139.50" cy="33.00" r="10.00" fill="#CFE4E0" stroke="#005A51" stroke-width="0.8"/>
-<circle cx="139.50" cy="33.00" r="7.80" fill="none" stroke="#005A51" stroke-width="0.3"/>
+<circle cx="139.50" cy="33.00" r="10.44" fill="#CFE4E0" stroke="#005A51" stroke-width="0.8"/>
+<circle cx="139.50" cy="33.00" r="8.23" fill="none" stroke="#005A51" stroke-width="0.3"/>
 <text x="139.50" y="33.00" font-size="3.8" fill="#005A51" text-anchor="middle" font-weight="700" dominant-baseline="central">m1</text>
-<circle cx="175.00" cy="33.00" r="10.00" fill="#CFE4E0" stroke="#005A51" stroke-width="0.8"/>
-<circle cx="175.00" cy="33.00" r="7.80" fill="none" stroke="#005A51" stroke-width="0.3"/>
+<circle cx="175.00" cy="33.00" r="10.44" fill="#CFE4E0" stroke="#005A51" stroke-width="0.8"/>
+<circle cx="175.00" cy="33.00" r="8.23" fill="none" stroke="#005A51" stroke-width="0.3"/>
 <text x="175.00" y="33.00" font-size="3.8" fill="#005A51" text-anchor="middle" font-weight="700" dominant-baseline="central">m2</text>
-<circle cx="157.50" cy="77.00" r="15.00" fill="#CFE4E0" stroke="#005A51" stroke-width="0.8"/>
-<circle cx="157.50" cy="77.00" r="12.80" fill="none" stroke="#005A51" stroke-width="0.3"/>
+<circle cx="157.50" cy="77.00" r="14.62" fill="#CFE4E0" stroke="#005A51" stroke-width="0.8"/>
+<circle cx="157.50" cy="77.00" r="12.43" fill="none" stroke="#005A51" stroke-width="0.3"/>
 <text x="157.50" y="77.00" font-size="5.0" fill="#005A51" text-anchor="middle" font-weight="700" dominant-baseline="central">M</text>
 <text x="139.50" y="5.89" font-size="2.8" fill="#005A51" text-anchor="middle" font-weight="400" dominant-baseline="central">Bass Voicing</text><text x="139.50" y="9.11" font-size="2.8" fill="#005A51" text-anchor="middle" font-weight="400" dominant-baseline="central">premi: Mod</text>
 <text x="175.00" y="5.89" font-size="2.8" fill="#005A51" text-anchor="middle" font-weight="400" dominant-baseline="central">volume del Beat</text><text x="175.00" y="9.11" font-size="2.8" fill="#005A51" text-anchor="middle" font-weight="400" dominant-baseline="central">premi e gira: basso</text>
-<line x1="139.50" y1="11.40" x2="139.50" y2="23.00" stroke="#879180" stroke-width="0.35"/>
-<line x1="175.00" y1="11.40" x2="175.00" y2="23.00" stroke="#879180" stroke-width="0.35"/>
-<text x="157.50" y="53.89" font-size="2.8" fill="#005A51" text-anchor="middle" font-weight="400" dominant-baseline="central">Chord Voicing</text><text x="157.50" y="57.11" font-size="2.8" fill="#005A51" text-anchor="middle" font-weight="400" dominant-baseline="central">premi: Split/Octave</text>
-<line x1="157.50" y1="59.40" x2="157.50" y2="62.00" stroke="#879180" stroke-width="0.35"/>
-<text x="6.00" y="99.00" font-size="2.45" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">DROP (T13, tenuto): Beat, batteria del loop e basso tacciono; al rilascio rientrano sul battito. Accordi, metronomo e colpi dal vivo suonano.</text>
-<text x="6.00" y="103.20" font-size="2.45" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">DRUMS (T11) acceso, modo crea: M densità · m1 stile · m2 variazione; premute: play e stop, la parte di M, idea nuova. Ripremi T11: il loop resta.</text>
-<text x="6.00" y="107.40" font-size="2.45" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">Scene: tocco = richiama, tenuto 1 s = salva. Panic (T12) scatta dopo 1 s, tenuto 3 s = Reset. T14: Geek Out e ritorno. T15: la pagina dei comandi.</text>
-<rect x="6.00" y="112.42" width="3.36" height="3.36" rx="0.6" fill="#CFE4E0" stroke="#005A51" stroke-width="0.4"/><text x="11.04" y="114.10" font-size="2.8" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">suono e voicing</text><rect x="39.60" y="112.42" width="3.36" height="3.36" rx="0.6" fill="#F2DCCB" stroke="#853A00" stroke-width="0.4"/><text x="44.64" y="114.10" font-size="2.8" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">tempo e batteria</text><rect x="74.66" y="112.42" width="3.36" height="3.36" rx="0.6" fill="#DFD5F1" stroke="#4A2894" stroke-width="0.4"/><text x="79.70" y="114.10" font-size="2.8" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">loop</text><rect x="92.24" y="112.42" width="3.36" height="3.36" rx="0.6" fill="#D8E5CA" stroke="#285C00" stroke-width="0.4"/><text x="97.28" y="114.10" font-size="2.8" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">navigazione, viste e stati</text><rect x="141.86" y="112.42" width="3.36" height="3.36" rx="0.6" fill="#EEE3C4" stroke="#634A00" stroke-width="0.4"/><text x="146.90" y="114.10" font-size="2.8" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">Hold e scene</text><rect x="171.09" y="112.42" width="3.36" height="3.36" rx="0.6" fill="#F3D3CF" stroke="#9E160C" stroke-width="0.4"/><text x="176.13" y="114.10" font-size="2.8" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">Panic</text>
+<line x1="139.50" y1="11.40" x2="139.50" y2="22.56" stroke="#879180" stroke-width="0.35"/>
+<line x1="175.00" y1="11.40" x2="175.00" y2="22.56" stroke="#879180" stroke-width="0.35"/>
+<text x="157.50" y="54.27" font-size="2.8" fill="#005A51" text-anchor="middle" font-weight="400" dominant-baseline="central">Chord Voicing</text><text x="157.50" y="57.48" font-size="2.8" fill="#005A51" text-anchor="middle" font-weight="400" dominant-baseline="central">premi: Split/Octave</text>
+<line x1="157.50" y1="59.77" x2="157.50" y2="62.38" stroke="#879180" stroke-width="0.35"/>
+<text x="6.00" y="99.18" font-size="2.45" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">DROP (T13, tenuto): Beat, batteria del loop e basso tacciono; al rilascio rientrano sul battito. Accordi, metronomo e colpi dal vivo suonano.</text>
+<text x="6.00" y="103.38" font-size="2.45" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">DRUMS (T11) acceso, modo crea: M densità · m1 stile · m2 variazione; premute: play e stop, la parte di M, idea nuova. Ripremi T11: il loop resta.</text>
+<text x="6.00" y="107.58" font-size="2.45" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">AMBIENT (T14): Stame suona quasi da solo. M note sparse · m1 atmosfera · m2 movimento; premute: pausa, Mod, idea nuova. Un tuo accordo lo zittisce.</text>
+<text x="6.00" y="111.78" font-size="2.45" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">Scene: tocco = richiama, tenuto 1 s = salva. Panic (T12) scatta dopo 1 s, tenuto 3 s = Reset. T15: la pagina dei comandi. Geek Out: Options › View.</text>
+<rect x="6.00" y="116.80" width="3.36" height="3.36" rx="0.6" fill="#CFE4E0" stroke="#005A51" stroke-width="0.4"/><text x="11.04" y="118.48" font-size="2.8" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">suono e voicing</text><rect x="39.60" y="116.80" width="3.36" height="3.36" rx="0.6" fill="#F2DCCB" stroke="#853A00" stroke-width="0.4"/><text x="44.64" y="118.48" font-size="2.8" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">tempo e batteria</text><rect x="74.66" y="116.80" width="3.36" height="3.36" rx="0.6" fill="#DFD5F1" stroke="#4A2894" stroke-width="0.4"/><text x="79.70" y="118.48" font-size="2.8" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">loop</text><rect x="92.24" y="116.80" width="3.36" height="3.36" rx="0.6" fill="#D8E5CA" stroke="#285C00" stroke-width="0.4"/><text x="97.28" y="118.48" font-size="2.8" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">navigazione, viste e stati</text><rect x="141.86" y="116.80" width="3.36" height="3.36" rx="0.6" fill="#EEE3C4" stroke="#634A00" stroke-width="0.4"/><text x="146.90" y="118.48" font-size="2.8" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">Hold e scene</text><rect x="171.09" y="116.80" width="3.36" height="3.36" rx="0.6" fill="#F3D3CF" stroke="#9E160C" stroke-width="0.4"/><text x="176.13" y="118.48" font-size="2.8" fill="#424C47" text-anchor="start" font-weight="400" dominant-baseline="central">Panic</text>
 </svg>
