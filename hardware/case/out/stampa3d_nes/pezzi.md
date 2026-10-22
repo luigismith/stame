@@ -39,7 +39,7 @@ Il marchio e il nome dei fianchi stanno su due targhe grigie con le scritte ross
 Le incisioni del laser sono troppo fini per un ugello da 0,4: qui le scritte sono ridisegnate con Matrice, il carattere 5×7 di Stame, a quadretti da 0,45 mm (lettere alte 3,15 mm) o da 0,40 dove non c'è posto. Logo e punti del nome restano quelli del laser. Sulla mascherina fra le due file di pad ci sono 2,8 mm: i tipi d'accordo e i piatti del banco B vanno sotto i pad, con l'estensione e il tamburo della stessa colonna, alto/basso come i pad: «DIM/6» è DIM sul pad di sopra e 6 su quello di sotto, «B:CHH/KICK» il charleston sopra e la cassa sotto. Le anteprime `anteprima_*.png` mostrano ogni faccia come la si guarda.
 
 - **mascherina**: 30 scritte a 0,40 mm e 0,45 mm.
-- **piano_flip**: 10 scritte a 0,45 mm.
+- **piano_flip**: 14 scritte a 0,45 mm.
 - **fianco_sx**: 1 scritta a 0,45 mm.
 - **fianco_dx**: 1 scritta a 0,45 mm.
 

@@ -31,7 +31,7 @@ Viti: 6 viti M3 × 6 a testa cilindrica (brugola), 4 viti M3 × 12 a testa cilin
 - 3 perimetri, 4 strati pieni sopra e sotto, riempimento giroide al 20 %. Senza supporti: le vasche hanno solo ponti corti (il passaggio dei cavi sotto la costola, 28 mm; le finestre della culla del pad) e le sedi delle viti, orizzontali e piccole. Solo la visiera vuole i supporti, sotto i piedi: si stampa sul tettuccio, come esce.
 - Le vasche sono alte 45 mm e larghe fino al piatto: piatto pulito, tesa (brim) di 5 mm se gli angoli si alzano.
 - Fianchi: il marchio e il nome escono di 0,6 mm dalla faccia di fuori, che stampata in piedi è verticale: vengono del colore della vasca (a più colori: `../stampa3d_multicolore/`).
-- Mascherina e piano della Flip: 39 tasche profonde 0,4 mm per le etichette (`etichette_mascherina.svg`, da stampare al 100 % su carta adesiva; `etichette_mappa.svg` dice dove va ogni numero). La mascherina è in due metà accostate, senza giunta: i fori sui comandi della MK4 tengono ogni metà al suo posto.
+- Mascherina e piano della Flip: 40 tasche profonde 0,4 mm per le etichette (`etichette_mascherina.svg`, da stampare al 100 % su carta adesiva; `etichette_mappa.svg` dice dove va ogni numero). La mascherina è in due metà accostate, senza giunta: i fori sui comandi della MK4 tengono ogni metà al suo posto.
 - Prima delle vasche, `prova_giunta.stl`: le due metà devono calarsi l'una nell'altra a mano, e le viti stringere con il dado nella sua sede. Se la coda è dura, carta abrasiva sui fianchi della coda.
 
 ## Montaggio
