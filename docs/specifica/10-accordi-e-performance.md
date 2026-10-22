@@ -730,6 +730,27 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 
   Ogni Beat ha uno stile vicino della batteria che si inventa (ACC-215, `inv_groove_of_beat`): il primo tocco delle manopole sotto DRUMS parte da lì (House → House, Teental → Tabla, Rock → Arena, Psytrance → Psytrance…). Nella lista dei Beat accanto a ogni nome c'è il suo kit (`30` UI-177). TV-123.
 
+### 10.8 Il basso che rotola
+- **ACC-219** `[D]` (22/10/2026, `40` MIDI-142; Luigi: «suoni per fare PSYtrance e trance», poi «Basso rotolante» fra le aggiunte proposte) Un'aggiunta di Stame accanto ad ACC-142: con una **figura** scelta e il **trasporto in moto** (ACC-204), le note del basso tenute non suonano tenute ma sui sedicesimi della figura, contati dalla battuta 1 del trasporto. Ogni colpo è un attacco nuovo con la velocity della nota e dura quanto dice la figura; un colpo nuovo prima della fine riparte da capo. Le figure, nell'ordine di K5 premuta e girata sotto DRUMS:
+
+| Figura | Sedicesimi del quarto | Durata del colpo | Genere |
+|---|---|---|---|
+| Off | — | — | il basso tenuto di ACC-142, come sempre |
+| Offbeat | il terzo (il levare) | 36 tick | la trance, la house |
+| Rolling | il secondo, il terzo e il quarto | 16 tick | la psytrance: la cassa sul battito, il basso nei tre sedicesimi dopo |
+| Gallop | il terzo e il quarto | 16 tick | il galoppo della Goa e della psy più vecchia |
+| 8ths | il primo e il terzo | 30 tick | crome |
+| 16ths | tutti e quattro | 16 tick | sedicesimi |
+
+  Regole:
+  - la figura vale per tutte le note del motore Bass che una sorgente tiene: dal vivo (ACC-142 e i modi del basso) e dal loop (ACC-221). Il looper registra le note come sempre, tenute: la figura si applica in uscita, quindi un loop registrato con il basso tenuto rotola se si sceglie una figura, e viceversa;
+  - lo **swing** (ACC-216) sposta i sedicesimi dispari della figura come quelli del Beat;
+  - quando la figura comincia a valere (figura scelta a trasporto in moto, o trasporto che parte con una figura) le note tenute si fermano e aspettano il loro passo; quando smette (Off, o trasporto fermo) le note tenute ripartono tenute, con un attacco nuovo. A trasporto fermo il basso è sempre tenuto, quindi suonare senza Beat non cambia;
+  - una nota rilasciata smette subito; il Drop (ACC-217) zittisce anche la figura, che intanto va avanti; Panic e Reset spengono le note e lasciano la figura;
+  - la figura è uno stato della drum machine come lo swing: resta quando DRUMS si spegne e si vede in testata («BASSLINE», `30` UI-126). La demo suona com'è scritta: la azzera all'inizio e la rimette alla fine.
+
+  I bassi corti del 22/10/2026 (Rolling Root, Goa Gallop, Tendril FM, Offbeat Ivy, `tools/patch.py`) sono fatti per questo: il colpo finisce prima del sedicesimo dopo. TV-124.
+
 ---
 
 ## 11. Looper
@@ -956,7 +977,8 @@ I preset di fabbrica usano i pattern 2, 3, 4, 6, 7, 8 e 13 `[O]`: sono i primi d
 | TV-119 | batteria che si inventa (ACC-215): ogni stile, variazioni 0, 7, … 98, densità 0…10 | stessa variazione = stessa griglia; scheletro fermo; i colpi di d restano a d + 1; 0 tace, 1 è lo scheletro; il fill aggiunge colpi; un Beat del menu la spegne |
 | TV-120 | swing (ACC-216) di 6 e di 12 tick: Beat con un colpo sul passo 1, colpi dal vivo nel loop a pos 37 e 100, Roll a 1/16 in overdub | il passo 1 suona a 30, non a 24; i pari restano dritti; il colpo a pos 37 va a t = 24 e suona a 36 nel giro dopo, quello a 100 resta a 96; il Roll suona a 174 e non a 168, a 192 dritto, e registra solo sulla griglia dritta; senza swing tutto torna dritto |
 | TV-122 | Drop (ACC-217): Beat sui passi 0, 4, 8, metronomo acceso; pressione a pos 100, rilascio a 230, di nuovo a 300 e rilascio a 394, poi con un piatto del Beat che suona | dopo 5 ms nessuna voce del Beat e basso a zero; durante il Drop il Beat tace, il metronomo e un colpo dal vivo suonano; rilasciato a 230 aspetta e rientra a 288, con il primo colpo pieno; rilasciato a 394 rientra subito; il piatto di prima non ricompare; da fermo il rilascio è subito |
-| TV-123 | libreria dei Beat e degli stili (ACC-218, ACC-215): i 60 Beat e i 30 stili | i primi 19 Beat e i primi 10 stili tengono il loro kit; i nuovi hanno un kit della libreria (`20` SND-541); ogni Beat suona sul passo 0, ha almeno 6 colpi e un fill di almeno 6; nomi unici entro 23 e 11 caratteri; ogni kit della libreria è di almeno un Beat o uno stile; ogni Beat ha uno stile vicino |
+| TV-123 | libreria dei Beat e degli stili (ACC-218, ACC-215): i 64 Beat e i 34 stili (60 e 30 fino al 22/10/2026) | i primi 19 Beat e i primi 10 stili tengono il loro kit; i nuovi hanno un kit della libreria (`20` SND-541); ogni Beat suona sul passo 0, ha almeno 6 colpi e un fill di almeno 6; nomi unici entro 23 e 11 caratteri; ogni kit della libreria è di almeno un Beat o uno stile; ogni Beat ha uno stile vicino |
+| TV-124 | basso che rotola (ACC-219): una nota del basso tenuta, figura Rolling, trasporto fermo e poi in moto; swing 6; Offbeat; Off; nota rilasciata; trasporto fermato; Panic | fermo è tenuta; in moto si ferma e suona ai tick 24, 48 e 72 di ogni quarto, 16 tick per colpo, non sul battito; con lo swing il secondo sedicesimo suona a 30; Offbeat solo a 48 per 36 tick; con Off torna tenuta; rilasciata tace; a trasporto fermo torna tenuta; Panic la spegne |
 | TV-121 | FX del bus della batteria (`20` SND-538): drive 0…10, filtro −10…+10, clic del metronomo | spento (anche dopo essere stato acceso) il bus è identico bit per bit; drive 10 alza l'energia della cassa di oltre il 30 % con il picco sotto 1,2; passa-basso chiuso: il charleston sotto il 5 %; passa-alto aperto: la cassa sotto il 10 %; il clic identico con il filtro chiuso |
 
 ---

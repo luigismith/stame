@@ -41,9 +41,16 @@ uint32_t mot_click(const motore_t *m) { return m->beat_sel == BEAT_M_PATTERN ? m
 /* ACC-253: una nota già aperta che riceve un altro note-on (dal vivo sopra il loop) prima si spegne e
  * riparte; la voce si spegne solo quando la rilasciano tutte le sorgenti, così il loop non taglia una
  * nota tenuta dal vivo e viceversa */
+static bool gate_on(const motore_t *m, uint8_t note) { return (m->bl_gate[note >> 3] >> (note & 7)) & 1u; }
+
 static void voice_on(motore_t *m, int r, uint8_t note, uint8_t vel)
 {
     dsp_engine e = r ? DSP_BASS : DSP_SOUND;
+    if (r) m->bl_vel[note] = vel;
+    if (r && m->bl_act) {                                         /* il basso che rotola: la nota aspetta la figura (ACC-219) */
+        if (m->ref[1][note] < UINT8_MAX) m->ref[1][note]++;
+        return;
+    }
     if (m->ref[r][note]) dsp_note_off(m->d, e, note);
     if (m->ref[r][note] < UINT8_MAX) m->ref[r][note]++;
     dsp_note_on(m->d, e, note, vel);
@@ -52,7 +59,54 @@ static void voice_on(motore_t *m, int r, uint8_t note, uint8_t vel)
 static void voice_off(motore_t *m, int r, uint8_t note)
 {
     if (!m->ref[r][note]) return;
-    if (--m->ref[r][note] == 0) dsp_note_off(m->d, r ? DSP_BASS : DSP_SOUND, note);
+    if (--m->ref[r][note]) return;
+    if (r && m->bl_act) {                                         /* rotola: si spegne solo se la figura l'ha accesa */
+        if (!gate_on(m, note)) return;
+        m->bl_gate[note >> 3] &= (uint8_t)~(1u << (note & 7));
+    }
+    dsp_note_off(m->d, r ? DSP_BASS : DSP_SOUND, note);
+}
+
+/* ---------------------------------------------------------------- il basso che rotola (ACC-219) */
+
+/* i sedicesimi del quarto in cui la figura suona (bit 0 = sul battito) e quanto dura ogni colpo, in tick */
+static const uint8_t BL_MASK[BL_COUNT] = { 0x0, 0x4, 0xE, 0xC, 0x5, 0xF };
+static const uint8_t BL_GATE[BL_COUNT] = { 0, 36, 16, 16, 30, 16 };
+
+static void bl_gate_off(motore_t *m)
+{
+    for (int n = 0; n < 128; n++)
+        if (gate_on(m, (uint8_t)n)) dsp_note_off(m->d, DSP_BASS, (uint8_t)n);
+    memset(m->bl_gate, 0, sizeof m->bl_gate);
+}
+
+/* rotola quando c'è una figura e il trasporto è in moto. Al passaggio le note tenute cambiano modo: tenute
+ * si fermano e aspettano il passo della figura; rotolando tornano tenute con un attacco nuovo */
+static void bl_sync(motore_t *m)
+{
+    uint8_t act = m->bl && m->tr_on;
+    if (act == m->bl_act) return;
+    m->bl_act = act;
+    if (act) {
+        for (int n = 0; n < 128; n++) if (m->ref[1][n]) dsp_note_off(m->d, DSP_BASS, (uint8_t)n);
+    } else {
+        bl_gate_off(m);
+        for (int n = 0; n < 128; n++) if (m->ref[1][n]) dsp_note_on(m->d, DSP_BASS, (uint8_t)n, m->bl_vel[n]);
+    }
+}
+
+/* un colpo della figura: ogni nota tenuta riparte, e si spegne dopo BL_GATE tick */
+static void bl_hit(motore_t *m)
+{
+    bool any = false;
+    for (int n = 0; n < 128; n++) {
+        if (!m->ref[1][n]) continue;
+        if (gate_on(m, (uint8_t)n)) dsp_note_off(m->d, DSP_BASS, (uint8_t)n);
+        dsp_note_on(m->d, DSP_BASS, (uint8_t)n, m->bl_vel[n]);
+        m->bl_gate[n >> 3] |= (uint8_t)(1u << (n & 7));
+        any = true;
+    }
+    if (any) m->bl_off = m->tick + BL_GATE[m->bl];
 }
 
 /* il looper registra prima del transpose (ACC-220); il note-off segue la nota del suo note-on */
@@ -300,6 +354,14 @@ void mot_drop(motore_t *m, bool on)
     drop_set(m, false);
 }
 
+void mot_bassline(motore_t *m, uint8_t pattern)
+{
+    if (pattern >= BL_COUNT) pattern = BL_OFF;
+    if (m->bl_act && pattern != m->bl) bl_gate_off(m);           /* la figura nuova riparte dal suo passo */
+    m->bl = pattern;
+    bl_sync(m);
+}
+
 void mot_inventa(motore_t *m, uint8_t groove, uint8_t var)
 {
     if (!m->inv_on || groove != m->inv.groove || var != m->inv.var) inv_build(&m->inv, groove, var);
@@ -338,6 +400,7 @@ void mot_all_off(motore_t *m)
     drums_all_off(&m->drums);
     memset(m->lp_out, MOT_NONE, sizeof m->lp_out);
     memset(m->ref, 0, sizeof m->ref);
+    memset(m->bl_gate, 0, sizeof m->bl_gate);
 }
 
 /* ---------------------------------------------------------------- tempo */
@@ -374,8 +437,20 @@ static void tick_run(motore_t *m)
                     loop_record_hit(&m->loop, dritto ? m->tick : m->tick - sw, m->tick, (uint8_t)k, m->drum_held[k]);
                 }
     }
+    bl_sync(m);                                                   /* il trasporto può essersi messo in moto o fermato */
     if (!m->tr_on) { m->sw_step = -1; return; }
     uint32_t pos = m->tick - m->tr_t0;
+    if (m->bl_act) {                                              /* il basso che rotola (ACC-219), con lo swing */
+        if ((int32_t)(m->tick - m->bl_off) >= 0) {
+            uint8_t any = 0;
+            for (int i = 0; i < 16; i++) any |= m->bl_gate[i];
+            if (any) bl_gate_off(m);
+        }
+        uint32_t sw = m->swing;
+        bool dritto = pos % STEP_TICKS == 0 && !(sw && odd16(pos));
+        bool spostato = sw && pos >= sw && odd16(pos - sw);
+        if ((dritto || spostato) && (BL_MASK[m->bl] >> (((dritto ? pos : pos - sw) / STEP_TICKS) & 3u) & 1u)) bl_hit(m);
+    }
     beat_hit_t h[8];
     int n = 0;
     if (m->beat_on && m->beat_sel == BEAT_M_PATTERN) {

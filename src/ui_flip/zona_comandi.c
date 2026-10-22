@@ -52,8 +52,8 @@ uint64_t uf_sig_cell(const ui_model_t *m, int k)
                       m->plat.pad_link, m->prefs.legend, m->prefs.theme, m->plat.mpk_model,
                       m->tempo.drums_on, m->tempo.kit, m->tempo.roll, m->tempo.accent, m->plat.mpk_link };
     h = uf_h(h, f, sizeof f);
-    uint8_t g[8] = { m->tempo.inv, m->tempo.groove, m->tempo.variation, m->tempo.density, m->tempo.part,   /* MIDI-139 */
-                     m->tempo.swing, m->tempo.drive, (uint8_t)m->tempo.filt };                           /* MIDI-135 */
+    uint8_t g[9] = { m->tempo.inv, m->tempo.groove, m->tempo.variation, m->tempo.density, m->tempo.part,   /* MIDI-139 */
+                     m->tempo.swing, m->tempo.drive, (uint8_t)m->tempo.filt, m->tempo.bassline };       /* MIDI-135, MIDI-142 */
     h = uf_h(h, g, sizeof g);
     h = uf_h(h, m->tempo.dens, sizeof m->tempo.dens);
     if (k == ENC_SOUND) {                                           /* la cella KIT sotto DRUMS (SND-541) */
@@ -133,10 +133,16 @@ static void cell_text(const ui_model_t *m, int k, cell_txt_t *t)
             t->title = "ROLL";
             ui_fmt_copy(t->value, sizeof t->value, ui_fmt_roll(m->tempo.roll));
             ui_fmt_copy(t->detail, sizeof t->detail, "Hold a key");
+        } else if (sec) {                                       /* K5 premuta e girata: il basso che rotola (MIDI-142) */
+            t->title = "BASSLINE";
+            ui_fmt_copy(t->value, sizeof t->value, ui_fmt_bassline(m->tempo.bassline));
+            ui_fmt_int(a, sizeof a, m->tempo.accent, 2);
+            ui_fmt_cat(t->detail, sizeof t->detail, "Accent ", a);
         } else {
             t->title = "ACCENT";
             ui_fmt_int(t->value, sizeof t->value, m->tempo.accent, 2);
-            ui_fmt_copy(t->detail, sizeof t->detail, "Velocity");
+            if (m->tempo.bassline) ui_fmt_cat(t->detail, sizeof t->detail, "Bass ", ui_fmt_bassline(m->tempo.bassline));
+            else ui_fmt_copy(t->detail, sizeof t->detail, "Velocity");
         }
         return;
     }

@@ -45,6 +45,7 @@ typedef struct {
     uint8_t part;                       /* parte che M regola: 0 = tutto, 1…INV_PARTS */
     uint8_t mod_used;                   /* m1 tenuta come Mod (con Loop o BPM): il suo rilascio non cambia parte */
     uint8_t drop;                       /* T13 tenuto: Drop (MIDI-140), per la testata */
+    int bassline;                       /* il basso che rotola (MIDI-142): figura BL_*, 0 = tenuto */
     uint32_t drum_ms[12];               /* ultimo colpo di ogni tasto, per accendere il tasto sulla plancia */
 } sim_t;
 static sim_t S;                    /* una vetrina sola per processo */
@@ -387,12 +388,13 @@ static void looper_stop(vet_t *v) { loop_send(v, LOOP_C_STOP); }
 /* drum machine (MIDI-135): suddivisioni del Roll in tick e velocity con l'Accent (0 = colpi uguali, 10 = com'è) */
 static const uint8_t ROLL_TICKS[7] = { 0, 96, 48, 32, 24, 16, 12 };
 
-/* kit, swing e FX della batteria al thread audio, tutti insieme (inizio e fine della demo) */
+/* kit, swing, FX della batteria e basso che rotola al thread audio, tutti insieme (inizio e fine della demo) */
 static void drum_machine_push(vet_t *v)
 {
     snd_push(v, VS_KIT, 0, (uint8_t)S.kit, 0);
     snd_push(v, VS_SWING, 0, (uint8_t)S.swing, 0);
     snd_push(v, VS_DRUM_FX, 0, (uint8_t)S.drive, (uint8_t)(S.filt + 10));
+    snd_push(v, VS_BASSLINE, 0, (uint8_t)S.bassline, 0);
 }
 
 /* ---- la batteria che si inventa (MIDI-139): sotto DRUMS le tre manopole del pad creano il loop. M gira
@@ -487,6 +489,13 @@ static void turn(vet_t *v, int enc, int d, bool pressed)
             overlay(v, OV_SWING, ENC_KEY, S.swing);
             return;
         }
+    }
+    if (S.drums && pressed && enc == ENC_BASS) {        /* K5 premuta e girata: il basso che rotola (MIDI-142) */
+        S.bassline = clampi(S.bassline + d, 0, BL_COUNT - 1);
+        S.sec[ENC_BASS] = 1;
+        snd_push(v, VS_BASSLINE, 0, (uint8_t)S.bassline, 0);
+        overlay(v, OV_BASSLINE, ENC_BASS, S.bassline);
+        return;
     }
     if (S.drums && enc == ENC_FX) {                     /* K3: drive, premuta e girata il filtro (SND-538) */
         if (pressed) {
@@ -995,6 +1004,7 @@ static void demo_reset(vet_t *v)
     S.groove = 0; S.variation = 0; S.density = 5; S.part = 0;   /* la batteria che si inventa da capo (MIDI-139) */
     memset(S.dens_off, 0, sizeof S.dens_off);
     S.kit = 0; S.swing = 0; S.drive = 0; S.filt = 0;           /* la demo suona com'è scritta (MIDI-135) */
+    S.bassline = 0;
     drum_machine_push(v);
     v->snd_sound = -1;                          /* suono, Perform ed effetto da capo (ACC-162) */
     v->inp.gest.focus = ENC_SOUND;
@@ -1543,6 +1553,7 @@ static void fill_tempo_looper(vet_t *v, ui_model_t *m)
     t->swing = (uint8_t)S.swing;
     t->drive = (uint8_t)S.drive;
     t->filt = (int8_t)S.filt;
+    t->bassline = (uint8_t)S.bassline;
     t->drop = S.drop;
     t->inv = S.inv;                                       /* batteria che si inventa (MIDI-139) */
     t->groove = (uint8_t)S.groove;

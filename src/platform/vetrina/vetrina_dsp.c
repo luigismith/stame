@@ -36,6 +36,7 @@ void vet_snd_apply(motore_t *m, const vet_snd_t *e)
     case VS_SWING:       mot_swing(m, e->a); break;
     case VS_DRUM_FX:     mot_drum_fx(m, e->a, (int8_t)((int)e->b - 10)); break;
     case VS_DROP:        mot_drop(m, e->a != 0); break;
+    case VS_BASSLINE:    mot_bassline(m, e->a); break;
     default: break;
     }
 }

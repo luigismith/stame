@@ -1037,8 +1037,91 @@ static void test_drop(void)
     CHECK(M.drop == 0 && D.bass_mute == 0);
 }
 
+/* la nota del basso suona (voce tenuta) */
+static bool bass_held(const dsp_t *d, uint8_t note)
+{
+    for (int i = 0; i < DSP_VOICES; i++)
+        if (d->voice[i].engine == DSP_BASS && d->voice[i].note == note && d->voice[i].state == DSP_V_HELD) return true;
+    return false;
+}
+
+/* fino al tick t compreso, senza toccare la batteria */
+static void render_to_tick(motore_t *m, uint32_t t)
+{
+    static float l[16], r[16];
+    while (m->tick <= t) mot_render(m, l, r, 16);
+}
+
+/* TV-124: il basso che rotola (ACC-219). Tenuto a trasporto fermo; in moto suona sui sedicesimi della figura,
+ * dalla battuta 1, con lo swing; ogni colpo dura la sua figura; Off o il trasporto fermo lo rendono tenuto */
+static void test_bassline(void)
+{
+    static dsp_t D;
+    static motore_t M;
+    dsp_init(&D, 48000.0f, 1);
+    mot_init(&M, &D, 48000, 1);
+    mot_bassline(&M, BL_ROLLING);
+    mot_note(&M, 1, 40, 100);
+    render_to_tick(&M, 10);
+    CHECKM(bass_held(&D, 40), "TV-124: a trasporto fermo il basso è tenuto anche con la figura");
+    mot_beat_on(&M, true);                                        /* battuta 1 adesso */
+    uint32_t t0 = M.tr_t0;
+    render_to_tick(&M, t0 + 1);
+    CHECKM(!bass_held(&D, 40), "TV-124: in moto la nota tenuta si ferma e aspetta la figura");
+    render_to_tick(&M, t0 + 23);
+    CHECKM(!bass_held(&D, 40), "TV-124: Rolling non suona sul battito (la cassa)");
+    render_to_tick(&M, t0 + 24);
+    CHECKM(bass_held(&D, 40), "TV-124: Rolling suona sul secondo sedicesimo");
+    render_to_tick(&M, t0 + 40);
+    CHECKM(!bass_held(&D, 40), "TV-124: il colpo dura 16 tick");
+    render_to_tick(&M, t0 + 48);
+    CHECKM(bass_held(&D, 40), "TV-124: e sul terzo sedicesimo");
+    render_to_tick(&M, t0 + 72);
+    CHECKM(bass_held(&D, 40), "TV-124: e sul quarto");
+    render_to_tick(&M, t0 + 96 + 4);
+    CHECKM(!bass_held(&D, 40), "TV-124: di nuovo libero sul battito dopo");
+    /* lo swing sposta i sedicesimi dispari come per il Beat (ACC-216) */
+    mot_swing(&M, 6);
+    render_to_tick(&M, t0 + 96 + 24);
+    CHECKM(!bass_held(&D, 40), "TV-124: con lo swing il secondo sedicesimo non suona al suo posto dritto");
+    render_to_tick(&M, t0 + 96 + 30);
+    CHECKM(bass_held(&D, 40), "TV-124: suona 6 tick dopo");
+    mot_swing(&M, 0);
+    /* Offbeat: solo il terzo sedicesimo, più lungo */
+    mot_bassline(&M, BL_OFFBEAT);
+    render_to_tick(&M, t0 + 192 + 30);
+    CHECKM(!bass_held(&D, 40), "TV-124: Offbeat tace prima del levare");
+    render_to_tick(&M, t0 + 192 + 48);
+    CHECKM(bass_held(&D, 40), "TV-124: Offbeat suona in levare");
+    render_to_tick(&M, t0 + 192 + 80);
+    CHECKM(bass_held(&D, 40), "TV-124: il colpo in levare dura 36 tick");
+    render_to_tick(&M, t0 + 192 + 85);
+    CHECKM(!bass_held(&D, 40), "TV-124: e poi si spegne");
+    /* Off: torna tenuto subito */
+    mot_bassline(&M, BL_OFF);
+    render_to_tick(&M, M.tick + 1);
+    CHECKM(bass_held(&D, 40), "TV-124: con Off il basso torna tenuto");
+    /* la nota rilasciata mentre rotola non suona più */
+    mot_bassline(&M, BL_SIXTEENTHS);
+    render_to_tick(&M, M.tick + 30);
+    mot_note(&M, 1, 40, 0);
+    render_to_tick(&M, M.tick + 100);
+    CHECKM(!bass_held(&D, 40), "TV-124: rilasciata, la nota non rotola più");
+    CHECK_EQ(M.ref[1][40], 0);
+    /* a trasporto fermo una nota tenuta torna tenuta */
+    mot_note(&M, 1, 43, 90);
+    render_to_tick(&M, M.tick + 30);
+    mot_beat_on(&M, false);
+    render_to_tick(&M, M.tick + 2);
+    CHECKM(bass_held(&D, 43), "TV-124: trasporto fermo, la nota è tenuta di nuovo");
+    mot_all_off(&M);
+    render_to_tick(&M, M.tick + 2);
+    CHECKM(!bass_held(&D, 43), "TV-124: Panic spegne tutto");
+}
+
 void test_motore(void)
 {
+    test_bassline();
     test_drop();
     test_swing();
     test_drum_fx();

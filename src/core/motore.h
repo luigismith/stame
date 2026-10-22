@@ -25,6 +25,9 @@
 #define MOT_NONE 0xFFu
 #define MOT_SWING_MAX 12u               /* swing (ACC-216): ritardo massimo dei sedicesimi dispari, 12 tick = 75 % */
 #define MOT_SWQ 16                      /* colpi del loop in attesa dello swing */
+/* le figure del basso che rotola (ACC-219), nell'ordine di ui_fmt_bassline: tenuto come sempre, in levare
+ * (la trance), i tre sedicesimi dopo la cassa (la psy), gli ultimi due (il galoppo della Goa), crome, sedicesimi */
+enum { BL_OFF, BL_OFFBEAT, BL_ROLLING, BL_GALLOP, BL_EIGHTHS, BL_SIXTEENTHS, BL_COUNT };
 
 /* stato per l'interfaccia, scritto dal thread audio a ogni periodo e letto senza lock dal thread
  * della UI con un seqlock (PLT-017): seq è dispari mentre l'audio scrive; la UI copia i campi con
@@ -65,6 +68,10 @@ typedef struct {
     struct { uint32_t due; uint8_t inst, vel; } swq[MOT_SWQ];
     uint8_t  drop, drop_wait;           /* Drop (ACC-217): batteria programmata e basso tacciono; rilasciato, aspetta il battito */
     uint32_t drop_end;                  /* tick in cui rientrano */
+    uint8_t  bl, bl_act;                /* basso che rotola (ACC-219): la figura, e se rotola adesso (figura e trasporto in moto) */
+    uint8_t  bl_gate[16];               /* note del basso che la figura ha acceso */
+    uint32_t bl_off;                    /* tick in cui la figura le spegne */
+    uint8_t  bl_vel[128];               /* velocity dell'attacco di ogni nota del basso */
     uint8_t  inv_on;                    /* il Beat viene dalla batteria che si inventa (MIDI-139) */
     uint8_t  inv_dens[INV_PARTS];       /* densità delle cinque parti, 0…10 */
     inv_t    inv;                       /* stile, variazione e priorità del loop inventato */
@@ -105,6 +112,10 @@ void mot_drum_fx(motore_t *m, uint8_t drive, int8_t filt);
  * avanti in silenzio, i colpi dal vivo e il metronomo suonano); off = rientrano sul battito dopo, o subito
  * se il rilascio cade entro un sedicesimo dal battito */
 void mot_drop(motore_t *m, bool on);
+/* il basso che rotola (ACC-219): con il trasporto in moto le note del basso tenute (dal vivo o dal loop)
+ * suonano sui sedicesimi della figura BL_*, contati dalla battuta 1 e con lo swing; ogni colpo è un attacco
+ * nuovo con la velocity della nota. BL_OFF, o il trasporto fermo, e il basso è tenuto come sempre (ACC-142) */
+void mot_bassline(motore_t *m, uint8_t pattern);
 /* la batteria che si inventa (MIDI-139, ACC-215): il Beat suona il loop di inventa.h con lo stile e la
  * variazione dati, finché non si sceglie un Beat del menu (mot_beat); le densità valgono dal passo dopo */
 void mot_inventa(motore_t *m, uint8_t groove, uint8_t var);

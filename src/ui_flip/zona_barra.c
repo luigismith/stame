@@ -239,6 +239,9 @@ static void overlay(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
     case OV_FILTER:
         e.label = "Drum Filter"; e.text = ui_fmt_filter(t, sizeof t, v);
         break;
+    case OV_BASSLINE:                                         /* il basso che rotola (MIDI-142): K5 premuta sotto DRUMS */
+        e.label = "Bassline"; e.text = ui_fmt_bassline((uint8_t)v);
+        break;
     default:
         return;
     }

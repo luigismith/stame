@@ -65,6 +65,12 @@ const char *ui_fmt_roll(uint8_t roll)
     return roll < 7 ? N[roll] : "?";
 }
 
+const char *ui_fmt_bassline(uint8_t bl)
+{
+    static const char *const N[6] = { "Off", "Offbeat", "Rolling", "Gallop", "8ths", "16ths" };
+    return bl < 6 ? N[bl] : "?";
+}
+
 /* lo swing come lo scrivono le drum machine: dove cade il sedicesimo dispari nell'ottavo, 50 % = dritto */
 const char *ui_fmt_swing(uint8_t ticks)
 {
