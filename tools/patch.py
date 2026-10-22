@@ -856,6 +856,168 @@ SUONI += [
         **fx(1, ENSEMBLE, 36, 90, 60, 40), **fx(2, DELAY, 0, 26, 60, 60, 127, 30))),
 ]
 
+# ---- settima ondata (22/10/2026), Luigi: «aggiungi suoni bassi e profondi, aggiungi suoni per fare ambient,
+# suoni per fare PSYtrance e trance». Trentadue timbri di sintesi: dodici per l'ambient (pad che respirano,
+# campane lontane, nebbie e bordoni, note che cadono per il modulo AMBIENT), dieci per la trance (supersaw a
+# quattro seghe, pad largo, gate, pizzico, lead, archi, sync, campana, coro) e dieci per la psytrance (lead e
+# linee acide, zap, squelch, FM che urla, arpeggi a ping-pong, un bordone e una salita di rumore) ----
+SUONI += [
+    # 201-212: ambient
+    ('Ghost Orchid', patch(VA, [(LFO[1], D_CUTOFF, 82), (LFO[2], D_PAN, 92), (LFO[3], D_PITCH, 66)],   # il pad che cambia piano, senza fretta
+        O1SHAPE=SAW, O1DETUNE=60, O2SHAPE=SAW, O2DETUNE=69, O2GAIN=58, O3SHAPE=TRI, O3SEMI=76, O3GAIN=30,
+        O4SHAPE=PULSE, O4SEMI=71, O4PW=30, O4GAIN=16, HIGHPASS=18,
+        CUTOFF=46, RESONANCE=20, FENV=26, FKT=40, E1A=110, E1D=100, E1S=80, E1R=100,
+        E2A=106, E2D=64, E2S=124, E2R=106, L1SHAPE=L_SINE, L1RATE=12, L1MODE=L_FREE,
+        L2SHAPE=L_SINE, L2RATE=9, L2MODE=L_FREE, L3SHAPE=L_RAND, L3RATE=24, L3MODE=L_FREE,
+        GAIN=58, REVSEND=92, REVSIZE=127, REVLP=84,
+        **fx(1, ENSEMBLE, 30, 80, 50, 34), **fx(2, DELAY, 0, 34, 70, 50, 127, 30))),
+    ('Snowmelt', patch(FM, [(LFO[1], D_GAIN(2), 80), (LFO[2], D_GAIN(4), 76), (LFO[3], D_PAN, 96)], FMALG=4,   # vetro che si scioglie: due portanti
+        O1PW=120, O1GAIN=0, O2SEMI=88, O2PW=26, O2GAIN=0, O3SEMI=76, O3DETUNE=67, O3PW=80, O3GAIN=0, O4SEMI=95, O4PW=18, O4GAIN=0,
+        L1SHAPE=L_SINE, L1RATE=14, L1MODE=L_FREE, L2SHAPE=L_TRI, L2RATE=10, L2MODE=L_FREE, L3SHAPE=L_SINE, L3RATE=8, L3MODE=L_FREE,
+        CUTOFF=96, E2A=104, E2D=64, E2S=127, E2R=104, GAIN=56, REVSEND=90, REVSIZE=127, REVLP=96,
+        **fx(1, CHORUS, 16, 70, 127), **fx(2, DELAY, 0, 30, 60, 60, 127, 20))),
+    ('Lichen Breath', patch(VA, [(LFO[1], D_CUTOFF, 84), (LFO[2], D_VOLUME, 86), (LFO[3], D_PAN, 100)],   # il respiro: rumore nel passa-banda che segue la nota
+        O1SHAPE=TRI, O1GAIN=34, NOISE=70, PINK=1, FTYPE=BANDPASS, CUTOFF=66, RESONANCE=84, FKT=110,
+        L1SHAPE=L_RAND, L1RATE=26, L1MODE=L_FREE, L2SHAPE=L_SINE, L2RATE=20, L2MODE=L_FREE, L3SHAPE=L_SINE, L3RATE=12, L3MODE=L_FREE,
+        E2A=90, E2D=64, E2S=127, E2R=96, GAIN=72, REVSEND=86, REVSIZE=124, **fx(1, CHORUS, 12, 50, 110))),
+    ('Seagrass Deep', patch(VA, [(LFO[1], D_CUTOFF, 80), (LFO[2], D_PAN, 88)],   # il fondale: un'ottava sotto, scuro
+        O1SHAPE=TRI, O1SEMI=52, O2SHAPE=SAW, O2DETUNE=66, O2GAIN=44, O3SHAPE=SAW, O3SEMI=52, O3DETUNE=61, O3GAIN=36,
+        CUTOFF=32, RESONANCE=26, FENV=12, FKT=30, E1A=100, E1D=100, E1S=90, E1R=100,
+        E2A=100, E2D=64, E2S=127, E2R=108, L1SHAPE=L_SINE, L1RATE=10, L1MODE=L_FREE, L2SHAPE=L_SINE, L2RATE=7, L2MODE=L_FREE,
+        GAIN=62, REVSEND=84, REVSIZE=127, REVLP=46, **fx(1, CHORUS, 10, 50, 110), **fx(2, DELAY, 0, 24, 56, 40, 100, 10))),
+    ('Edelweiss Halo', patch(FM, [(LFO[1], D_PITCH, 70), (LFO[2], D_GAIN(4), 78), (RND, D_PAN, 110)], FMALG=6,   # un coro d'aria in alta quota
+        O1PW=110, O1GAIN=0, O2SEMI=76, O2DETUNE=66, O2PW=70, O2GAIN=0, O3SEMI=83, O3DETUNE=62, O3PW=44, O3GAIN=0,
+        O4SEMI=64, O4PW=24, O4GAIN=0, O4FB=20, L1SHAPE=L_SINE, L1RATE=72, L1MODE=L_RESET, L2SHAPE=L_SINE, L2RATE=16, L2MODE=L_FREE,
+        HIGHPASS=40, CUTOFF=86, RESONANCE=10, E2A=98, E2D=64, E2S=124, E2R=100, GAIN=56, REVSEND=92, REVSIZE=127, REVLP=100,
+        **fx(1, ENSEMBLE, 30, 84, 50, 36), **fx(2, DELAY, 0, 28, 60, 50, 127, 40))),
+    ('Tundra Bell', patch(FM, [(ENV[3], D_GAIN(2), 112), (ENV[4], D_GAIN(3), 100), (LFO[1], D_PAN, 96)], FMALG=1,   # la campana lontana, morbida e lunga
+        O1PW=127, O1GAIN=30, O2SEMI=83, O2DETUNE=66, O2PW=24, O2GAIN=40, O3SEMI=91, O3PW=10, O3GAIN=40, O4PW=0,
+        E2A=6, E2D=110, E2S=0, E2R=96, E3A=4, E3D=70, E3S=10, E3R=60, E4A=0, E4D=30, E4S=0, E4R=24,
+        L1SHAPE=L_SINE, L1RATE=20, L1MODE=L_FREE, CUTOFF=88, GVELO=40,
+        GAIN=64, REVSEND=88, REVSIZE=127, REVLP=80, **fx(2, DELAY, 0, 30, 54, 50, 120, 30))),
+    ('Spore Cloud', patch(VA, [(LFO[1], D_PAN, 120), (LFO[2], D_CUTOFF, 104), (LFO[3], D_VOLUME, 40)],   # grani: tre S&H su spazio, filtro e volume
+        O1SHAPE=PULSE, O1PW=24, O2SHAPE=TRI, O2SEMI=88, O2GAIN=40, O3SHAPE=SAW, O3SEMI=76, O3DETUNE=70, O3GAIN=20,
+        CUTOFF=74, RESONANCE=40, L1SHAPE=L_SH, L1RATE=84, L1MODE=L_FREE, L2SHAPE=L_SH, L2RATE=78, L2MODE=L_FREE,
+        L3SHAPE=L_SH, L3RATE=90, L3MODE=L_FREE, E2A=60, E2D=64, E2S=127, E2R=96,
+        GAIN=60, REVSEND=90, REVSIZE=126, **fx(1, CHORUS, 20, 60, 127), **fx(2, DELAY, 2, 44, 80, 70, 127, 40))),
+    ('Kelp Forest', patch(VA, [(LFO[1], D_CUTOFF, 88), (LFO[2], D_PITCH, 66)],   # sott'acqua: il phaser lento e il filtro che ondeggia
+        O1SHAPE=SAW, O1DETUNE=61, O2SHAPE=SAW, O2DETUNE=68, O2GAIN=60, O3SHAPE=TRI, O3SEMI=52, O3GAIN=40,
+        CUTOFF=40, RESONANCE=56, FKT=36, L1SHAPE=L_TRI, L1RATE=18, L1MODE=L_FREE, L2SHAPE=L_RAND, L2RATE=22, L2MODE=L_FREE,
+        E2A=84, E2D=64, E2S=127, E2R=96, GAIN=60, REVSEND=80, REVSIZE=124, REVLP=60,
+        **fx(1, PHASER, 8, 70, 70, 90), **fx(2, DELAY, 0, 26, 50, 40, 110, 20))),
+    ('Evening Primrose', patch(RP, [(LFO[1], D_PITCH, 67)], RPICKUP=1, RPHEIGHT=58, RPDISTANCE=28, RPDECAY=110,   # il piano elettrico della sera
+        RPRELEASE=100, RPTONE=40, RPVELCURVE=80, RPCLANK=8, RPHAMMER=8, RPKEYOFF=6, RPTREMOLO=40, RPTREMRATE=40,
+        RPVOL=86, RPTSTEREO=127, L1SHAPE=L_SINE, L1RATE=40, L1MODE=L_FREE,
+        REVSEND=84, REVSIZE=126, REVLP=80, **fx(1, CHORUS, 14, 60, 127), **fx(2, DELAY, 0, 32, 60, 46, 127, 30))),
+    ('Heather Organ', patch(FM, [(LFO[1], D_GAIN(3), 78)], FMALG=7,      # l'harmonium nella nebbia, con il sedici piedi
+        O1PW=112, O1GAIN=0, O2SEMI=76, O2PW=84, O2GAIN=0, O3SEMI=83, O3PW=50, O3GAIN=0, O4SEMI=52, O4PW=70, O4GAIN=0,
+        L1SHAPE=L_SINE, L1RATE=18, L1MODE=L_FREE, E2A=60, E2D=64, E2S=127, E2R=70, CUTOFF=84,
+        GAIN=54, REVSEND=80, REVSIZE=124, REVLP=80, **fx(1, CHORUS, 12, 50, 110))),
+    ('Polar Night', patch(VA, [(LFO[1], D_CUTOFF, 96), (LFO[2], D_PAN, 92), (LFO[3], D_Q, 76)],   # il bordone di quinta, la risonanza che gira lenta
+        O1SHAPE=SAW, O2SHAPE=SAW, O2SEMI=71, O2DETUNE=66, O2GAIN=50, O3SHAPE=SAW, O3SEMI=52, O3DETUNE=62, O3GAIN=50,
+        CUTOFF=34, RESONANCE=60, FKT=30, L1SHAPE=L_SINE, L1RATE=8, L1MODE=L_FREE, L2SHAPE=L_SINE, L2RATE=6, L2MODE=L_FREE,
+        L3SHAPE=L_TRI, L3RATE=11, L3MODE=L_FREE, E2A=110, E2D=64, E2S=127, E2R=110,
+        GAIN=58, REVSEND=90, REVSIZE=127, REVLP=50, **fx(2, DELAY, 0, 36, 74, 40, 110, 20))),
+    ('Seed Rain', patch(FM, [(ENV[3], D_GAIN(2), 116), (RND, D_PAN, 116)], FMALG=1,   # gocce di mallet sparse nello spazio
+        O1PW=127, O1GAIN=50, O2SEMI=76, O2PW=30, O2GAIN=50, O3PW=0, O4PW=0,
+        E2A=0, E2D=74, E2S=0, E2R=64, E3A=0, E3D=26, E3S=0, E3R=20, GVELO=60,
+        GAIN=66, REVSEND=80, REVSIZE=124, **fx(2, DELAY, 1, 40, 64, 60, 127, 40))),
+    # 213-222: trance
+    ('Sunflower Saw', patch(VA, [(WHEEL, D_CUTOFF, 100)],                # il supersaw: quattro seghe larghe, la ruota apre il filtro
+        O1SHAPE=SAW, O1DETUNE=55, O2SHAPE=SAW, O2DETUNE=73, O2GAIN=62, O3SHAPE=SAW, O3SEMI=76, O3DETUNE=60, O3GAIN=40,
+        O4SHAPE=SAW, O4DETUNE=68, O4GAIN=56, HIGHPASS=20,
+        CUTOFF=78, RESONANCE=10, FENV=24, E1A=0, E1D=64, E1S=90, E1R=50, E2A=2, E2D=64, E2S=120, E2R=52,
+        GAIN=52, REVSEND=72, REVSIZE=120, **fx(1, ENSEMBLE, 46, 100, 70, 50), **fx(2, DELAY, 1, 30, 50, 70, 127, 20))),
+    ('Euphorbia Pad', patch(VA, [(LFO[1], D_CUTOFF, 76)],                # il pad del breakdown: largo, con l'ottava sotto
+        O1SHAPE=SAW, O1DETUNE=56, O2SHAPE=SAW, O2DETUNE=72, O2GAIN=60, O3SHAPE=SAW, O3SEMI=76, O3DETUNE=61, O3GAIN=34,
+        O4SHAPE=SAW, O4SEMI=52, O4DETUNE=67, O4GAIN=30, HIGHPASS=30,
+        CUTOFF=66, RESONANCE=12, FKT=40, E2A=60, E2D=64, E2S=124, E2R=80, L1SHAPE=L_SINE, L1RATE=20, L1MODE=L_FREE,
+        GAIN=52, REVSEND=80, REVSIZE=124, **fx(1, ENSEMBLE, 40, 100, 66, 46), **fx(2, DELAY, 0, 26, 50, 60, 127, 30))),
+    ('Gated Lily', patch(VA, [(LFO[1], D_VOLUME, 33)],                   # il trance gate: una quadra sul volume, uno per accordo
+        O1SHAPE=SAW, O1DETUNE=58, O2SHAPE=SAW, O2DETUNE=70, O2GAIN=60, O3SHAPE=SAW, O3SEMI=76, O3DETUNE=64, O3GAIN=30,
+        CUTOFF=70, RESONANCE=14, FKT=40, L1SHAPE=L_SQU, L1RATE=79, L1MODE=L_MONO,
+        E2A=0, E2D=64, E2S=127, E2R=30, GAIN=28, REVSEND=60, REVSIZE=116,   # GAIN ± 30 della quadra: 58 aperto, 0 chiuso
+        **fx(1, ENSEMBLE, 36, 80, 60, 40), **fx(2, DELAY, 1, 24, 40, 70, 127, 20))),
+    ('Bluebell Pluck', patch(VA, [], O1SHAPE=SAW, O1DETUNE=60, O2SHAPE=SAW, O2DETUNE=69, O2GAIN=60,   # il pizzico della trance, con l'eco a 1/8
+        O3SHAPE=PULSE, O3SEMI=76, O3PW=40, O3GAIN=26,
+        CUTOFF=44, RESONANCE=30, FENV=72, FVELO=36, FKT=50, E1A=0, E1D=30, E1S=0, E1R=26,
+        E2A=0, E2D=44, E2S=10, E2R=34, GAIN=62, REVSEND=62, REVSIZE=116,
+        **fx(1, CHORUS, 24, 50, 120), **fx(2, DELAY, 1, 40, 60, 70, 127, 30))),
+    ('Magnolia Lead', patch(VA, [(WHEEL, D_MOD7, 78), (0, 0, 64), (0, 0, 64), (0, 0, 64), (0, 0, 64), (0, 0, 64),
+        (LFO[1], D_PITCH, 64)], GLIDEMODE=3, GLIDE=16,                    # il lead dell'inno: legato, la ruota dà il vibrato
+        O1SHAPE=SAW, O1DETUNE=60, O2SHAPE=SAW, O2DETUNE=70, O2GAIN=62, O3SHAPE=SAW, O3SEMI=76, O3DETUNE=64, O3GAIN=34,
+        CUTOFF=76, RESONANCE=16, FENV=30, E1A=0, E1D=60, E1S=60, E1R=40, E2A=1, E2D=64, E2S=118, E2R=40,
+        L1SHAPE=L_SINE, L1RATE=80, L1MODE=L_RESET, GAIN=56, REVSEND=60, REVSIZE=118,
+        **fx(1, ENSEMBLE, 40, 70, 60, 40), **fx(2, DELAY, 1, 36, 54, 70, 127, 20))),
+    ('Daybreak Arp', patch(VA, [], O1SHAPE=PULSE, O1PW=36, O2SHAPE=SAW, O2SEMI=76, O2DETUNE=66, O2GAIN=34,   # l'arpeggio all'alba, eco a 1/16
+        CUTOFF=48, RESONANCE=44, FENV=66, FVELO=40, FKT=60, E1A=0, E1D=24, E1S=0, E1R=20,
+        E2A=0, E2D=34, E2S=0, E2R=24, GAIN=64, REVSEND=50, REVSIZE=114, **fx(2, DELAY, 2, 36, 50, 80, 127, 30))),
+    ('Willow Strings', patch(VA, [(LFO[1], D_PITCH, 68)], O1SHAPE=SAW, O1DETUNE=59, O2SHAPE=SAW, O2DETUNE=70, O2GAIN=62,   # gli archi del breakdown
+        O3SHAPE=SAW, O3SEMI=76, O3DETUNE=63, O3GAIN=28, HIGHPASS=34, CUTOFF=74, RESONANCE=6, FKT=44,
+        E2A=56, E2D=64, E2S=124, E2R=74, L1SHAPE=L_SINE, L1RATE=74, L1MODE=L_RESET,
+        GAIN=54, REVSEND=74, REVSIZE=122, **fx(1, ENSEMBLE, 34, 100, 64, 44))),
+    ('Laser Fern', patch(VA, [(ENV[3], D_OSC(4), 116), (LFO[1], D_PITCH, 66)], GLIDEMODE=3, GLIDE=10,   # il laser: il sync che si chiude a ogni nota
+        O1SHAPE=0, O1GAIN=0, O2SHAPE=SAW, O2DETUNE=70, O2GAIN=30, O3SHAPE=SAW, O3GAIN=0, O4SHAPE=SAW, O4SEMI=79, O4SYNC=1, O4GAIN=60,
+        CUTOFF=92, RESONANCE=14, E3A=0, E3D=50, E3S=20, E3R=40, E2A=0, E2D=64, E2S=118, E2R=34,
+        L1SHAPE=L_SINE, L1RATE=80, L1MODE=L_RESET, GAIN=56, REVSEND=50, REVSIZE=114,
+        **fx(1, PHASER, 30, 30, 50, 60), **fx(2, DELAY, 1, 28, 44, 70, 120, 20))),
+    ('Snowdrop Bell', patch(FM, [(ENV[3], D_GAIN(2), 118), (ENV[4], D_GAIN(4), 104)], FMALG=2,   # la campana chiara degli arpeggi
+        O1PW=127, O1GAIN=30, O2SEMI=95, O2PW=36, O2GAIN=40, O3SEMI=76, O3PW=70, O3GAIN=30, O4SEMI=100, O4PW=16, O4GAIN=40,
+        E2A=0, E2D=60, E2S=0, E2R=46, E3A=0, E3D=24, E3S=0, E3R=18, E4A=0, E4D=10, E4S=0, E4R=8,
+        GAIN=64, REVSEND=60, REVSIZE=118, **fx(2, DELAY, 2, 34, 50, 80, 127, 30))),
+    ('Angelica Choir', patch(VA, [(LFO[1], D_PITCH, 69), (LFO[2], D_CUTOFF, 72)],   # il coro del breakdown: la vocale aperta
+        O1SHAPE=SAW, O1DETUNE=60, O2SHAPE=SAW, O2DETUNE=69, O2GAIN=60, O3SHAPE=PULSE, O3SEMI=76, O3PW=40, O3GAIN=20,
+        FTYPE=BANDPASS, CUTOFF=80, RESONANCE=44, FKT=30, HIGHPASS=44,
+        L1SHAPE=L_SINE, L1RATE=72, L1MODE=L_RESET, L2SHAPE=L_SINE, L2RATE=16, L2MODE=L_FREE,
+        E2A=64, E2D=64, E2S=124, E2R=80, GAIN=62, REVSEND=86, REVSIZE=126, **fx(1, ENSEMBLE, 32, 90, 50, 40))),
+    # 223-232: psytrance
+    ('Psilocybe Lead', patch(VA, [(LFO[1], D_CUTOFF, 72)], GLIDEMODE=3, GLIDE=12,   # il lead acido che gorgoglia, eco a 1/16
+        O1SHAPE=SAW, O2SHAPE=PULSE, O2PW=40, O2DETUNE=67, O2GAIN=40,
+        CUTOFF=40, RESONANCE=96, FENV=70, FVELO=50, FKT=40, E1A=0, E1D=36, E1S=10, E1R=20,
+        E2A=0, E2D=64, E2S=110, E2R=20, L1SHAPE=L_TRI, L1RATE=30, L1MODE=L_FREE,
+        GAIN=60, REVSEND=30, REVSIZE=110, **fx(1, DRIVE, 50, 44), **fx(2, DELAY, 2, 30, 46, 64, 110, 30))),
+    ('Amanita Zap', patch(VA, [(ENV[3], D_PITCH, 127), (ENV[3], D_CUTOFF, 120)],   # lo zap: un'ottava e il filtro che cadono insieme
+        O1SHAPE=SAW, O2SHAPE=PULSE, O2PW=30, O2SEMI=76, O2GAIN=40, CUTOFF=50, RESONANCE=90,
+        E3A=0, E3D=34, E3S=0, E3R=20, E2A=0, E2D=46, E2S=0, E2R=30,
+        GAIN=60, REVSEND=50, REVSIZE=116, **fx(1, DRIVE, 30, 30), **fx(2, DELAY, 2, 40, 60, 70, 127, 40))),
+    ('Peyote Acid', patch(VA, [], GLIDEMODE=3, GLIDE=10, O1SHAPE=PULSE, O1PW=58, O2SHAPE=SAW, O2SEMI=76, O2GAIN=20,   # la linea acida quadra, tirata
+        CUTOFF=30, RESONANCE=112, FENV=80, FVELO=60, FKT=30, E1A=0, E1D=22, E1S=0, E1R=14,
+        E2A=0, E2D=64, E2S=110, E2R=14, GAIN=60, REVSEND=14, **fx(1, DRIVE, 64, 48), **fx(2, DELAY, 1, 22, 40, 60, 90, 30))),
+    ('Ayahuasca Vine', patch(FM, [(LFO[1], D_GAIN(2), 90), (LFO[2], D_PITCH, 68), (LFO[3], D_PAN, 104)], FMALG=0,   # il bordone psichedelico che si attorciglia
+        O1PW=127, O1GAIN=0, O2SEMI=59, O2PW=50, O2GAIN=0, O3SEMI=71, O3PW=40, O3GAIN=0, O4SEMI=64, O4DETUNE=70, O4PW=36, O4GAIN=0, O4FB=70,
+        L1SHAPE=L_TRI, L1RATE=20, L1MODE=L_FREE, L2SHAPE=L_SINE, L2RATE=14, L2MODE=L_FREE, L3SHAPE=L_SINE, L3RATE=24, L3MODE=L_FREE,
+        CUTOFF=70, RESONANCE=30, E2A=80, E2D=64, E2S=127, E2R=96, GAIN=56, REVSEND=80, REVSIZE=126, REVLP=60,
+        **fx(1, PHASER, 20, 80, 80, 100), **fx(2, DELAY, 1, 36, 70, 50, 120, 20))),
+    ('Salvia Squelch', patch(VA, [(VEL, D_Q, 90)],                       # lo squelch: il passa-banda che parla, più forte più stretto
+        O1SHAPE=SAW, O2SHAPE=PULSE, O2PW=30, O2DETUNE=68, O2GAIN=50, FTYPE=BANDPASS,
+        CUTOFF=40, RESONANCE=80, FENV=84, FVELO=50, FKT=40, E1A=0, E1D=26, E1S=0, E1R=18,
+        E2A=0, E2D=40, E2S=20, E2R=20, GAIN=66, REVSEND=26, **fx(1, DRIVE, 44, 40), **fx(2, DELAY, 2, 26, 40, 60, 110, 30))),
+    ('Morning Glory', patch(VA, [(LFO[1], D_PW(1), 96), (WHEEL, D_MOD7, 78), (0, 0, 64), (0, 0, 64), (0, 0, 64), (0, 0, 64),
+        (LFO[2], D_PITCH, 64)], GLIDEMODE=3, GLIDE=8,                     # il lead del mattino: PWM e sega, la ruota dà il vibrato
+        O1SHAPE=PULSE, O1PW=50, O2SHAPE=SAW, O2DETUNE=70, O2GAIN=50, O3SHAPE=SAW, O3SEMI=76, O3GAIN=24,
+        CUTOFF=80, RESONANCE=24, FENV=30, E1A=0, E1D=40, E1S=60, E1R=30, E2A=0, E2D=64, E2S=118, E2R=26,
+        L1SHAPE=L_TRI, L1RATE=40, L1MODE=L_FREE, L2SHAPE=L_SINE, L2RATE=80, L2MODE=L_RESET,
+        GAIN=56, REVSEND=40, REVSIZE=112, **fx(1, DRIVE, 24, 30), **fx(2, DELAY, 2, 34, 50, 70, 120, 30))),
+    ('Lotus Mandala', patch(VA, [(RND, D_CUTOFF, 84)], O1SHAPE=SAW, O2SHAPE=PULSE, O2PW=24, O2SEMI=76, O2GAIN=30,   # l'arpeggio a ping-pong, ogni nota un filtro diverso
+        CUTOFF=40, RESONANCE=60, FENV=70, FVELO=40, FKT=50, E1A=0, E1D=20, E1S=0, E1R=14,
+        E2A=0, E2D=28, E2S=0, E2R=20, GAIN=66, REVSEND=34, **fx(1, DRIVE, 30, 30), **fx(2, DELAY, 2, 40, 60, 70, 127, 60))),
+    ('Kava Pluck', patch(FM, [(ENV[3], D_GAIN(2), 122), (VEL, D_GAIN(2), 80)], FMALG=1,   # il pizzico di metallo, secco
+        O1PW=127, O1GAIN=20, O2SEMI=71, O2DETUNE=60, O2PW=56, O2GAIN=60, O3SEMI=88, O3PW=10, O3GAIN=40, O4PW=0,
+        E2A=0, E2D=36, E2S=0, E2R=24, E3A=0, E3D=14, E3S=0, E3R=10, CUTOFF=100,
+        GAIN=68, REVSEND=30, **fx(1, DRIVE, 20, 20), **fx(2, DELAY, 2, 30, 44, 70, 110, 40))),
+    ('Ergot Scream', patch(FM, [(ENV[3], D_GAIN(2), 100), (LFO[1], D_PITCH, 69), (LFO[2], 12, 96)], FMALG=5,   # l'FM che urla: il feedback che va e viene
+        GLIDEMODE=3, GLIDE=12, O1PW=127, O1GAIN=0, O2SEMI=76, O2PW=60, O2GAIN=0, O3SEMI=64, O3PW=50, O3GAIN=0,
+        O4SEMI=76, O4PW=40, O4GAIN=0, O4FB=80, E3A=0, E3D=60, E3S=60, E3R=30,
+        L1SHAPE=L_SINE, L1RATE=78, L1MODE=L_RESET, L2SHAPE=L_TRI, L2RATE=34, L2MODE=L_FREE,
+        CUTOFF=90, RESONANCE=20, E2A=0, E2D=64, E2S=118, E2R=24, GAIN=56, REVSEND=30,
+        **fx(1, DRIVE, 56, 40), **fx(2, DELAY, 2, 28, 40, 60, 100, 30))),
+    ('Toadstool Riser', patch(VA, [(LFO[1], D_CUTOFF, 127), (LFO[1], D_PITCH, 96), (LFO[2], D_PAN, 110)],   # la salita: dodici secondi di rumore che si apre
+        O1SHAPE=SAW, O1GAIN=30, O2SHAPE=SAW, O2DETUNE=72, O2GAIN=30, NOISE=90,
+        CUTOFF=40, RESONANCE=70, L1SHAPE=L_SAW, L1RATE=20, L1MODE=L_ONESHOT, L2SHAPE=L_SINE, L2RATE=60, L2MODE=L_FREE,
+        E2A=40, E2D=64, E2S=127, E2R=60, GAIN=60, REVSEND=70, REVSIZE=122,
+        **fx(1, PHASER, 50, 60, 80, 100), **fx(2, DELAY, 2, 40, 60, 80, 127, 40))),
+]
+
 # famiglia di ogni suono, per la lista e il dettaglio della cella (UI-152)
 FAMIGLIA = {
     'Hothouse Piano': 'pad', 'Seedling Box': 'bell', 'Harmonium Moss': 'reed', 'Steel Petal': 'mallet',
@@ -906,6 +1068,16 @@ FAMIGLIA = {
     'Crystal Dew': 'bell', 'Bronze Lotus': 'bell', 'Teak Mallet': 'mallet', 'Vibe Garden': 'mallet',
     'Trance Bramble': 'pluck', 'Viper Bugloss': 'lead', 'Wah Petal': 'stab', 'Pulse Hedge': 'stab', 'Fog Chord': 'stab',
     'Fern Choir': 'voice', 'Pan Reed': 'flute', 'Jangle Vine': 'pluck', 'Thumb Pod': 'pluck', 'Linnaeus Garden': 'pad',
+    # settima ondata (22/10/2026)
+    'Ghost Orchid': 'pad', 'Snowmelt': 'pad', 'Lichen Breath': 'texture', 'Seagrass Deep': 'drone',
+    'Edelweiss Halo': 'voice', 'Tundra Bell': 'bell', 'Spore Cloud': 'texture', 'Kelp Forest': 'pad',
+    'Evening Primrose': 'keys', 'Heather Organ': 'organ', 'Polar Night': 'drone', 'Seed Rain': 'mallet',
+    'Sunflower Saw': 'lead', 'Euphorbia Pad': 'pad', 'Gated Lily': 'stab', 'Bluebell Pluck': 'pluck',
+    'Magnolia Lead': 'lead', 'Daybreak Arp': 'pluck', 'Willow Strings': 'strings', 'Laser Fern': 'lead',
+    'Snowdrop Bell': 'bell', 'Angelica Choir': 'voice',
+    'Psilocybe Lead': 'acid', 'Amanita Zap': 'texture', 'Peyote Acid': 'acid', 'Ayahuasca Vine': 'drone',
+    'Salvia Squelch': 'stab', 'Morning Glory': 'lead', 'Lotus Mandala': 'pluck', 'Kava Pluck': 'pluck',
+    'Ergot Scream': 'lead', 'Toadstool Riser': 'texture',
 }
 # motore per la UI (ui_model.h: ENGINE_VA, ENGINE_FM, ENGINE_RP, ENGINE_SMP) dal modello della patch
 ENGINE_UI = {VA: 'ENGINE_VA', FM: 'ENGINE_FM', RP: 'ENGINE_RP', SMP: 'ENGINE_SMP'}
@@ -972,6 +1144,47 @@ BASSI = [
     ('Coal FM Bass', patch(FM, [(ENV[3], D_GAIN(2), 108)], GLIDEMODE=2, FMALG=1, O1PW=127, O1GAIN=0,
         O2SEMI=52, O2PW=60, O2GAIN=44, O3PW=0, O4PW=0, E2A=0, E2D=48, E2S=40, E2R=16,
         E3A=0, E3D=24, E3S=0, E3R=14, CUTOFF=50, GAIN=72, **fx(1, DRIVE, 30, 26))),
+    # 22/10/2026: bassi bassi e profondi (sub sinusoidali, un'ottava sotto, bordoni per l'ambient) e quelli corti
+    # per la psytrance e la trance, fatti per il basso che rotola (BASSLINE, ACC-219)
+    ('Bedrock Sub', patch(FM, [], GLIDEMODE=2, FMALG=7, O1PW=127, O1GAIN=0, O2SEMI=76, O2PW=20, O2GAIN=0,   # il seno puro, con un filo d'ottava
+        O3PW=0, O4PW=0, E2A=1, E2D=64, E2S=127, E2R=24, CUTOFF=60, GAIN=78)),
+    ('Mariana Sub', patch(VA, [], GLIDEMODE=2, O1SHAPE=TRI, O1SEMI=52, O2SHAPE=TRI, O2GAIN=24, CUTOFF=36,   # un'ottava sotto: la fossa
+        E2A=2, E2D=64, E2S=127, E2R=30, GAIN=80)),
+    ('Root Cellar', patch(VA, [], GLIDEMODE=2, O1SHAPE=TRI, O2SHAPE=SAW, O2SEMI=52, O2GAIN=34, CUTOFF=42, RESONANCE=14,
+        FENV=16, E1A=0, E1D=50, E1S=40, E2A=1, E2D=64, E2S=124, E2R=24, GAIN=74, **fx(1, DRIVE, 26, 30))),
+    ('Hadal Drone', patch(VA, [(LFO[1], D_CUTOFF, 76), (LFO[2], D_OSC(2), 66)], GLIDEMODE=2, GLIDE=30,   # il bordone del fondo, per l'ambient
+        O1SHAPE=TRI, O1SEMI=52, O2SHAPE=SAW, O2DETUNE=62, O2GAIN=30, CUTOFF=34, RESONANCE=20,
+        L1SHAPE=L_SINE, L1RATE=12, L1MODE=L_FREE, L2SHAPE=L_SINE, L2RATE=10, L2MODE=L_FREE,
+        E2A=70, E2D=64, E2S=127, E2R=90, GAIN=74, REVSEND=20, REVSIZE=120)),
+    ('Tectonic', patch(FM, [(VEL, D_GAIN(2), 96), (LFO[1], D_GAIN(2), 74)], GLIDEMODE=2, FMALG=0,   # il ringhio che sale dal sottosuolo
+        O1PW=127, O1GAIN=0, O2SEMI=52, O2PW=30, O2GAIN=0, O3SEMI=64, O3PW=20, O3GAIN=0, O4PW=24, O4GAIN=0, O4FB=60,
+        L1SHAPE=L_SINE, L1RATE=22, L1MODE=L_FREE, E2A=0, E2D=64, E2S=120, E2R=22, CUTOFF=62, RESONANCE=10, GAIN=72,
+        **fx(1, DRIVE, 30, 30))),
+    ('Abyssal Reese', patch(VA, [(LFO[1], D_OSC(2), 66)], GLIDEMODE=2, O1SHAPE=SAW, O1SEMI=52, O2SHAPE=SAW, O2SEMI=52,
+        O2DETUNE=73, O2GAIN=64, O3SHAPE=TRI, O3SEMI=52, O3GAIN=40, CUTOFF=36, RESONANCE=16,
+        L1SHAPE=L_SINE, L1RATE=8, L1MODE=L_FREE, E2A=0, E2D=64, E2S=122, E2R=24, GAIN=64, **fx(1, DRIVE, 34, 28))),
+    ('Groundwater', patch(VA, [], GLIDEMODE=2, GLIDE=20, O1SHAPE=TRI, O2SHAPE=TRI, O2SEMI=76, O2GAIN=10, CUTOFF=40,
+        E2A=20, E2D=64, E2S=127, E2R=70, GAIN=78, REVSEND=14, REVSIZE=110)),
+    ('Dub Pressure', patch(VA, [(LFO[1], D_CUTOFF, 84)], GLIDEMODE=2, O1SHAPE=TRI, O2SHAPE=SAW, O2SEMI=52, O2GAIN=30,
+        CUTOFF=38, RESONANCE=40, L1SHAPE=L_SINE, L1RATE=34, L1MODE=L_MONO, E2A=2, E2D=64, E2S=127, E2R=30, GAIN=72)),
+    ('Rolling Root', patch(VA, [], GLIDEMODE=2, O1SHAPE=SAW, O2SHAPE=TRI, O2SEMI=52, O2GAIN=50,   # la psy: corto e pieno, a sedicesimi
+        CUTOFF=34, RESONANCE=30, FENV=62, FVELO=30, FKT=30, E1A=0, E1D=18, E1S=0, E1R=10,
+        E2A=0, E2D=26, E2S=0, E2R=10, GAIN=74, **fx(1, DRIVE, 30, 30))),
+    ('Goa Gallop', patch(VA, [], GLIDEMODE=2, O1SHAPE=PULSE, O1PW=44, O2SHAPE=SAW, O2SEMI=52, O2GAIN=40,
+        CUTOFF=38, RESONANCE=44, FENV=58, FVELO=40, FKT=30, E1A=0, E1D=22, E1S=0, E1R=12,
+        E2A=0, E2D=30, E2S=0, E2R=12, GAIN=72, **fx(1, DRIVE, 44, 36))),
+    ('Tendril FM', patch(FM, [(ENV[3], D_GAIN(2), 120)], GLIDEMODE=2, FMALG=1, O1PW=127, O1GAIN=20,   # il clic FM e il corpo di seno
+        O2SEMI=64, O2PW=40, O2GAIN=30, O3SEMI=88, O3PW=10, O3GAIN=0, O4PW=0,
+        E2A=0, E2D=28, E2S=0, E2R=10, E3A=0, E3D=10, E3S=0, E3R=6, CUTOFF=70, GAIN=74)),
+    ('Offbeat Ivy', patch(VA, [], GLIDEMODE=2, O1SHAPE=SAW, O2SHAPE=PULSE, O2PW=50, O2DETUNE=68, O2GAIN=44,   # il basso in levare della trance
+        O3SHAPE=TRI, O3SEMI=52, O3GAIN=40, CUTOFF=40, RESONANCE=24, FENV=50, FVELO=30, E1A=0, E1D=30, E1S=10, E1R=16,
+        E2A=0, E2D=40, E2S=30, E2R=16, GAIN=70, **fx(1, DRIVE, 22, 26))),
+    ('Rubber Plant', patch(VA, [], GLIDEMODE=3, GLIDE=10, O1SHAPE=SAW, O2SHAPE=SAW, O2SEMI=52, O2DETUNE=66, O2GAIN=50,
+        CUTOFF=32, RESONANCE=70, FENV=64, FVELO=40, E1A=0, E1D=32, E1S=6, E1R=16,
+        E2A=0, E2D=50, E2S=60, E2R=16, GAIN=68, **fx(1, DRIVE, 34, 30))),
+    ('Night Sap', patch(VA, [], GLIDEMODE=2, O1SHAPE=TRI, O2SHAPE=SAW, O2DETUNE=66, O2GAIN=26, O3SHAPE=TRI, O3SEMI=52, O3GAIN=44,
+        CUTOFF=40, RESONANCE=18, FENV=34, E1A=0, E1D=36, E1S=20, E1R=20,
+        E2A=0, E2D=56, E2S=50, E2R=20, GAIN=72)),
 ]
 
 
@@ -1032,6 +1245,18 @@ LIVELLO_DB = {
     'Bronze Lotus': -0.7, 'Teak Mallet': 0.1, 'Vibe Garden': 0.8, 'Trance Bramble': 4.4, 'Viper Bugloss': 7.6,
     'Wah Petal': 5.9, 'Pulse Hedge': 1.7, 'Fog Chord': 4.6, 'Fern Choir': 1.8, 'Pan Reed': -5.2, 'Jangle Vine': 3.6,
     'Thumb Pod': -1.0, 'Linnaeus Garden': -3.8,
+    # settima ondata, misurata il 22/10/2026 con la nota tenuta 6 s (16 s la salita): i pad lenti arrivano al
+    # massimo dopo 3-5 s, e con il secondo e mezzo di --suoni sarebbero finiti fino a 9 dB troppo forti
+    'Ghost Orchid': -4.6, 'Snowmelt': -9.6, 'Lichen Breath': -1.0, 'Seagrass Deep': -13.3, 'Edelweiss Halo': -5.2,
+    'Tundra Bell': -0.7, 'Spore Cloud': -7.1, 'Kelp Forest': -6.7, 'Evening Primrose': -5.6, 'Heather Organ': -2.5,
+    'Polar Night': -12.8, 'Seed Rain': -0.6, 'Sunflower Saw': -1.8, 'Euphorbia Pad': -1.3, 'Gated Lily': 0.0,   # il gate: livello fatto con GAIN e quadra, non qui
+    'Bluebell Pluck': 4.4, 'Magnolia Lead': 6.7, 'Daybreak Arp': 1.3, 'Willow Strings': -2.1, 'Laser Fern': 8.9,
+    'Snowdrop Bell': 0.2, 'Angelica Choir': 2.6, 'Psilocybe Lead': -3.5, 'Amanita Zap': 1.3, 'Peyote Acid': -3.5,
+    'Ayahuasca Vine': -6.0, 'Salvia Squelch': 4.5, 'Morning Glory': 1.4, 'Lotus Mandala': 2.7, 'Kava Pluck': 1.4,
+    'Ergot Scream': 1.3, 'Toadstool Riser': -1.3,
+    'Bedrock Sub': 2.1, 'Mariana Sub': 3.6, 'Root Cellar': 3.5, 'Hadal Drone': 4.0, 'Tectonic': 1.8,
+    'Abyssal Reese': 0.3, 'Groundwater': 4.3, 'Dub Pressure': 3.0, 'Rolling Root': 6.8, 'Goa Gallop': 1.9,
+    'Tendril FM': 9.0, 'Offbeat Ivy': 2.9, 'Rubber Plant': 3.2, 'Night Sap': 6.2,
 }
 
 
@@ -1066,6 +1291,9 @@ PERFORM = {
     'Crystal Dew': (HARP, 3), 'Bronze Lotus': (STRUM, 3), 'Teak Mallet': (PATTERN, 11), 'Vibe Garden': (STRUM, 1),
     'Trance Bramble': (PATTERN, 10), 'Wah Petal': (PATTERN, 6), 'Pulse Hedge': (STRUM, 1), 'Jangle Vine': (STRUM, 4),
     'Thumb Pod': (PATTERN, 13),
+    'Tundra Bell': (HARP, 2), 'Seed Rain': (HARP, 4), 'Evening Primrose': (STRUM, 3),
+    'Sunflower Saw': (STRUM, 1), 'Bluebell Pluck': (PATTERN, 8), 'Daybreak Arp': (ARP2, 4), 'Snowdrop Bell': (ARP, 5),
+    'Lotus Mandala': (ARP, 4), 'Kava Pluck': (PATTERN, 9), 'Salvia Squelch': (PATTERN, 6), 'Peyote Acid': (ARP, 3),
 }
 
 
