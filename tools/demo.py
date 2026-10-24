@@ -44,7 +44,7 @@ BASS = leggi_nomi('vet_bass_name', r'"([^"]+)"')
 (FUNK, BOSSA, MOTORIK, LOUNGE, SHUFFLE, HALFTIME, BOOM_BAP, DISCO, SAMBA, BALLAD, TRAIN, CHIP, TECHNO, DUB,
  ACID, INDUSTRIAL, MINIMAL, ELECTRO, TRAP) = range(19)
 SINGLE_SPLIT, SINGLE_FULL = 0, 1
-# strumenti della batteria a tastiera (ACC-212), nell'ordine dei tasti C…B
+# strumenti del kit (ACC-212), nell'ordine 0…11
 DRUM = {'KK': 0, 'RM': 1, 'SN': 2, 'CP': 3, 'CH': 4, 'TL': 5, 'OH': 6, 'TH': 7, 'MR': 8, 'CG': 9, 'CB': 10, 'CY': 11}
 
 
@@ -142,9 +142,9 @@ class Song:
         self.add(t, 'D_PRESS', 'ENC_BASS', note='basso acceso')
         self.add(t + 24, 'D_BASS', c=bss(nome), note=nome)
 
-    # ---- batteria a tastiera (ACC-211): "battito:SIGLA[@vel]" per battuta, come le note ----
+    # ---- DRUMS (ACC-211): colpi a mano, come dai pad; "battito:SIGLA[@vel]" per battuta, come le note ----
     def drums_toggle(self, t):
-        self.add(t, 'D_DRUMS', note='batteria a tastiera')
+        self.add(t, 'D_DRUMS', note='DRUMS')
 
     def hits(self, bar0, text, vel=100):
         for i, bar in enumerate(text.split('|')):
@@ -532,7 +532,7 @@ def felce():
 
 
 # ======================================================================== «Pistillo» (15/10/2026)
-# Mi minore a 124 BPM. Apre con la batteria a tastiera: il loop di batteria si suona con i tasti
+# Mi minore a 124 BPM. Apre con la batteria dal vivo: il loop di batteria si suona a mano
 # (il kit 808 del Beat Boom Bap), poi sopra entrano FM piano, marimba, organo a canne nel loop,
 # flauto dolce e campane tubolari.
 def pistillo():
@@ -576,7 +576,7 @@ def pistillo():
     S.hits(6, HATS)
     S.loop_cmd(at(10), 'OVERDUB', 'fine dell\'overdub: il loop di batteria gira da solo')
 
-    # ---- 10–17 via la batteria a tastiera: FM piano in Pattern e Sub Floor sopra il loop ----
+    # ---- 10–17 via DRUMS: FM piano in Pattern e Sub Floor sopra il loop ----
     S.drums_toggle(at(10))
     S.add(at(10, 1.25), 'D_PTURN', 'ENC_BPM', -19, note='Beat Volume giù, sotto gli strumenti')
     S.sound(at(10), 'FM Piano', 'FM Piano, Pattern 5', perf=('PATTERN', 5))

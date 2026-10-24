@@ -729,7 +729,7 @@ static const dstep_t SONG_2[] = {
     {      0, D_BPM, 0, 0, 124, 0 },                          /* 124 BPM */
     {     48, D_BEAT, 6, 0, 0, 0 },                           /* Beat Boom Bap scelto ma spento: il suo kit è la 808 */
     {     72, D_PTURN, ENC_BPM, 27, 0, 0 },                   /* Beat Volume al massimo: la batteria suona da sola */
-    {     96, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {     96, D_DRUMS, 0, 0, 0, 0 },                          /* DRUMS */
     {    192, D_LOOP, LOOP_C_PRESS, 0, 0, 0 },                /* REC: count-in, poi 4 battute di batteria dai tasti */
     {    576, D_HIT, 0, 0, 0, 124 },                          /* KK */
     {    672, D_HIT, 2, 0, 0, 114 },                          /* SN */
@@ -785,7 +785,7 @@ static const dstep_t SONG_2[] = {
     {   3552, D_HIT, 3, 0, 0, 100 },                          /* CP */
     {   3600, D_HIT, 6, 0, 0, 76 },                           /* OH */
     {   3648, D_LOOP, LOOP_C_OVERDUB, 0, 0, 0 },              /* fine dell'overdub: il loop di batteria gira da solo */
-    {   3648, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {   3648, D_DRUMS, 0, 0, 0, 0 },                          /* DRUMS */
     {   3648, D_FOCUS, ENC_SOUND, 0, 0, 0 },
     {   3648, D_SOUND, 0, 0, 18, 0 },                         /* FM Piano, Pattern 5 */
     {   3648, D_PERF, PERF_PATTERN, 5, 0, 0 },
@@ -1249,7 +1249,7 @@ static const dstep_t SONG_4[] = {
     {     48, D_SOUND, 0, 0, 97, 0 },                         /* Hemlock Acid */
     {     48, D_PERF, PERF_PATTERN, 4, 0, 0 },
     {    192, D_BEAT, 14, 0, 0, 0 },                          /* Beat: Acid */
-    {    192, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {    192, D_DRUMS, 0, 0, 0, 0 },                          /* DRUMS */
     {    192, D_TURN, ENC_BASS_VOICING, 1, 0, 0 },            /* m1: il loop inventato al posto del Beat, stile Acid */
     {    192, D_TURN, ENC_CHORD_VOICING, -4, 0, 0 },          /* M: densità 1, lo scheletro */
     {    192, D_PRESS, ENC_CHORD_VOICING, 0, 0, 0 },          /* M premuta: play / stop del loop */
@@ -1264,7 +1264,7 @@ static const dstep_t SONG_4[] = {
     {   3264, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: di nuovo tutto */
     {   3264, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: di nuovo tutto */
     {   3264, D_TURN, ENC_CHORD_VOICING, 2, 0, 0 },           /* M: densità 5 */
-    {   3600, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {   3600, D_DRUMS, 0, 0, 0, 0 },                          /* DRUMS */
     {   3648, D_FOCUS, ENC_BASS, 0, 0, 0 },
     {   3648, D_PRESS, ENC_BASS, 0, 0, 0 },                   /* basso acceso */
     {   3648, D_CHORD, 0x2, 0x0, 9, 100 },                    /* Am: C3 E3 A3 */
@@ -1294,14 +1294,14 @@ static const dstep_t SONG_4[] = {
     {   8232, D_OFF, 0, 0, 0, 0 },
     {   8256, D_CHORD, 0x2, 0x2, 4, 88 },                     /* Em7: D3 E3 G3 B3 */
     {   8616, D_OFF, 0, 0, 0, 0 },
-    {   8640, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {   8640, D_DRUMS, 0, 0, 0, 0 },                          /* DRUMS */
     {   8640, D_TURN, ENC_CHORD_VOICING, -3, 0, 0 },          /* M: break, densità 2 */
     {   9408, D_MACRO, MACRO_BEAT_VOL, 3, 0, 0 },             /* m2: variazione +3 */
     {  10176, D_TURN, ENC_BASS_VOICING, 1, 0, 0 },            /* m1: stile Industrial */
     {  10176, D_TURN, ENC_CHORD_VOICING, 4, 0, 0 },           /* M: densità 6 */
     {  10944, D_MACRO, MACRO_BEAT_VOL, 4, 0, 0 },             /* m2: variazione +4 */
     {  10944, D_TURN, ENC_CHORD_VOICING, 2, 0, 0 },           /* M: densità 8 */
-    {  11664, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {  11664, D_DRUMS, 0, 0, 0, 0 },                          /* DRUMS */
     {  11664, D_FOCUS, ENC_SOUND, 0, 0, 0 },
     {  11664, D_SOUND, 0, 0, 101, 0 },                        /* Black Hellebore */
     {  11664, D_PERF, PERF_OFF, 0, 0, 0 },
@@ -1330,12 +1330,12 @@ static const dstep_t SONG_5[] = {
     {     48, D_SOUND, 0, 0, 102, 0 },                        /* Deadnettle Dub */
     {     48, D_PERF, PERF_OFF, 0, 0, 0 },
     {    192, D_BEAT, 13, 0, 0, 0 },                          /* Beat: Dub */
-    {    192, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {    192, D_DRUMS, 0, 0, 0, 0 },                          /* DRUMS */
     {    192, D_TURN, ENC_BASS_VOICING, 1, 0, 0 },            /* m1: il loop inventato, stile Dub */
     {    192, D_TURN, ENC_CHORD_VOICING, -3, 0, 0 },          /* M: densità 2, one drop */
     {    192, D_PRESS, ENC_CHORD_VOICING, 0, 0, 0 },          /* M premuta: play / stop del loop */
     {    960, D_TURN, ENC_CHORD_VOICING, 2, 0, 0 },           /* M: densità 4, steppers */
-    {   1680, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {   1680, D_DRUMS, 0, 0, 0, 0 },                          /* DRUMS */
     {   1872, D_CHORD, 0x2, 0x2, 0, 96 },                     /* Cm7: C3 D#3 G3 A#3 */
     {   1896, D_OFF, 0, 0, 0, 0 },
     {   2064, D_CHORD, 0x2, 0x2, 0, 84 },                     /* Cm7: C3 D#3 G3 A#3 */
@@ -1408,7 +1408,7 @@ static const dstep_t SONG_5[] = {
     {   9360, D_OFF, 0, 0, 0, 0 },
     {   9408, D_CHORD, 0x2, 0x2, 7, 64 },                     /* Gm7: D3 F3 G3 A#3 */
     {   9744, D_OFF, 0, 0, 0, 0 },
-    {   9792, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {   9792, D_DRUMS, 0, 0, 0, 0 },                          /* DRUMS */
     {   9792, D_MACRO, MACRO_BEAT_VOL, 5, 0, 0 },             /* m2: variazione +5 */
     {  10176, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: le percussioni */
     {  10176, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: le percussioni */
@@ -1418,7 +1418,7 @@ static const dstep_t SONG_5[] = {
     {  10176, D_TURN, ENC_CHORD_VOICING, 3, 0, 0 },           /* M: più percussioni */
     {  10560, D_PRESS, ENC_BASS_VOICING, 0, 0, 0 },           /* m1 premuta: di nuovo tutto */
     {  10560, D_TURN, ENC_CHORD_VOICING, 1, 0, 0 },           /* M: densità +1 */
-    {  11280, D_DRUMS, 0, 0, 0, 0 },                          /* batteria a tastiera */
+    {  11280, D_DRUMS, 0, 0, 0, 0 },                          /* DRUMS */
     {  11280, D_FOCUS, ENC_SOUND, 0, 0, 0 },
     {  11280, D_SOUND, 0, 0, 107, 0 },                        /* Mire Bells */
     {  11280, D_PERF, PERF_STRUM, 2, 0, 0 },

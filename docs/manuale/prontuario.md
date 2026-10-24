@@ -10,7 +10,7 @@ Un foglio da stampare, fronte e retro. Vetrina 0.1, mappa del 22/10/2026. «prev
 | tieni | SHIFT + K toccata, SHIFT tenuto 1 s | Lock del Perform, Lock dell'FX, lista dei Beat |
 | premi e gira | SHIFT + K girata, o manopola del pad premuta e girata | Transpose (Key), Bass Volume (Volume), Beat Volume (BPM) |
 | gira | la manopola K | Sound, Perform, FX, Key / Bass, Loop, BPM, Volume |
-| Mod + … | m1 premuta (Y senza pad) | + REC uscita forzata dal loop (Clear) · + Bass basso on/off · + BPM batteria a tastiera |
+| Mod + … | m1 premuta (Y senza pad) | + REC uscita forzata dal loop (Clear) · + Bass basso on/off · + BPM DRUMS |
 
 Con MPK e pad ogni comando ha una casa: girare e premere sulla MPK, liste sulla manopola nav, le aggiunte sul pad. I tasti della Flip funzionano sempre. Se manca un apparecchio, gli altri fanno lo stesso mestiere.
 

@@ -399,7 +399,7 @@ void uf_draw_z2(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m)
         gfx_text(fb, &GFX_L, NAME_X, 30, m->tempo.groove_name, p->c[T_TEXT]);
     if (m->ctl.view != VIEW_REACT) {
         if (mu->key_on && !m->tempo.drums_on) gfx_text(fb, &GFX_L, NAME_X, 30, mu->key_name, p->c[T_TEXT]);
-        if (m->tempo.drums_on) {                             /* batteria a tastiera: lo stato vince sul transpose */
+        if (m->tempo.drums_on) {                             /* DRUMS: lo stato vince sul transpose */
             gfx_text_right(fb, &GFX_L, 404, 30, "DRUMS", p->c[T_ACTIVE], 0);
         } else if (mu->transpose) {
             char t[8], buf[16];

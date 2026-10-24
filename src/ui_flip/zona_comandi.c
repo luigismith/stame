@@ -134,7 +134,7 @@ static void cell_text(const ui_model_t *m, int k, cell_txt_t *t)
         } else if (k == ENC_PERFORM) {
             t->title = "ROLL";
             ui_fmt_copy(t->value, sizeof t->value, ui_fmt_roll(m->tempo.roll));
-            ui_fmt_copy(t->detail, sizeof t->detail, "Hold a key");
+            ui_fmt_copy(t->detail, sizeof t->detail, "Hold a pad");
         } else if (sec) {                                       /* K5 premuta e girata: il basso che rotola (MIDI-142) */
             t->title = "BASSLINE";
             ui_fmt_copy(t->value, sizeof t->value, ui_fmt_bassline(m->tempo.bassline));

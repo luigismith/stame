@@ -681,7 +681,7 @@ static void t_macro_pad(void)
     CHECK(only(PNL_MACRO, MACRO_SCENE_SAVE, 3));
     CHECK_EQ(EV[0].t_us, t1 + MPAD_SCENE_HOLD_US);
 
-    /* T9 Options è l'unico pulsante di encoder rimasto; T10 Save Loop; T11 batteria a tastiera */
+    /* T9 Options è l'unico pulsante di encoder rimasto; T10 Save Loop; T11 DRUMS */
     clear();
     tap(MPAD_T9);
     CHECK_EQ(count(G_PRESS, ENC_OPTIONS), 1);
@@ -811,7 +811,7 @@ static void t_macro_pad(void)
     CHECK_EQ(mpad_tasto(-1), 0);
     CHECK_EQ(mpad_tasto(15), 0);
     reset();
-    tap(mpad_tasto(12));                                      /* lettera M: T11, batteria a tastiera */
+    tap(mpad_tasto(12));                                      /* lettera M: T11, DRUMS */
     CHECK(only(PNL_MACRO, MACRO_DRUMS_TOGGLE, 0));
     clear();
     tap(MPAD_M_CW);

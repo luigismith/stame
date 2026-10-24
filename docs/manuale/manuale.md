@@ -94,7 +94,7 @@ Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 
 | **Volume** | volume master 0…99 | batteria della Flip | — | **Bass Volume** 0…99 |
 | **Options** | cambia la vista (fuori dalla lista) | lista: Exit, View, Play Style, Single Notes, Secret Chords | — | — |
 | **Chord Voicing** (M) | finestra ±1 semitono per scatto; con AMBIENT acceso, le note sparse (§3.1) | Split ↔ Octave | — | — |
-| **Bass Voicing** (m1) | ottava del basso; con AMBIENT acceso, l'atmosfera (§3.1) | il modificatore **Mod**: Mod + Loop (REC) = uscita forzata dal loop (Clear); Mod + Bass = basso on/off, come Bass da solo; Mod + BPM = batteria a tastiera, che oggi ha il suo tasto T11 | — | — |
+| **Bass Voicing** (m1) | ottava del basso; con AMBIENT acceso, l'atmosfera (§3.1) | il modificatore **Mod**: Mod + Loop (REC) = uscita forzata dal loop (Clear); Mod + Bass = basso on/off, come Bass da solo; Mod + BPM = DRUMS, che oggi ha il suo tasto T11 | — | — |
 
 Liste: la voce in cima è Exit; la manopola di navigazione scorre, premuta sceglie, − chiude (senza MPK: croce, A e B della Flip). Una lista si chiude da sola dopo 10 secondi, e si chiude anche toccando un altro controllo. Ogni controllo toccato accende la **banda** in fondo allo schermo con il suo nome e valore in grande: è l'overlay dell'originale, che qui non copre l'accordo.
 
@@ -274,11 +274,13 @@ Il looper registra **eventi** (note), non audio: cambiando BPM cambia la velocit
 - Con il looper in moto, spegnere il Beat lo zittisce soltanto: il tempo del loop continua.
 - In alto a destra: i battiti della battuta come celle che si accendono, il BPM a sette segmenti.
 
-### 6.1 Loop di batteria dalla tastiera
+### 6.1 DRUMS: la batteria sui pad, gli accordi sui tasti
 
-Lo stesso principio degli accordi, per la batteria: **T11 DRUMS** del pad (oppure Mod + BPM) accende la **batteria a tastiera**. I 12 tasti suonano il kit del Beat scelto: Do cassa, Do♯ rimshot, Re rullante, Re♯ battimani, Mi charleston chiuso, Fa tom basso, Fa♯ charleston aperto, Sol tom alto, Sol♯ maracas, La conga, La♯ campanaccio, Si piatto. Se il looper registra o sovraincide, ogni colpo entra nel loop **quantizzato al sedicesimo**, come le note. Pad, basso e Perform restano fermi; un altro T11 torna agli accordi. Sulla plancia: «DRUMS» nella zona accordo, dove al posto dell'accordo c'è il loop di batteria (§6.3), e le sigle sui tasti C4…B4, che si accendono al colpo.
+Lo stesso principio degli accordi, per la batteria: **T11 DRUMS** del pad (oppure Mod + BPM) accende **DRUMS**. La batteria si suona con gli otto **pad del banco B** (§6.2); la tastiera e i tasti accordo continuano a suonare l'ultimo suono scelto, con basso e Perform: la sinistra fa la batteria, la destra gli accordi. Se il looper registra o sovraincide, ogni colpo entra nel loop **quantizzato al sedicesimo**, come le note. Un altro T11 spegne DRUMS. Sulla plancia: «DRUMS» nella zona accordo, dove al posto dell'accordo c'è il loop di batteria (§6.3); la tastiera mostra le note che suonano.
 
-![Batteria a tastiera: DRUMS, le sigle degli strumenti sui tasti, i colpi registrati nel loop](img/drums.png)
+L'originale, in questa modalità, fa suonare la batteria ai tasti; Stame no, per scelta: la batteria sta sui pad e i tasti restano allo strumento.
+
+![DRUMS: i colpi dei pad registrati nel loop, la tastiera libera per lo strumento](img/drums.png)
 
 ### 6.2 La drum machine dal vivo
 
@@ -289,7 +291,7 @@ Stessa filosofia degli accordi: premi tasti, muovi manopole, il loop di batteria
 - **I pad del banco B** della MPK sono otto pad di batteria con la velocity, sempre, anche senza DRUMS: premi BANK e suoni la batteria sopra gli accordi del loop. Fila bassa cassa, rullante, rimshot, battimani; fila alta charleston chiuso e aperto, tom basso, piatto.
 - Con **DRUMS acceso** cinque manopole cambiano mestiere, e le celle lo scrivono:
   - **K1 KIT**: il kit, fra quarantatré (Beat = quello del Beat scelto, poi Studio, Jazz, 808, Techno, Chip e i 38 della libreria sintetizzata, §6.4); **SHIFT + K1** apre la lista dei kit;
-  - **K2 ROLL**: tieni un tasto o un pad e il colpo si ripete a tempo: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32. Il primo colpo è il tuo, le ripetizioni entrano nel loop sulla griglia;
+  - **K2 ROLL**: tieni un pad e il colpo si ripete a tempo: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32. Il primo colpo è il tuo, le ripetizioni entrano nel loop sulla griglia;
   - **K3 DRIVE**: sporca la batteria, da 0 (pulita) a 10 (schiacciata e grossa). **SHIFT + K3 girata** è il **filtro**: a sinistra chiude gli alti (LP, fino a una batteria sorda, da dub), a destra toglie i bassi (HP, fino a una batteria sottile, da build-up); 0 è spento. Il metronomo non passa dall'effetto;
   - **K4 SWING**: sposta in avanti i sedicesimi in levare, da Off (dritto) a 75 % (quasi terzina). Vale per il Beat, per il loop inventato, per i colpi di batteria del loop e per il Roll, anche quelli già registrati;
   - **K5 ACCENT**: quanto conta la forza del tocco, da 0 (colpi tutti uguali) a 10 (tutta la dinamica). **SHIFT + K5 girata** è il **basso che rotola** (§6.5).
@@ -410,7 +412,7 @@ Quindici tasti in tre file da cinque e tre manopole a scatti. Con una tastiera c
 - **T5…T8 SCENE 1…4**: un tocco richiama suono, basso, Perform, effetto, tonalità e basso acceso/spento; tenuto 1 secondo salva com'è adesso (la banda scrive «Scene 2 saved»). Una scena vuota lo dice. Le scene restano sulla SD (`Saves/stame/scene.txt`).
 - **T9 OPTIONS**: la lista delle opzioni (premi), poi si scorre con la manopola di navigazione.
 - **T10 SAVE LOOP**: ferma il loop e lo tiene da parte (§5).
-- **T11 DRUMS**: la batteria a tastiera (§6.1) e la modalità crea delle tre manopole (§6.3).
+- **T11 DRUMS**: la drum machine sui pad e sulle manopole (§6.1, §6.2) e la modalità crea delle tre manopole (§6.3); i tasti restano allo strumento.
 - **T12 PANIC** scatta solo dopo 1 secondo: spegne tutte le note; tenuto 3 secondi fa il **Reset** (loop, Beat, transpose, Perform, Hold, metronomo da capo). Sulla MPK: **SHIFT + STOP/PLAY**.
 - **T13 DROP, tenuto.** Finché lo tieni, Beat, batteria del loop e basso tacciono: restano gli accordi con la loro performance, il metronomo e quello che suoni tu (tasti sotto DRUMS, pad del banco B). Lascialo e tornano **sul battito dopo**, a tempo; se lo lasci appena dopo un battito (entro un sedicesimo) tornano subito. È il break della techno e del dub: tieni T13 nella salita, lascialo sull'uno. Beat e loop intanto vanno avanti, quindi rientrano al loro posto. In testata «DROP». Fa il paio con **T4 FILL**.
 - **Le manopole.** **M** (grande) è il Chord Voicing, premuta Split/Octave; **m1** il Bass Voicing, premuta Mod; **m2** il volume del Beat, premuta e girata il volume del basso. Sotto DRUMS creano il loop di batteria (§6.3); con AMBIENT acceso guidano il modulo (§3.1).
@@ -500,7 +502,7 @@ Previsti: Pocket Mode (suonare con la sola Flip), MPK Status, Learn Pad, Note La
 
 ## 10. La demo
 
-Sono sei brani originali di Stame, suonati a giro: **«Acacia»** (poco meno di quattro minuti: accordi in Harp, lista dei Beat, count-in e registrazione del loop, overdub, Lock del Perform, transpose, cambi di suono e di vista, i due temi, il ritardando), **«Felce»** (una bossa con piano a coda, vibrafono, kalimba in overdub, sax tenore, arpa e glockenspiel), **«Pistillo»** (apre con la batteria a tastiera: il kit 808 suonato sui tasti entra nel loop con count-in e sovraincisione, poi sopra FM piano e Sub Floor, marimba, organo a canne nel loop, flauto dolce, campane tubolari e transpose) e **«Alga»** (lento e sott'acqua: un pad, il giro nel loop con Moonflower e Peat Sub, campane a mano, glockenspiel in sovraincisione, ocarina, il Beat Ballad, bicchieri e ritardando), **«Cicuta»** (acid techno: il loop di batteria si inventa con le tre manopole del pad, dallo scheletro al pieno, poi Hemlock Acid in Pattern con il basso Hemlock 303, il giro nel loop, un break che passa allo stile Industrial e il drone di Black Hellebore) e **«Torba»** (dub techno: lo stab di Deadnettle Dub sul levare con il suo eco, il giro nel loop, Undertow e Abyss Sub, la batteria Dub che cambia mentre suona e le campane scure di Mire Bells). La demo parte da sola dopo 20 secondi senza ingressi (e subito dopo l'avvio), ma non mentre suona AMBIENT; chiesta dal menu, lo spegne. Qualunque tasto, pad o nota la ferma e rimette a posto loop, Beat, transpose e opzioni. Per non farla partire: MENU › Demo › Off. Per sentire un brano preciso: MENU › Play Demo Song, poi il brano nella lista.
+Sono sei brani originali di Stame, suonati a giro: **«Acacia»** (poco meno di quattro minuti: accordi in Harp, lista dei Beat, count-in e registrazione del loop, overdub, Lock del Perform, transpose, cambi di suono e di vista, i due temi, il ritardando), **«Felce»** (una bossa con piano a coda, vibrafono, kalimba in overdub, sax tenore, arpa e glockenspiel), **«Pistillo»** (apre con la batteria dal vivo: il kit 808 suonato a mano entra nel loop con count-in e sovraincisione, poi sopra FM piano e Sub Floor, marimba, organo a canne nel loop, flauto dolce, campane tubolari e transpose) e **«Alga»** (lento e sott'acqua: un pad, il giro nel loop con Moonflower e Peat Sub, campane a mano, glockenspiel in sovraincisione, ocarina, il Beat Ballad, bicchieri e ritardando), **«Cicuta»** (acid techno: il loop di batteria si inventa con le tre manopole del pad, dallo scheletro al pieno, poi Hemlock Acid in Pattern con il basso Hemlock 303, il giro nel loop, un break che passa allo stile Industrial e il drone di Black Hellebore) e **«Torba»** (dub techno: lo stab di Deadnettle Dub sul levare con il suo eco, il giro nel loop, Undertow e Abyss Sub, la batteria Dub che cambia mentre suona e le campane scure di Mire Bells). La demo parte da sola dopo 20 secondi senza ingressi (e subito dopo l'avvio), ma non mentre suona AMBIENT; chiesta dal menu, lo spegne. Qualunque tasto, pad o nota la ferma e rimette a posto loop, Beat, transpose e opzioni. Per non farla partire: MENU › Demo › Off. Per sentire un brano preciso: MENU › Play Demo Song, poi il brano nella lista.
 
 ![La lista dei brani della demo (MENU › Play Demo Song): il segno sta sul brano di turno](img/demo_lista.png)
 

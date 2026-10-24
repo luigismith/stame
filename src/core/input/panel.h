@@ -33,7 +33,7 @@ typedef enum {
     MACRO_SCENE,                    /* T5–T8 toccati: b = scena 0…3 da richiamare */
     MACRO_SCENE_SAVE,               /* T5–T8 tenuti 1 s: b = scena 0…3 da salvare */
     MACRO_LOOP_EXIT,                /* T10: Save Loop, l'uscita morbida (ACC-222 EXIT) */
-    MACRO_DRUMS_TOGGLE,             /* T11: batteria a tastiera on/off (ACC-211) */
+    MACRO_DRUMS_TOGGLE,             /* T11: DRUMS on/off (ACC-211) */
     MACRO_BEAT_VOL,                 /* m2 girata: b = scatti con segno sul volume del Beat */
     MACRO_BASS_VOL,                 /* m2 premuta e girata: b = scatti sul volume del basso */
     MACRO_DRUM_HIT,                 /* pad del banco B della MK4 (MIDI-135): b = strumento << 8 | velocity, 0 = rilascio */

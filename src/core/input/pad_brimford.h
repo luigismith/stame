@@ -5,7 +5,7 @@
  * navigazione sulla sua manopola: qui restano T9 Options, T12 Panic tenuto 1 s (3 s = Reset), T14 View e
  * T15 Page (MIDI-132), M Chord Voicing e m1 Bass Voicing. I tasti liberi fanno quello che l'originale non
  * ha (MIDI-133): T1 Hold, T2 Tap tempo, T3 Metronomo, T4 Fill del Beat finché è tenuto, T5–T8 Scene
- * (tocco = richiama, tenuto 1 s = salva), T10 Save Loop (uscita morbida), T11 batteria a tastiera, T13
+ * (tocco = richiama, tenuto 1 s = salva), T10 Save Loop (uscita morbida), T11 DRUMS, T13
  * Drop finché è tenuto (MIDI-140; fino al 19/10/2026 era il Lock delle manopole, MIDI-131);
  * m2 è il volume del Beat e, premuta e girata, quello del basso; premuta e lasciata senza
  * girarla manda MACRO_KNOB_CLICK (sotto DRUMS è la «nuova idea» della batteria che si inventa, MIDI-139).

@@ -125,7 +125,7 @@ void uf_draw_z1(gfx_fb16_t *fb, const uf_pal_t *p, const ui_model_t *m, const ui
         if (pl->pad_link == PADL_ERROR || pl->pad_link == PADL_UNMAPPED)
             x = gfx_text(fb, &GFX_S, x, y, "PAD", p->c[T_WARN]) + 16;
         if (m->prefs.pocket) x = gfx_text(fb, &GFX_S, x, y, "POCKET", p->c[T_ACTIVE]) + 16;
-        /* batteria a tastiera: uno stato, quindi sempre in vista (anche con il transpose o la pagina dei comandi) */
+        /* DRUMS: uno stato, quindi sempre in vista (anche con il transpose o la pagina dei comandi) */
         if (m->tempo.drums_on) x = gfx_text(fb, &GFX_S, x, y, "DRUMS", p->c[T_ACTIVE]) + 16;
         /* il modulo AMBIENT (MIDI-143): acceso in active, in pausa in dim */
         if (m->tempo.amb) x = gfx_text(fb, &GFX_S, x, y, "AMBIENT", p->c[m->tempo.amb_play ? T_ACTIVE : T_DIM]) + 16;

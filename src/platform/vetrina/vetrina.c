@@ -31,7 +31,7 @@ typedef struct {
     int sound, perf_mode, perf_amount, fx_type, fx_amount, bass, volume, bass_volume;
     int bpm, beat_mode, beat, meter, beat_on, beat_volume, view;
     uint8_t lock_perf, lock_fx, sec[ENC_COUNT];
-    uint8_t drums;                      /* batteria a tastiera (ACC-211): i tasti colpiscono il kit */
+    uint8_t drums;                      /* DRUMS (ACC-211): manopole alla drum machine; i tasti restano allo strumento */
     uint8_t hold, metro, fill;          /* Hold dell'accordo, metronomo, Fill del Beat (MIDI-133) */
     uint16_t hold_keys;                 /* tasti il cui rilascio aspetta (Hold) */
     uint8_t hold_chords;                /* tasti accordo idem */
@@ -49,7 +49,6 @@ typedef struct {
     int bassline;                       /* il basso che rotola (MIDI-142): figura BL_*, 0 = tenuto */
     uint8_t amb, amb_play;              /* il modulo AMBIENT (MIDI-143): acceso da T14; suona, o in pausa con M premuta */
     int amb_mood, amb_motion, amb_dens, amb_var;   /* atmosfera, movimento 0…10, note sparse 0…10, variazione 0…99 */
-    uint32_t drum_ms[12];               /* ultimo colpo di ogni tasto, per accendere il tasto sulla plancia */
 } sim_t;
 static sim_t S;                    /* una vetrina sola per processo */
 
@@ -822,20 +821,13 @@ static void press(vet_t *v, int enc)
 
 static void demo_release(vet_t *v);                 /* definita con la demo, più sotto */
 
-/* batteria a tastiera (ACC-211): i 12 tasti colpiscono gli strumenti del kit del Beat (ACC-212) e
- * i colpi entrano nel loop quantizzati; tipi, estensioni, basso e performance restano fermi */
+/* DRUMS (ACC-211): le manopole passano alla drum machine (MIDI-135, MIDI-139); la batteria si suona con i
+ * pad del banco B, mentre tastiera e tasti accordo restano all'ultimo suono scelto (Luigi, 24/10/2026) */
 static void drums_toggle(vet_t *v)
 {
-    amb_release(v);                                     /* il modulo AMBIENT riprende dopo, a tasti puliti */
-    amb_phys = 0;
+    amb_release(v);                                     /* il modulo AMBIENT tace sotto DRUMS e riprende dopo */
     S.drums = (uint8_t)!S.drums;
-    S.hold_keys = 0; S.hold_chords = 0;
-    for (int k = 0; k < 12; k++) ain(v, ACC_IN_KEY_UP, (uint8_t)k, 0);   /* niente accordi appesi */
-    for (int i = 0; i < 4; i++) {                       /* né tipi ed estensioni: il loro rilascio in modalità batteria si perde */
-        ain(v, ACC_IN_TYPE_UP, (uint8_t)i, 0);
-        ain(v, ACC_IN_EXT_UP, (uint8_t)i, 0);
-    }
-    if (!S.drums && S.amb && S.amb_play && amb_cur_ok) amb_press(v, amb_cur);
+    if (!S.drums && S.amb && S.amb_play && amb_cur_ok && !amb_phys) amb_press(v, amb_cur);
     overlay(v, OV_DRUMS, ENC_BPM, S.drums);
 }
 
@@ -848,10 +840,8 @@ static uint8_t accent(int vel)
 static void drum_hit(vet_t *v, int inst, int vel)
 {
     if (inst < 0 || inst >= 12) return;
-    if (vel) {
-        snd_push(v, VS_DRUM, 0, (uint8_t)inst, accent(vel));
-        S.drum_ms[inst] = v->now_ms;
-    } else snd_push(v, VS_DRUM_OFF, 0, (uint8_t)inst, 0);
+    if (vel) snd_push(v, VS_DRUM, 0, (uint8_t)inst, accent(vel));
+    else snd_push(v, VS_DRUM_OFF, 0, (uint8_t)inst, 0);
     v->m.plat.midi_in_ms = v->now_ms;
 }
 
@@ -932,27 +922,21 @@ static void handle(vet_t *v, const pnl_event_t *e)
 {
     switch (e->type) {
     case PNL_KEY_DOWN:
-        if (S.drums) drum_hit(v, e->a % 12, e->b ? e->b : 100);
-        else {
-            amb_user(v, 1u << (e->a % 12), true);   /* AMBIENT tace mentre si suona (MIDI-143) */
-            hold_release(v);
-            ain(v, ACC_IN_KEY_DOWN, e->a, e->b);
-            amb_user_chord(v);
-        }
+        amb_user(v, 1u << (e->a % 12), true);       /* AMBIENT tace mentre si suona (MIDI-143) */
+        hold_release(v);
+        ain(v, ACC_IN_KEY_DOWN, e->a, e->b);
+        amb_user_chord(v);
         break;
     case PNL_KEY_UP:
-        if (S.drums) { drum_hit(v, e->a % 12, 0); break; }        /* ferma il Roll */
         amb_user(v, 1u << (e->a % 12), false);
         if (S.hold) S.hold_keys |= (uint16_t)(1u << (e->a % 12));   /* Hold: il rilascio aspetta il tasto dopo */
         else ain(v, ACC_IN_KEY_UP, e->a, 0);
         break;
     case PNL_CHORD_DOWN:
-        if (S.drums) break;
         amb_user(v, 1u << (12 + (e->a & 7)), true);
         if (e->a < 4) ain(v, ACC_IN_TYPE_DOWN, e->a, 0); else ain(v, ACC_IN_EXT_DOWN, (uint8_t)(e->a - 4), 0);
         break;
     case PNL_CHORD_UP:
-        if (S.drums) break;
         amb_user(v, 1u << (12 + (e->a & 7)), false);
         if (S.hold) S.hold_chords |= (uint8_t)(1u << (e->a & 7));
         else chord_up(v, e->a);
@@ -1189,7 +1173,6 @@ static void demo_do(vet_t *v, const dstep_t *s)
     case D_MACRO: { pnl_event_t e = { PNL_MACRO, SRC_MACROPAD, (uint8_t)s->a, s->b, 0 }; handle(v, &e); break; }
     case D_HIT:
         snd_push(v, VS_DRUM, 0, (uint8_t)(s->a % 12), s->d ? s->d : 100);
-        S.drum_ms[s->a % 12] = v->now_ms;
         v->m.plat.midi_in_ms = v->now_ms;
         break;
     default: break;
@@ -1279,7 +1262,7 @@ static void demo_stop(vet_t *v)
 }
 
 /* la demo non parte da sola mentre si suona: un accordo che suona, il trasporto in moto (loop o
- * Beat), la batteria a tastiera accesa (Luigi, 15/10/2026: «è passato da solo al tema scuro») */
+ * Beat), DRUMS acceso (Luigi, 15/10/2026: «è passato da solo al tema scuro») */
 static bool busy(const vet_t *v)
 {
     if (v->acc.sounding || S.beat_on || S.drums || S.amb) return true;   /* con AMBIENT acceso lo strumento suona già */
@@ -1695,9 +1678,6 @@ static void fill_music(vet_t *v, ui_music_t *mu)
         for (int i = 0; i < s->treble.n; i++) { set_bit(mu->live_treble, s->treble.note[i]); mu->pc_sounding |= (uint16_t)(1u << (s->treble.note[i] % 12)); }
         if (s->bass_note >= 0) set_bit(mu->live_bass, s->bass_note);
     }
-    if (S.drums)                                           /* il tasto colpito si accende per un attimo (UI-150b) */
-        for (int k = 0; k < 12; k++)
-            if (S.drum_ms[k] && v->now_ms - S.drum_ms[k] < 150u) set_bit(mu->live_treble, 60 + k);
     if (v->have_last) {
         uint32_t since = v->now_ms - v->released_ms;
         mu->chord_state = sounding ? CH_SOUNDING : since < LINGER_MS ? CH_LINGER : v->m.prefs.ghost_chord ? CH_GHOST : CH_NONE;
@@ -1764,7 +1744,7 @@ static void fill_tempo_looper(vet_t *v, ui_model_t *m)
     t->beat_index = (uint8_t)(S.beat + 1);
     ui_fmt_copy(t->beat_name, sizeof t->beat_name, BEATS_NAME(S.beat % N_BEATS));
     t->beat_volume = (uint8_t)S.beat_volume;
-    t->drums_on = S.drums;                                /* batteria a tastiera (UI-097) */
+    t->drums_on = S.drums;                                /* DRUMS (UI-097) */
     t->metro_on = S.metro;                                /* metronomo di T3 (MIDI-133) */
     t->kit = (uint8_t)S.kit;                              /* drum machine (MIDI-135) */
     t->roll = (uint8_t)S.roll;

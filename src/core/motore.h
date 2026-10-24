@@ -97,8 +97,7 @@ void mot_set_bank(motore_t *m, const smp_bank_t *bank);
 /* nota del motore degli accordi: engine 0 = treble (passa dalla performance), 1 = basso; vel 0 = off */
 void mot_note(motore_t *m, int engine, uint8_t note, uint8_t vel);
 void mot_chord_start(motore_t *m);              /* KEY_DOWN di un accordo nuovo */
-/* batteria a tastiera (ACC-211): il tasto k (0 = Do … 11 = Si) colpisce lo strumento k del kit del
- * Beat (ACC-212) e, se il looper registra, entra nel loop quantizzato al sedicesimo più vicino della
+/* colpo di batteria (ACC-211, MIDI-135): lo strumento k (0…11, ACC-212) del kit del Beat e, se il looper registra, entra nel loop quantizzato al sedicesimo più vicino della
  * griglia del loop (da t0, l'inizio del giro), con lo swing se c'è (ACC-216) */
 void mot_drum(motore_t *m, uint8_t k, uint8_t vel);
 /* drum machine (MIDI-135): rilascio del tasto k (ferma il Roll), kit a mano (0 = quello del Beat),

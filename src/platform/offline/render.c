@@ -509,14 +509,15 @@ static int render_scene(const char *dir)
     sc_run(300);
     render_to(dir, "looper");
     sc_chord(false);
-    /* batteria a tastiera: T11 del pad, poi i tasti colpiscono il kit */
+    /* DRUMS: T11 del pad, poi la batteria dai pad del banco B (cassa, charleston, rullante); i tasti restano
+     * allo strumento */
     sc_pad(MPAD_T11);
     sc_run(200);
-    sc_midi(0x90, 60, 110); sc_run(60); sc_midi(0x80, 60, 0); sc_run(300);
-    sc_midi(0x90, 64, 90);  sc_run(60); sc_midi(0x80, 64, 0); sc_run(300);
-    sc_midi(0x90, 62, 110); sc_run(40);
+    sc_midi(0x99, 44, 110); sc_run(60); sc_midi(0x89, 44, 0); sc_run(300);
+    sc_midi(0x99, 48, 90);  sc_run(60); sc_midi(0x89, 48, 0); sc_run(300);
+    sc_midi(0x99, 45, 110); sc_run(40);
     render_to(dir, "drums");
-    sc_midi(0x80, 62, 0);
+    sc_midi(0x89, 45, 0);
     /* la batteria che si inventa (MIDI-139): il Beat suona già; m1 la accende nello stile del Beat, M alza
      * la densità, m2 cambia variazione, m1 premuta sceglie la cassa */
     sc_pad(MPAD_M1_CW); sc_run(120);

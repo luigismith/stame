@@ -33,7 +33,7 @@
  * mot_due non dice che è il momento (vet_snd_due). timed = 0: subito. */
 enum { VS_NOTE_ON, VS_NOTE_OFF, VS_CHORD_START, VS_PATCH, VS_PARAM, VS_MASTER, VS_BASS_VOL, VS_ALL_OFF,
        VS_BPM, VS_PERF, VS_BEAT, VS_METER, VS_BEAT_ON, VS_BEAT_VOL, VS_TRANSPOSE, VS_LOOP,
-       VS_DRUM,                         /* a = tasto 0…11, b = velocity: batteria a tastiera (ACC-211) */
+       VS_DRUM,                         /* a = strumento 0…11, b = velocity: un colpo di batteria (ACC-211) */
        VS_METRO, VS_FILL,               /* a = on: metronomo indipendente e Fill del Beat (MIDI-133) */
        VS_DRUM_OFF, VS_KIT, VS_ROLL,    /* drum machine (MIDI-135): a = tasto rilasciato, kit (0 = del Beat), tick del Roll */
        VS_INV, VS_INV_DENS,             /* batteria che si inventa (MIDI-139): a = stile, b = variazione; a = parte, b = densità */

@@ -311,7 +311,7 @@ static void test_due(void)
     CHECK(M.perf.active && M.perf.step == 1 && M.perf.next == 124);
 }
 
-/* ACC-211, ACC-212: batteria a tastiera nel loop, quantizzata al sedicesimo; il colpo suona dal vivo e al giro dopo */
+/* ACC-211, ACC-212: colpi di batteria nel loop, quantizzata al sedicesimo; il colpo suona dal vivo e al giro dopo */
 static void test_drum_loop(void)
 {
     static dsp_t D;
