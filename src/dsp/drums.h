@@ -51,7 +51,9 @@ typedef struct {
 } drum_rec_t;
 
 /* un kit sintetizzato della libreria: nome, stile e i dodici strumenti nell'ordine di ACC-212 */
-typedef struct { const char *name, *style; drum_rec_t r[DRUM_KIT_INST]; } drum_kit_t;
+/* `set`: il set del banco che lo suona a campioni, se c'è (SND-544), oppure NULL; dove il set manca o non ha
+ * lo strumento suona la ricetta */
+typedef struct { const char *name, *style, *set; drum_rec_t r[DRUM_KIT_INST]; } drum_kit_t;
 
 #include "drum_kits.h"          /* DRUM_SYNTH_KITS e gli indici DK_KIT_* (generato da tools/kits.py) */
 extern const drum_kit_t drum_kits[DRUM_SYNTH_KITS];
@@ -89,6 +91,7 @@ typedef struct {
     const smp_bank_t *bank;     /* banco e kit in uso (NULL = tutto sintesi) */
     const smp_set_t *kit;
     const drum_kit_t *syn;      /* kit sintetizzato della libreria (NULL = il Chip di sempre) */
+    uint8_t rr[DRUM_KIT_INST];  /* colpi alternati: il prossimo campione di ogni strumento (SND-544) */
     drum_voice_t v[DRUM_VOICES];
     /* FX del bus: valori attuali, che seguono i bersagli a blocchi (15 ms), e stati */
     float fx_a;                 /* coefficiente per blocco dell'inseguimento */

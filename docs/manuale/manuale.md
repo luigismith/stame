@@ -90,7 +90,7 @@ Dove stanno: K1 Sound, K2 Perform, K3 FX, K4 Key / K5 Bass, K6 Loop, K7 BPM, K8 
 | **Key** | la tonalità (accende la Key mode) | Key mode on/off | previsto: scelta rapida | **Transpose** ±12 |
 | **Bass** | i 38 bassi (Round Root, Sub Floor, Pluck Bass, Reed Bass, Velvet Sub, Wood Bass, Taproot, Peat Sub, Bark Bass, Pod Bass, Thorn Bass, Moss Sub, Reese Root, Acid Sedge, Henbane Sub, Fen Rumble, Spore Bass, Ironroot, Hemlock 303, Square Acid, Abyss Sub, Growl Reese, Detroit Sub, Coal FM Bass e, dal 22/10, i quattordici profondi e per la psy e la trance, §4.3) | basso on/off | previsto: lista dei modi | — |
 | **Loop** | con il loop in corso sceglie fra le tre voci in Z3 (OVERDUB, PAUSE, CLEAR o UNDO; STOP, PLAY…) | da fermo **REC** (con un loop messo da parte con T10, lo riprende); altrimenti esegue la voce scelta | previsto: 2 s = Save Loop / uscita morbida (oggi T10 del pad) | — |
-| **BPM** | 60…200 (o il **tap tempo** su T2) | Beat o metronomo on/off (anche STOP/PLAY della MPK) | lista: **2/4, 3/4, 4/4, 6/8** (metronomo) e i 64 Beat, ognuno con il suo kit: i diciannove di sempre (**Funk, Bossa, Motorik, Lounge, Shuffle, Halftime, Boom Bap, Disco, Samba, Ballad, Train, Chip, Techno, Dub, Acid, Industrial, Minimal, Electro, Trap**, con i kit studio, jazz, 808, techno e la sintesi Chip) e, dal 19/10, 41 di genere con i kit della libreria sintetizzata, più Trance, Psytrance, Goa e Progressive dal 22/10 (§6.4) | **Beat Volume** 0…99 |
+| **BPM** | 60…200 (o il **tap tempo** su T2) | Beat o metronomo on/off (anche STOP/PLAY della MPK) | lista: **2/4, 3/4, 4/4, 6/8** (metronomo) e i 64 Beat, ognuno con il suo kit: i diciannove di sempre (**Funk, Bossa, Motorik, Lounge, Shuffle, Halftime, Boom Bap, Disco, Samba, Ballad, Train, Chip, Techno, Dub, Acid, Industrial, Minimal, Electro, Trap**, con i kit studio, jazz, 808, techno e la sintesi Chip) e, dal 19/10, 41 di genere con i kit della libreria, più Trance, Psytrance, Goa e Progressive dal 22/10 (§6.4) | **Beat Volume** 0…99 |
 | **Volume** | volume master 0…99 | batteria della Flip | — | **Bass Volume** 0…99 |
 | **Options** | cambia la vista (fuori dalla lista) | lista: Exit, View, Play Style, Single Notes, Secret Chords | — | — |
 | **Chord Voicing** (M) | finestra ±1 semitono per scatto; con AMBIENT acceso, le note sparse (§3.1) | Split ↔ Octave | — | — |
@@ -305,7 +305,7 @@ Stessa filosofia degli accordi: premi tasti, muovi manopole, il loop di batteria
 
 - **I pad del banco B** della MPK sono otto pad di batteria con la velocity, sempre, anche senza DRUMS: premi BANK e suoni la batteria sopra gli accordi del loop. Fila bassa cassa, rullante, rimshot, battimani; fila alta charleston chiuso e aperto, tom basso, piatto.
 - Con **DRUMS acceso** cinque manopole cambiano mestiere, e le celle lo scrivono:
-  - **K1 KIT**: il kit, fra quarantatré (Beat = quello del Beat scelto, poi Studio, Jazz, 808, Techno, Chip e i 38 della libreria sintetizzata, §6.4); **SHIFT + K1** apre la lista dei kit;
+  - **K1 KIT**: il kit, fra quarantatré (Beat = quello del Beat scelto, poi Studio, Jazz, 808, Techno, Chip e i 38 della libreria, §6.4); **SHIFT + K1** apre la lista dei kit;
   - **K2 ROLL**: tieni un pad e il colpo si ripete a tempo: Off, 1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32. Il primo colpo è il tuo, le ripetizioni entrano nel loop sulla griglia;
   - **K3 DRIVE**: sporca la batteria, da 0 (pulita) a 10 (schiacciata e grossa). **SHIFT + K3 girata** è il **filtro**: a sinistra chiude gli alti (LP, fino a una batteria sorda, da dub), a destra toglie i bassi (HP, fino a una batteria sottile, da build-up); 0 è spento. Il metronomo non passa dall'effetto;
   - **K4 SWING**: sposta in avanti i sedicesimi in levare, da Off (dritto) a 75 % (quasi terzina). Vale per il Beat, per il loop inventato, per i colpi di batteria del loop e per il Roll, anche quelli già registrati;
@@ -336,50 +336,50 @@ Con **DRUMS acceso** sei in modalità crea: le tre manopole del pad inventano il
 
 ![La lista dei kit (SHIFT + K1 sotto DRUMS): numero, nome, SMP o SYN e lo stile](img/lista_kit.png)
 
-Oltre ai quattro kit di campioni e al Chip ci sono **38 kit sintetizzati**: niente campioni, ogni colpo nasce da oscillatori, rumore e filtri, come una drum machine vera. Suonano anche senza il banco dei campioni. Si scelgono con **K1** sotto DRUMS (il numero è quello della tabella) o dalla **lista dei kit**: **SHIFT + K1**, la manopola di navigazione scorre, premuta sceglie; il kit vale subito, anche sul Beat che suona, e la lista resta aperta per provarne un altro. «Beat» (0) torna al kit del Beat o dello stile.
+Oltre ai quattro kit di campioni e al Chip ci sono i **38 kit della libreria**. Dal 05/11/2026 ventisei suonano **registrazioni vere** (SMP nella lista): batterie acustiche e percussioni, e le drum machine vere registrate dall'uscita: la 808, la 909, la 707 e la 606 della TR-8, la Yamaha RX5, la Alesis DR-5. Gli altri dodici sono **sintetizzati** (SYN): ogni colpo nasce da oscillatori, rumore e filtri, perché quei suoni sono sintesi per natura (Syndrum, tom elettronici, chip, rumori). Senza il banco dei campioni anche i ventisei suonano, con la loro versione sintetizzata. Si scelgono con **K1** sotto DRUMS (il numero è quello della tabella) o dalla **lista dei kit**: **SHIFT + K1**, la manopola di navigazione scorre, premuta sceglie; il kit vale subito, anche sul Beat che suona, e la lista resta aperta per provarne un altro. «Beat» (0) torna al kit del Beat o dello stile.
 
-| K1 | Kit | Com'è |
-|---:|---|---|
-| 1–4 | Studio, Jazz, 808, Techno | i campioni di sempre |
-| 5 | Chip | la sintesi in stile CR-78 di sempre |
-| 6 | 808 Boom | la cassa lunga e tonda, i charleston a sei onde quadre |
-| 7 | 808 Trap | la cassa che dura due secondi e satura, charleston stretti |
-| 8 | 909 House | la cassa con lo schiocco, il rullante largo, il ride |
-| 9 | 909 Rave | la stessa, schiacciata dal drive |
-| 10 | CR Rhythm | la scatola ritmica dei preset: claves, tamburello, bongo |
-| 11 | 606 Tick | leggera e sottile |
-| 12 | Hex Toms | i tom elettronici che cadono |
-| 13 | Syndrum Disco | i «piu piu» della disco |
-| 14 | Robot Pop | colpi di filtro: l'electro dei robot |
-| 15 | Linn Pop | gli anni Ottanta: battente, rullante grosso, tamburello |
-| 16 | Gated 80s | rullante e tom con il gate |
-| 17 | Minimal Click | clic, tic e bip |
-| 18 | Dub Yard | tonda, profonda, scura |
-| 19 | 2-Step | secca e schioccante, per la garage |
-| 20 | Jungle | acustica accordata in alto, con la grana del campionatore |
-| 21 | Iron Mill | metallo distorto: incudini e lamiera |
-| 22 | Scrap Yard | latte, bidoni e molle |
-| 23 | Glitch Bits | colpi tagliati, pochi bit, un piatto al contrario |
-| 24 | Data Rot | la macchina guasta |
-| 25 | Laser Lab | zap e laser |
-| 26 | Lo-Fi Dust | attutita e polverosa |
-| 27 | Tape Crate | il boom bap del vinile |
-| 28 | 8-Bit | le quadre e il rumore di una console |
-| 29 | Arcade | zap, power-up e monetine |
-| 30 | Acoustic Room | una batteria acustica, sintetizzata |
-| 31 | Brushes | spazzole, feltro e ride |
-| 32 | Stadium Rock | la batteria grande, con il drive |
-| 33 | Afro Hand | djembe, dundun, shekere, campana |
-| 34 | Tabla Mist | tabla, manjira, ghungroo |
-| 35 | Gamelan | kendang, bonang, saron, kempul, gong |
-| 36 | Latin Perc | surdo, timbales, claves, guiro, campana, agogo |
-| 37 | Taiko | odaiko, shime, legni, kane |
-| 38 | Darbuka Sand | doum e tek, riq, bendir, cimbalini |
-| 39 | Cajon Box | cajón, palmas, shaker, woodblock |
-| 40 | Deep Space | morbida e lontana; il piatto cresce |
-| 41 | Psy Forest | la psytrance: la cassa stretta che lascia il posto al basso che rotola, l'aperto metallico, i blip |
-| 42 | Goa Temple | la Goa: il 909 spinto, il tamburo a mano, la campanella |
-| 43 | Trance Arena | la trance: la cassa lunga, il battimani largo, il piatto del ritorno |
+| K1 | Kit | Suono | Com'è |
+|---:|---|---|---|
+| 1–4 | Studio, Jazz, 808, Techno | campioni | una batteria vera (Studio, Jazz), la 808 vera, la 909 con il ride |
+| 5 | Chip | sintesi | la sintesi in stile CR-78 di sempre |
+| 6 | 808 Boom | campioni | la 808 vera: la cassa lunga e chiara |
+| 7 | 808 Trap | campioni | la 808 vera: la cassa più lunga e scura, il rullante secco |
+| 8 | 909 House | campioni | la 909 (TR-8): la cassa con lo schiocco, il battimani, il crash |
+| 9 | 909 Rave | campioni | la 909 con l'attacco spinto, il battimani e i tom lunghi |
+| 10 | CR Rhythm | sintesi | la scatola ritmica dei preset: claves, tamburello, bongo |
+| 11 | 606 Tick | campioni | la 606 (TR-8): leggera e sottile |
+| 12 | Hex Toms | sintesi | i tom elettronici che cadono |
+| 13 | Syndrum Disco | sintesi | i «piu piu» della disco |
+| 14 | Robot Pop | campioni | la 707 (TR-8): l'electro degli anni Ottanta |
+| 15 | Linn Pop | campioni | la Yamaha RX5: i campioni digitali degli anni Ottanta |
+| 16 | Gated 80s | campioni | cassa e rullante con il gate (DR-5), i tom pesanti (RX5) |
+| 17 | Minimal Click | campioni | corta e asciutta: la cassa stretta, il rullante piccolo, lo schiocco |
+| 18 | Dub Yard | campioni | il rullante reggae, i tom d'ambiente (DR-5) |
+| 19 | 2-Step | campioni | cassa e rullante house, i metalli della 909 |
+| 20 | Jungle | campioni | acustica e asciutta, il rullante piccolo e brillante dei break |
+| 21 | Iron Mill | sintesi | metallo distorto: incudini e lamiera |
+| 22 | Scrap Yard | sintesi | latte, bidoni e molle |
+| 23 | Glitch Bits | sintesi | colpi tagliati, pochi bit, un piatto al contrario |
+| 24 | Data Rot | sintesi | la macchina guasta |
+| 25 | Laser Lab | sintesi | zap e laser |
+| 26 | Lo-Fi Dust | campioni | la cassa ovattata, il rullante «radio», i tom spazzolati |
+| 27 | Tape Crate | campioni | la batteria jazz della RX5: il boom bap |
+| 28 | 8-Bit | sintesi | le quadre e il rumore di una console |
+| 29 | Arcade | sintesi | zap, power-up e monetine |
+| 30 | Acoustic Room | campioni | una batteria vera, registrata in una stanza |
+| 31 | Brushes | campioni | spazzole vere, il ride spazzolato |
+| 32 | Stadium Rock | campioni | la batteria vera: la cassa sporca, il rullante sul cerchio |
+| 33 | Afro Hand | campioni | tamburo a cornice, tamburo a fessura, conghe, campane |
+| 34 | Tabla Mist | campioni | i bol della tabla |
+| 35 | Gamelan | sintesi | kendang, bonang, saron, kempul, gong |
+| 36 | Latin Perc | campioni | tumba, conghe, bongó, claves, güiro, campanaccio, agogô |
+| 37 | Taiko | campioni | la grancassa come odaiko, il tamburo tenore, la piastra dei freni come kane |
+| 38 | Darbuka Sand | campioni | i colpi della darbuka, il tamburello come riq, i cimbalini |
+| 39 | Cajon Box | campioni | il cajón, le mani, lo shaker, l'agogô |
+| 40 | Deep Space | sintesi | morbida e lontana; il piatto cresce |
+| 41 | Psy Forest | campioni | la psytrance: la cassa corta della 909 che lascia il posto al basso che rotola, i metalli corti |
+| 42 | Goa Temple | campioni | la Goa: 909 e 808, le conghe e l'agogô della 727, la campana a stella |
+| 43 | Trance Arena | campioni | la trance: la 909 con l'attacco, il battimani lungo, il crash |
 
 Nei kit del mondo i tasti non cambiano ruolo: Do resta il tamburo grave, Re e Re♯ i colpi secchi, Mi e Fa♯ i sonagli, La♯ la campana.
 

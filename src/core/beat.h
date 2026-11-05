@@ -37,6 +37,9 @@ const char *beat_name(int b);
  * etichetta, stile («samples», «classic» per il Chip, quello della libreria) e ricetta (NULL = campioni o
  * Chip). Fuori dai limiti: NULL e "" */
 const char *beat_kit_name(int i);
+/* il set del banco che suona il kit i: quello dei quattro a campioni, o quello di un kit della libreria che ha
+ * anche i campioni (SND-544); NULL = sintesi */
+const char *beat_kit_set(int i);
 const char *beat_kit_label(int i);
 const char *beat_kit_style(int i);
 const drum_kit_t *beat_kit_synth(int i);

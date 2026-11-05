@@ -8,8 +8,8 @@
 #define STAME_DSP_SMP_H
 #include "../core/stame_base.h"
 
-#define SMP_SETS_MAX  64
-#define SMP_ZONES_MAX 640
+#define SMP_SETS_MAX  96
+#define SMP_ZONES_MAX 2048          /* dal 05/11/2026: i kit a campioni hanno strati di velocity e colpi alternati */
 #define SMP_NAME      24
 #define SMP_HEADER    20
 #define SMP_SET_REC   32

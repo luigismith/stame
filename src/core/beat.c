@@ -357,6 +357,7 @@ static const char *const KIT_SET[KIT_SYNTH0] STAME_ROM = { "kit_studio", "kit_ja
 static const char *const KIT_LABEL[KIT_SYNTH0] STAME_ROM = { "Studio", "Jazz", "808", "Techno", "Chip" };
 
 const char *beat_kit_name(int i) { return i >= 0 && i < KIT_SYNTH0 ? KIT_SET[i] : NULL; }
+const char *beat_kit_set(int i) { return i >= KIT_SYNTH0 && i < KIT_COUNT ? drum_kits[i - KIT_SYNTH0].set : beat_kit_name(i); }
 
 const char *beat_kit_label(int i)
 {

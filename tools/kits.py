@@ -97,6 +97,22 @@ def kit(nome, stile, **strumenti):
     return (nome, stile, [strumenti[i] for i in INST])
 
 
+# i kit della libreria che suonano anche a campioni (SND-544, 05/11/2026, Luigi: «i suoni delle batterie fanno
+# veramente pena»): il set del banco con le registrazioni (tools/campioni.py). Dove il set manca, o il banco non
+# c'è, suona la ricetta qui sotto. Poi (stesso giorno: «vedi se se ne trovano di già fatti pronti da usare») anche
+# le elettroniche: le registrazioni vere di 808, 909, 707, 606, RX5 e DR-5. Restano a sintesi i kit che sono
+# sintesi per natura (Syndrum, Simmons, chip, industriale, glitch, fantascienza, Gamelan, Deep Space, CR Rhythm).
+SET = {
+    'Acoustic Room': 'kit_room', 'Stadium Rock': 'kit_rock', 'Brushes': 'kit_brushes', 'Cajon Box': 'kit_cajon',
+    'Darbuka Sand': 'kit_darbuka', 'Latin Perc': 'kit_latin', 'Afro Hand': 'kit_afro', 'Tabla Mist': 'kit_tabla',
+    'Taiko': 'kit_taiko',
+    '808 Boom': 'kit_808boom', '808 Trap': 'kit_808trap', '909 House': 'kit_909', '909 Rave': 'kit_909rave',
+    '606 Tick': 'kit_606', 'Robot Pop': 'kit_707', 'Linn Pop': 'kit_rx5', 'Gated 80s': 'kit_80s',
+    'Minimal Click': 'kit_minimal', 'Dub Yard': 'kit_dub', '2-Step': 'kit_2step', 'Jungle': 'kit_jungle',
+    'Lo-Fi Dust': 'kit_lofi', 'Tape Crate': 'kit_tape', 'Trance Arena': 'kit_trance', 'Psy Forest': 'kit_psy',
+    'Goa Temple': 'kit_goa',
+}
+
 # ---- la libreria: 38 kit dopo i cinque di sempre (Studio, Jazz, 808, Techno a campioni, Chip) ----
 KITS = [
     # drum machine analogiche
@@ -684,7 +700,7 @@ def ident(nome):
 
 def main():
     nomi = [k[0] for k in KITS]
-    assert len(set(nomi)) == len(nomi)
+    assert len(set(nomi)) == len(nomi) and set(SET) <= set(nomi)
     c = ['/* drum_kits.c — la libreria dei kit di batteria sintetizzati (specifica 20, SND-540…SND-543).',
          ' * Generato da tools/kits.py: non modificare a mano. Ricette di Stame, progettate sul carattere del nome. */',
          '#include "drums.h"', '',
@@ -693,7 +709,7 @@ def main():
          'const drum_kit_t drum_kits[DRUM_SYNTH_KITS] STAME_ROM = {']
     mancano = 0
     for nome, stile, ricette in KITS:
-        c.append('    { "%s", "%s", {' % (nome, stile))
+        c.append('    { "%s", "%s", %s, {' % (nome, stile, '"%s"' % SET[nome] if nome in SET else 'NULL'))
         picchi = PICCO_DB.get(nome)
         for i, p in enumerate(ricette):
             if picchi:

@@ -116,6 +116,29 @@ static void rec_start(const drums_t *k, drum_voice_t *v, const drum_rec_t *r)
 
 static void hit(drums_t *k, uint8_t inst, uint8_t vel, uint8_t prog);
 
+/* la zona del kit per uno strumento (SND-544): lo strato di velocity più alto non oltre vel, come
+ * smp_zone_for; se lo strato ha più zone (colpi alternati della stessa forza) le prende a giro, così due
+ * colpi di fila non sono mai lo stesso campione */
+static const smp_zone_t *zona_kit(drums_t *k, uint8_t inst, uint8_t vel)
+{
+    const smp_set_t *s = k->kit;
+    int best = -1, n = 0;
+    for (int i = 0; i < s->n; i++) {
+        const smp_zone_t *z = &k->bank->zones[s->first + i];
+        if (inst < z->lo || inst > z->hi || z->vel_lo > vel) continue;
+        if (z->vel_lo > best) { best = z->vel_lo; n = 0; }
+        if (z->vel_lo == best) n++;
+    }
+    if (n == 0) return NULL;
+    int pick = inst < DRUM_KIT_INST ? k->rr[inst]++ % n : 0;
+    for (int i = 0; i < s->n; i++) {
+        const smp_zone_t *z = &k->bank->zones[s->first + i];
+        if (inst < z->lo || inst > z->hi || z->vel_lo != best) continue;
+        if (pick-- == 0) return z;
+    }
+    return NULL;
+}
+
 void drums_hit(drums_t *k, uint8_t inst, uint8_t vel) { hit(k, inst, vel, 0); }
 
 void drums_hit_prog(drums_t *k, uint8_t inst, uint8_t vel)
@@ -145,7 +168,7 @@ static void hit(drums_t *k, uint8_t inst, uint8_t vel, uint8_t prog)
     v->gl = cosf(th);
     v->gr = sinf(th);
     v->e1 = v->e2 = v->e3 = 1.0f;
-    v->z = k->kit ? smp_zone_for(k->bank, k->kit, inst, vel) : NULL;
+    v->z = k->kit ? zona_kit(k, inst, vel) : NULL;
     if (v->z) {                                                    /* campione: l'inviluppo è nel file */
         v->d1 = v->d2 = v->d3 = 1.0f;                              /* d1 scende solo se lo strozza il chiuso */
         v->inc = (float)v->z->rate * k->inv_fs;

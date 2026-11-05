@@ -282,7 +282,8 @@ static int render_suoni(const char *dir)
 
 /* ---- la libreria dei kit sintetizzati (SND-542): per ogni strumento di ogni kit il picco mono di un colpo
  * a 127 con guadagno 1, come dizionario PICCO_DB da incollare in tools/kits.py; e per ogni kit un WAV
- * d'ascolto, <cartella>/kit_NN.wav: i dodici strumenti uno dopo l'altro, poi due battute del Funk ---- */
+ * d'ascolto, <cartella>/kit_NN.wav: i dodici strumenti uno dopo l'altro, poi due battute del Funk; il WAV
+ * suona i campioni del kit se il banco c'è e il kit ha un set (SND-544), come sulla Flip ---- */
 static int render_kits(const char *dir)
 {
     static drums_t k;
@@ -317,6 +318,8 @@ static int render_kits(const char *dir)
         wav_header(f, 0);
         drums_init(&k, 48000.0f, 7);
         drums_volume(&k, 72);
+        if (bank && drum_kits[ki].set)                        /* come apply_kit: i campioni, se il banco li ha */
+            drums_set_kit(&k, bank, smp_set_find(bank, drum_kits[ki].set));
         drums_set_synth(&k, &drum_kits[ki]);
         uint32_t frames = 0;
         const uint32_t step16 = 6000u;                       /* un sedicesimo a 120 BPM */

@@ -53,11 +53,37 @@ enum {
     SMP_SET_CHOIR_KIDS = 46,        /* 7 zone */
     SMP_SET_VOICE_FEMALE = 47,      /* 10 zone */
     SMP_SET_VOICE_MALE = 48,        /* 10 zone */
-    SMP_SET_KIT_STUDIO = 49,        /* 13 zone */
-    SMP_SET_KIT_JAZZ = 50,          /* 13 zone */
+    SMP_SET_KIT_STUDIO = 49,        /* 64 zone */
+    SMP_SET_KIT_JAZZ = 50,          /* 61 zone */
     SMP_SET_KIT_808 = 51,           /* 12 zone */
     SMP_SET_KIT_TECHNO = 52,        /* 12 zone */
-    SMP_SET_COUNT = 53
+    SMP_SET_KIT_ROOM = 53,          /* 65 zone */
+    SMP_SET_KIT_ROCK = 54,          /* 66 zone */
+    SMP_SET_KIT_BRUSHES = 55,       /* 56 zone */
+    SMP_SET_KIT_CAJON = 56,         /* 41 zone */
+    SMP_SET_KIT_DARBUKA = 57,       /* 37 zone */
+    SMP_SET_KIT_LATIN = 58,         /* 39 zone */
+    SMP_SET_KIT_AFRO = 59,          /* 37 zone */
+    SMP_SET_KIT_TABLA = 60,         /* 26 zone */
+    SMP_SET_KIT_TAIKO = 61,         /* 42 zone */
+    SMP_SET_KIT_808BOOM = 62,       /* 12 zone */
+    SMP_SET_KIT_808TRAP = 63,       /* 12 zone */
+    SMP_SET_KIT_909 = 64,           /* 12 zone */
+    SMP_SET_KIT_909RAVE = 65,       /* 12 zone */
+    SMP_SET_KIT_606 = 66,           /* 12 zone */
+    SMP_SET_KIT_707 = 67,           /* 12 zone */
+    SMP_SET_KIT_RX5 = 68,           /* 12 zone */
+    SMP_SET_KIT_80S = 69,           /* 12 zone */
+    SMP_SET_KIT_MINIMAL = 70,       /* 12 zone */
+    SMP_SET_KIT_DUB = 71,           /* 12 zone */
+    SMP_SET_KIT_2STEP = 72,         /* 12 zone */
+    SMP_SET_KIT_JUNGLE = 73,        /* 12 zone */
+    SMP_SET_KIT_LOFI = 74,          /* 12 zone */
+    SMP_SET_KIT_TAPE = 75,          /* 12 zone */
+    SMP_SET_KIT_TRANCE = 76,        /* 12 zone */
+    SMP_SET_KIT_PSY = 77,           /* 12 zone */
+    SMP_SET_KIT_GOA = 78,           /* 12 zone */
+    SMP_SET_COUNT = 79
 };
 
 #endif

@@ -119,73 +119,19 @@ STRUMENTI = [
     ('wine_glasses', 'Idiophones/Friction Idiophones/Wine Glasses/Sustains/Slow', r'glass\d_(?P<n>[A-G]#?\d)_Slow_\d_Main\.wav', 1, True, 3.0, 12),
 ]
 
-# ---- i kit: strumento → (fonte, file, velocity minima del layer); V = VCSL, S = Sonic Pi ----
-V = 'V'
-S = 'S'
-KIT = {
-    'kit_studio': [
-        (KICK, V, 'Membranophones/Struck Membranophones/Bass Drum 1/BDrumNew_hit_v5_rr1_Sum.wav', 0),
-        (RIM, V, 'Membranophones/Struck Membranophones/Snare Drum, Modern 2/Snare3M_Xstick_v2_rr1_Mid.wav', 0),
-        (SNARE, V, 'Membranophones/Struck Membranophones/Snare Drum, Modern 1/Snare2_HitSN_v6_rr1_Mid.wav', 0),
-        (SNARE, V, 'Membranophones/Struck Membranophones/Snare Drum, Modern 1/Snare2_HitSN_v9_rr1_Mid.wav', 100),
-        (CLAP, V, 'Idiophones/Struck Idiophones/Claps/Clap_rr1.wav', 0),
-        (CHAT, V, 'Idiophones/Struck Idiophones/Hi-Hat Cymbal/HiHat_HitC_v3_rr1_Mid.wav', 0),
-        (OHAT, V, 'Idiophones/Struck Idiophones/Hi-Hat Cymbal/HiHat_HitO_rr1_Mid.wav', 0),
-        (TOMLO, V, 'Membranophones/Struck Membranophones/Tom 2/Stick/TomL_HitS_v3_rr1_Mid.wav', 0),
-        (TOMHI, V, 'Membranophones/Struck Membranophones/Tom 1/Stick/TomH_HitS_v3_rr1_Mid.wav', 0),
-        (MARACAS, V, 'Idiophones/Struck Idiophones/Shaker, Small/Mid_ShakerHighFaster_Down_rr1.wav', 0),
-        (CONGA, V, 'Membranophones/Struck Membranophones/Conga/Conga_HitN_v2_rr1_Sum.wav', 0),
-        (COWBELL, V, 'Idiophones/Struck Idiophones/Cowbells/Cowbell1_Hit_v3_rr1_Mid.wav', 0),
-        (CYMBAL, V, 'Idiophones/Struck Idiophones/Suspended Cymbal 1/susCymb1_hit_f1.wav', 0),
-    ],
-    'kit_jazz': [
-        (KICK, S, 'bd_jazz.flac', 0),
-        (RIM, V, 'Membranophones/Struck Membranophones/Snare Drum, Modern 2/Snare3M_Xstick_v2_rr2_Mid.wav', 0),
-        (SNARE, S, 'drum_snare_soft.flac', 0),
-        (SNARE, S, 'drum_snare_hard.flac', 100),
-        (CLAP, S, 'perc_snap2.flac', 0),
-        (CHAT, S, 'drum_cymbal_closed.flac', 0),
-        (OHAT, S, 'drum_cymbal_open.flac', 0),
-        (TOMLO, S, 'drum_tom_lo_soft.flac', 0),
-        (TOMHI, S, 'drum_tom_hi_soft.flac', 0),
-        (MARACAS, V, 'Idiophones/Struck Idiophones/Cabasa/Cabasa1_Rub_v1_rr1_Mid.wav', 0),
-        (CONGA, V, 'Membranophones/Struck Membranophones/Conga/Quinto_HitN_v2_rr1_Sum.wav', 0),
-        (COWBELL, S, 'drum_cowbell.flac', 0),
-        (CYMBAL, S, 'drum_cymbal_soft.flac', 0),
-    ],
-    'kit_808': [
-        (KICK, S, 'bd_808.flac', 0),
-        (RIM, S, 'elec_wood.flac', 0),
-        (SNARE, S, 'sn_dub.flac', 0),
-        (CLAP, S, 'perc_snap.flac', 0),
-        (CHAT, S, 'drum_cymbal_closed.flac', 0),
-        (OHAT, S, 'drum_cymbal_open.flac', 0),
-        (TOMLO, S, 'drum_tom_lo_hard.flac', 0),
-        (TOMHI, S, 'drum_tom_hi_hard.flac', 0),
-        (MARACAS, S, 'elec_tick.flac', 0),
-        (CONGA, S, 'elec_bong.flac', 0),
-        (COWBELL, S, 'drum_cowbell.flac', 0),
-        (CYMBAL, S, 'elec_cymbal.flac', 0),
-    ],
-    # 15/10/2026 sera: il kit dei Beat Techno e Dub, scelto misurando i candidati (durata, coda a −40 dB,
-    # baricentro, energia sotto 150 Hz): cassa profonda, charleston chiuso di 60 ms e aperto di 0,36 s
-    'kit_techno': [
-        (KICK, S, 'bd_klub.flac', 0),
-        (RIM, S, 'elec_pop.flac', 0),
-        (SNARE, S, 'elec_hi_snare.flac', 0),
-        (CLAP, V, 'Idiophones/Struck Idiophones/Claps/Clap_rr1.wav', 0),
-        (CHAT, S, 'hat_bdu.flac', 0),
-        (OHAT, S, 'hat_gump.flac', 0),
-        (TOMLO, S, 'elec_fuzz_tom.flac', 0),
-        (TOMHI, S, 'drum_tom_mid_hard.flac', 0),
-        (MARACAS, S, 'hat_noiz.flac', 0),
-        (CONGA, S, 'elec_bong.flac', 0),
-        (COWBELL, S, 'elec_ping.flac', 0),
-        (CYMBAL, S, 'ride_tri.flac', 0),
-    ],
-}
-KIT_SECONDI = {CYMBAL: 3.0, OHAT: 2.0}
-DEFAULT_KIT_S = 1.5
+# ---- i kit di batteria: in tools/batterie.py (SND-537, SND-544), a 48 kHz ----
+from batterie import V, S, R, U, F, M                      # noqa: E402
+import batterie                                            # noqa: E402
+FS_KIT = 48000
+GH = 'https://raw.githubusercontent.com/'
+# i repository su GitHub delle fonti dei kit: per scaricare e per controllare che i file esistano
+REPO = {R: 'sfzinstruments/karoryfer.big-rusty-drums', U: 'sfzinstruments/karoryfer.unruly-drums',
+        F: 'tidalcycles/sounds-tr808-fischer', M: 'MckAudio/MckSamplePacks'}
+FONTE = {V: (VCSL, 'vcsl', 'VCSL, CC0'), S: (SONIC, 'sonicpi', 'Sonic Pi (freesound), CC0'),
+         R: (GH + REPO[R] + '/main/', 'rusty', 'Karoryfer Big Rusty Drums, CC0'),
+         U: (GH + REPO[U] + '/main/', 'unruly', 'Karoryfer Unruly Drums, CC0'),
+         F: (GH + REPO[F] + '/main/', 'tr808fischer', 'Michael Fischer, Roland TR-808 Sample Set (tidalcycles), CC0'),
+         M: (GH + REPO[M] + '/main/', 'mcksamplepacks', 'MckAudio MckSamplePacks (TR-8, RX5, DR-5), CC0')}
 
 
 def midi(name):
@@ -194,11 +140,11 @@ def midi(name):
 
 
 def url_of(fonte, path):
-    return (VCSL if fonte == V else SONIC) + urllib.parse.quote(path)
+    return FONTE[fonte][0] + urllib.parse.quote(path)
 
 
 def scarica(fonte, path):
-    dest = os.path.join(CACHE, 'vcsl' if fonte == V else 'sonicpi', *path.split('/'))
+    dest = os.path.join(CACHE, FONTE[fonte][1], *path.split('/'))
     if os.path.exists(dest) and os.path.getsize(dest) > 0:
         return dest
     os.makedirs(os.path.dirname(dest), exist_ok=True)
@@ -224,10 +170,10 @@ def leggi(path):
     return x.mean(axis=1), fs
 
 
-def ricampiona(x, fs_in):
-    if fs_in == FS:
+def ricampiona(x, fs_in, fs_out=FS):
+    if fs_in == fs_out:
         return x
-    n_out = int(round(len(x) * FS / fs_in))
+    n_out = int(round(len(x) * fs_out / fs_in))
     X = np.fft.rfft(x)
     k = n_out // 2 + 1
     Y = X[:k] if k <= len(X) else np.concatenate([X, np.zeros(k - len(X))])
@@ -240,11 +186,11 @@ def inviluppo(x, finestra):
     return a[:n].reshape(-1, finestra).max(axis=1)
 
 
-def prepara(x, fs_in, loop, max_s):
-    """mono già fatto: ricampiona, taglia la testa, normalizza; poi coda o loop. Restituisce
-    (int16, loop_start, loop_end)."""
+def prepara(x, fs_in, loop, max_s, FS=FS):
+    """mono già fatto: ricampiona (a FS, o a FS_KIT per le batterie), taglia la testa, normalizza; poi coda o
+    loop. Restituisce (int16, loop_start, loop_end)."""
     x = x - x.mean()
-    x = ricampiona(x, fs_in)
+    x = ricampiona(x, fs_in, FS)
     pk = np.abs(x).max()
     if pk <= 0:
         sys.exit('campione muto')
@@ -517,15 +463,77 @@ def zone_strumento(nome, cartella, rx, passo, loop, max_s, oct_nome, fonti):
     return zone
 
 
-def zone_kit(nome, voci, fonti):
-    zone = []
-    for inst, fonte, path, vel_lo in voci:
+def leggi_colpo(colpo):
+    """un colpo: la somma pesata dei suoi microfoni, in mono, alla frequenza del primo"""
+    somma, fs0 = None, None
+    for fonte, path, peso in colpo:
         x, fs = leggi(scarica(fonte, path))
-        y, ls, le = prepara(x, fs, False, KIT_SECONDI.get(inst, DEFAULT_KIT_S))
-        zone.append(dict(root=inst, lo=inst, hi=inst, vel_lo=vel_lo, data=y, ls=0, le=0))
-        fonti.append((nome, url_of(fonte, path), 'VCSL, CC0' if fonte == V else 'Sonic Pi (freesound), CC0'))
-    print(f'{nome}: {len(zone)} strumenti')
+        if fs0 is None:
+            fs0 = fs
+        elif fs != fs0:
+            x = ricampiona(x, fs, fs0)
+        if somma is None:
+            somma = peso * x
+        else:
+            n = max(len(somma), len(x))
+            somma = np.pad(somma, (0, n - len(somma))) + np.pad(peso * x, (0, n - len(x)))
+    return somma, fs0
+
+
+def l50(y):
+    """intensità di un colpo: il massimo del valore efficace su finestre di 50 ms (dB)"""
+    x = y.astype('float64') / 32768.0
+    w = int(0.05 * FS_KIT)
+    if len(x) < w:
+        x = np.pad(x, (0, w - len(x)))
+    c = np.concatenate([[0.0], np.cumsum(x * x)])
+    return 10.0 * np.log10(max(float(np.max(c[w:] - c[:-w])) / w, 1e-12))
+
+
+def zone_kit(nome, strumenti, fonti):
+    """le zone di un kit (SND-544): per ogni strumento i suoi strati di velocity e, in ogni strato, i colpi
+    alternati; ogni zona normalizzata al picco, poi il guadagno dello strumento la porta alla sua intensità
+    rispetto alla cassa (batterie.LIVELLO_REL, misurata sullo strato più forte)"""
+    zone, misure = [], {}
+    for inst in range(12):
+        z_inst = []
+        for vel_lo, colpi in strumenti[inst]:
+            for colpo in colpi:
+                x, fs = leggi_colpo(colpo)
+                y, _, _ = prepara(x, fs, False, batterie.SECONDI.get(inst, batterie.SECONDI_DEF), FS=FS_KIT)
+                z_inst.append(dict(root=inst, lo=inst, hi=inst, vel_lo=vel_lo, data=y, ls=0, le=0, rate=FS_KIT))
+                for fonte, path, _ in colpo:
+                    fonti.append((nome, url_of(fonte, path), FONTE[fonte][2]))
+        top = max(z['vel_lo'] for z in z_inst)
+        misure[inst] = float(np.mean([l50(z['data']) for z in z_inst if z['vel_lo'] == top]))
+        zone += z_inst
+    rif = misure[0]                                        # la cassa resta al suo picco (−1 dBFS)
+    for z in zone:
+        i = z['root']
+        z['gain'] = float(min(1.12, 10 ** ((rif + batterie.LIVELLO_REL[i] - misure[i]) / 20.0)))
+    strati = sum(len(strumenti[i]) for i in range(12))
+    print(f'{nome}: {len(zone)} zone, {strati} strati, guadagni ' +
+          ' '.join(f'{20 * np.log10(next(z["gain"] for z in zone if z["root"] == i)):+.1f}' for i in range(12)))
     return zone
+
+
+def controlla_kit():
+    """ogni file dei kit deve esistere nell'albero della sua fonte (Sonic Pi non ha un albero: lo scaricamento)"""
+    alberi = {V: os.path.join(OUT, 'vcsl_tree.json')}
+    alberi.update({f: os.path.join(OUT, r.split('/')[1] + '.tree.json') for f, r in REPO.items()})
+    for f, nomefile in alberi.items():
+        if not os.path.exists(nomefile) and f in REPO:
+            print("scarico l'albero di", REPO[f])
+            with urllib.request.urlopen(f'https://api.github.com/repos/{REPO[f]}/git/trees/main?recursive=1',
+                                        timeout=60) as r:
+                open(nomefile, 'wb').write(r.read())
+    noti = {f: {e['path'] for e in json.load(open(n, encoding='utf-8'))['tree']} for f, n in alberi.items()}
+    mancano = [(k, f, p) for k, st in batterie.KIT.items() for strati in st.values() for _, colpi in strati
+               for colpo in colpi for f, p, _ in colpo if f in noti and p not in noti[f]]
+    for m in mancano:
+        print('manca:', *m)
+    if mancano:
+        sys.exit(f'{len(mancano)} file dei kit non esistono')
 
 
 def scrivi_banco(sets, path):
@@ -540,7 +548,7 @@ def scrivi_banco(sets, path):
         set_rec.append(struct.pack('<24sHHHH', nome.encode('ascii'), first, len(zone), flags, 0))
         for z in zone:
             y = z['data']
-            zone_rec.append(struct.pack('<IIIIIfBBBBI', off, len(y), z['ls'], z['le'], FS, 1.0,
+            zone_rec.append(struct.pack('<IIIIIfBBBBI', off, len(y), z['ls'], z['le'], z.get('rate', FS), z.get('gain', 1.0),
                                         z['root'], z['lo'], z['hi'], z['vel_lo'], 0))      # 32 byte
             dati.append(y.tobytes())
             off += len(y)
@@ -569,9 +577,15 @@ def scrivi_indice(sets):
 def scrivi_fonti(fonti):
     righe = ['# Fonti dei campioni di Stame', '',
              'Il banco `stame.smp` (costruito da `tools/campioni.py`, non nel repo) usa solo campioni **CC0** '
-             '(Creative Commons Zero: pubblico dominio), ricampionati a 32 kHz mono e tagliati.', '',
+             '(Creative Commons Zero: pubblico dominio), ricampionati a 32 kHz mono (le batterie a 48 kHz) e tagliati.', '',
              '- **VCSL**, Versilian Community Sample Library, CC0 1.0: <https://github.com/sgossner/VCSL>',
              '- **Sonic Pi**, campioni di freesound.org donati in CC0: <https://github.com/sonic-pi-net/sonic-pi/tree/dev/etc/samples>',
+             '- **Karoryfer Samples**, Big Rusty Drums e Unruly Drums, CC0 1.0: <https://github.com/sfzinstruments/karoryfer.big-rusty-drums>, '
+             '<https://github.com/sfzinstruments/karoryfer.unruly-drums>',
+             '- **Michael Fischer**, Roland TR-808 Sample Set (1994), CC0 1.0 nel repository di TidalCycles: '
+             '<https://github.com/tidalcycles/sounds-tr808-fischer>',
+             '- **MckAudio**, MckSamplePacks (Roland TR-8, Yamaha RX5, Alesis DR-5 registrate dall\'uscita), CC0 1.0: '
+             '<https://github.com/MckAudio/MckSamplePacks>',
              '- **Voci umane di Stame**: i set `choir_*` e `voice_*` non vengono da registrazioni: li genera '
              '`tools/voci.py` (sintesi additiva a formanti), codice di Stame; nessun campione di terzi',
              '', '| Set | File | Licenza |', '|---|---|---|']
@@ -608,8 +622,11 @@ def main(argv):
         for nome, note, tipi, vocale, quanti, par in voci.VOCI:      # dopo gli strumenti, prima dei kit
             sets.append((nome, 1, [] if solo_indice else voci.zone_set(nome, note, tipi, vocale, quanti, par)))
             fonti.append((nome, '`tools/voci.py`', 'sintesi di Stame, nessuna registrazione'))
-    for nome, strumenti in KIT.items():
-        sets.append((nome, 0, [] if solo_indice else zone_kit(nome, strumenti, fonti)))
+    if not solo_indice:
+        albero_vcsl()
+        controlla_kit()
+    for nome in batterie.ORDINE:
+        sets.append((nome, 0, [] if solo_indice else zone_kit(nome, batterie.KIT[nome], fonti)))
     scrivi_indice(sets)
     if solo_indice:
         print('indice scritto')

@@ -186,7 +186,7 @@ static int kit_used(void)
 /* «SYN  analog», «SMP  acoustic»: per la lista dei kit, come motore e famiglia dei suoni */
 static void kit_tag(char *buf, int n, int k)
 {
-    ui_fmt_cat(buf, n, k < KIT_CHIP ? "SMP  " : "SYN  ", beat_kit_style(k));
+    ui_fmt_cat(buf, n, beat_kit_set(k) ? "SMP  " : "SYN  ", beat_kit_style(k));
 }
 
 static void list_item(const vet_t *v, int kind, int i, ui_item_t *it)
@@ -1776,7 +1776,7 @@ static void fill_tempo_looper(vet_t *v, ui_model_t *m)
     t->kit_info[0] = 0;
     if (S.kit) {
         ui_fmt_copy(t->kit_name, sizeof t->kit_name, beat_kit_label(ku));
-        ui_fmt_cat(t->kit_info, sizeof t->kit_info, ku < KIT_CHIP ? "Samples, " : "Synth, ",
+        ui_fmt_cat(t->kit_info, sizeof t->kit_info, beat_kit_set(ku) ? "Samples, " : "Synth, ",
                    beat_kit_style(ku));
     } else {
         ui_fmt_copy(t->kit_name, sizeof t->kit_name, "Beat");

@@ -1,4 +1,5 @@
-/* test_smp.c — il campionatore (specifica 20, §7b; T-SND-50…54) e i kit dei Beat (SND-537). */
+/* test_smp.c — il campionatore (specifica 20, §7b; T-SND-50…54), i kit dei Beat (SND-537) e i colpi
+ * alternati dei kit a campioni (SND-544). */
 #include "test.h"
 #include "../../src/dsp/dsp.h"
 #include "../../src/dsp/drums.h"
@@ -258,6 +259,47 @@ static void test_beat_kits(void)
     CHECK(beat_kit(0) == NULL);
 }
 
+/* SND-544: due zone nello stesso strato si alternano colpo dopo colpo; lo strato forte ha la sua; un kit
+ * della libreria con i campioni porta il nome del suo set, uno senza no */
+static uint8_t blob_rr[((SMP_HEADER + SMP_SET_REC + 3 * SMP_ZONE_REC + 3) & ~3) + 2 * 3 * 64];
+
+static void test_kit_rr(void)
+{
+    const uint32_t off = (SMP_HEADER + SMP_SET_REC + 3 * SMP_ZONE_REC + 3) & ~3u;
+    memset(blob_rr, 0, sizeof blob_rr);
+    memcpy(blob_rr, "STMP", 4);
+    w16(blob_rr + 4, SMP_VERSION); w16(blob_rr + 6, 1); w16(blob_rr + 8, 3);
+    w32(blob_rr + 12, off); w32(blob_rr + 16, 3 * 64);
+    uint8_t *s = blob_rr + SMP_HEADER;
+    memcpy(s, "rr", 3); w16(s + 24, 0); w16(s + 26, 3); w16(s + 28, 0);
+    uint8_t *z = s + SMP_SET_REC;
+    zone(z, 0, 64, 0, 0, 48000, 1.0f, DRUM_KICK, DRUM_KICK, DRUM_KICK, 0);
+    zone(z + 32, 64, 64, 0, 0, 48000, 1.0f, DRUM_KICK, DRUM_KICK, DRUM_KICK, 0);
+    zone(z + 64, 128, 64, 0, 0, 48000, 1.0f, DRUM_KICK, DRUM_KICK, DRUM_KICK, 100);
+    int16_t *d = (int16_t *)(void *)(blob_rr + off);
+    for (int i = 0; i < 64; i++) { d[i] = 16000; d[64 + i] = 8000; d[128 + i] = -16000; }
+    static smp_bank_t b;
+    CHECK(smp_bank_parse(&b, blob_rr, sizeof blob_rr));
+    static drums_t K;
+    drums_init(&K, FS, 5);
+    drums_set_kit(&K, &b, smp_set_find(&b, "rr"));
+    int16_t primo[4];
+    for (int i = 0; i < 4; i++) {
+        drums_all_off(&K);
+        drums_hit(&K, DRUM_KICK, 50);
+        primo[i] = K.v[0].z ? K.v[0].z->data[0] : 0;
+    }
+    CHECK(primo[0] != primo[1] && primo[0] == primo[2] && primo[1] == primo[3]);
+    CHECK(primo[0] > 0 && primo[1] > 0);                /* sempre lo strato piano */
+    drums_all_off(&K);
+    drums_hit(&K, DRUM_KICK, 110);
+    CHECK(K.v[0].z && K.v[0].z->data[0] == -16000);     /* lo strato forte */
+    CHECK(beat_kit_set(KIT_SYN(DK_KIT_TAIKO)) && strcmp(beat_kit_set(KIT_SYN(DK_KIT_TAIKO)), "kit_taiko") == 0);
+    CHECK(beat_kit_set(KIT_SYN(DK_KIT_808_BOOM)) && strcmp(beat_kit_set(KIT_SYN(DK_KIT_808_BOOM)), "kit_808boom") == 0);
+    CHECK(beat_kit_set(KIT_SYN(DK_KIT_HEX_TOMS)) == NULL && beat_kit_name(KIT_SYN(DK_KIT_TAIKO)) == NULL);
+    CHECK(strcmp(beat_kit_set(KIT_STUDIO), "kit_studio") == 0 && beat_kit_set(KIT_CHIP) == NULL);
+}
+
 void test_smp(void)
 {
     test_parse();
@@ -266,4 +308,5 @@ void test_smp(void)
     test_oneshot();
     test_kit();
     test_beat_kits();
+    test_kit_rr();
 }
