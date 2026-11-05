@@ -46,11 +46,18 @@ enum {
     SMP_SET_BALAFON = 39,           /* 6 zone */
     SMP_SET_XYLOPHONE = 40,         /* 8 zone */
     SMP_SET_WINE_GLASSES = 41,      /* 4 zone */
-    SMP_SET_KIT_STUDIO = 42,        /* 13 zone */
-    SMP_SET_KIT_JAZZ = 43,          /* 13 zone */
-    SMP_SET_KIT_808 = 44,           /* 12 zone */
-    SMP_SET_KIT_TECHNO = 45,        /* 12 zone */
-    SMP_SET_COUNT = 46
+    SMP_SET_CHOIR_AAH = 42,         /* 13 zone */
+    SMP_SET_CHOIR_OOH = 43,         /* 13 zone */
+    SMP_SET_CHOIR_HUM = 44,         /* 13 zone */
+    SMP_SET_CHOIR_BREATH = 45,      /* 9 zone */
+    SMP_SET_CHOIR_KIDS = 46,        /* 7 zone */
+    SMP_SET_VOICE_FEMALE = 47,      /* 10 zone */
+    SMP_SET_VOICE_MALE = 48,        /* 10 zone */
+    SMP_SET_KIT_STUDIO = 49,        /* 13 zone */
+    SMP_SET_KIT_JAZZ = 50,          /* 13 zone */
+    SMP_SET_KIT_808 = 51,           /* 12 zone */
+    SMP_SET_KIT_TECHNO = 52,        /* 12 zone */
+    SMP_SET_COUNT = 53
 };
 
 #endif

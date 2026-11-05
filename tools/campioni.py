@@ -3,6 +3,7 @@
 Scarica i campioni CC0 scelti da due fonti, li prepara e li scrive nel formato del banco:
   - VCSL (Versilian Community Sample Library, CC0): https://github.com/sgossner/VCSL
   - Sonic Pi (campioni CC0 da freesound, per le batterie): https://github.com/sonic-pi-net/sonic-pi
+e aggiunge i set di voci umane sintetizzati da tools/voci.py (SND-378), che non scaricano niente.
 I file scaricati restano in private/samples/ (fuori da git). Escono:
   - build/campioni/stame.smp            il banco (mono, 16 bit, 32 kHz; va nel pacchetto della Flip)
   - build/campioni/indice.json          i set e le zone, per controllo
@@ -30,6 +31,9 @@ import numpy as np
 import soundfile as sf
 
 QUI = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, QUI)                                    # con python -I la cartella dello script non c'è
+import voci                                                # noqa: E402 — i set di voci umane (SND-378)
+
 RADICE = os.path.dirname(QUI)
 CACHE = os.path.join(RADICE, 'private', 'samples')
 OUT = os.path.join(RADICE, 'build', 'campioni')
@@ -568,9 +572,11 @@ def scrivi_fonti(fonti):
              '(Creative Commons Zero: pubblico dominio), ricampionati a 32 kHz mono e tagliati.', '',
              '- **VCSL**, Versilian Community Sample Library, CC0 1.0: <https://github.com/sgossner/VCSL>',
              '- **Sonic Pi**, campioni di freesound.org donati in CC0: <https://github.com/sonic-pi-net/sonic-pi/tree/dev/etc/samples>',
+             '- **Voci umane di Stame**: i set `choir_*` e `voice_*` non vengono da registrazioni: li genera '
+             '`tools/voci.py` (sintesi additiva a formanti), codice di Stame; nessun campione di terzi',
              '', '| Set | File | Licenza |', '|---|---|---|']
     for nome, url, lic in fonti:
-        righe.append(f'| {nome} | <{url}> | {lic} |')
+        righe.append(f'| {nome} | {url if url.startswith("`") else "<" + url + ">"} | {lic} |')
     righe.append('')
     os.makedirs(os.path.join(RADICE, 'assets', 'campioni'), exist_ok=True)
     with open(os.path.join(RADICE, 'assets', 'campioni', 'FONTI.md'), 'w', encoding='utf-8', newline='\n') as f:
@@ -598,8 +604,12 @@ def main(argv):
                 continue
             albero_vcsl()
             sets.append((nome, 1 if loop else 0, zone_strumento(nome, cartella, rx, passo, loop, max_s, oct_nome, fonti)))
-    for nome, voci in KIT.items():
-        sets.append((nome, 0, [] if solo_indice else zone_kit(nome, voci, fonti)))
+    if not solo_kit:
+        for nome, note, tipi, vocale, quanti, par in voci.VOCI:      # dopo gli strumenti, prima dei kit
+            sets.append((nome, 1, [] if solo_indice else voci.zone_set(nome, note, tipi, vocale, quanti, par)))
+            fonti.append((nome, '`tools/voci.py`', 'sintesi di Stame, nessuna registrazione'))
+    for nome, strumenti in KIT.items():
+        sets.append((nome, 0, [] if solo_indice else zone_kit(nome, strumenti, fonti)))
     scrivi_indice(sets)
     if solo_indice:
         print('indice scritto')

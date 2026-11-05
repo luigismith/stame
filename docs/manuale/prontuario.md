@@ -82,7 +82,7 @@ T14 AMBIENT: Stame suona quasi da solo (accordi nella tonalità di Key, basso, n
 
 | | Gira | Premi | Tieni | Premi e gira |
 |---|---|---|---|---|
-| Sound | 232 suoni (181 di sintesi, 51 campionati) | lista | prev. Save | — |
+| Sound | 240 suoni (181 di sintesi, 59 campionati, fra cui le voci umane 233–240) | lista | prev. Save | — |
 | Perform | quantità (0 = off) | lista dei modi | Lock | — |
 | FX | 0…10 | mostra | Lock | — |
 | Key | tonalità | Key mode | prev. scelta rapida | Transpose ±12 |

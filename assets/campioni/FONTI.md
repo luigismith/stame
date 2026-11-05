@@ -4,6 +4,7 @@ Il banco `stame.smp` (costruito da `tools/campioni.py`, non nel repo) usa solo c
 
 - **VCSL**, Versilian Community Sample Library, CC0 1.0: <https://github.com/sgossner/VCSL>
 - **Sonic Pi**, campioni di freesound.org donati in CC0: <https://github.com/sonic-pi-net/sonic-pi/tree/dev/etc/samples>
+- **Voci umane di Stame**: i set `choir_*` e `voice_*` non vengono da registrazioni: li genera `tools/voci.py` (sintesi additiva a formanti), codice di Stame; nessun campione di terzi
 
 | Set | File | Licenza |
 |---|---|---|
@@ -504,6 +505,13 @@ Il banco `stame.smp` (costruito da `tools/campioni.py`, non nel repo) usa solo c
 | wine_glasses | <https://raw.githubusercontent.com/sgossner/VCSL/master/Idiophones/Friction%20Idiophones/Wine%20Glasses/Sustains/Slow/glass2_F%234_Slow_1_Main.wav> | VCSL, CC0 |
 | wine_glasses | <https://raw.githubusercontent.com/sgossner/VCSL/master/Idiophones/Friction%20Idiophones/Wine%20Glasses/Sustains/Slow/glass3_A%234_Slow_1_Main.wav> | VCSL, CC0 |
 | wine_glasses | <https://raw.githubusercontent.com/sgossner/VCSL/master/Idiophones/Friction%20Idiophones/Wine%20Glasses/Sustains/Slow/glass4_D5_Slow_2_Main.wav> | VCSL, CC0 |
+| choir_aah | `tools/voci.py` | sintesi di Stame, nessuna registrazione |
+| choir_ooh | `tools/voci.py` | sintesi di Stame, nessuna registrazione |
+| choir_hum | `tools/voci.py` | sintesi di Stame, nessuna registrazione |
+| choir_breath | `tools/voci.py` | sintesi di Stame, nessuna registrazione |
+| choir_kids | `tools/voci.py` | sintesi di Stame, nessuna registrazione |
+| voice_female | `tools/voci.py` | sintesi di Stame, nessuna registrazione |
+| voice_male | `tools/voci.py` | sintesi di Stame, nessuna registrazione |
 | kit_studio | <https://raw.githubusercontent.com/sgossner/VCSL/master/Membranophones/Struck%20Membranophones/Bass%20Drum%201/BDrumNew_hit_v5_rr1_Sum.wav> | VCSL, CC0 |
 | kit_studio | <https://raw.githubusercontent.com/sgossner/VCSL/master/Membranophones/Struck%20Membranophones/Snare%20Drum%2C%20Modern%202/Snare3M_Xstick_v2_rr1_Mid.wav> | VCSL, CC0 |
 | kit_studio | <https://raw.githubusercontent.com/sgossner/VCSL/master/Membranophones/Struck%20Membranophones/Snare%20Drum%2C%20Modern%201/Snare2_HitSN_v6_rr1_Mid.wav> | VCSL, CC0 |

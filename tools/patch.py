@@ -1018,6 +1018,32 @@ SUONI += [
         **fx(1, PHASER, 50, 60, 80, 100), **fx(2, DELAY, 2, 40, 60, 80, 127, 40))),
 ]
 
+# ---- ottava ondata (05/11/2026), Luigi: «crea qualche set di voci umane». Otto suoni sui sette set di voci
+# del banco (SND-378, sintetizzati da tools/voci.py): cori sulla «a», sulla «u», a bocca chiusa, di fiato e di
+# voci bianche, due solisti e un pad di voci. La velocity apre il filtro: più forte, più chiaro ----
+if 'CHOIR_AAH' in SET_IDX:
+    SUONI += [
+        ('Choir Aah', patch(SMP, [], SMPSET=set_idx('choir_aah'), GVELO=45, FTYPE=1, CUTOFF=104, FVELO=30, FKT=20,
+            E2A=30, E2D=64, E2S=127, E2R=62, GAIN=74, REVSEND=66, REVSIZE=120, REVLP=96)),
+        ('Choir Ooh', patch(SMP, [], SMPSET=set_idx('choir_ooh'), GVELO=40, FTYPE=1, CUTOFF=100, FVELO=30, FKT=20,
+            E2A=36, E2D=64, E2S=127, E2R=66, GAIN=76, REVSEND=70, REVSIZE=122, REVLP=90)),
+        ('Humming Choir', patch(SMP, [], SMPSET=set_idx('choir_hum'), GVELO=40, FTYPE=1, CUTOFF=96, FVELO=24,
+            E2A=34, E2D=64, E2S=127, E2R=60, GAIN=76, REVSEND=60, REVSIZE=116, REVLP=84)),
+        ('Breath Choir', patch(SMP, [(LFO[1], D_CUTOFF, 76)], SMPSET=set_idx('choir_breath'), GVELO=30,   # il fiato che va e viene
+            FTYPE=1, CUTOFF=96, FVELO=20, L1SHAPE=L_SINE, L1RATE=18, L1MODE=L_FREE,
+            E2A=56, E2D=64, E2S=127, E2R=80, GAIN=74, REVSEND=84, REVSIZE=126, REVLP=88, **fx(1, ENSEMBLE, 30, 80, 50, 40))),
+        ('Kids Choir', patch(SMP, [], SMPSET=set_idx('choir_kids'), GVELO=40, FTYPE=1, CUTOFF=106, FVELO=24,
+            E2A=26, E2D=64, E2S=127, E2R=70, GAIN=74, REVSEND=80, REVSIZE=126, REVLP=100)),
+        ('Soprano Voice', patch(SMP, [], SMPSET=set_idx('voice_female'), GVELO=60, FTYPE=1, CUTOFF=106, FVELO=36,
+            FKT=20, E2A=8, E2D=64, E2S=127, E2R=46, GAIN=76, REVSEND=56, REVSIZE=118, REVLP=96)),
+        ('Tenor Voice', patch(SMP, [], SMPSET=set_idx('voice_male'), GVELO=60, FTYPE=1, CUTOFF=100, FVELO=36,
+            FKT=20, E2A=8, E2D=64, E2S=127, E2R=44, GAIN=76, REVSEND=50, REVSIZE=116, REVLP=92)),
+        ('Vox Pad', patch(SMP, [(LFO[1], D_CUTOFF, 84)], SMPSET=set_idx('choir_aah'), GVELO=30,   # la «a» che si chiude in «u» e riapre
+            FTYPE=1, CUTOFF=78, RESONANCE=24, FKT=30, L1SHAPE=L_SINE, L1RATE=14, L1MODE=L_FREE,
+            E2A=64, E2D=64, E2S=127, E2R=84, GAIN=74, REVSEND=80, REVSIZE=126, REVLP=80,
+            **fx(1, ENSEMBLE, 34, 90, 60, 40), **fx(2, DELAY, 1, 34, 40, 60, 110, 20))),
+    ]
+
 # famiglia di ogni suono, per la lista e il dettaglio della cella (UI-152)
 FAMIGLIA = {
     'Hothouse Piano': 'pad', 'Seedling Box': 'bell', 'Harmonium Moss': 'reed', 'Steel Petal': 'mallet',
@@ -1075,6 +1101,8 @@ FAMIGLIA = {
     'Sunflower Saw': 'lead', 'Euphorbia Pad': 'pad', 'Gated Lily': 'stab', 'Bluebell Pluck': 'pluck',
     'Magnolia Lead': 'lead', 'Daybreak Arp': 'pluck', 'Willow Strings': 'strings', 'Laser Fern': 'lead',
     'Snowdrop Bell': 'bell', 'Angelica Choir': 'voice',
+    'Choir Aah': 'voice', 'Choir Ooh': 'voice', 'Humming Choir': 'voice', 'Breath Choir': 'voice', 'Kids Choir': 'voice',
+    'Soprano Voice': 'voice', 'Tenor Voice': 'voice', 'Vox Pad': 'voice',
     'Psilocybe Lead': 'acid', 'Amanita Zap': 'texture', 'Peyote Acid': 'acid', 'Ayahuasca Vine': 'drone',
     'Salvia Squelch': 'stab', 'Morning Glory': 'lead', 'Lotus Mandala': 'pluck', 'Kava Pluck': 'pluck',
     'Ergot Scream': 'lead', 'Toadstool Riser': 'texture',
@@ -1254,6 +1282,8 @@ LIVELLO_DB = {
     'Snowdrop Bell': 0.2, 'Angelica Choir': 2.6, 'Psilocybe Lead': -3.5, 'Amanita Zap': 1.3, 'Peyote Acid': -3.5,
     'Ayahuasca Vine': -6.0, 'Salvia Squelch': 4.5, 'Morning Glory': 1.4, 'Lotus Mandala': 2.7, 'Kava Pluck': 1.4,
     'Ergot Scream': 1.3, 'Toadstool Riser': -1.3,
+    'Choir Aah': 0.4, 'Choir Ooh': -1.9, 'Humming Choir': -1.5, 'Breath Choir': 4.4, 'Kids Choir': -1.4,   # 05/11/2026
+    'Soprano Voice': -1.1, 'Tenor Voice': 0.1, 'Vox Pad': 0.5,
     'Bedrock Sub': 2.1, 'Mariana Sub': 3.6, 'Root Cellar': 3.5, 'Hadal Drone': 4.0, 'Tectonic': 1.8,
     'Abyssal Reese': 0.3, 'Groundwater': 4.3, 'Dub Pressure': 3.0, 'Rolling Root': 6.8, 'Goa Gallop': 1.9,
     'Tendril FM': 9.0, 'Offbeat Ivy': 2.9, 'Rubber Plant': 3.2, 'Night Sap': 6.2,
